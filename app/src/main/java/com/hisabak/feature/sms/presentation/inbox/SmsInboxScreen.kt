@@ -51,6 +51,7 @@ fun SmsInboxScreen(
     onDraftChange: (String) -> Unit,
     onIngest: () -> Unit,
     onDelete: (SmsMessageId) -> Unit,
+    onEnableAutoImport: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Scaffold(
@@ -59,6 +60,10 @@ fun SmsInboxScreen(
         snackbarHost = { SnackbarHost(snackbarHostState) },
     ) { padding ->
         Column(modifier = Modifier.padding(padding).fillMaxSize()) {
+            AutoImportBanner(
+                granted = state.autoImportGranted,
+                onEnable = onEnableAutoImport,
+            )
             IngestCard(
                 draft = state.draftBody,
                 isProcessing = state.isProcessing,
@@ -86,6 +91,42 @@ fun SmsInboxScreen(
                         HorizontalDivider()
                     }
                 }
+            }
+        }
+    }
+}
+
+@Composable
+private fun AutoImportBanner(granted: Boolean, onEnable: () -> Unit) {
+    ElevatedCard(Modifier.fillMaxWidth().padding(start = 16.dp, end = 16.dp, top = 16.dp)) {
+        Row(
+            Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            Icon(
+                imageVector = Icons.Filled.Check,
+                contentDescription = null,
+                tint = if (granted) Color(0xFF00695C) else MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.size(20.dp),
+            )
+            Column(Modifier.weight(1f)) {
+                Text(
+                    if (granted) "Auto-import is on" else "Auto-import incoming SMS",
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.SemiBold,
+                )
+                Text(
+                    if (granted)
+                        "New bank SMS will be parsed automatically in the background."
+                    else
+                        "Grant SMS access to turn every matching bank SMS into a transaction.",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+            if (!granted) {
+                Button(onClick = onEnable) { Text("Enable") }
             }
         }
     }

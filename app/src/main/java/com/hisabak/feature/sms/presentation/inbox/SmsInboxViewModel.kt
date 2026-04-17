@@ -37,6 +37,8 @@ class SmsInboxViewModel(
             SmsInboxIntent.IngestDraft -> ingestDraft()
             is SmsInboxIntent.Delete ->
                 viewModelScope.launch { deleteSms(intent.id) }
+            is SmsInboxIntent.PermissionChanged ->
+                setState { copy(autoImportGranted = intent.granted) }
             SmsInboxIntent.ConsumeEffect -> clearEffect()
         }
     }

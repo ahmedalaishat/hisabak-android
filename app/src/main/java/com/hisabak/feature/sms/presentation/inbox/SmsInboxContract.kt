@@ -22,6 +22,7 @@ data class SmsInboxUiState(
     val draftBody: String = "",
     val isProcessing: Boolean = false,
     val isLoading: Boolean = true,
+    val autoImportGranted: Boolean = false,
 ) : ViewState
 
 sealed interface SmsInboxIntent : ViewIntent {
@@ -29,6 +30,7 @@ sealed interface SmsInboxIntent : ViewIntent {
     data class DraftChanged(val body: String) : SmsInboxIntent
     data object IngestDraft : SmsInboxIntent
     data class Delete(val id: SmsMessageId) : SmsInboxIntent
+    data class PermissionChanged(val granted: Boolean) : SmsInboxIntent
     data object ConsumeEffect : SmsInboxIntent
 }
 
