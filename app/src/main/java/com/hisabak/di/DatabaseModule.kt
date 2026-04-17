@@ -12,10 +12,13 @@ val databaseModule = module {
             context = androidContext(),
             klass = HisabakDatabase::class.java,
             name = HisabakDatabase.NAME,
-        ).build()
+        )
+            .fallbackToDestructiveMigration(dropAllTables = true)
+            .build()
     }
     single { get<HisabakDatabase>().categoryDao() }
     single { get<HisabakDatabase>().brandDao() }
     single { get<HisabakDatabase>().transactionDao() }
+    single { get<HisabakDatabase>().smsDao() }
     single { DatabaseSeeder(db = get(), seed = get()) }
 }
