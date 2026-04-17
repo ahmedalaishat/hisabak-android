@@ -2,11 +2,15 @@ package com.hisabak.feature.category
 
 import com.hisabak.di.SeedData
 import com.hisabak.feature.category.data.InMemoryCategoryRepository
+import com.hisabak.feature.category.domain.CategoryId
 import com.hisabak.feature.category.domain.CategoryRepository
 import com.hisabak.feature.category.domain.usecase.CreateCategoryUseCase
 import com.hisabak.feature.category.domain.usecase.DeleteCategoryUseCase
 import com.hisabak.feature.category.domain.usecase.ObserveCategoriesUseCase
 import com.hisabak.feature.category.domain.usecase.UpdateCategoryUseCase
+import com.hisabak.feature.category.presentation.edit.CategoryEditViewModel
+import com.hisabak.feature.category.presentation.list.CategoryListViewModel
+import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
 
 val categoryModule = module {
@@ -16,4 +20,20 @@ val categoryModule = module {
     factory { CreateCategoryUseCase(get(), get()) }
     factory { UpdateCategoryUseCase(get(), get()) }
     factory { DeleteCategoryUseCase(get()) }
+
+    viewModel {
+        CategoryListViewModel(
+            observeCategories = get(),
+            deleteCategory = get(),
+        )
+    }
+
+    viewModel { (categoryId: CategoryId?) ->
+        CategoryEditViewModel(
+            categoryId = categoryId,
+            categoryRepository = get(),
+            createCategory = get(),
+            updateCategory = get(),
+        )
+    }
 }
