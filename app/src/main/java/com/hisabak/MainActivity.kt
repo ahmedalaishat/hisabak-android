@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.Category
+import androidx.compose.material.icons.filled.SpaceDashboard
 import androidx.compose.material.icons.filled.Storefront
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
@@ -30,6 +31,7 @@ import com.hisabak.feature.brand.presentation.list.BrandListRoute
 import com.hisabak.feature.category.domain.CategoryId
 import com.hisabak.feature.category.presentation.edit.CategoryEditRoute
 import com.hisabak.feature.category.presentation.list.CategoryListRoute
+import com.hisabak.feature.dashboard.presentation.DashboardRoute
 import com.hisabak.feature.transaction.domain.TransactionId
 import com.hisabak.feature.transaction.presentation.edit.TransactionEditRoute
 import com.hisabak.feature.transaction.presentation.list.TransactionListRoute
@@ -48,6 +50,7 @@ class MainActivity : ComponentActivity() {
 }
 
 private enum class RootTab(val label: String, val icon: ImageVector) {
+    Dashboard("Dashboard", Icons.Filled.SpaceDashboard),
     Transactions("Transactions", Icons.AutoMirrored.Filled.List),
     Brands("Brands", Icons.Filled.Storefront),
     Categories("Categories", Icons.Filled.Category),
@@ -70,7 +73,7 @@ private sealed interface CategoriesNav {
 
 @Composable
 private fun HisabakNav() {
-    var currentTab by rememberSaveable { mutableStateOf(RootTab.Transactions) }
+    var currentTab by rememberSaveable { mutableStateOf(RootTab.Dashboard) }
     var txNav: TransactionsNav by remember { mutableStateOf(TransactionsNav.List) }
     var brandNav: BrandsNav by remember { mutableStateOf(BrandsNav.List) }
     var catNav: CategoriesNav by remember { mutableStateOf(CategoriesNav.List) }
@@ -91,6 +94,7 @@ private fun HisabakNav() {
     ) { padding ->
         val tabModifier = Modifier.fillMaxSize().padding(padding)
         when (currentTab) {
+            RootTab.Dashboard -> DashboardRoute(modifier = tabModifier)
             RootTab.Transactions -> TransactionsGraph(
                 nav = txNav,
                 onNavChange = { txNav = it },
