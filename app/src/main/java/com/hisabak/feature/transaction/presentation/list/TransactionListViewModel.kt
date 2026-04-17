@@ -15,8 +15,9 @@ import com.hisabak.feature.transaction.domain.usecase.ObserveTransactionsUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -30,8 +31,10 @@ class TransactionListViewModel(
 
     private val searchQuery = MutableStateFlow("")
 
-    @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
+    @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class, kotlinx.coroutines.FlowPreview::class)
     val uiState: StateFlow<TransactionListUiState> = searchQuery
+        .debounce { if (it.isEmpty()) 0L else SEARCH_DEBOUNCE_MS }
+        .distinctUntilChanged()
         .flatMapLatest { query ->
             val filter = if (query.isBlank()) TransactionFilter.NONE
             else TransactionFilter(search = query)
@@ -75,5 +78,9 @@ class TransactionListViewModel(
 
     fun onDelete(id: TransactionId) {
         viewModelScope.launch { deleteTransaction(id) }
+    }
+
+    private companion object {
+        const val SEARCH_DEBOUNCE_MS = 250L
     }
 }
