@@ -1,7 +1,6 @@
 package com.hisabak.feature.transaction
 
-import com.hisabak.di.SeedData
-import com.hisabak.feature.transaction.data.InMemoryTransactionRepository
+import com.hisabak.feature.transaction.data.RoomTransactionRepository
 import com.hisabak.feature.transaction.domain.TransactionId
 import com.hisabak.feature.transaction.domain.TransactionRepository
 import com.hisabak.feature.transaction.domain.usecase.CreateTransactionUseCase
@@ -15,7 +14,7 @@ import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
 
 val transactionModule = module {
-    single<TransactionRepository> { InMemoryTransactionRepository(seed = get<SeedData>().transactions) }
+    single<TransactionRepository> { RoomTransactionRepository(dao = get()) }
 
     factory { ObserveTransactionsUseCase(get()) }
     factory { GetTransactionsPageUseCase(get()) }
