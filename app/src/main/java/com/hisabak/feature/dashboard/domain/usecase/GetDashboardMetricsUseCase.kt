@@ -9,6 +9,7 @@ import com.hisabak.feature.category.domain.Category
 import com.hisabak.feature.category.domain.CategoryType
 import com.hisabak.feature.category.domain.usecase.ObserveCategoriesUseCase
 import com.hisabak.feature.dashboard.domain.BrandShare
+import com.hisabak.feature.dashboard.domain.CategoryOption
 import com.hisabak.feature.dashboard.domain.CategoryShare
 import com.hisabak.feature.dashboard.domain.DashboardSnapshot
 import com.hisabak.feature.dashboard.domain.DayPoint
@@ -94,11 +95,19 @@ class GetDashboardMetricsUseCase(
             currency = currency,
         )
 
-        val overallIncomeTrend = buildMonthlySum(
-            transactions.filter { typeOf(it) == CategoryType.INCOME },
-            zone,
-        )
-        val dailyExpenseTrend = dailySeriesForMonth(monthTxs, zone, currentMonth) { typeOf(it) == CategoryType.EXPENSES }
+        val categoryOf: (Transaction) -> Category? = { brandById[it.brandId]?.categoryId?.let(catById::get) }
+        val txsByCategory = transactions.groupBy { categoryOf(it)?.id }
+        val monthTxsByCategory = monthTxs.groupBy { categoryOf(it)?.id }
+
+        val overallTrendByCategory = categories.associate { cat ->
+            cat.id to buildMonthlySum(txsByCategory[cat.id].orEmpty(), zone)
+        }
+        val dailyTrendByCategory = categories.associate { cat ->
+            cat.id to dailySeriesForMonth(monthTxsByCategory[cat.id].orEmpty(), zone, currentMonth) { true }
+        }
+        val categoryOptions = categories
+            .sortedBy { it.name.lowercase() }
+            .map { CategoryOption(id = it.id, name = it.name, color = it.color, type = it.type) }
 
         val expenseByBrand = brandBreakdown(
             transactions = monthTxs.filter { typeOf(it) == CategoryType.EXPENSES },
@@ -125,8 +134,9 @@ class GetDashboardMetricsUseCase(
             expenseDaily = expenseDaily,
             incomeByCategory = incomeByCategory,
             expenseByCategory = expenseByCategory,
-            overallIncomeTrend = overallIncomeTrend,
-            dailyExpenseTrend = dailyExpenseTrend,
+            categoryOptions = categoryOptions,
+            overallTrendByCategory = overallTrendByCategory,
+            dailyTrendByCategory = dailyTrendByCategory,
             expenseByBrand = expenseByBrand,
             topBrandTrend = topBrandTrend,
             topBrandName = topBrand?.name,

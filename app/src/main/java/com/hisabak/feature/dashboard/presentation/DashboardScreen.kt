@@ -20,21 +20,32 @@ import androidx.compose.material.icons.filled.TrendingUp
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.MenuAnchorType
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.hisabak.core.common.Money
+import com.hisabak.feature.category.domain.CategoryId
 import com.hisabak.feature.category.presentation.CategoryStyle
 import com.hisabak.feature.dashboard.domain.BrandShare
+import com.hisabak.feature.dashboard.domain.CategoryOption
 import com.hisabak.feature.dashboard.domain.CategoryShare
 import com.hisabak.feature.dashboard.domain.DashboardSnapshot
 import com.hisabak.feature.dashboard.domain.DayPoint
@@ -47,7 +58,12 @@ import kotlin.math.abs
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DashboardScreen(state: DashboardUiState, modifier: Modifier = Modifier) {
+fun DashboardScreen(
+    state: DashboardUiState,
+    onOverallCategoryChanged: (CategoryId) -> Unit,
+    onDailyCategoryChanged: (CategoryId) -> Unit,
+    modifier: Modifier = Modifier,
+) {
     Scaffold(
         topBar = { TopAppBar(title = { Text("Dashboard") }) },
         modifier = modifier,
@@ -70,7 +86,15 @@ fun DashboardScreen(state: DashboardUiState, modifier: Modifier = Modifier) {
             item { OverTimeRow(snap) }
             item { SectionHeader("Categories Analytics") }
             item { CategoryDonutsRow(snap) }
-            item { CategoryTrendsRow(snap) }
+            item {
+                CategoryTrendsRow(
+                    snap = snap,
+                    overallCategoryId = state.overallTrendCategoryId,
+                    dailyCategoryId = state.dailyTrendCategoryId,
+                    onOverallCategoryChanged = onOverallCategoryChanged,
+                    onDailyCategoryChanged = onDailyCategoryChanged,
+                )
+            }
             item { SectionHeader("Brands Analytics") }
             item { BrandRow(snap) }
         }
@@ -305,22 +329,106 @@ private fun LegendRow(color: Color, label: String, pct: Double) {
 }
 
 @Composable
-private fun CategoryTrendsRow(snap: DashboardSnapshot) {
+private fun CategoryTrendsRow(
+    snap: DashboardSnapshot,
+    overallCategoryId: CategoryId?,
+    dailyCategoryId: CategoryId?,
+    onOverallCategoryChanged: (CategoryId) -> Unit,
+    onDailyCategoryChanged: (CategoryId) -> Unit,
+) {
+    val overallPoints = overallCategoryId?.let { snap.overallTrendByCategory[it] }.orEmpty()
+    val dailyPoints = dailyCategoryId?.let { snap.dailyTrendByCategory[it] }.orEmpty()
+    val overallTotal = overallPoints.sumOf { it.amountMinor }
+    val dailyTotal = dailyPoints.sumOf { it.amountMinor }
     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        TrendCard(
-            title = "Overall Trend — Income",
-            totalLabel = totalOf(snap.overallIncomeTrend),
-            values = snap.overallIncomeTrend.map { it.amountMinor / 100.0 },
+        CategoryTrendCard(
+            title = "Overall Trend by Category",
+            totalLabel = formatCompactUnits(overallTotal),
+            values = overallPoints.map { it.amountMinor / 100.0 },
             color = MaterialTheme.colorScheme.primary,
+            options = snap.categoryOptions,
+            selectedId = overallCategoryId,
+            onSelected = onOverallCategoryChanged,
             modifier = Modifier.weight(1f),
         )
-        TrendCard(
-            title = "Daily Trend — Expenses",
-            totalLabel = formatCompactMoney(snap.expenseMonth),
-            values = snap.dailyExpenseTrend.map { it.amountMinor / 100.0 },
+        CategoryTrendCard(
+            title = "Daily Trend by Category",
+            totalLabel = formatCompactUnits(dailyTotal),
+            values = dailyPoints.map { it.amountMinor / 100.0 },
             color = Color(0xFFC62828),
+            options = snap.categoryOptions,
+            selectedId = dailyCategoryId,
+            onSelected = onDailyCategoryChanged,
             modifier = Modifier.weight(1f),
         )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun CategoryTrendCard(
+    title: String,
+    totalLabel: String,
+    values: List<Double>,
+    color: Color,
+    options: List<CategoryOption>,
+    selectedId: CategoryId?,
+    onSelected: (CategoryId) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val selected = options.firstOrNull { it.id == selectedId }
+    var expanded by remember { mutableStateOf(false) }
+    MetricCard(modifier = modifier) {
+        Text(title, style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant)
+        ExposedDropdownMenuBox(
+            expanded = expanded,
+            onExpandedChange = { expanded = it },
+        ) {
+            OutlinedTextField(
+                value = selected?.name ?: "—",
+                onValueChange = {},
+                readOnly = true,
+                singleLine = true,
+                textStyle = MaterialTheme.typography.labelSmall,
+                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .menuAnchor(MenuAnchorType.PrimaryNotEditable),
+            )
+            ExposedDropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { expanded = false },
+            ) {
+                options.forEach { option ->
+                    DropdownMenuItem(
+                        text = { Text(option.name) },
+                        leadingIcon = {
+                            Box(Modifier.size(10.dp).background(
+                                CategoryStyle.color(option.color), CircleShape))
+                        },
+                        onClick = {
+                            onSelected(option.id)
+                            expanded = false
+                        },
+                    )
+                }
+            }
+        }
+        Text(
+            totalLabel,
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.SemiBold,
+            modifier = Modifier.padding(top = 4.dp),
+        )
+        if (values.isNotEmpty()) {
+            AreaLineChart(
+                values = values,
+                lineColor = color,
+                fillColor = color.copy(alpha = 0.15f),
+                modifier = Modifier.fillMaxWidth().padding(top = 4.dp),
+            )
+        }
     }
 }
 
