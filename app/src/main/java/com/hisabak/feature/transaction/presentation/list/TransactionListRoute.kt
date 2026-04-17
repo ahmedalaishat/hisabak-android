@@ -12,14 +12,12 @@ fun TransactionListRoute(
     onEdit: (TransactionId) -> Unit,
     viewModel: TransactionListViewModel = koinViewModel(),
 ) {
-    val state by viewModel.uiState.collectAsStateWithLifecycle()
-    val search by viewModel.searchQuery.collectAsStateWithLifecycle()
+    val state by viewModel.state.collectAsStateWithLifecycle()
 
     TransactionListScreen(
         state = state,
-        search = search,
-        onSearchChange = viewModel::onSearchChange,
-        onDelete = viewModel::onDelete,
+        onSearchChange = { viewModel.onIntent(TransactionListIntent.SearchChanged(it)) },
+        onDelete = { viewModel.onIntent(TransactionListIntent.Delete(it)) },
         onAdd = onAdd,
         onEdit = onEdit,
     )

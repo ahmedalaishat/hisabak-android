@@ -1,7 +1,7 @@
 package com.hisabak.feature.transaction.presentation.list
 
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.hisabak.core.presentation.BaseViewModel
 import com.hisabak.feature.brand.domain.Brand
 import com.hisabak.feature.brand.domain.BrandId
 import com.hisabak.feature.brand.domain.usecase.ObserveBrandsUseCase
@@ -10,60 +10,58 @@ import com.hisabak.feature.category.domain.CategoryId
 import com.hisabak.feature.category.domain.usecase.ObserveCategoriesUseCase
 import com.hisabak.feature.transaction.domain.Transaction
 import com.hisabak.feature.transaction.domain.TransactionFilter
-import com.hisabak.feature.transaction.domain.TransactionId
 import com.hisabak.feature.transaction.domain.usecase.DeleteTransactionUseCase
 import com.hisabak.feature.transaction.domain.usecase.ObserveTransactionsUseCase
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
 class TransactionListViewModel(
-    observeTransactions: ObserveTransactionsUseCase,
-    observeBrands: ObserveBrandsUseCase,
-    observeCategories: ObserveCategoriesUseCase,
+    private val observeTransactions: ObserveTransactionsUseCase,
+    private val observeBrands: ObserveBrandsUseCase,
+    private val observeCategories: ObserveCategoriesUseCase,
     private val deleteTransaction: DeleteTransactionUseCase,
-) : ViewModel() {
+) : BaseViewModel<TransactionListIntent, TransactionListUiState, TransactionListEffect>() {
 
-    private val _searchQuery = MutableStateFlow("")
-    val searchQuery: StateFlow<String> = _searchQuery.asStateFlow()
+    override fun initialState() = TransactionListUiState()
 
-    @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class, kotlinx.coroutines.FlowPreview::class)
-    val uiState: StateFlow<TransactionListUiState> = _searchQuery
-        .debounce { if (it.isEmpty()) 0L else SEARCH_DEBOUNCE_MS }
-        .distinctUntilChanged()
-        .flatMapLatest { query ->
-            val filter = if (query.isBlank()) TransactionFilter.NONE
-            else TransactionFilter(search = query)
-            combine(
-                observeTransactions(filter),
-                observeBrands(),
-                observeCategories(),
-            ) { txs, brands, categories ->
-                TransactionListUiState(
-                    rows = buildRows(txs, brands, categories),
-                    isLoading = false,
-                )
-            }
-        }
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5_000),
-            initialValue = TransactionListUiState(isLoading = true),
-        )
-
-    fun onSearchChange(query: String) {
-        _searchQuery.value = query
+    init {
+        observeRowsBasedOnSearch()
     }
 
-    fun onDelete(id: TransactionId) {
-        viewModelScope.launch { deleteTransaction(id) }
+    override fun onIntent(intent: TransactionListIntent) {
+        when (intent) {
+            is TransactionListIntent.SearchChanged ->
+                setState { copy(search = intent.query) }
+            is TransactionListIntent.Delete ->
+                viewModelScope.launch { deleteTransaction(intent.id) }
+        }
+    }
+
+    fun consumeEffect() = clearEffect()
+
+    @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class, kotlinx.coroutines.FlowPreview::class)
+    private fun observeRowsBasedOnSearch() {
+        state
+            .map { it.search }
+            .distinctUntilChanged()
+            .debounce { if (it.isEmpty()) 0L else SEARCH_DEBOUNCE_MS }
+            .flatMapLatest { query ->
+                val filter = if (query.isBlank()) TransactionFilter.NONE
+                else TransactionFilter(search = query)
+                combine(
+                    observeTransactions(filter),
+                    observeBrands(),
+                    observeCategories(),
+                ) { txs, brands, categories -> buildRows(txs, brands, categories) }
+            }
+            .onEach { rows -> setState { copy(rows = rows, isLoading = false) } }
+            .launchIn(viewModelScope)
     }
 
     private fun buildRows(
