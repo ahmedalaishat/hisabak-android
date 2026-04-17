@@ -12,5 +12,10 @@ fun DashboardRoute(
     viewModel: DashboardViewModel = koinViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
-    DashboardScreen(state = state, modifier = modifier)
+    DashboardScreen(
+        state = state,
+        onOverallCategoryChanged = { viewModel.onIntent(DashboardIntent.OverallTrendCategoryChanged(it)) },
+        onDailyCategoryChanged = { viewModel.onIntent(DashboardIntent.DailyTrendCategoryChanged(it)) },
+        modifier = modifier,
+    )
 }
