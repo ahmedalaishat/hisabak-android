@@ -1,0 +1,47 @@
+package com.hisabak.feature.transaction
+
+import com.hisabak.di.SeedData
+import com.hisabak.feature.transaction.data.InMemoryTransactionRepository
+import com.hisabak.feature.transaction.domain.TransactionId
+import com.hisabak.feature.transaction.domain.TransactionRepository
+import com.hisabak.feature.transaction.domain.usecase.CreateTransactionUseCase
+import com.hisabak.feature.transaction.domain.usecase.DeleteTransactionUseCase
+import com.hisabak.feature.transaction.domain.usecase.GetTransactionsPageUseCase
+import com.hisabak.feature.transaction.domain.usecase.ObserveTransactionsUseCase
+import com.hisabak.feature.transaction.domain.usecase.UpdateTransactionUseCase
+import com.hisabak.feature.transaction.presentation.edit.TransactionEditViewModel
+import com.hisabak.feature.transaction.presentation.list.TransactionListViewModel
+import org.koin.core.module.dsl.viewModel
+import org.koin.dsl.module
+
+val transactionModule = module {
+    single<TransactionRepository> { InMemoryTransactionRepository(seed = get<SeedData>().transactions) }
+
+    factory { ObserveTransactionsUseCase(get()) }
+    factory { GetTransactionsPageUseCase(get()) }
+    factory { CreateTransactionUseCase(get(), get()) }
+    factory { UpdateTransactionUseCase(get(), get()) }
+    factory { DeleteTransactionUseCase(get()) }
+
+    viewModel {
+        TransactionListViewModel(
+            observeTransactions = get(),
+            observeBrands = get(),
+            observeCategories = get(),
+            deleteTransaction = get(),
+        )
+    }
+
+    viewModel { (transactionId: TransactionId?) ->
+        TransactionEditViewModel(
+            transactionId = transactionId,
+            currency = get(),
+            transactionRepository = get(),
+            brandRepository = get(),
+            observeBrands = get(),
+            findOrCreateBrand = get(),
+            createTransaction = get(),
+            updateTransaction = get(),
+        )
+    }
+}

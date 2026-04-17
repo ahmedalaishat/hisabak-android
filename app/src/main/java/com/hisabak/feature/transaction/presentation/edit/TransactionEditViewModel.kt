@@ -2,12 +2,9 @@ package com.hisabak.feature.transaction.presentation.edit
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.initializer
-import androidx.lifecycle.viewmodel.viewModelFactory
 import com.hisabak.core.common.Currency
 import com.hisabak.core.common.DomainResult
 import com.hisabak.core.common.Money
-import com.hisabak.di.AppContainer
 import com.hisabak.feature.brand.domain.BrandRepository
 import com.hisabak.feature.brand.domain.usecase.FindOrCreateBrandUseCase
 import com.hisabak.feature.brand.domain.usecase.ObserveBrandsUseCase
@@ -122,24 +119,6 @@ class TransactionEditViewModel(
         }
     }
 
-    companion object {
-        const val ARG_TRANSACTION_ID = "transactionId"
-
-        fun factory(container: AppContainer, transactionId: TransactionId?) = viewModelFactory {
-            initializer {
-                TransactionEditViewModel(
-                    transactionId = transactionId,
-                    currency = container.defaultCurrency,
-                    transactionRepository = container.transactionRepository,
-                    brandRepository = container.brandRepository,
-                    observeBrands = container.observeBrands,
-                    findOrCreateBrand = container.findOrCreateBrand,
-                    createTransaction = container.createTransaction,
-                    updateTransaction = container.updateTransaction,
-                )
-            }
-        }
-    }
 }
 
 private fun parseAmountMinor(input: String): Long? {
