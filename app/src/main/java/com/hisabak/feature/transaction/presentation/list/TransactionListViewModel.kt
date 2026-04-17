@@ -2,9 +2,6 @@ package com.hisabak.feature.transaction.presentation.list
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.initializer
-import androidx.lifecycle.viewmodel.viewModelFactory
-import com.hisabak.di.AppContainer
 import com.hisabak.feature.brand.domain.Brand
 import com.hisabak.feature.brand.domain.BrandId
 import com.hisabak.feature.brand.domain.usecase.ObserveBrandsUseCase
@@ -78,18 +75,5 @@ class TransactionListViewModel(
 
     fun onDelete(id: TransactionId) {
         viewModelScope.launch { deleteTransaction(id) }
-    }
-
-    companion object {
-        fun factory(container: AppContainer) = viewModelFactory {
-            initializer {
-                TransactionListViewModel(
-                    observeTransactions = container.observeTransactions,
-                    observeBrands = container.observeBrands,
-                    observeCategories = container.observeCategories,
-                    deleteTransaction = container.deleteTransaction,
-                )
-            }
-        }
     }
 }
