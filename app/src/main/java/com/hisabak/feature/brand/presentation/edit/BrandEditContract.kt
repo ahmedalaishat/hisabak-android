@@ -21,7 +21,7 @@ data class BrandEditUiState(
         val color: String,
     )
 
-    val canSave: Boolean get() = !isSaving && nameInput.isNotBlank()
+    val canSave: Boolean get() = !isSaving && nameInput.isNotBlank() && selectedCategoryId != null
 }
 
 sealed interface BrandEditIntent : ViewIntent {
