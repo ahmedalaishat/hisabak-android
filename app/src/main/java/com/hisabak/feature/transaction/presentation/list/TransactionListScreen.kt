@@ -46,7 +46,6 @@ import java.time.format.DateTimeFormatter
 @Composable
 fun TransactionListScreen(
     state: TransactionListUiState,
-    search: String,
     onSearchChange: (String) -> Unit,
     onDelete: (TransactionId) -> Unit,
     onAdd: () -> Unit,
@@ -62,7 +61,7 @@ fun TransactionListScreen(
     ) { padding ->
         Column(modifier = Modifier.padding(padding).fillMaxSize()) {
             OutlinedTextField(
-                value = search,
+                value = state.search,
                 onValueChange = onSearchChange,
                 placeholder = { Text("Search notes") },
                 leadingIcon = { Icon(Icons.Filled.Search, contentDescription = null) },
@@ -76,7 +75,7 @@ fun TransactionListScreen(
                 state.isLoading -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     CircularProgressIndicator()
                 }
-                state.rows.isEmpty() -> EmptyState(search = search)
+                state.rows.isEmpty() -> EmptyState(search = state.search)
                 else -> LazyColumn(Modifier.fillMaxSize()) {
                     items(state.rows, key = { it.id.value }) { row ->
                         TransactionRowItem(

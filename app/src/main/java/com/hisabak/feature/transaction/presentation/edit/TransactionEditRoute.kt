@@ -19,17 +19,24 @@ fun TransactionEditRoute(
     ),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
+    val effect by viewModel.effect.collectAsStateWithLifecycle()
 
-    LaunchedEffect(state.saved) {
-        if (state.saved) onDone()
+    LaunchedEffect(effect) {
+        when (effect) {
+            TransactionEditEffect.Saved -> {
+                viewModel.consumeEffect()
+                onDone()
+            }
+            null -> Unit
+        }
     }
 
     TransactionEditScreen(
         state = state,
-        onAmountChange = viewModel::onAmountChange,
-        onBrandChange = viewModel::onBrandChange,
-        onNoteChange = viewModel::onNoteChange,
-        onSave = viewModel::save,
+        onAmountChange = { viewModel.onIntent(TransactionEditIntent.AmountChanged(it)) },
+        onBrandChange = { viewModel.onIntent(TransactionEditIntent.BrandChanged(it)) },
+        onNoteChange = { viewModel.onIntent(TransactionEditIntent.NoteChanged(it)) },
+        onSave = { viewModel.onIntent(TransactionEditIntent.Save) },
         onCancel = onCancel,
     )
 }
