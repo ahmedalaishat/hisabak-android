@@ -1,7 +1,6 @@
 package com.hisabak.feature.brand
 
-import com.hisabak.di.SeedData
-import com.hisabak.feature.brand.data.InMemoryBrandRepository
+import com.hisabak.feature.brand.data.RoomBrandRepository
 import com.hisabak.feature.brand.domain.BrandId
 import com.hisabak.feature.brand.domain.BrandRepository
 import com.hisabak.feature.brand.domain.usecase.CreateBrandUseCase
@@ -15,7 +14,7 @@ import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
 
 val brandModule = module {
-    single<BrandRepository> { InMemoryBrandRepository(seed = get<SeedData>().brands) }
+    single<BrandRepository> { RoomBrandRepository(dao = get(), transactionDao = get()) }
 
     factory { ObserveBrandsUseCase(get()) }
     factory { CreateBrandUseCase(get(), get()) }
