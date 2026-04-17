@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
+import androidx.compose.material.icons.automirrored.filled.Message
 import androidx.compose.material.icons.filled.Category
 import androidx.compose.material.icons.filled.SpaceDashboard
 import androidx.compose.material.icons.filled.Storefront
@@ -32,6 +33,7 @@ import com.hisabak.feature.category.domain.CategoryId
 import com.hisabak.feature.category.presentation.edit.CategoryEditRoute
 import com.hisabak.feature.category.presentation.list.CategoryListRoute
 import com.hisabak.feature.dashboard.presentation.DashboardRoute
+import com.hisabak.feature.sms.presentation.inbox.SmsInboxRoute
 import com.hisabak.feature.transaction.domain.TransactionId
 import com.hisabak.feature.transaction.presentation.edit.TransactionEditRoute
 import com.hisabak.feature.transaction.presentation.list.TransactionListRoute
@@ -52,6 +54,7 @@ class MainActivity : ComponentActivity() {
 private enum class RootTab(val label: String, val icon: ImageVector) {
     Dashboard("Dashboard", Icons.Filled.SpaceDashboard),
     Transactions("Transactions", Icons.AutoMirrored.Filled.List),
+    Sms("SMS", Icons.AutoMirrored.Filled.Message),
     Brands("Brands", Icons.Filled.Storefront),
     Categories("Categories", Icons.Filled.Category),
 }
@@ -100,6 +103,7 @@ private fun HisabakNav() {
                 onNavChange = { txNav = it },
                 modifier = tabModifier,
             )
+            RootTab.Sms -> SmsInboxRoute(modifier = tabModifier)
             RootTab.Brands -> BrandsGraph(
                 nav = brandNav,
                 onNavChange = { brandNav = it },
