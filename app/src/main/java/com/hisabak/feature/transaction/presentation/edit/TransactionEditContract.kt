@@ -3,12 +3,16 @@ package com.hisabak.feature.transaction.presentation.edit
 import com.hisabak.core.presentation.ViewEffect
 import com.hisabak.core.presentation.ViewIntent
 import com.hisabak.core.presentation.ViewState
+import com.hisabak.feature.brand.domain.BrandId
+import java.time.Instant
 
 data class TransactionEditUiState(
     val amountInput: String = "",
-    val brandInput: String = "",
+    val selectedBrandId: BrandId? = null,
+    val brandOptions: List<BrandOption> = emptyList(),
     val noteInput: String = "",
-    val brandSuggestions: List<String> = emptyList(),
+    val occurredAt: Instant = Instant.EPOCH,
+    val showDatePicker: Boolean = false,
     val isLoading: Boolean = false,
     val isSaving: Boolean = false,
     val isNew: Boolean = true,
@@ -16,14 +20,23 @@ data class TransactionEditUiState(
     val brandError: String? = null,
     val generalError: String? = null,
 ) : ViewState {
+    data class BrandOption(
+        val id: BrandId,
+        val name: String,
+        val categoryColor: String?,
+    )
+
     val canSave: Boolean
-        get() = !isSaving && amountInput.isNotBlank() && brandInput.isNotBlank()
+        get() = !isSaving && amountInput.isNotBlank() && selectedBrandId != null
 }
 
 sealed interface TransactionEditIntent : ViewIntent {
     data class AmountChanged(val value: String) : TransactionEditIntent
-    data class BrandChanged(val value: String) : TransactionEditIntent
+    data class BrandSelected(val brandId: BrandId) : TransactionEditIntent
     data class NoteChanged(val value: String) : TransactionEditIntent
+    data class DateChanged(val instant: Instant) : TransactionEditIntent
+    data object DatePickerOpened : TransactionEditIntent
+    data object DatePickerDismissed : TransactionEditIntent
     data object Save : TransactionEditIntent
     data object ConsumeEffect : TransactionEditIntent
 }
