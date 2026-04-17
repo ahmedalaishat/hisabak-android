@@ -101,11 +101,6 @@ private fun CategoryPicker(
     onSelect: (CategoryId?) -> Unit,
 ) {
     FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        FilterChip(
-            selected = selected == null,
-            onClick = { onSelect(null) },
-            label = { Text("None") },
-        )
         options.forEach { option ->
             FilterChip(
                 selected = selected == option.id,
