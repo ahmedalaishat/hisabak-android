@@ -36,10 +36,10 @@ val transactionModule = module {
         TransactionEditViewModel(
             transactionId = transactionId,
             currency = get(),
+            clock = get(),
             transactionRepository = get(),
-            brandRepository = get(),
             observeBrands = get(),
-            findOrCreateBrand = get(),
+            observeCategories = get(),
             createTransaction = get(),
             updateTransaction = get(),
         )

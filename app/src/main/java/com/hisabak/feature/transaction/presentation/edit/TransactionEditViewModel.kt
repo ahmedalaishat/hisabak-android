@@ -1,26 +1,27 @@
 package com.hisabak.feature.transaction.presentation.edit
 
 import androidx.lifecycle.viewModelScope
+import com.hisabak.core.common.Clock
 import com.hisabak.core.common.Currency
 import com.hisabak.core.common.DomainResult
 import com.hisabak.core.common.Money
 import com.hisabak.core.presentation.BaseViewModel
-import com.hisabak.feature.brand.domain.BrandRepository
-import com.hisabak.feature.brand.domain.usecase.FindOrCreateBrandUseCase
 import com.hisabak.feature.brand.domain.usecase.ObserveBrandsUseCase
+import com.hisabak.feature.category.domain.usecase.ObserveCategoriesUseCase
 import com.hisabak.feature.transaction.domain.TransactionId
 import com.hisabak.feature.transaction.domain.TransactionRepository
 import com.hisabak.feature.transaction.domain.usecase.CreateTransactionUseCase
 import com.hisabak.feature.transaction.domain.usecase.UpdateTransactionUseCase
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 
 class TransactionEditViewModel(
     private val transactionId: TransactionId?,
     private val currency: Currency,
+    private val clock: Clock,
     private val transactionRepository: TransactionRepository,
-    private val brandRepository: BrandRepository,
     private val observeBrands: ObserveBrandsUseCase,
-    private val findOrCreateBrand: FindOrCreateBrandUseCase,
+    private val observeCategories: ObserveCategoriesUseCase,
     private val createTransaction: CreateTransactionUseCase,
     private val updateTransaction: UpdateTransactionUseCase,
 ) : BaseViewModel<TransactionEditIntent, TransactionEditUiState, TransactionEditEffect>() {
@@ -28,9 +29,21 @@ class TransactionEditViewModel(
     override fun initialState() = TransactionEditUiState(isNew = transactionId == null)
 
     init {
+        if (transactionId == null) setState { copy(occurredAt = clock.now()) }
         viewModelScope.launch {
-            observeBrands().collect { brands ->
-                setState { copy(brandSuggestions = brands.map { it.name }) }
+            combine(observeBrands(), observeCategories()) { brands, categories ->
+                val colorById = categories.associate { it.id to it.color }
+                brands
+                    .map { brand ->
+                        TransactionEditUiState.BrandOption(
+                            id = brand.id,
+                            name = brand.name,
+                            categoryColor = brand.categoryId?.let(colorById::get),
+                        )
+                    }
+                    .sortedBy { it.name.lowercase() }
+            }.collect { options ->
+                setState { copy(brandOptions = options) }
             }
         }
         if (transactionId != null) loadExisting(transactionId)
@@ -40,10 +53,16 @@ class TransactionEditViewModel(
         when (intent) {
             is TransactionEditIntent.AmountChanged ->
                 setState { copy(amountInput = intent.value, amountError = null) }
-            is TransactionEditIntent.BrandChanged ->
-                setState { copy(brandInput = intent.value, brandError = null) }
+            is TransactionEditIntent.BrandSelected ->
+                setState { copy(selectedBrandId = intent.brandId, brandError = null) }
             is TransactionEditIntent.NoteChanged ->
                 setState { copy(noteInput = intent.value) }
+            is TransactionEditIntent.DateChanged ->
+                setState { copy(occurredAt = intent.instant, showDatePicker = false) }
+            TransactionEditIntent.DatePickerOpened ->
+                setState { copy(showDatePicker = true) }
+            TransactionEditIntent.DatePickerDismissed ->
+                setState { copy(showDatePicker = false) }
             TransactionEditIntent.Save -> save()
             TransactionEditIntent.ConsumeEffect -> clearEffect()
         }
@@ -55,13 +74,13 @@ class TransactionEditViewModel(
             when (val result = transactionRepository.getById(id)) {
                 is DomainResult.Success -> {
                     val tx = result.value
-                    val brand = (brandRepository.getById(tx.brandId) as? DomainResult.Success)?.value
                     setState {
                         copy(
                             isLoading = false,
                             amountInput = formatAmountInput(tx.amount),
-                            brandInput = brand?.name.orEmpty(),
+                            selectedBrandId = tx.brandId,
                             noteInput = tx.note.orEmpty(),
+                            occurredAt = tx.occurredAt,
                         )
                     }
                 }
@@ -79,28 +98,32 @@ class TransactionEditViewModel(
             setState { copy(amountError = "Enter a positive amount") }
             return
         }
-        val brandName = s.brandInput.trim()
-        if (brandName.isEmpty()) {
-            setState { copy(brandError = "Brand is required") }
+        val brandId = s.selectedBrandId
+        if (brandId == null) {
+            setState { copy(brandError = "Pick a brand") }
             return
         }
         setState { copy(isSaving = true, generalError = null) }
         viewModelScope.launch {
-            val brandResult = findOrCreateBrand(brandName)
-            if (brandResult is DomainResult.Failure) {
-                setState { copy(isSaving = false, brandError = brandResult.error.message) }
-                return@launch
-            }
-            val brand = (brandResult as DomainResult.Success).value
             val money = Money(minor, currency)
             val note = s.noteInput.trim().ifEmpty { null }
 
-            val result = if (transactionId == null) {
-                createTransaction(amount = money, brandId = brand.id, note = note).map { }
+            val result: DomainResult<Unit> = if (transactionId == null) {
+                createTransaction(
+                    amount = money,
+                    brandId = brandId,
+                    note = note,
+                    occurredAt = s.occurredAt,
+                ).map { }
             } else {
                 when (val existing = transactionRepository.getById(transactionId)) {
                     is DomainResult.Success -> updateTransaction(
-                        existing.value.copy(amount = money, brandId = brand.id, note = note),
+                        existing.value.copy(
+                            amount = money,
+                            brandId = brandId,
+                            note = note,
+                            occurredAt = s.occurredAt,
+                        ),
                     )
                     is DomainResult.Failure -> DomainResult.Failure(existing.error)
                 }
