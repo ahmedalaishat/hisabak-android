@@ -21,8 +21,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
@@ -30,21 +28,17 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TransactionEditScreen(
-    viewModel: TransactionEditViewModel,
-    onDone: () -> Unit,
+    state: TransactionEditUiState,
+    onAmountChange: (String) -> Unit,
+    onBrandChange: (String) -> Unit,
+    onNoteChange: (String) -> Unit,
+    onSave: () -> Unit,
     onCancel: () -> Unit,
 ) {
-    val state by viewModel.state.collectAsStateWithLifecycle()
-
-    LaunchedEffect(state.saved) {
-        if (state.saved) onDone()
-    }
-
     Scaffold(
         topBar = {
             TopAppBar(
@@ -67,7 +61,7 @@ fun TransactionEditScreen(
         ) {
             OutlinedTextField(
                 value = state.amountInput,
-                onValueChange = viewModel::onAmountChange,
+                onValueChange = onAmountChange,
                 label = { Text("Amount") },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                 isError = state.amountError != null,
@@ -78,7 +72,7 @@ fun TransactionEditScreen(
 
             OutlinedTextField(
                 value = state.brandInput,
-                onValueChange = viewModel::onBrandChange,
+                onValueChange = onBrandChange,
                 label = { Text("Brand") },
                 placeholder = { Text("Type or pick existing") },
                 isError = state.brandError != null,
@@ -99,7 +93,7 @@ fun TransactionEditScreen(
                     LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         items(filtered) { name ->
                             AssistChip(
-                                onClick = { viewModel.onBrandChange(name) },
+                                onClick = { onBrandChange(name) },
                                 label = { Text(name) },
                             )
                         }
@@ -109,7 +103,7 @@ fun TransactionEditScreen(
 
             OutlinedTextField(
                 value = state.noteInput,
-                onValueChange = viewModel::onNoteChange,
+                onValueChange = onNoteChange,
                 label = { Text("Note (optional)") },
                 modifier = Modifier.fillMaxWidth(),
             )
@@ -127,7 +121,7 @@ fun TransactionEditScreen(
                 horizontalArrangement = Arrangement.End,
             ) {
                 Button(
-                    onClick = viewModel::save,
+                    onClick = onSave,
                     enabled = state.canSave,
                 ) {
                     Text(if (state.isSaving) "Saving…" else "Save")

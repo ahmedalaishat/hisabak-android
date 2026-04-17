@@ -30,13 +30,11 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.hisabak.core.common.Money
 import com.hisabak.feature.category.domain.CategoryType
 import com.hisabak.feature.transaction.domain.TransactionId
@@ -47,13 +45,13 @@ import java.time.format.DateTimeFormatter
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TransactionListScreen(
-    viewModel: TransactionListViewModel,
+    state: TransactionListUiState,
+    search: String,
+    onSearchChange: (String) -> Unit,
+    onDelete: (TransactionId) -> Unit,
     onAdd: () -> Unit,
     onEdit: (TransactionId) -> Unit,
 ) {
-    val state by viewModel.uiState.collectAsStateWithLifecycle()
-    val search by viewModel.searchQuery.collectAsStateWithLifecycle()
-
     Scaffold(
         topBar = { TopAppBar(title = { Text("Transactions") }) },
         floatingActionButton = {
@@ -65,7 +63,7 @@ fun TransactionListScreen(
         Column(modifier = Modifier.padding(padding).fillMaxSize()) {
             OutlinedTextField(
                 value = search,
-                onValueChange = viewModel::onSearchChange,
+                onValueChange = onSearchChange,
                 placeholder = { Text("Search notes") },
                 leadingIcon = { Icon(Icons.Filled.Search, contentDescription = null) },
                 singleLine = true,
@@ -84,7 +82,7 @@ fun TransactionListScreen(
                         TransactionRowItem(
                             row = row,
                             onEdit = { onEdit(row.id) },
-                            onDelete = { viewModel.onDelete(row.id) },
+                            onDelete = { onDelete(row.id) },
                         )
                         HorizontalDivider()
                     }
