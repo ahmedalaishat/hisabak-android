@@ -52,6 +52,7 @@ fun TransactionListScreen(
     onEdit: (TransactionId) -> Unit,
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
+    val search by viewModel.searchQuery.collectAsStateWithLifecycle()
 
     Scaffold(
         topBar = { TopAppBar(title = { Text("Transactions") }) },
@@ -63,7 +64,7 @@ fun TransactionListScreen(
     ) { padding ->
         Column(modifier = Modifier.padding(padding).fillMaxSize()) {
             OutlinedTextField(
-                value = state.search,
+                value = search,
                 onValueChange = viewModel::onSearchChange,
                 placeholder = { Text("Search notes") },
                 leadingIcon = { Icon(Icons.Filled.Search, contentDescription = null) },
@@ -77,7 +78,7 @@ fun TransactionListScreen(
                 state.isLoading -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     CircularProgressIndicator()
                 }
-                state.rows.isEmpty() -> EmptyState(search = state.search)
+                state.rows.isEmpty() -> EmptyState(search = search)
                 else -> LazyColumn(Modifier.fillMaxSize()) {
                     items(state.rows, key = { it.id.value }) { row ->
                         TransactionRowItem(

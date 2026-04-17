@@ -8,6 +8,7 @@ import com.hisabak.feature.brand.domain.usecase.ObserveBrandsUseCase
 import com.hisabak.feature.category.domain.Category
 import com.hisabak.feature.category.domain.CategoryId
 import com.hisabak.feature.category.domain.usecase.ObserveCategoriesUseCase
+import com.hisabak.feature.transaction.domain.Transaction
 import com.hisabak.feature.transaction.domain.TransactionFilter
 import com.hisabak.feature.transaction.domain.TransactionId
 import com.hisabak.feature.transaction.domain.usecase.DeleteTransactionUseCase
@@ -15,6 +16,7 @@ import com.hisabak.feature.transaction.domain.usecase.ObserveTransactionsUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -29,10 +31,11 @@ class TransactionListViewModel(
     private val deleteTransaction: DeleteTransactionUseCase,
 ) : ViewModel() {
 
-    private val searchQuery = MutableStateFlow("")
+    private val _searchQuery = MutableStateFlow("")
+    val searchQuery: StateFlow<String> = _searchQuery.asStateFlow()
 
     @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class, kotlinx.coroutines.FlowPreview::class)
-    val uiState: StateFlow<TransactionListUiState> = searchQuery
+    val uiState: StateFlow<TransactionListUiState> = _searchQuery
         .debounce { if (it.isEmpty()) 0L else SEARCH_DEBOUNCE_MS }
         .distinctUntilChanged()
         .flatMapLatest { query ->
@@ -43,25 +46,8 @@ class TransactionListViewModel(
                 observeBrands(),
                 observeCategories(),
             ) { txs, brands, categories ->
-                val brandsById: Map<BrandId, Brand> = brands.associateBy { it.id }
-                val categoriesById: Map<CategoryId, Category> = categories.associateBy { it.id }
-                val rows = txs.map { tx ->
-                    val brand = brandsById[tx.brandId]
-                    val category = brand?.categoryId?.let { categoriesById[it] }
-                    TransactionRow(
-                        id = tx.id,
-                        amount = tx.amount,
-                        brandName = brand?.name ?: "Unknown",
-                        categoryName = category?.name,
-                        categoryType = category?.type,
-                        categoryColor = category?.color,
-                        note = tx.note,
-                        occurredAt = tx.occurredAt,
-                    )
-                }
                 TransactionListUiState(
-                    rows = rows,
-                    search = query,
+                    rows = buildRows(txs, brands, categories),
                     isLoading = false,
                 )
             }
@@ -69,15 +55,38 @@ class TransactionListViewModel(
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5_000),
-            initialValue = TransactionListUiState(search = searchQuery.value),
+            initialValue = TransactionListUiState(isLoading = true),
         )
 
     fun onSearchChange(query: String) {
-        searchQuery.value = query
+        _searchQuery.value = query
     }
 
     fun onDelete(id: TransactionId) {
         viewModelScope.launch { deleteTransaction(id) }
+    }
+
+    private fun buildRows(
+        txs: List<Transaction>,
+        brands: List<Brand>,
+        categories: List<Category>,
+    ): List<TransactionRow> {
+        val brandsById: Map<BrandId, Brand> = brands.associateBy { it.id }
+        val categoriesById: Map<CategoryId, Category> = categories.associateBy { it.id }
+        return txs.map { tx ->
+            val brand = brandsById[tx.brandId]
+            val category = brand?.categoryId?.let { categoriesById[it] }
+            TransactionRow(
+                id = tx.id,
+                amount = tx.amount,
+                brandName = brand?.name ?: "Unknown",
+                categoryName = category?.name,
+                categoryType = category?.type,
+                categoryColor = category?.color,
+                note = tx.note,
+                occurredAt = tx.occurredAt,
+            )
+        }
     }
 
     private companion object {

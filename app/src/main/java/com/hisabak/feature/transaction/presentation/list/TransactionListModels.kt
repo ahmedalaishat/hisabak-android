@@ -18,7 +18,6 @@ data class TransactionRow(
 
 data class TransactionListUiState(
     val rows: List<TransactionRow> = emptyList(),
-    val search: String = "",
     val isLoading: Boolean = true,
     val error: String? = null,
 )
