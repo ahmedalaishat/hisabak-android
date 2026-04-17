@@ -1,9 +1,9 @@
 package com.hisabak.feature.transaction.presentation.edit
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.hisabak.core.presentation.LaunchedViewEffectHandler
 import com.hisabak.feature.transaction.domain.TransactionId
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
@@ -19,15 +19,13 @@ fun TransactionEditRoute(
     ),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
-    val effect by viewModel.effect.collectAsStateWithLifecycle()
 
-    LaunchedEffect(effect) {
+    LaunchedViewEffectHandler(
+        effectFlow = viewModel.effect,
+        onConsumeEffect = { viewModel.onIntent(TransactionEditIntent.ConsumeEffect) },
+    ) { effect ->
         when (effect) {
-            TransactionEditEffect.Saved -> {
-                viewModel.consumeEffect()
-                onDone()
-            }
-            null -> Unit
+            TransactionEditEffect.Saved -> onDone()
         }
     }
 

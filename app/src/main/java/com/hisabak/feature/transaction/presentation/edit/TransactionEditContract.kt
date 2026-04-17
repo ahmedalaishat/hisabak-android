@@ -25,6 +25,7 @@ sealed interface TransactionEditIntent : ViewIntent {
     data class BrandChanged(val value: String) : TransactionEditIntent
     data class NoteChanged(val value: String) : TransactionEditIntent
     data object Save : TransactionEditIntent
+    data object ConsumeEffect : TransactionEditIntent
 }
 
 sealed interface TransactionEditEffect : ViewEffect {

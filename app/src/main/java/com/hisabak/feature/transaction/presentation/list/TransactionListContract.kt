@@ -29,6 +29,7 @@ data class TransactionListUiState(
 sealed interface TransactionListIntent : ViewIntent {
     data class SearchChanged(val query: String) : TransactionListIntent
     data class Delete(val id: TransactionId) : TransactionListIntent
+    data object ConsumeEffect : TransactionListIntent
 }
 
 sealed interface TransactionListEffect : ViewEffect {
