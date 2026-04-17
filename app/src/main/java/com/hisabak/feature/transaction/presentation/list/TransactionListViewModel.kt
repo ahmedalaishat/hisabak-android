@@ -40,10 +40,9 @@ class TransactionListViewModel(
                 setState { copy(search = intent.query) }
             is TransactionListIntent.Delete ->
                 viewModelScope.launch { deleteTransaction(intent.id) }
+            TransactionListIntent.ConsumeEffect -> clearEffect()
         }
     }
-
-    fun consumeEffect() = clearEffect()
 
     @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class, kotlinx.coroutines.FlowPreview::class)
     private fun observeRowsBasedOnSearch() {

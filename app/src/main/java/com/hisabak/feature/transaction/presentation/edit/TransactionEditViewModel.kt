@@ -45,10 +45,9 @@ class TransactionEditViewModel(
             is TransactionEditIntent.NoteChanged ->
                 setState { copy(noteInput = intent.value) }
             TransactionEditIntent.Save -> save()
+            TransactionEditIntent.ConsumeEffect -> clearEffect()
         }
     }
-
-    fun consumeEffect() = clearEffect()
 
     private fun loadExisting(id: TransactionId) {
         setState { copy(isLoading = true) }
