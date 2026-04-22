@@ -1,46 +1,53 @@
 package com.hisabak.feature.sms.presentation.inbox
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.AssistChip
-import androidx.compose.material3.AssistChipDefaults
-import androidx.compose.material3.Button
+import androidx.compose.material.icons.filled.DeleteOutline
+import androidx.compose.material.icons.filled.Sms
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Scaffold
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import com.hisabak.core.common.Money
 import com.hisabak.feature.sms.domain.SmsMessageId
+import com.hisabak.ui.components.EmptyStatePanel
+import com.hisabak.ui.components.IconTile
+import com.hisabak.ui.components.PrimaryPillButton
+import com.hisabak.ui.components.SearchField
+import com.hisabak.ui.components.SectionHeader
+import com.hisabak.ui.components.SurfaceCard
+import com.hisabak.ui.theme.TintEmerald
+import com.hisabak.ui.theme.TintEmeraldOn
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
+import kotlin.math.abs
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -54,84 +61,96 @@ fun SmsInboxScreen(
     onEnableAutoImport: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Scaffold(
-        modifier = modifier,
-        topBar = { TopAppBar(title = { Text("SMS Inbox") }) },
-        snackbarHost = { SnackbarHost(snackbarHostState) },
-    ) { padding ->
-        Column(modifier = Modifier.padding(padding).fillMaxSize()) {
-            AutoImportBanner(
-                granted = state.autoImportGranted,
-                onEnable = onEnableAutoImport,
-            )
-            IngestCard(
-                draft = state.draftBody,
-                isProcessing = state.isProcessing,
-                onDraftChange = onDraftChange,
-                onIngest = onIngest,
-            )
-
-            OutlinedTextField(
-                value = state.search,
-                onValueChange = onSearchChange,
-                placeholder = { Text("Search SMS body") },
-                leadingIcon = { Icon(Icons.Filled.Search, contentDescription = null) },
-                singleLine = true,
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp),
-            )
-
-            when {
-                state.isLoading -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator()
-                }
-                state.rows.isEmpty() -> EmptyState(state.search)
-                else -> LazyColumn(Modifier.fillMaxSize()) {
-                    items(state.rows, key = { it.id.value }) { row ->
-                        SmsRowItem(row = row, onDelete = { onDelete(row.id) })
-                        HorizontalDivider()
+    Box(modifier.fillMaxSize()) {
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+        ) {
+            item {
+                Text(
+                    "SMS Inbox",
+                    style = MaterialTheme.typography.headlineSmall,
+                    color = MaterialTheme.colorScheme.onSurface,
+                )
+            }
+            item { AutoImportBanner(granted = state.autoImportGranted, onEnable = onEnableAutoImport) }
+            item { IngestCard(draft = state.draftBody, isProcessing = state.isProcessing, onDraftChange = onDraftChange, onIngest = onIngest) }
+            item {
+                SearchField(
+                    value = state.search,
+                    onValueChange = onSearchChange,
+                    placeholder = "Search SMS body",
+                    modifier = Modifier.fillMaxWidth(),
+                )
+            }
+            item { SectionHeader(title = "Recent SMS") }
+            if (state.isLoading) {
+                item {
+                    Box(Modifier.fillMaxWidth().padding(vertical = 40.dp), contentAlignment = Alignment.Center) {
+                        CircularProgressIndicator()
                     }
+                }
+            } else if (state.rows.isEmpty()) {
+                item {
+                    EmptyStatePanel(
+                        title = if (state.search.isBlank()) "No SMS yet" else "No matches",
+                        subtitle = if (state.search.isBlank())
+                            "Paste a bank SMS above to parse it into a transaction."
+                        else
+                            "Nothing matches \"${state.search}\".",
+                        icon = Icons.Filled.Sms,
+                    )
+                }
+            } else {
+                items(state.rows, key = { it.id.value }) { row ->
+                    SmsRowItem(row = row, onDelete = { onDelete(row.id) })
                 }
             }
         }
+        SnackbarHost(
+            hostState = snackbarHostState,
+            modifier = Modifier.align(Alignment.BottomCenter).padding(16.dp),
+        )
     }
 }
 
 @Composable
 private fun AutoImportBanner(granted: Boolean, onEnable: () -> Unit) {
-    ElevatedCard(Modifier.fillMaxWidth().padding(start = 16.dp, end = 16.dp, top = 16.dp)) {
+    SurfaceCard(modifier = Modifier.fillMaxWidth()) {
         Row(
-            Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp),
-            verticalAlignment = Alignment.CenterVertically,
+            Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(12.dp),
+            verticalAlignment = Alignment.CenterVertically,
         ) {
-            Icon(
-                imageVector = Icons.Filled.Check,
-                contentDescription = null,
-                tint = if (granted) Color(0xFF00695C) else MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.size(20.dp),
+            IconTile(
+                icon = Icons.Filled.Check,
+                background = if (granted) TintEmerald else MaterialTheme.colorScheme.surfaceContainerHigh,
+                foreground = if (granted) TintEmeraldOn else MaterialTheme.colorScheme.onSurfaceVariant,
             )
             Column(Modifier.weight(1f)) {
                 Text(
                     if (granted) "Auto-import is on" else "Auto-import incoming SMS",
                     style = MaterialTheme.typography.titleSmall,
-                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.onSurface,
                 )
                 Text(
                     if (granted)
                         "New bank SMS will be parsed automatically in the background."
                     else
                         "Grant SMS access to turn every matching bank SMS into a transaction.",
-                    style = MaterialTheme.typography.bodySmall,
+                    style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
             if (!granted) {
-                Button(onClick = onEnable) { Text("Enable") }
+                PrimaryPillButton(text = "Enable", onClick = onEnable)
             }
         }
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun IngestCard(
     draft: String,
@@ -139,103 +158,118 @@ private fun IngestCard(
     onDraftChange: (String) -> Unit,
     onIngest: () -> Unit,
 ) {
-    ElevatedCard(Modifier.fillMaxWidth().padding(16.dp)) {
-        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Text("Paste a bank SMS", style = MaterialTheme.typography.titleMedium)
-            OutlinedTextField(
-                value = draft,
-                onValueChange = onDraftChange,
-                placeholder = { Text("e.g. Purchase of AED 45.50 with Card 1234 at Starbucks, …") },
-                minLines = 2,
-                modifier = Modifier.fillMaxWidth(),
-            )
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Button(
-                    onClick = onIngest,
-                    enabled = draft.isNotBlank() && !isProcessing,
-                ) {
-                    Text(if (isProcessing) "Parsing…" else "Parse & create transaction")
-                }
-                if (isProcessing) CircularProgressIndicator(modifier = Modifier.size(18.dp), strokeWidth = 2.dp)
-            }
-        }
-    }
-}
-
-@Composable
-private fun EmptyState(search: String) {
-    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+    SurfaceCard(modifier = Modifier.fillMaxWidth()) {
         Text(
-            if (search.isBlank()) "No SMS yet. Paste one above to test."
-            else "No SMS match \"$search\".",
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            "Paste a bank SMS",
+            style = MaterialTheme.typography.titleMedium,
+            color = MaterialTheme.colorScheme.onSurface,
         )
+        Spacer(Modifier.height(8.dp))
+        OutlinedTextField(
+            value = draft,
+            onValueChange = onDraftChange,
+            placeholder = {
+                Text(
+                    "e.g. Purchase of AED 45.50 with Card 1234 at Starbucks, …",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            },
+            minLines = 2,
+            shape = RoundedCornerShape(12.dp),
+            textStyle = MaterialTheme.typography.bodyMedium,
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
+                unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
+                focusedBorderColor = MaterialTheme.colorScheme.primary,
+                unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant,
+            ),
+            modifier = Modifier.fillMaxWidth(),
+        )
+        Spacer(Modifier.height(12.dp))
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            PrimaryPillButton(
+                text = if (isProcessing) "Parsing…" else "Parse & create",
+                onClick = onIngest,
+            )
+            if (isProcessing) CircularProgressIndicator(modifier = Modifier.size(18.dp), strokeWidth = 2.dp)
+        }
     }
 }
 
 @Composable
 private fun SmsRowItem(row: SmsInboxRow, onDelete: () -> Unit) {
-    Row(
-        Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp),
-        verticalAlignment = Alignment.Top,
-    ) {
-        Column(Modifier.weight(1f)) {
-            Text(row.body, style = MaterialTheme.typography.bodyMedium, maxLines = 4)
-            Row(
-                modifier = Modifier.padding(top = 6.dp),
-                horizontalArrangement = Arrangement.spacedBy(6.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                if (row.isLinked) {
-                    AssistChip(
-                        onClick = {},
-                        enabled = false,
-                        label = { Text("Linked") },
-                        leadingIcon = { Icon(Icons.Filled.Check, null, Modifier.size(14.dp)) },
-                        colors = AssistChipDefaults.assistChipColors(
-                            disabledContainerColor = Color(0xFFE0F2F1),
-                            disabledLabelColor = Color(0xFF00695C),
-                            disabledLeadingIconContentColor = Color(0xFF00695C),
-                        ),
-                    )
-                } else {
-                    AssistChip(
-                        onClick = {},
-                        enabled = false,
-                        label = { Text("Unparsed") },
-                    )
-                }
-                row.parsedBrand?.let {
-                    Text(it, style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.SemiBold)
-                }
-                row.parsedAmount?.let {
-                    Text(
-                        formatMoney(it),
-                        style = MaterialTheme.typography.labelMedium,
-                        fontWeight = FontWeight.SemiBold,
-                        color = MaterialTheme.colorScheme.primary,
-                    )
-                }
+    SurfaceCard(modifier = Modifier.fillMaxWidth()) {
+        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.Top) {
+            Column(Modifier.weight(1f)) {
                 Text(
-                    formatDate(row.receivedAt),
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    row.body,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    maxLines = 4,
+                )
+                Spacer(Modifier.height(8.dp))
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    StatusChip(linked = row.isLinked)
+                    row.parsedBrand?.let {
+                        Text(
+                            it,
+                            style = MaterialTheme.typography.labelMedium,
+                            color = MaterialTheme.colorScheme.onSurface,
+                        )
+                    }
+                    row.parsedAmount?.let {
+                        Text(
+                            formatMoney(it),
+                            style = MaterialTheme.typography.labelMedium,
+                            color = MaterialTheme.colorScheme.primary,
+                        )
+                    }
+                    Text(
+                        formatDate(row.receivedAt),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+            }
+            IconButton(onClick = onDelete) {
+                Icon(
+                    Icons.Filled.DeleteOutline,
+                    contentDescription = "Delete",
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
-        }
-        IconButton(onClick = onDelete) {
-            Icon(Icons.Filled.Delete, contentDescription = "Delete", modifier = Modifier.size(18.dp))
         }
     }
 }
 
+@Composable
+private fun StatusChip(linked: Boolean) {
+    val (label, bg, fg) = if (linked) {
+        Triple("Linked", TintEmerald, TintEmeraldOn)
+    } else {
+        Triple("Unparsed", MaterialTheme.colorScheme.surfaceContainerHigh, MaterialTheme.colorScheme.onSurfaceVariant)
+    }
+    Text(
+        label,
+        style = MaterialTheme.typography.labelSmall,
+        color = fg,
+        modifier = Modifier
+            .clip(RoundedCornerShape(999.dp))
+            .background(bg)
+            .padding(horizontal = 10.dp, vertical = 4.dp),
+    )
+}
+
 internal fun formatMoney(money: Money): String {
     val major = money.amountMinor / 100
-    val minor = kotlin.math.abs(money.amountMinor % 100)
+    val minor = abs(money.amountMinor % 100)
     val sign = if (money.amountMinor < 0) "-" else ""
     return "$sign${money.currency.code} $major.${minor.toString().padStart(2, '0')}"
 }
