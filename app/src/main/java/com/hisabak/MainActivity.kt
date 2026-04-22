@@ -13,11 +13,8 @@ import androidx.compose.material.icons.automirrored.filled.Message
 import androidx.compose.material.icons.filled.Category
 import androidx.compose.material.icons.filled.SpaceDashboard
 import androidx.compose.material.icons.filled.Storefront
-import androidx.compose.material3.Icon
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -37,6 +34,9 @@ import com.hisabak.feature.sms.presentation.inbox.SmsInboxRoute
 import com.hisabak.feature.transaction.domain.TransactionId
 import com.hisabak.feature.transaction.presentation.edit.TransactionEditRoute
 import com.hisabak.feature.transaction.presentation.list.TransactionListRoute
+import com.hisabak.ui.components.BottomNavTab
+import com.hisabak.ui.components.HisabakBottomNav
+import com.hisabak.ui.components.HisabakTopBar
 import com.hisabak.ui.theme.HisabakTheme
 
 class MainActivity : ComponentActivity() {
@@ -81,19 +81,20 @@ private fun HisabakNav() {
     var brandNav: BrandsNav by remember { mutableStateOf(BrandsNav.List) }
     var catNav: CategoriesNav by remember { mutableStateOf(CategoriesNav.List) }
 
+    val tabs = remember {
+        RootTab.entries.map { BottomNavTab(key = it.name, label = it.label, icon = it.icon) }
+    }
+
     Scaffold(
+        topBar = { HisabakTopBar() },
         bottomBar = {
-            NavigationBar {
-                RootTab.entries.forEach { tab ->
-                    NavigationBarItem(
-                        selected = currentTab == tab,
-                        onClick = { currentTab = tab },
-                        icon = { Icon(tab.icon, contentDescription = tab.label) },
-                        label = { Text(tab.label) },
-                    )
-                }
-            }
+            HisabakBottomNav(
+                tabs = tabs,
+                selectedKey = currentTab.name,
+                onSelect = { key -> currentTab = RootTab.valueOf(key) },
+            )
         },
+        containerColor = MaterialTheme.colorScheme.background,
     ) { padding ->
         val tabModifier = Modifier.fillMaxSize().padding(padding)
         when (currentTab) {

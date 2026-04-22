@@ -1,0 +1,90 @@
+package com.hisabak.ui.components
+
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import com.hisabak.ui.theme.PrimaryFixedDim
+
+/** Green gradient call-out used for the "Smart Saving Tip" card. */
+@Composable
+fun GradientBanner(
+    title: String,
+    body: String,
+    modifier: Modifier = Modifier,
+) {
+    Box(
+        modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(16.dp))
+            .background(
+                Brush.horizontalGradient(
+                    listOf(MaterialTheme.colorScheme.primary, PrimaryFixedDim),
+                ),
+            )
+            .padding(20.dp),
+    ) {
+        Column {
+            Text(
+                title,
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onPrimary,
+                fontWeight = FontWeight.Bold,
+            )
+            Text(
+                body,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.92f),
+            )
+        }
+    }
+}
+
+/** Dark inverse-surface promotional banner with a CTA. */
+@Composable
+fun DarkPromoBanner(
+    title: String,
+    body: String,
+    ctaLabel: String,
+    onCtaClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Box(
+        modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(16.dp))
+            .background(MaterialTheme.colorScheme.inverseSurface)
+            .padding(20.dp),
+    ) {
+        Column {
+            Text(
+                title,
+                style = MaterialTheme.typography.titleLarge,
+                color = MaterialTheme.colorScheme.inverseOnSurface,
+            )
+            Text(
+                body,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.inverseOnSurface.copy(alpha = 0.85f),
+                modifier = Modifier.padding(top = 6.dp, bottom = 12.dp),
+            )
+            PrimaryPillButton(
+                text = ctaLabel,
+                onClick = onCtaClick,
+                containerColor = MaterialTheme.colorScheme.primaryContainer,
+                contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+            )
+        }
+    }
+}
+

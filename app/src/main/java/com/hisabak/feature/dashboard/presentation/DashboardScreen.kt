@@ -3,7 +3,6 @@ package com.hisabak.feature.dashboard.presentation
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -17,20 +16,16 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.TrendingFlat
 import androidx.compose.material.icons.filled.TrendingDown
 import androidx.compose.material.icons.filled.TrendingUp
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
-import androidx.compose.material3.MenuAnchorType
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
+import androidx.compose.material3.MenuAnchorType
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -39,7 +34,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.hisabak.core.common.Money
 import com.hisabak.feature.category.domain.CategoryId
@@ -54,6 +48,8 @@ import com.hisabak.feature.dashboard.presentation.components.AreaLineChart
 import com.hisabak.feature.dashboard.presentation.components.BarSparkline
 import com.hisabak.feature.dashboard.presentation.components.DonutChart
 import com.hisabak.feature.dashboard.presentation.components.DonutSlice
+import com.hisabak.ui.components.SectionHeader
+import com.hisabak.ui.components.SurfaceCard
 import kotlin.math.abs
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -64,51 +60,41 @@ fun DashboardScreen(
     onDailyCategoryChanged: (CategoryId) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Scaffold(
-        topBar = { TopAppBar(title = { Text("Dashboard") }) },
-        modifier = modifier,
-    ) { padding ->
-        val snap = state.snapshot
-        if (snap == null) {
-            Box(Modifier.fillMaxSize().padding(padding), contentAlignment = Alignment.Center) {
-                CircularProgressIndicator()
-            }
-            return@Scaffold
-        }
-        LazyColumn(
-            modifier = Modifier.fillMaxSize().padding(padding),
-            contentPadding = PaddingValues(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
-        ) {
-            item { NetWorthCard(snap) }
-            item { TotalsRow(snap) }
-            item { IncomeExpenseRow(snap) }
-            item { OverTimeRow(snap) }
-            item { SectionHeader("Categories Analytics") }
-            item { CategoryDonutsRow(snap) }
-            item {
-                CategoryTrendsRow(
-                    snap = snap,
-                    overallCategoryId = state.overallTrendCategoryId,
-                    dailyCategoryId = state.dailyTrendCategoryId,
-                    onOverallCategoryChanged = onOverallCategoryChanged,
-                    onDailyCategoryChanged = onDailyCategoryChanged,
-                )
-            }
-            item { SectionHeader("Brands Analytics") }
-            item { BrandRow(snap) }
-        }
+    val snap = state.snapshot
+    if (snap == null) {
+        Box(modifier.fillMaxSize(), contentAlignment = Alignment.Center) { CircularProgressIndicator() }
+        return
     }
-}
-
-@Composable
-private fun SectionHeader(text: String) {
-    Text(
-        text = text,
-        style = MaterialTheme.typography.titleSmall,
-        color = MaterialTheme.colorScheme.onSurfaceVariant,
-        modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
-    )
+    LazyColumn(
+        modifier = modifier.fillMaxSize(),
+        contentPadding = PaddingValues(16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp),
+    ) {
+        item {
+            Text(
+                "Dashboard",
+                style = MaterialTheme.typography.headlineSmall,
+                color = MaterialTheme.colorScheme.onSurface,
+            )
+        }
+        item { NetWorthCard(snap) }
+        item { TotalsRow(snap) }
+        item { IncomeExpenseRow(snap) }
+        item { OverTimeRow(snap) }
+        item { SectionHeader(title = "Categories Analytics") }
+        item { CategoryDonutsRow(snap) }
+        item {
+            CategoryTrendsRow(
+                snap = snap,
+                overallCategoryId = state.overallTrendCategoryId,
+                dailyCategoryId = state.dailyTrendCategoryId,
+                onOverallCategoryChanged = onOverallCategoryChanged,
+                onDailyCategoryChanged = onDailyCategoryChanged,
+            )
+        }
+        item { SectionHeader(title = "Brands Analytics") }
+        item { BrandRow(snap) }
+    }
 }
 
 @Composable
@@ -116,23 +102,21 @@ private fun MetricCard(
     modifier: Modifier = Modifier,
     content: @Composable ColumnScope.() -> Unit,
 ) {
-    Card(
-        modifier = modifier,
-        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
-    ) {
-        Column(modifier = Modifier.padding(12.dp), content = content)
-    }
+    SurfaceCard(modifier = modifier, contentPadding = 16.dp, content = content)
 }
 
 @Composable
 private fun NetWorthCard(snap: DashboardSnapshot) {
     MetricCard(modifier = Modifier.fillMaxWidth()) {
-        Text("Net Worth Over Time", style = MaterialTheme.typography.labelMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Text(
+            "Net Worth Over Time",
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
         Text(
             formatCompactMoney(snap.netWorth),
-            style = MaterialTheme.typography.headlineMedium,
-            fontWeight = FontWeight.SemiBold,
+            style = MaterialTheme.typography.headlineSmall,
+            color = MaterialTheme.colorScheme.onSurface,
         )
         if (snap.netWorthSeries.isNotEmpty()) {
             AreaLineChart(
@@ -147,7 +131,7 @@ private fun NetWorthCard(snap: DashboardSnapshot) {
 
 @Composable
 private fun TotalsRow(snap: DashboardSnapshot) {
-    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+    Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
         SmallTotalCard("Total Cash", snap.totalCash, Modifier.weight(1f))
         SmallTotalCard("Total Savings", snap.totalSavings, Modifier.weight(1f))
         SmallTotalCard("Total Investment", snap.totalInvestment, Modifier.weight(1f))
@@ -157,19 +141,18 @@ private fun TotalsRow(snap: DashboardSnapshot) {
 @Composable
 private fun SmallTotalCard(title: String, money: Money, modifier: Modifier = Modifier) {
     MetricCard(modifier = modifier) {
-        Text(title, style = MaterialTheme.typography.labelSmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Text(title, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
         Text(
             formatCompactMoney(money),
             style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.SemiBold,
+            color = MaterialTheme.colorScheme.onSurface,
         )
     }
 }
 
 @Composable
 private fun IncomeExpenseRow(snap: DashboardSnapshot) {
-    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+    Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
         KpiCard(
             title = "Total Income",
             money = snap.incomeMonth,
@@ -196,12 +179,11 @@ private fun KpiCard(
     modifier: Modifier = Modifier,
 ) {
     MetricCard(modifier = modifier) {
-        Text(title, style = MaterialTheme.typography.labelSmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Text(title, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
         Text(
             formatCompactMoney(money),
             style = MaterialTheme.typography.titleLarge,
-            fontWeight = FontWeight.SemiBold,
+            color = MaterialTheme.colorScheme.onSurface,
         )
         TrendIndicator(pct = trendPct, positiveIsGood = trendPositiveIsGood)
     }
@@ -210,13 +192,12 @@ private fun KpiCard(
 @Composable
 private fun TrendIndicator(pct: Double?, positiveIsGood: Boolean) {
     if (pct == null || abs(pct) < 0.01) {
-        Text("No Change", style = MaterialTheme.typography.labelSmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Text("No Change", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         return
     }
     val isUp = pct > 0
     val good = if (positiveIsGood) isUp else !isUp
-    val color = if (good) Color(0xFF2E7D32) else Color(0xFFC62828)
+    val color = if (good) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error
     val icon = when {
         isUp -> Icons.Filled.TrendingUp
         pct < 0 -> Icons.Filled.TrendingDown
@@ -234,7 +215,7 @@ private fun TrendIndicator(pct: Double?, positiveIsGood: Boolean) {
 
 @Composable
 private fun OverTimeRow(snap: DashboardSnapshot) {
-    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+    Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
         OverTimeCard(
             title = "Income Over Time",
             money = snap.incomeMonth,
@@ -246,7 +227,7 @@ private fun OverTimeRow(snap: DashboardSnapshot) {
             title = "Spending Over Time",
             money = snap.expenseMonth,
             series = snap.expenseDaily,
-            color = Color(0xFFC62828),
+            color = MaterialTheme.colorScheme.error,
             modifier = Modifier.weight(1f),
         )
     }
@@ -261,12 +242,11 @@ private fun OverTimeCard(
     modifier: Modifier = Modifier,
 ) {
     MetricCard(modifier = modifier) {
-        Text(title, style = MaterialTheme.typography.labelSmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Text(title, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
         Text(
             formatCompactMoney(money),
             style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.SemiBold,
+            color = MaterialTheme.colorScheme.onSurface,
         )
         if (series.isNotEmpty()) {
             BarSparkline(
@@ -280,7 +260,7 @@ private fun OverTimeCard(
 
 @Composable
 private fun CategoryDonutsRow(snap: DashboardSnapshot) {
-    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+    Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
         DonutBreakdownCard(
             title = "Income Sources",
             shares = snap.incomeByCategory,
@@ -301,8 +281,7 @@ private fun DonutBreakdownCard(
     modifier: Modifier = Modifier,
 ) {
     MetricCard(modifier = modifier) {
-        Text(title, style = MaterialTheme.typography.labelSmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Text(title, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
         if (shares.isEmpty()) {
             Text("—", style = MaterialTheme.typography.titleMedium)
             return@MetricCard
@@ -340,7 +319,7 @@ private fun CategoryTrendsRow(
     val dailyPoints = dailyCategoryId?.let { snap.dailyTrendByCategory[it] }.orEmpty()
     val overallTotal = overallPoints.sumOf { it.amountMinor }
     val dailyTotal = dailyPoints.sumOf { it.amountMinor }
-    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+    Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
         CategoryTrendCard(
             title = "Overall Trend by Category",
             totalLabel = formatCompactUnits(overallTotal),
@@ -355,7 +334,7 @@ private fun CategoryTrendsRow(
             title = "Daily Trend by Category",
             totalLabel = formatCompactUnits(dailyTotal),
             values = dailyPoints.map { it.amountMinor / 100.0 },
-            color = Color(0xFFC62828),
+            color = MaterialTheme.colorScheme.error,
             options = snap.categoryOptions,
             selectedId = dailyCategoryId,
             onSelected = onDailyCategoryChanged,
@@ -379,8 +358,7 @@ private fun CategoryTrendCard(
     val selected = options.firstOrNull { it.id == selectedId }
     var expanded by remember { mutableStateOf(false) }
     MetricCard(modifier = modifier) {
-        Text(title, style = MaterialTheme.typography.labelSmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Text(title, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
         ExposedDropdownMenuBox(
             expanded = expanded,
             onExpandedChange = { expanded = it },
@@ -418,7 +396,7 @@ private fun CategoryTrendCard(
         Text(
             totalLabel,
             style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.SemiBold,
+            color = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier.padding(top = 4.dp),
         )
         if (values.isNotEmpty()) {
@@ -434,7 +412,7 @@ private fun CategoryTrendCard(
 
 @Composable
 private fun BrandRow(snap: DashboardSnapshot) {
-    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+    Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
         BrandDonutCard(
             title = "Spending by Brand",
             shares = snap.expenseByBrand,
@@ -457,8 +435,7 @@ private fun BrandDonutCard(
     modifier: Modifier = Modifier,
 ) {
     MetricCard(modifier = modifier) {
-        Text(title, style = MaterialTheme.typography.labelSmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Text(title, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
         if (shares.isEmpty()) {
             Text("—", style = MaterialTheme.typography.titleMedium)
             return@MetricCard
@@ -482,9 +459,8 @@ private fun TrendCard(
     modifier: Modifier = Modifier,
 ) {
     MetricCard(modifier = modifier) {
-        Text(title, style = MaterialTheme.typography.labelSmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant)
-        Text(totalLabel, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+        Text(title, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Text(totalLabel, style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurface)
         if (values.isNotEmpty()) {
             AreaLineChart(
                 values = values,
@@ -513,3 +489,4 @@ private fun formatCompactUnits(amountMinor: Long): String {
         else -> "%.2f".format(major)
     }
 }
+
