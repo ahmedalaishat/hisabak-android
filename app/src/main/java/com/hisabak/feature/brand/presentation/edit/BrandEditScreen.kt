@@ -1,24 +1,22 @@
 package com.hisabak.feature.brand.presentation.edit
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -27,10 +25,13 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.hisabak.feature.category.domain.CategoryId
-import com.hisabak.feature.category.presentation.CategoryStyle
+import com.hisabak.ui.components.ButtonVariant
+import com.hisabak.ui.components.ColoredFilterChip
+import com.hisabak.ui.components.HisabakButton
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -44,76 +45,141 @@ fun BrandEditScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(if (state.isNew) "Add brand" else "Edit brand") },
+                title = {
+                    Text(
+                        text = if (state.isNew) "New brand" else "Edit brand",
+                        style = MaterialTheme.typography.titleLarge,
+                    )
+                },
                 navigationIcon = {
                     IconButton(onClick = onCancel) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Back",
+                        )
                     }
                 },
             )
         },
-    ) { padding ->
+    ) { innerPadding ->
+        if (state.isLoading) {
+            Box(
+                modifier = Modifier
+                    .padding(innerPadding)
+                    .fillMaxSize(),
+                contentAlignment = Alignment.Center,
+            ) {
+                CircularProgressIndicator()
+            }
+            return@Scaffold
+        }
+
         Column(
             modifier = Modifier
-                .padding(padding)
+                .padding(innerPadding)
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
+                .padding(horizontal = 16.dp, vertical = 20.dp),
+            verticalArrangement = Arrangement.spacedBy(20.dp),
         ) {
-            OutlinedTextField(
+            NameField(
                 value = state.nameInput,
+                error = state.nameError,
                 onValueChange = onNameChange,
-                label = { Text("Name") },
-                isError = state.nameError != null,
-                supportingText = state.nameError?.let { { Text(it) } },
-                singleLine = true,
-                modifier = Modifier.fillMaxWidth(),
             )
 
-            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                Text("Category", style = MaterialTheme.typography.labelLarge)
-                CategoryPicker(
-                    options = state.categoryOptions,
-                    selected = state.selectedCategoryId,
-                    onSelect = onCategoryChange,
+            CategorySection(
+                options = state.categoryOptions,
+                selected = state.selectedCategoryId,
+                onSelect = onCategoryChange,
+            )
+
+            if (state.generalError != null) {
+                Text(
+                    text = state.generalError,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.error,
                 )
             }
 
-            state.generalError?.let {
-                Text(it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
-            }
+            Spacer(Modifier.height(4.dp))
 
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
-                Button(onClick = onSave, enabled = state.canSave) {
-                    Text(if (state.isSaving) "Saving…" else "Save")
-                }
-            }
+            HisabakButton(
+                text = if (state.isSaving) "Saving…" else "Save",
+                onClick = onSave,
+                variant = ButtonVariant.Primary,
+                enabled = state.canSave,
+                fullWidth = true,
+            )
+
+            HisabakButton(
+                text = "Cancel",
+                onClick = onCancel,
+                variant = ButtonVariant.Ghost,
+                fullWidth = true,
+            )
         }
     }
 }
 
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun CategoryPicker(
+private fun NameField(
+    value: String,
+    error: String?,
+    onValueChange: (String) -> Unit,
+) {
+    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+        OutlinedTextField(
+            value = value,
+            onValueChange = onValueChange,
+            label = { Text("Brand name") },
+            isError = error != null,
+            singleLine = true,
+            modifier = Modifier.fillMaxWidth(),
+        )
+        if (error != null) {
+            Text(
+                text = error,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.error,
+                modifier = Modifier.padding(start = 4.dp),
+            )
+        }
+    }
+}
+
+@Composable
+private fun CategorySection(
     options: List<BrandEditUiState.CategoryOption>,
     selected: CategoryId?,
     onSelect: (CategoryId?) -> Unit,
 ) {
-    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        options.forEach { option ->
-            FilterChip(
-                selected = selected == option.id,
-                onClick = { onSelect(option.id) },
-                label = { Text(option.name) },
-                leadingIcon = {
-                    Box(
-                        Modifier
-                            .size(10.dp)
-                            .background(CategoryStyle.color(option.color), CircleShape),
-                    )
-                },
-            )
+    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        Text(
+            text = "Category",
+            style = MaterialTheme.typography.labelLarge,
+            color = MaterialTheme.colorScheme.onSurface,
+        )
+        LazyRow(
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            contentPadding = PaddingValues(horizontal = 0.dp),
+        ) {
+            item {
+                ColoredFilterChip(
+                    label = "None",
+                    colorKey = null,
+                    selected = selected == null,
+                    onClick = { onSelect(null) },
+                )
+            }
+            items(options) { option ->
+                ColoredFilterChip(
+                    label = option.name,
+                    colorKey = option.color,
+                    selected = selected == option.id,
+                    onClick = { onSelect(option.id) },
+                )
+            }
         }
     }
 }

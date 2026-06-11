@@ -155,7 +155,7 @@ fun CategoryEditScreen(
                     columns = GridCells.Fixed(4),
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(((56 + 8) * 3).dp),
+                        .height(184.dp),
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                     userScrollEnabled = false,
