@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import com.hisabak.ui.components.DetailTopBar
 import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.automirrored.filled.Message
 import androidx.compose.material.icons.automirrored.outlined.List
@@ -65,31 +66,62 @@ private fun HisabakNav() {
     var currentTab by rememberSaveable { mutableStateOf(RootTab.Dashboard) }
     var txNav: TransactionsNav by remember { mutableStateOf(TransactionsNav.List) }
 
+    // ManageRoute surfaces its detail state here so the Scaffold can render the right top bar
+    var manageDetail by remember { mutableStateOf<Pair<String, () -> Unit>?>(null) }
+
     val tabs = remember {
         RootTab.entries.map { BottomNavTab(key = it.name, label = it.label, icon = it.icon, iconOutlined = it.iconOutlined) }
     }
 
+    val txEditNav = txNav as? TransactionsNav.Edit
+    val isOnDetail = txEditNav != null || manageDetail != null
+
     Scaffold(
-        topBar = { HisabakTopBar() },
+        topBar = {
+            when {
+                txEditNav != null -> DetailTopBar(
+                    title = if (txEditNav.id == null) "New transaction" else "Edit transaction",
+                    onBack = { txNav = TransactionsNav.List },
+                )
+                manageDetail != null -> DetailTopBar(
+                    title = manageDetail!!.first,
+                    onBack = manageDetail!!.second,
+                )
+                else -> HisabakTopBar(
+                    title = when (currentTab) {
+                        RootTab.Dashboard    -> "Hisabak"
+                        RootTab.Transactions -> "Transactions"
+                        RootTab.Sms          -> "SMS Inbox"
+                        RootTab.Manage       -> "Manage"
+                    },
+                )
+            }
+        },
         bottomBar = {
-            HisabakBottomNav(
-                tabs = tabs,
-                selectedKey = currentTab.name,
-                onSelect = { key -> currentTab = RootTab.valueOf(key) },
-            )
+            if (!isOnDetail) {
+                HisabakBottomNav(
+                    tabs = tabs,
+                    selectedKey = currentTab.name,
+                    onSelect = { key -> currentTab = RootTab.valueOf(key) },
+                )
+            }
         },
         containerColor = MaterialTheme.colorScheme.background,
     ) { padding ->
         val tabModifier = Modifier.fillMaxSize().padding(padding)
         when (currentTab) {
-            RootTab.Dashboard -> DashboardRoute(modifier = tabModifier)
+            RootTab.Dashboard    -> DashboardRoute(modifier = tabModifier)
             RootTab.Transactions -> TransactionsGraph(
                 nav = txNav,
                 onNavChange = { txNav = it },
                 modifier = tabModifier,
             )
-            RootTab.Sms -> SmsInboxRoute(modifier = tabModifier)
-            RootTab.Manage -> ManageRoute(modifier = tabModifier)
+            RootTab.Sms          -> SmsInboxRoute(modifier = tabModifier)
+            RootTab.Manage       -> ManageRoute(
+                modifier = tabModifier,
+                onDetailEnter = { title, back -> manageDetail = title to back },
+                onDetailExit  = { manageDetail = null },
+            )
         }
     }
 }
