@@ -39,7 +39,6 @@ import com.hisabak.feature.category.presentation.CategoryStyle
 import com.hisabak.ui.components.BadgeTone
 import com.hisabak.ui.components.HisabakButton
 import com.hisabak.ui.components.ButtonVariant
-import com.hisabak.ui.components.IconTile
 import com.hisabak.ui.components.SegmentOption
 import com.hisabak.ui.components.SegmentedControl
 import com.hisabak.ui.components.SurfaceCard
@@ -242,16 +241,16 @@ private fun IconChip(
         modifier = Modifier
             .size(56.dp)
             .clip(shape)
+            .background(bg, shape)
             .border(1.dp, borderColor, shape)
             .clickable(onClick = onSelect),
         contentAlignment = Alignment.Center,
     ) {
-        IconTile(
-            icon = iconForKey(iconKey),
-            size = Sizing.avatar,
-            iconSize = 18.dp,
-            background = bg,
-            foreground = fg,
+        Icon(
+            imageVector = iconForKey(iconKey),
+            contentDescription = null,
+            tint = fg,
+            modifier = Modifier.size(22.dp),
         )
     }
 }
