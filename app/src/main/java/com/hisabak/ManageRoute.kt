@@ -1,6 +1,7 @@
 package com.hisabak
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -57,11 +58,13 @@ fun ManageRoute(
             onDispose { onDetailExit() }
         }
         BackHandler { brandNav = BrandsNav.List }
-        BrandEditRoute(
-            brandId = id,
-            onDone = { brandNav = BrandsNav.List },
-            onCancel = { brandNav = BrandsNav.List },
-        )
+        Box(modifier) {
+            BrandEditRoute(
+                brandId = id,
+                onDone = { brandNav = BrandsNav.List },
+                onCancel = { brandNav = BrandsNav.List },
+            )
+        }
         return
     }
 
@@ -74,11 +77,13 @@ fun ManageRoute(
             onDispose { onDetailExit() }
         }
         BackHandler { catNav = CategoriesNav.List }
-        CategoryEditRoute(
-            categoryId = id,
-            onDone = { catNav = CategoriesNav.List },
-            onCancel = { catNav = CategoriesNav.List },
-        )
+        Box(modifier) {
+            CategoryEditRoute(
+                categoryId = id,
+                onDone = { catNav = CategoriesNav.List },
+                onCancel = { catNav = CategoriesNav.List },
+            )
+        }
         return
     }
 
