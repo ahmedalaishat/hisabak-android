@@ -1,11 +1,13 @@
 package com.hisabak
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -37,31 +39,51 @@ private sealed interface CategoriesNav {
 }
 
 @Composable
-fun ManageRoute(modifier: Modifier = Modifier) {
+fun ManageRoute(
+    modifier: Modifier = Modifier,
+    onDetailEnter: (title: String, onBack: () -> Unit) -> Unit = { _, _ -> },
+    onDetailExit: () -> Unit = {},
+) {
     var tab by rememberSaveable { mutableStateOf(ManageTab.Brands) }
     var brandNav: BrandsNav by remember { mutableStateOf(BrandsNav.List) }
     var catNav: CategoriesNav by remember { mutableStateOf(CategoriesNav.List) }
 
-    // Edit screens take over the full area
+    // Brand edit
     if (tab == ManageTab.Brands && brandNav is BrandsNav.Edit) {
+        val id = (brandNav as BrandsNav.Edit).id
+        val title = if (id == null) "New brand" else "Edit brand"
+        DisposableEffect(Unit) {
+            onDetailEnter(title) { brandNav = BrandsNav.List }
+            onDispose { onDetailExit() }
+        }
+        BackHandler { brandNav = BrandsNav.List }
         BrandEditRoute(
-            brandId = (brandNav as BrandsNav.Edit).id,
+            brandId = id,
             onDone = { brandNav = BrandsNav.List },
             onCancel = { brandNav = BrandsNav.List },
         )
         return
     }
+
+    // Category edit
     if (tab == ManageTab.Categories && catNav is CategoriesNav.Edit) {
+        val id = (catNav as CategoriesNav.Edit).id
+        val title = if (id == null) "New category" else "Edit category"
+        DisposableEffect(Unit) {
+            onDetailEnter(title) { catNav = CategoriesNav.List }
+            onDispose { onDetailExit() }
+        }
+        BackHandler { catNav = CategoriesNav.List }
         CategoryEditRoute(
-            categoryId = (catNav as CategoriesNav.Edit).id,
+            categoryId = id,
             onDone = { catNav = CategoriesNav.List },
             onCancel = { catNav = CategoriesNav.List },
         )
         return
     }
 
+    // List view with tab switcher
     Column(modifier.fillMaxSize()) {
-        // ── Header: tab switcher + contextual New button ──────────────────
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -88,8 +110,6 @@ fun ManageRoute(modifier: Modifier = Modifier) {
                 modifier = Modifier.padding(start = 12.dp),
             )
         }
-
-        // ── Content ────────────────────────────────────────────────────────
         when (tab) {
             ManageTab.Brands -> BrandListRoute(
                 onAdd = { brandNav = BrandsNav.Edit(null) },
