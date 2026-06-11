@@ -10,6 +10,7 @@ import org.koin.compose.viewmodel.koinViewModel
 fun CategoryListRoute(
     onAdd: () -> Unit,
     onEdit: (CategoryId) -> Unit,
+    showHeader: Boolean = true,
     viewModel: CategoryListViewModel = koinViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -21,5 +22,6 @@ fun CategoryListRoute(
         onDelete = { viewModel.onIntent(CategoryListIntent.Delete(it)) },
         onAdd = onAdd,
         onEdit = onEdit,
+        showHeader = showHeader,
     )
 }

@@ -10,6 +10,7 @@ import org.koin.compose.viewmodel.koinViewModel
 fun BrandListRoute(
     onAdd: () -> Unit,
     onEdit: (BrandId) -> Unit,
+    showHeader: Boolean = true,
     viewModel: BrandListViewModel = koinViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -21,5 +22,6 @@ fun BrandListRoute(
         onDelete = { viewModel.onIntent(BrandListIntent.Delete(it)) },
         onAdd = onAdd,
         onEdit = onEdit,
+        showHeader = showHeader,
     )
 }

@@ -12,12 +12,10 @@ import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.automirrored.filled.Message
 import androidx.compose.material.icons.automirrored.outlined.List
 import androidx.compose.material.icons.automirrored.outlined.Message
-import androidx.compose.material.icons.filled.Category
+import androidx.compose.material.icons.filled.Layers
 import androidx.compose.material.icons.filled.SpaceDashboard
-import androidx.compose.material.icons.filled.Storefront
-import androidx.compose.material.icons.outlined.Category
+import androidx.compose.material.icons.outlined.Layers
 import androidx.compose.material.icons.outlined.SpaceDashboard
-import androidx.compose.material.icons.outlined.Storefront
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
@@ -28,12 +26,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
-import com.hisabak.feature.brand.domain.BrandId
-import com.hisabak.feature.brand.presentation.edit.BrandEditRoute
-import com.hisabak.feature.brand.presentation.list.BrandListRoute
-import com.hisabak.feature.category.domain.CategoryId
-import com.hisabak.feature.category.presentation.edit.CategoryEditRoute
-import com.hisabak.feature.category.presentation.list.CategoryListRoute
 import com.hisabak.feature.dashboard.presentation.DashboardRoute
 import com.hisabak.feature.sms.presentation.inbox.SmsInboxRoute
 import com.hisabak.feature.transaction.domain.TransactionId
@@ -57,11 +49,10 @@ class MainActivity : ComponentActivity() {
 }
 
 private enum class RootTab(val label: String, val icon: ImageVector, val iconOutlined: ImageVector) {
-    Dashboard("Dashboard",       Icons.Filled.SpaceDashboard,        Icons.Outlined.SpaceDashboard),
+    Dashboard("Dashboard",       Icons.Filled.SpaceDashboard,       Icons.Outlined.SpaceDashboard),
     Transactions("Transactions", Icons.AutoMirrored.Filled.List,    Icons.AutoMirrored.Outlined.List),
     Sms("SMS",                   Icons.AutoMirrored.Filled.Message,  Icons.AutoMirrored.Outlined.Message),
-    Brands("Brands",             Icons.Filled.Storefront,            Icons.Outlined.Storefront),
-    Categories("Categories",     Icons.Filled.Category,              Icons.Outlined.Category),
+    Manage("Manage",             Icons.Filled.Layers,                Icons.Outlined.Layers),
 }
 
 private sealed interface TransactionsNav {
@@ -69,22 +60,10 @@ private sealed interface TransactionsNav {
     data class Edit(val id: TransactionId?) : TransactionsNav
 }
 
-private sealed interface BrandsNav {
-    data object List : BrandsNav
-    data class Edit(val id: BrandId?) : BrandsNav
-}
-
-private sealed interface CategoriesNav {
-    data object List : CategoriesNav
-    data class Edit(val id: CategoryId?) : CategoriesNav
-}
-
 @Composable
 private fun HisabakNav() {
     var currentTab by rememberSaveable { mutableStateOf(RootTab.Dashboard) }
     var txNav: TransactionsNav by remember { mutableStateOf(TransactionsNav.List) }
-    var brandNav: BrandsNav by remember { mutableStateOf(BrandsNav.List) }
-    var catNav: CategoriesNav by remember { mutableStateOf(CategoriesNav.List) }
 
     val tabs = remember {
         RootTab.entries.map { BottomNavTab(key = it.name, label = it.label, icon = it.icon, iconOutlined = it.iconOutlined) }
@@ -110,16 +89,7 @@ private fun HisabakNav() {
                 modifier = tabModifier,
             )
             RootTab.Sms -> SmsInboxRoute(modifier = tabModifier)
-            RootTab.Brands -> BrandsGraph(
-                nav = brandNav,
-                onNavChange = { brandNav = it },
-                modifier = tabModifier,
-            )
-            RootTab.Categories -> CategoriesGraph(
-                nav = catNav,
-                onNavChange = { catNav = it },
-                modifier = tabModifier,
-            )
+            RootTab.Manage -> ManageRoute(modifier = tabModifier)
         }
     }
 }
@@ -145,44 +115,3 @@ private fun TransactionsGraph(
     }
 }
 
-@Composable
-private fun BrandsGraph(
-    nav: BrandsNav,
-    onNavChange: (BrandsNav) -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    Box(modifier) {
-        when (nav) {
-            BrandsNav.List -> BrandListRoute(
-                onAdd = { onNavChange(BrandsNav.Edit(id = null)) },
-                onEdit = { id -> onNavChange(BrandsNav.Edit(id = id)) },
-            )
-            is BrandsNav.Edit -> BrandEditRoute(
-                brandId = nav.id,
-                onDone = { onNavChange(BrandsNav.List) },
-                onCancel = { onNavChange(BrandsNav.List) },
-            )
-        }
-    }
-}
-
-@Composable
-private fun CategoriesGraph(
-    nav: CategoriesNav,
-    onNavChange: (CategoriesNav) -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    Box(modifier) {
-        when (nav) {
-            CategoriesNav.List -> CategoryListRoute(
-                onAdd = { onNavChange(CategoriesNav.Edit(id = null)) },
-                onEdit = { id -> onNavChange(CategoriesNav.Edit(id = id)) },
-            )
-            is CategoriesNav.Edit -> CategoryEditRoute(
-                categoryId = nav.id,
-                onDone = { onNavChange(CategoriesNav.List) },
-                onCancel = { onNavChange(CategoriesNav.List) },
-            )
-        }
-    }
-}
