@@ -1,7 +1,6 @@
 package com.hisabak.ui.components
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -14,30 +13,24 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.hisabak.ui.theme.HisabakTheme
 
-/** A single tab destination rendered in [HisabakBottomNav]. */
 data class BottomNavTab(
     val key: String,
     val label: String,
     val icon: ImageVector,
+    val iconOutlined: ImageVector = icon,
 )
 
-/**
- * Custom nav bar that matches the Stitch design: white background, pill
- * highlight on the active tab (emerald-50 fill + emerald-600 foreground) and
- * muted gray for inactive tabs.
- */
 @Composable
 fun HisabakBottomNav(
     tabs: List<BottomNavTab>,
@@ -49,25 +42,29 @@ fun HisabakBottomNav(
     Column(
         modifier
             .fillMaxWidth()
-            .background(MaterialTheme.colorScheme.surfaceContainerLowest)
-            .border(1.dp, MaterialTheme.colorScheme.outlineVariant),
+            .background(MaterialTheme.colorScheme.surfaceContainerLowest),
     ) {
+        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant, thickness = 1.dp)
         Row(
-            Modifier
+            modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 4.dp, vertical = 8.dp),
-            horizontalArrangement = Arrangement.SpaceAround,
+                .height(64.dp),
+            horizontalArrangement = Arrangement.SpaceEvenly,
             verticalAlignment = Alignment.CenterVertically,
         ) {
             tabs.forEach { tab ->
+                val selected = tab.key == selectedKey
                 NavItem(
                     tab = tab,
-                    selected = tab.key == selectedKey,
+                    selected = selected,
                     onClick = { onSelect(tab.key) },
+                    modifier = Modifier.weight(1f),
                 )
             }
         }
-        Spacer(Modifier.height(bottomInset))
+        if (bottomInset > 0.dp) {
+            Spacer(Modifier.height(bottomInset))
+        }
     }
 }
 
@@ -76,19 +73,31 @@ private fun NavItem(
     tab: BottomNavTab,
     selected: Boolean,
     onClick: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
-    val bg = if (selected) HisabakTheme.colors.incomeSoft else MaterialTheme.colorScheme.surfaceContainerLowest
-    val fg = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
+    val fg = if (selected) MaterialTheme.colorScheme.primary
+             else MaterialTheme.colorScheme.onSurfaceVariant
+    val icon = if (selected) tab.icon else tab.iconOutlined
+
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(2.dp),
-        modifier = Modifier
-            .clip(RoundedCornerShape(12.dp))
-            .background(bg)
+        verticalArrangement = Arrangement.spacedBy(3.dp),
+        modifier = modifier
             .clickable(onClick = onClick)
-            .padding(horizontal = 10.dp, vertical = 6.dp),
+            .padding(vertical = 10.dp),
     ) {
-        Icon(tab.icon, contentDescription = tab.label, tint = fg, modifier = Modifier.size(22.dp))
-        Text(tab.label, style = MaterialTheme.typography.labelSmall, color = fg)
+        Icon(
+            imageVector = icon,
+            contentDescription = tab.label,
+            tint = fg,
+            modifier = Modifier.size(24.dp),
+        )
+        Text(
+            text = tab.label,
+            style = MaterialTheme.typography.labelSmall.copy(
+                fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Medium,
+            ),
+            color = fg,
+        )
     }
 }
