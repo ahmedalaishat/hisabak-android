@@ -2,6 +2,7 @@ package com.hisabak.feature.brand.presentation.list
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -10,12 +11,13 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DeleteOutline
-import androidx.compose.material.icons.filled.Stars
-import androidx.compose.material.icons.filled.TrendingDown
-import androidx.compose.material.icons.filled.TrendingUp
+import androidx.compose.material.icons.filled.Layers
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.Storefront
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -27,11 +29,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.hisabak.feature.brand.domain.BrandId
 import com.hisabak.feature.category.domain.CategoryId
+import com.hisabak.ui.components.Badge
+import com.hisabak.ui.components.BadgeTone
 import com.hisabak.ui.components.CircleIconTile
+import com.hisabak.ui.components.ColoredFilterChip
 import com.hisabak.ui.components.CreateActionButton
-import com.hisabak.ui.components.DarkPromoBanner
 import com.hisabak.ui.components.EmptyStatePanel
-import com.hisabak.ui.components.FilterChipRow
 import com.hisabak.ui.components.IconTile
 import com.hisabak.ui.components.ListRow
 import com.hisabak.ui.components.SearchField
@@ -51,7 +54,9 @@ fun BrandListScreen(
     onEdit: (BrandId) -> Unit,
 ) {
     if (state.isLoading) {
-        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { CircularProgressIndicator() }
+        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            CircularProgressIndicator()
+        }
         return
     }
 
@@ -63,30 +68,45 @@ fun BrandListScreen(
 
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(16.dp),
+        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
-        item { BrandHeader(onCreate = onAdd) }
-        item { SearchField(value = state.search, onValueChange = onSearchChange, placeholder = "Search brands", modifier = Modifier.fillMaxWidth()) }
-        item { InsightsRow(totalBrands = state.rows.size, categoryCount = state.availableCategories.size) }
-        if (mostUsed != null) item { MostUsedBrandCard(name = mostUsed.name, categoryName = mostUsed.categoryName, colorKey = mostUsed.categoryColor) }
+        item { HeaderRow(onCreate = onAdd) }
+
+        item { InsightPills(brandCount = state.rows.size, categoryCount = state.availableCategories.size) }
+
+        item {
+            SearchField(
+                value = state.search,
+                onValueChange = onSearchChange,
+                placeholder = "Search brands",
+                modifier = Modifier.fillMaxWidth(),
+            )
+        }
+
+        if (mostUsed != null) {
+            item { MostUsedCard(row = mostUsed) }
+        }
+
         if (state.availableCategories.isNotEmpty()) {
             item {
-                FilterChipRow(
-                    options = filterOptions,
+                CategoryFilterRow(
+                    allOptions = filterOptions,
+                    colorByCategory = state.availableCategories.associate { it.id to it.color },
                     selected = state.categoryFilter,
                     onSelect = onCategoryFilterChange,
-                    contentPadding = PaddingValues(horizontal = 0.dp),
                 )
             }
         }
+
         item {
             SectionHeader(
-                title = "Recent Brands",
-                actionLabel = if (state.rows.size > 4) "View All" else null,
-                onAction = if (state.rows.size > 4) ({ /* full-list view TBD */ }) else null,
+                title = "All brands",
+                actionLabel = if (state.rows.size > 6) "See all" else null,
+                onAction = if (state.rows.size > 6) ({}) else null,
             )
         }
+
         if (state.rows.isEmpty()) {
             item {
                 EmptyStatePanel(
@@ -95,138 +115,178 @@ fun BrandListScreen(
                         state.categoryFilter != null -> "No brands in this category"
                         else -> "No brands yet"
                     },
-                    subtitle = if (state.search.isBlank()) "Tap Create Brand to add one." else "Nothing matches \"${state.search}\".",
+                    subtitle = if (state.search.isBlank())
+                        "Tap New brand to add one."
+                    else
+                        "Nothing matches \"${state.search}\".",
+                    icon = Icons.Filled.Storefront,
                 )
             }
         } else {
-            items(state.rows.take(6), key = { it.id.value }) { row ->
-                BrandRowItem(row = row, onEdit = { onEdit(row.id) }, onDelete = { onDelete(row.id) })
+            items(state.rows, key = { it.id.value }) { row ->
+                BrandRowItem(
+                    row = row,
+                    onEdit = { onEdit(row.id) },
+                    onDelete = { onDelete(row.id) },
+                )
             }
         }
-        item { Spacer(Modifier.height(4.dp)) }
-        item {
-            DarkPromoBanner(
-                title = "Spending Insights",
-                body = "Discover hidden patterns in your monthly brand loyalty.",
-                ctaLabel = "Unlock Premium",
-                onCtaClick = { /* future: open premium upsell */ },
-            )
-        }
+
+        item { Spacer(Modifier.height(8.dp)) }
     }
 }
 
 @Composable
-private fun BrandHeader(onCreate: () -> Unit) {
+private fun HeaderRow(onCreate: () -> Unit) {
     Row(
         Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.Bottom,
+        verticalAlignment = Alignment.CenterVertically,
     ) {
-        androidx.compose.foundation.layout.Column(modifier = Modifier.weight(1f)) {
-            Text(
-                "Brands",
-                style = MaterialTheme.typography.headlineSmall,
-                color = MaterialTheme.colorScheme.onSurface,
-            )
-            Text(
-                "Manage your spending partners",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
+        Text(
+            text = "Brands",
+            style = MaterialTheme.typography.titleLarge,
+            color = MaterialTheme.colorScheme.onSurface,
+        )
+        CreateActionButton(text = "New brand", onClick = onCreate)
+    }
+}
+
+@Composable
+private fun InsightPills(brandCount: Int, categoryCount: Int) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+    ) {
+        SurfaceCard(modifier = Modifier.weight(1f), contentPadding = 14.dp) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
+            ) {
+                IconTile(
+                    icon = Icons.Filled.Storefront,
+                    size = 32.dp,
+                    iconSize = 16.dp,
+                    background = MaterialTheme.colorScheme.surfaceVariant,
+                    foreground = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                Column {
+                    Text(
+                        text = brandCount.toString(),
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.onSurface,
+                    )
+                    Text(
+                        text = "brands",
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+            }
         }
-        CreateActionButton(text = "Create Brand", onClick = onCreate)
+        SurfaceCard(modifier = Modifier.weight(1f), contentPadding = 14.dp) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
+            ) {
+                IconTile(
+                    icon = Icons.Filled.Layers,
+                    size = 32.dp,
+                    iconSize = 16.dp,
+                    background = MaterialTheme.colorScheme.surfaceVariant,
+                    foreground = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                Column {
+                    Text(
+                        text = categoryCount.toString(),
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.onSurface,
+                    )
+                    Text(
+                        text = "categories",
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+            }
+        }
     }
 }
 
 @Composable
-private fun InsightsRow(totalBrands: Int, categoryCount: Int) {
-    Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-        InsightCard(
-            icon = Icons.Filled.TrendingUp,
-            label = "Total brands",
-            value = totalBrands.toString(),
-            accentBg = HisabakTheme.colors.incomeSoft,
-            accentFg = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.weight(1f),
-        )
-        InsightCard(
-            icon = Icons.Filled.TrendingDown,
-            label = "Categories",
-            value = categoryCount.toString(),
-            accentBg = HisabakTheme.colors.expenseSoft,
-            accentFg = MaterialTheme.colorScheme.error,
-            modifier = Modifier.weight(1f),
-        )
-    }
-}
+private fun MostUsedCard(row: BrandRow) {
+    val (tileBg, tileFg) = tintPairForColor(row.categoryColor)
+    val incomeSoft = HisabakTheme.colors.incomeSoft
 
-@Composable
-private fun InsightCard(
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
-    label: String,
-    value: String,
-    accentBg: androidx.compose.ui.graphics.Color,
-    accentFg: androidx.compose.ui.graphics.Color,
-    modifier: Modifier = Modifier,
-) {
-    SurfaceCard(modifier = modifier) {
-        IconTile(
-            icon = icon,
-            size = 28.dp,
-            iconSize = 16.dp,
-            background = accentBg,
-            foreground = accentFg,
-        )
-        Spacer(Modifier.height(12.dp))
-        Text(
-            value,
-            style = MaterialTheme.typography.titleMedium,
-            color = accentFg,
-        )
-        Text(
-            label,
-            style = MaterialTheme.typography.labelMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
-    }
-}
-
-@Composable
-private fun MostUsedBrandCard(name: String, categoryName: String?, colorKey: String?) {
-    val (bg, fg) = tintPairForColor(colorKey)
-    SurfaceCard(contentPadding = 20.dp, modifier = Modifier.fillMaxWidth()) {
+    SurfaceCard(
+        modifier = Modifier.fillMaxWidth(),
+        contentPadding = 16.dp,
+        backgroundColor = incomeSoft,
+        borderColor = HisabakTheme.colors.income.copy(alpha = 0.18f),
+    ) {
         Row(
             Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically,
+            verticalAlignment = Alignment.Top,
         ) {
-            androidx.compose.foundation.layout.Column(modifier = Modifier.weight(1f)) {
+            Column(modifier = Modifier.weight(1f)) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Star,
+                        contentDescription = null,
+                        tint = HisabakTheme.colors.income,
+                        modifier = Modifier.padding(0.dp),
+                    )
+                    Badge(label = "Most used", tone = BadgeTone.Income)
+                }
+                Spacer(Modifier.height(10.dp))
                 Text(
-                    "MOST USED",
-                    style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier
-                        .padding(bottom = 6.dp),
-                )
-                Text(
-                    name,
+                    text = row.name,
                     style = MaterialTheme.typography.titleLarge,
                     color = MaterialTheme.colorScheme.onSurface,
                 )
-                Text(
-                    categoryName ?: "Uncategorized",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(top = 2.dp),
-                )
+                if (row.categoryName != null) {
+                    Spacer(Modifier.height(6.dp))
+                    ColoredFilterChip(
+                        label = row.categoryName,
+                        colorKey = row.categoryColor,
+                        selected = false,
+                        onClick = {},
+                    )
+                }
             }
             IconTile(
-                icon = Icons.Filled.Stars,
-                size = 56.dp,
-                iconSize = 28.dp,
-                background = bg,
-                foreground = fg,
+                icon = iconForKey(null),
+                size = 52.dp,
+                iconSize = 26.dp,
+                background = tileBg,
+                foreground = tileFg,
                 shape = androidx.compose.foundation.shape.CircleShape,
+            )
+        }
+    }
+}
+
+@Composable
+private fun CategoryFilterRow(
+    allOptions: List<Pair<String, CategoryId?>>,
+    colorByCategory: Map<CategoryId, String>,
+    selected: CategoryId?,
+    onSelect: (CategoryId?) -> Unit,
+) {
+    LazyRow(
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        contentPadding = PaddingValues(horizontal = 0.dp),
+    ) {
+        items(allOptions) { (label, value) ->
+            ColoredFilterChip(
+                label = label,
+                colorKey = value?.let { colorByCategory[it] },
+                selected = selected == value,
+                onClick = { onSelect(value) },
             )
         }
     }
@@ -252,8 +312,8 @@ private fun BrandRowItem(
         trailing = {
             IconButton(onClick = onDelete) {
                 Icon(
-                    Icons.Filled.DeleteOutline,
-                    contentDescription = "Delete",
+                    imageVector = Icons.Filled.DeleteOutline,
+                    contentDescription = "Delete ${row.name}",
                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }

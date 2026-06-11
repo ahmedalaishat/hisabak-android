@@ -2,6 +2,7 @@ package com.hisabak.feature.transaction.presentation.list
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -10,42 +11,51 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccountBalanceWallet
-import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.ReceiptLong
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.hisabak.core.common.Money
 import com.hisabak.feature.category.domain.CategoryType
 import com.hisabak.feature.transaction.domain.TransactionId
+import com.hisabak.ui.components.AmountText
+import com.hisabak.ui.components.AmountTone
+import com.hisabak.ui.components.ButtonVariant
 import com.hisabak.ui.components.CircleIconTile
-import com.hisabak.ui.components.CreateActionButton
 import com.hisabak.ui.components.EmptyStatePanel
 import com.hisabak.ui.components.ExpensesStatCard
-import com.hisabak.ui.components.GradientBanner
+import com.hisabak.ui.components.FilterPill
+import com.hisabak.ui.components.HisabakButton
 import com.hisabak.ui.components.IncomeStatCard
 import com.hisabak.ui.components.ListRow
 import com.hisabak.ui.components.ProgressBar
 import com.hisabak.ui.components.SearchField
-import com.hisabak.ui.components.SectionHeader
 import com.hisabak.ui.components.SurfaceCard
 import com.hisabak.ui.components.TrailingAmount
 import com.hisabak.ui.components.iconForKey
 import com.hisabak.ui.components.tintPairForColor
+import com.hisabak.ui.theme.HisabakTheme
 import java.time.Duration
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import kotlin.math.abs
+
+private enum class Period { TODAY, WEEK, MONTH, ALL }
 
 @Composable
 fun TransactionListScreen(
@@ -63,34 +73,72 @@ fun TransactionListScreen(
     }
 
     val totals = remember(state.rows) { computeTotals(state.rows) }
+    var period by rememberSaveable { mutableStateOf(Period.MONTH) }
 
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp),
+        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        item { BalanceCard(totals) }
-        item { TotalsRow(totals) }
-        item { SearchAndNew(search = state.search, onSearchChange = onSearchChange, onAdd = onAdd) }
+        item { BalanceHeroCard(totals = totals, onAdd = onAdd) }
+
         item {
-            SectionHeader(
-                title = "Recent Activities",
-                actionLabel = if (state.rows.isNotEmpty()) "See all" else null,
-                onAction = if (state.rows.isNotEmpty()) ({ /* full-list view TBD */ }) else null,
+            Row(
+                Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+            ) {
+                IncomeStatCard(
+                    value = formatMoneyMajor(totals.income, totals.currencyCode),
+                    modifier = Modifier.weight(1f),
+                )
+                ExpensesStatCard(
+                    value = formatMoneyMajor(totals.expenses, totals.currencyCode),
+                    modifier = Modifier.weight(1f),
+                )
+            }
+        }
+
+        item {
+            SearchField(
+                value = state.search,
+                onValueChange = onSearchChange,
+                placeholder = "Search transactions...",
+                modifier = Modifier.fillMaxWidth(),
             )
         }
+
+        item {
+            LazyRow(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                contentPadding = PaddingValues(horizontal = 0.dp),
+            ) {
+                item {
+                    FilterPill(label = "Today", selected = period == Period.TODAY, onClick = { period = Period.TODAY })
+                }
+                item {
+                    FilterPill(label = "Week", selected = period == Period.WEEK, onClick = { period = Period.WEEK })
+                }
+                item {
+                    FilterPill(label = "Month", selected = period == Period.MONTH, onClick = { period = Period.MONTH })
+                }
+                item {
+                    FilterPill(label = "All", selected = period == Period.ALL, onClick = { period = Period.ALL })
+                }
+            }
+        }
+
         if (state.rows.isEmpty()) {
             item {
                 EmptyStatePanel(
-                    title = if (state.search.isBlank()) "No transactions yet" else "No matches",
-                    subtitle = if (state.search.isBlank())
-                        "Tap New to log your first transaction."
-                    else
-                        "Nothing matches \"${state.search}\".",
+                    title = "No transactions yet",
+                    subtitle = "Add your first or import from SMS",
+                    icon = Icons.Filled.ReceiptLong,
+                    actionLabel = "Add transaction",
+                    onAction = onAdd,
                 )
             }
         } else {
-            items(state.rows.take(10), key = { it.id.value }) { row ->
+            items(state.rows, key = { it.id.value }) { row ->
                 TransactionRowItem(
                     row = row,
                     onEdit = { onEdit(row.id) },
@@ -98,13 +146,8 @@ fun TransactionListScreen(
                 )
             }
         }
-        item { Spacer(Modifier.height(4.dp)) }
-        item {
-            GradientBanner(
-                title = "Smart Saving Tip",
-                body = savingTip(totals),
-            )
-        }
+
+        item { Spacer(Modifier.height(8.dp)) }
     }
 }
 
@@ -140,95 +183,53 @@ private fun computeTotals(rows: List<TransactionRow>): Totals {
 }
 
 @Composable
-private fun BalanceCard(totals: Totals) {
-    SurfaceCard(contentPadding = 20.dp, modifier = Modifier.fillMaxWidth()) {
+private fun BalanceHeroCard(totals: Totals, onAdd: () -> Unit) {
+    val incomeRatio = if (totals.income == 0L) 0f else
+        (totals.income.toFloat() / (totals.income + totals.expenses).toFloat().coerceAtLeast(1f))
+
+    SurfaceCard(modifier = Modifier.fillMaxWidth(), contentPadding = 20.dp) {
+        Text(
+            text = "Total Balance",
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        Spacer(Modifier.height(4.dp))
+        AmountText(
+            value = totals.balance.toMajorDouble(),
+            currency = totals.currencyCode.ifBlank { "SAR" },
+            showSign = false,
+            tone = AmountTone.Neutral,
+            size = 36.sp,
+        )
+        Spacer(Modifier.height(14.dp))
+        ProgressBar(
+            progress = incomeRatio,
+            color = HisabakTheme.colors.income,
+        )
+        Spacer(Modifier.height(6.dp))
         Row(
             Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.Top,
         ) {
-            androidx.compose.foundation.layout.Column {
-                Text(
-                    "TOTAL BALANCE",
-                    style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.secondary,
-                )
-                Spacer(Modifier.height(4.dp))
-                Text(
-                    formatMoneyMajor(totals.balance, totals.currencyCode),
-                    style = MaterialTheme.typography.headlineSmall,
-                    color = MaterialTheme.colorScheme.onSurface,
-                )
-            }
-            Icon(
-                Icons.Filled.AccountBalanceWallet,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary,
-            )
-        }
-        Spacer(Modifier.height(20.dp))
-        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
             Text(
-                "Month to date",
-                style = MaterialTheme.typography.labelMedium,
+                text = "${(incomeRatio * 100).toInt()}% income ratio",
+                style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
-            val pct = if (totals.income == 0L) 0 else
-                ((totals.income - totals.expenses).coerceAtLeast(0L) * 100 / totals.income).toInt()
             Text(
-                "$pct%",
-                style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.primary,
+                text = "${totals.currencyCode} ${totals.income.toMajor()} in · ${totals.currencyCode} ${totals.expenses.toMajor()} out",
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
-        Spacer(Modifier.height(6.dp))
-        val ratio = if (totals.income == 0L) 0f else
-            ((totals.income - totals.expenses).coerceAtLeast(0L).toFloat() / totals.income.toFloat())
-        ProgressBar(progress = ratio)
-        Spacer(Modifier.height(6.dp))
-        Text(
-            "You've logged ${totals.income.toMajor()} income and ${totals.expenses.toMajor()} spending this view.",
-            style = MaterialTheme.typography.labelSmall,
-            color = MaterialTheme.colorScheme.secondary,
+        Spacer(Modifier.height(16.dp))
+        HisabakButton(
+            text = "Add Transaction",
+            onClick = onAdd,
+            variant = ButtonVariant.Primary,
+            leadingIcon = Icons.Filled.Add,
+            fullWidth = true,
         )
-    }
-}
-
-@Composable
-private fun TotalsRow(totals: Totals) {
-    Row(
-        Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
-    ) {
-        IncomeStatCard(
-            value = formatMoneyMajor(totals.income, totals.currencyCode),
-            modifier = Modifier.weight(1f),
-        )
-        ExpensesStatCard(
-            value = formatMoneyMajor(totals.expenses, totals.currencyCode),
-            modifier = Modifier.weight(1f),
-        )
-    }
-}
-
-@Composable
-private fun SearchAndNew(
-    search: String,
-    onSearchChange: (String) -> Unit,
-    onAdd: () -> Unit,
-) {
-    Row(
-        Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        SearchField(
-            value = search,
-            onValueChange = onSearchChange,
-            placeholder = "Search transactions...",
-            modifier = Modifier.weight(1f),
-        )
-        CreateActionButton(text = "New", onClick = onAdd)
     }
 }
 
@@ -238,45 +239,44 @@ private fun TransactionRowItem(
     onEdit: () -> Unit,
     onDelete: () -> Unit,
 ) {
-    val positive = row.categoryType == CategoryType.INCOME
+    val isIncome = row.categoryType == CategoryType.INCOME
+    val tone = when (row.categoryType) {
+        CategoryType.INCOME -> AmountTone.Income
+        CategoryType.EXPENSES -> AmountTone.Expense
+        else -> if (row.amount.amountMinor >= 0) AmountTone.Income else AmountTone.Expense
+    }
     val (bg, fg) = tintPairForColor(row.categoryColor)
+    val amountValue = row.amount.amountMinor.toMajorDouble()
+    val dateLabel = formatRelative(row.occurredAt)
+
     ListRow(
         title = row.brandName,
-        subtitle = listOfNotNull(row.categoryName, formatRelative(row.occurredAt))
-            .joinToString(" • "),
+        subtitle = listOfNotNull(row.note?.takeIf { it.isNotBlank() }, dateLabel).joinToString(" · "),
         leading = {
             CircleIconTile(
-                icon = iconForKey(null), // categories track icons by name; key lookup could slot in here
+                icon = iconForKey(null),
                 background = bg,
                 foreground = fg,
             )
         },
         trailing = {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                TrailingAmount(
-                    amount = formatSignedAmount(row.amount, positive),
-                    positive = positive,
+            Column(horizontalAlignment = Alignment.End) {
+                AmountText(
+                    value = abs(amountValue),
+                    currency = row.amount.currency.code,
+                    showSign = true,
+                    tone = tone,
+                    size = 14.sp,
                 )
-                IconButton(onClick = onDelete) {
-                    Icon(
-                        Icons.Filled.Delete,
-                        contentDescription = "Delete",
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
+                Text(
+                    text = dateLabel,
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
             }
         },
         onClick = onEdit,
     )
-}
-
-private fun savingTip(totals: Totals): String = when {
-    totals.income == 0L && totals.expenses == 0L ->
-        "Log a few transactions to unlock personalized insights."
-    totals.expenses > totals.income ->
-        "Spending is outpacing income this period — review your top categories."
-    else ->
-        "You're saving ${(((totals.income - totals.expenses).coerceAtLeast(0L)).toMajor())} this period. Keep it up."
 }
 
 private fun Long.toMajor(): String {
@@ -284,6 +284,8 @@ private fun Long.toMajor(): String {
     val minor = abs(this % 100)
     return "$major.${minor.toString().padStart(2, '0')}"
 }
+
+private fun Long.toMajorDouble(): Double = this / 100.0
 
 internal fun formatMoneyMajor(amountMinor: Long, currency: String): String {
     val prefix = if (currency.isBlank()) "" else "$currency "
@@ -319,4 +321,3 @@ private fun formatRelative(instant: Instant): String {
         else -> formatDate(instant)
     }
 }
-

@@ -1,10 +1,13 @@
 package com.hisabak.ui.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -16,11 +19,82 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.hisabak.ui.theme.HisabakTheme
+
+enum class ButtonVariant { Primary, Secondary, Ghost, Danger }
+
+private val PillShape = RoundedCornerShape(percent = 50)
+
+@Composable
+fun HisabakButton(
+    text: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    variant: ButtonVariant = ButtonVariant.Primary,
+    leadingIcon: ImageVector? = null,
+    enabled: Boolean = true,
+    fullWidth: Boolean = false,
+) {
+    val c = HisabakTheme.colors
+    val cs = MaterialTheme.colorScheme
+
+    val bg = when (variant) {
+        ButtonVariant.Primary   -> cs.primary
+        ButtonVariant.Secondary -> Color.Transparent
+        ButtonVariant.Ghost     -> Color.Transparent
+        ButtonVariant.Danger    -> c.expenseSoft
+    }
+    val fg = when (variant) {
+        ButtonVariant.Primary   -> cs.onPrimary
+        ButtonVariant.Secondary -> cs.onSurface
+        ButtonVariant.Ghost     -> cs.primary
+        ButtonVariant.Danger    -> c.expense
+    }
+    val borderColor = when (variant) {
+        ButtonVariant.Secondary -> cs.outlineVariant
+        else                    -> Color.Transparent
+    }
+
+    val widthModifier = if (fullWidth) modifier.fillMaxWidth() else modifier
+    val alphaModifier = widthModifier.alpha(if (enabled) 1f else 0.45f)
+
+    Row(
+        modifier = alphaModifier
+            .height(48.dp)
+            .clip(PillShape)
+            .background(bg, PillShape)
+            .then(
+                if (variant == ButtonVariant.Secondary)
+                    Modifier.border(1.dp, borderColor, PillShape)
+                else
+                    Modifier
+            )
+            .clickable(enabled = enabled, onClick = onClick)
+            .padding(horizontal = 20.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
+    ) {
+        if (leadingIcon != null) {
+            Icon(
+                imageVector = leadingIcon,
+                contentDescription = null,
+                tint = fg,
+                modifier = Modifier.size(20.dp),
+            )
+        }
+        Text(
+            text = text,
+            style = MaterialTheme.typography.labelLarge,
+            color = fg,
+        )
+    }
+}
 
 /**
  * Green pill button used for primary actions in the design (Create Brand,

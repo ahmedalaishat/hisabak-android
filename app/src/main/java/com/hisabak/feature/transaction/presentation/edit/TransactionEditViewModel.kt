@@ -57,6 +57,8 @@ class TransactionEditViewModel(
                 setState { copy(selectedBrandId = intent.brandId, brandError = null) }
             is TransactionEditIntent.NoteChanged ->
                 setState { copy(noteInput = intent.value) }
+            is TransactionEditIntent.TypeSelected ->
+                setState { copy(selectedType = intent.type) }
             is TransactionEditIntent.DateChanged ->
                 setState { copy(occurredAt = intent.instant, showDatePicker = false) }
             TransactionEditIntent.DatePickerOpened ->
