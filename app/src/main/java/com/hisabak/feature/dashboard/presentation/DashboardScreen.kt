@@ -3,24 +3,33 @@ package com.hisabak.feature.dashboard.presentation
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.TrendingFlat
-import androidx.compose.material.icons.filled.TrendingDown
+import androidx.compose.material.icons.filled.AccountBalanceWallet
+import androidx.compose.material.icons.filled.ArrowDownward
+import androidx.compose.material.icons.filled.ArrowUpward
+import androidx.compose.material.icons.filled.Savings
 import androidx.compose.material.icons.filled.TrendingUp
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MenuAnchorType
@@ -30,10 +39,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.hisabak.core.common.Money
 import com.hisabak.feature.category.domain.CategoryId
@@ -48,10 +60,14 @@ import com.hisabak.feature.dashboard.presentation.components.AreaLineChart
 import com.hisabak.feature.dashboard.presentation.components.BarSparkline
 import com.hisabak.feature.dashboard.presentation.components.DonutChart
 import com.hisabak.feature.dashboard.presentation.components.DonutSlice
+import com.hisabak.feature.dashboard.presentation.components.GroupedBarChart
 import com.hisabak.ui.components.SectionHeader
 import com.hisabak.ui.components.SurfaceCard
 import com.hisabak.ui.theme.HisabakTheme
+import com.hisabak.ui.theme.HisabakType
 import kotlin.math.abs
+
+private val PERIODS = listOf("Week", "Month", "Year", "All")
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -63,27 +79,145 @@ fun DashboardScreen(
 ) {
     val snap = state.snapshot
     if (snap == null) {
-        Box(modifier.fillMaxSize(), contentAlignment = Alignment.Center) { CircularProgressIndicator() }
+        Box(modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            CircularProgressIndicator()
+        }
         return
     }
+
+    val c = HisabakTheme.colors
+    var period by rememberSaveable { mutableStateOf("Month") }
+
     LazyColumn(
         modifier = modifier.fillMaxSize(),
-        contentPadding = PaddingValues(16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp),
+        contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 32.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
+        // ── Page title ──────────────────────────────────────────────────────
         item {
             Text(
                 "Dashboard",
-                style = MaterialTheme.typography.headlineSmall,
+                style = MaterialTheme.typography.titleLarge,
                 color = MaterialTheme.colorScheme.onSurface,
             )
         }
-        item { NetWorthCard(snap) }
-        item { TotalsRow(snap) }
-        item { IncomeExpenseRow(snap) }
-        item { OverTimeRow(snap) }
-        item { SectionHeader(title = "Categories Analytics") }
-        item { CategoryDonutsRow(snap) }
+
+        // ── Net worth hero ──────────────────────────────────────────────────
+        item {
+            NetWorthCard(snap = snap, period = period, onPeriodChange = { period = it })
+        }
+
+        // ── Cash / Savings / Investment pills ───────────────────────────────
+        item {
+            Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                TotalPill(
+                    label = "Cash",
+                    money = snap.totalCash,
+                    icon = { Icon(Icons.Filled.AccountBalanceWallet, null, modifier = Modifier.size(16.dp)) },
+                    bgColor = MaterialTheme.colorScheme.surfaceVariant,
+                    fgColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.weight(1f),
+                )
+                TotalPill(
+                    label = "Savings",
+                    money = snap.totalSavings,
+                    icon = { Icon(Icons.Filled.Savings, null, modifier = Modifier.size(16.dp)) },
+                    bgColor = c.savingsSoft,
+                    fgColor = c.savings,
+                    modifier = Modifier.weight(1f),
+                )
+                TotalPill(
+                    label = "Invest",
+                    money = snap.totalInvestment,
+                    icon = { Icon(Icons.Filled.TrendingUp, null, modifier = Modifier.size(16.dp)) },
+                    bgColor = c.investmentSoft,
+                    fgColor = c.investment,
+                    modifier = Modifier.weight(1f),
+                )
+            }
+        }
+
+        // ── Income / Expenses ───────────────────────────────────────────────
+        item {
+            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                KpiCard(
+                    label = "Income",
+                    money = snap.incomeMonth,
+                    trendPct = snap.incomeTrendPct,
+                    trendPositiveIsGood = true,
+                    amountColor = c.income,
+                    sparklineValues = snap.incomeDaily.map { it.amountMinor / 100.0 },
+                    sparklineColor = c.income,
+                    modifier = Modifier.weight(1f),
+                )
+                KpiCard(
+                    label = "Expenses",
+                    money = snap.expenseMonth,
+                    trendPct = snap.expenseTrendPct,
+                    trendPositiveIsGood = false,
+                    amountColor = c.expense,
+                    sparklineValues = snap.expenseDaily.map { it.amountMinor / 100.0 },
+                    sparklineColor = c.expense,
+                    modifier = Modifier.weight(1f),
+                )
+            }
+        }
+
+        // ── Income & spending grouped bars ──────────────────────────────────
+        item { SectionHeader(title = "Income & spending") }
+        item {
+            val (incomeMonthly, expenseMonthly) = monthlyPairs(snap.incomeDaily, snap.expenseDaily)
+            if (incomeMonthly.isNotEmpty()) {
+                DashCard(modifier = Modifier.fillMaxWidth()) {
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(14.dp),
+                        modifier = Modifier.padding(bottom = 10.dp),
+                    ) {
+                        LegendDot(color = c.income, label = "Income")
+                        LegendDot(color = c.expense, label = "Expenses")
+                    }
+                    GroupedBarChart(
+                        incomeValues = incomeMonthly,
+                        expenseValues = expenseMonthly,
+                        incomeColor = c.income,
+                        expenseColor = c.expense,
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                }
+            }
+        }
+
+        // ── Expenses by category ────────────────────────────────────────────
+        item { SectionHeader(title = "Expenses by category") }
+        item {
+            CategoryDonutCard(
+                shares = snap.expenseByCategory,
+                modifier = Modifier.fillMaxWidth(),
+            )
+        }
+
+        // ── Top brands ──────────────────────────────────────────────────────
+        item { SectionHeader(title = "Top brands") }
+        item {
+            BrandDonutCard(
+                shares = snap.expenseByBrand,
+                modifier = Modifier.fillMaxWidth(),
+            )
+        }
+
+        // ── Income sources ──────────────────────────────────────────────────
+        if (snap.incomeByCategory.isNotEmpty()) {
+            item { SectionHeader(title = "Income sources") }
+            item {
+                CategoryDonutCard(
+                    shares = snap.incomeByCategory,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+            }
+        }
+
+        // ── Category trends ─────────────────────────────────────────────────
+        item { SectionHeader(title = "Category trends") }
         item {
             CategoryTrendsRow(
                 snap = snap,
@@ -93,221 +227,289 @@ fun DashboardScreen(
                 onDailyCategoryChanged = onDailyCategoryChanged,
             )
         }
-        item { SectionHeader(title = "Brands Analytics") }
-        item { BrandRow(snap) }
     }
 }
 
-@Composable
-private fun MetricCard(
-    modifier: Modifier = Modifier,
-    content: @Composable ColumnScope.() -> Unit,
-) {
-    SurfaceCard(modifier = modifier, contentPadding = 16.dp, content = content)
-}
+// ── Hero card ────────────────────────────────────────────────────────────────
 
 @Composable
-private fun NetWorthCard(snap: DashboardSnapshot) {
-    MetricCard(modifier = Modifier.fillMaxWidth()) {
+private fun NetWorthCard(
+    snap: DashboardSnapshot,
+    period: String,
+    onPeriodChange: (String) -> Unit,
+) {
+    val c = HisabakTheme.colors
+    val trendPct = netWorthTrend(snap.netWorthSeries)
+
+    DashCard(modifier = Modifier.fillMaxWidth()) {
         Text(
-            "Net Worth Over Time",
+            "Net worth",
             style = MaterialTheme.typography.labelMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
-        Text(
-            formatCompactMoney(snap.netWorth),
-            style = MaterialTheme.typography.headlineSmall,
-            color = MaterialTheme.colorScheme.onSurface,
-        )
+        Spacer(Modifier.height(4.dp))
+        Row(verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            Text(
+                formatMoney(snap.netWorth),
+                style = HisabakType.amountHero,
+                color = MaterialTheme.colorScheme.onSurface,
+            )
+            if (trendPct != null) {
+                TrendBadge(pct = trendPct, positiveIsGood = true)
+            }
+        }
         if (snap.netWorthSeries.isNotEmpty()) {
             AreaLineChart(
                 values = snap.netWorthSeries.map { it.amountMinor / 100.0 },
                 lineColor = MaterialTheme.colorScheme.primary,
-                fillColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f),
+                fillColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f),
+                modifier = Modifier.fillMaxWidth().padding(top = 12.dp, bottom = 4.dp),
+                heightDp = 96.dp,
+            )
+        }
+        LazyRow(
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            modifier = Modifier.padding(top = 8.dp),
+        ) {
+            items(PERIODS.size) { i ->
+                val p = PERIODS[i]
+                FilterChip(
+                    selected = period == p,
+                    onClick = { onPeriodChange(p) },
+                    label = { Text(p, style = MaterialTheme.typography.labelMedium) },
+                    colors = FilterChipDefaults.filterChipColors(
+                        selectedContainerColor = MaterialTheme.colorScheme.primary,
+                        selectedLabelColor = MaterialTheme.colorScheme.onPrimary,
+                    ),
+                    border = FilterChipDefaults.filterChipBorder(
+                        enabled = true,
+                        selected = period == p,
+                        borderColor = MaterialTheme.colorScheme.outlineVariant,
+                        selectedBorderColor = MaterialTheme.colorScheme.primary,
+                    ),
+                )
+            }
+        }
+    }
+}
+
+// ── Stat pills ────────────────────────────────────────────────────────────────
+
+@Composable
+private fun TotalPill(
+    label: String,
+    money: Money,
+    icon: @Composable () -> Unit,
+    bgColor: Color,
+    fgColor: Color,
+    modifier: Modifier = Modifier,
+) {
+    SurfaceCard(modifier = modifier, contentPadding = 12.dp) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(6.dp),
+            modifier = Modifier
+                .background(bgColor, CircleShape)
+                .padding(horizontal = 8.dp, vertical = 4.dp),
+        ) {
+            Box(contentAlignment = Alignment.Center, modifier = Modifier.size(16.dp)) {
+                androidx.compose.runtime.CompositionLocalProvider(
+                    androidx.compose.material3.LocalContentColor provides fgColor,
+                ) { icon() }
+            }
+            Text(label, style = MaterialTheme.typography.labelSmall, color = fgColor)
+        }
+        Spacer(Modifier.height(6.dp))
+        Text(
+            formatMoney(money),
+            style = HisabakType.amount,
+            color = MaterialTheme.colorScheme.onSurface,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+        )
+    }
+}
+
+// ── KPI card (income / expense) ───────────────────────────────────────────────
+
+@Composable
+private fun KpiCard(
+    label: String,
+    money: Money,
+    trendPct: Double?,
+    trendPositiveIsGood: Boolean,
+    amountColor: Color,
+    sparklineValues: List<Double>,
+    sparklineColor: Color,
+    modifier: Modifier = Modifier,
+) {
+    DashCard(modifier = modifier) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text(
+                label,
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            if (trendPct != null) {
+                TrendBadge(pct = trendPct, positiveIsGood = trendPositiveIsGood)
+            }
+        }
+        Spacer(Modifier.height(6.dp))
+        Text(
+            formatMoney(money),
+            style = HisabakType.amountLarge,
+            color = amountColor,
+        )
+        if (sparklineValues.isNotEmpty()) {
+            BarSparkline(
+                values = sparklineValues,
+                barColor = sparklineColor,
                 modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+                heightDp = 48.dp,
             )
         }
     }
 }
 
-@Composable
-private fun TotalsRow(snap: DashboardSnapshot) {
-    Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-        SmallTotalCard("Total Cash", snap.totalCash, Modifier.weight(1f))
-        SmallTotalCard("Total Savings", snap.totalSavings, Modifier.weight(1f))
-        SmallTotalCard("Total Investment", snap.totalInvestment, Modifier.weight(1f))
-    }
-}
+// ── Trend badge ───────────────────────────────────────────────────────────────
 
 @Composable
-private fun SmallTotalCard(title: String, money: Money, modifier: Modifier = Modifier) {
-    MetricCard(modifier = modifier) {
-        Text(title, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-        Text(
-            formatCompactMoney(money),
-            style = MaterialTheme.typography.titleMedium,
-            color = MaterialTheme.colorScheme.onSurface,
-        )
-    }
-}
-
-@Composable
-private fun IncomeExpenseRow(snap: DashboardSnapshot) {
-    Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-        KpiCard(
-            title = "Total Income",
-            money = snap.incomeMonth,
-            trendPct = snap.incomeTrendPct,
-            trendPositiveIsGood = true,
-            modifier = Modifier.weight(1f),
-        )
-        KpiCard(
-            title = "Total Expenses",
-            money = snap.expenseMonth,
-            trendPct = snap.expenseTrendPct,
-            trendPositiveIsGood = false,
-            modifier = Modifier.weight(1f),
-        )
-    }
-}
-
-@Composable
-private fun KpiCard(
-    title: String,
-    money: Money,
-    trendPct: Double?,
-    trendPositiveIsGood: Boolean,
-    modifier: Modifier = Modifier,
-) {
-    MetricCard(modifier = modifier) {
-        Text(title, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-        Text(
-            formatCompactMoney(money),
-            style = MaterialTheme.typography.titleLarge,
-            color = MaterialTheme.colorScheme.onSurface,
-        )
-        TrendIndicator(pct = trendPct, positiveIsGood = trendPositiveIsGood)
-    }
-}
-
-@Composable
-private fun TrendIndicator(pct: Double?, positiveIsGood: Boolean) {
-    if (pct == null || abs(pct) < 0.01) {
-        Text("No Change", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-        return
-    }
+private fun TrendBadge(pct: Double, positiveIsGood: Boolean) {
+    if (abs(pct) < 0.01) return
+    val c = HisabakTheme.colors
     val isUp = pct > 0
     val good = if (positiveIsGood) isUp else !isUp
-    val color = if (good) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error
+    val color = if (good) c.income else c.expense
     val icon = when {
-        isUp -> Icons.Filled.TrendingUp
-        pct < 0 -> Icons.Filled.TrendingDown
-        else -> Icons.AutoMirrored.Filled.TrendingFlat
+        isUp -> Icons.Filled.ArrowUpward
+        else -> Icons.Filled.ArrowDownward
     }
-    Row(verticalAlignment = Alignment.CenterVertically) {
-        Icon(icon, contentDescription = null, tint = color, modifier = Modifier.size(16.dp))
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(2.dp),
+    ) {
+        Icon(icon, contentDescription = null, tint = color, modifier = Modifier.size(13.dp))
         Text(
-            text = " %.2f%% %s".format(abs(pct), if (isUp) "Increase" else "Decrease"),
-            style = MaterialTheme.typography.labelSmall,
+            "%.0f%%".format(abs(pct)),
+            style = MaterialTheme.typography.labelMedium,
             color = color,
         )
     }
 }
 
-@Composable
-private fun OverTimeRow(snap: DashboardSnapshot) {
-    Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-        OverTimeCard(
-            title = "Income Over Time",
-            money = snap.incomeMonth,
-            series = snap.incomeDaily,
-            color = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.weight(1f),
-        )
-        OverTimeCard(
-            title = "Spending Over Time",
-            money = snap.expenseMonth,
-            series = snap.expenseDaily,
-            color = MaterialTheme.colorScheme.error,
-            modifier = Modifier.weight(1f),
-        )
-    }
-}
+// ── Donut + legend cards ──────────────────────────────────────────────────────
 
 @Composable
-private fun OverTimeCard(
-    title: String,
-    money: Money,
-    series: List<DayPoint>,
-    color: Color,
-    modifier: Modifier = Modifier,
-) {
-    MetricCard(modifier = modifier) {
-        Text(title, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-        Text(
-            formatCompactMoney(money),
-            style = MaterialTheme.typography.titleMedium,
-            color = MaterialTheme.colorScheme.onSurface,
-        )
-        if (series.isNotEmpty()) {
-            BarSparkline(
-                values = series.map { it.amountMinor / 100.0 },
-                barColor = color,
-                modifier = Modifier.fillMaxWidth().padding(top = 4.dp),
-            )
-        }
-    }
-}
-
-@Composable
-private fun CategoryDonutsRow(snap: DashboardSnapshot) {
-    Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-        DonutBreakdownCard(
-            title = "Income Sources",
-            shares = snap.incomeByCategory,
-            modifier = Modifier.weight(1f),
-        )
-        DonutBreakdownCard(
-            title = "Spending by Category",
-            shares = snap.expenseByCategory,
-            modifier = Modifier.weight(1f),
-        )
-    }
-}
-
-@Composable
-private fun DonutBreakdownCard(
-    title: String,
+private fun CategoryDonutCard(
     shares: List<CategoryShare>,
     modifier: Modifier = Modifier,
 ) {
-    MetricCard(modifier = modifier) {
-        Text(title, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+    DashCard(modifier = modifier) {
         if (shares.isEmpty()) {
-            Text("—", style = MaterialTheme.typography.titleMedium)
-            return@MetricCard
+            Text("No data yet", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            return@DashCard
         }
-        DonutChart(
-            slices = shares.map { DonutSlice(it.pct, CategoryStyle.color(it.color)) },
-            modifier = Modifier.align(Alignment.CenterHorizontally).padding(vertical = 8.dp),
-        )
-        shares.take(4).forEach { share ->
-            LegendRow(color = CategoryStyle.color(share.color), label = share.name, pct = share.pct)
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(18.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            DonutChart(
+                slices = shares.take(5).map { DonutSlice(it.pct, CategoryStyle.color(it.color)) },
+                size = 112.dp,
+                modifier = Modifier.size(112.dp),
+            )
+            Column(
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier.weight(1f),
+            ) {
+                shares.take(5).forEach { share ->
+                    DonutLegendRow(
+                        color = CategoryStyle.color(share.color),
+                        label = share.name,
+                        amount = share.amount,
+                        pct = share.pct,
+                    )
+                }
+            }
         }
     }
 }
 
 @Composable
-private fun LegendRow(color: Color, label: String, pct: Double) {
-    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(vertical = 1.dp)) {
+private fun BrandDonutCard(
+    shares: List<BrandShare>,
+    modifier: Modifier = Modifier,
+) {
+    DashCard(modifier = modifier) {
+        if (shares.isEmpty()) {
+            Text("No data yet", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            return@DashCard
+        }
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(18.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            DonutChart(
+                slices = shares.take(5).map { DonutSlice(it.pct, CategoryStyle.color(it.color)) },
+                size = 112.dp,
+                modifier = Modifier.size(112.dp),
+            )
+            Column(
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier.weight(1f),
+            ) {
+                shares.take(5).forEach { share ->
+                    DonutLegendRow(
+                        color = CategoryStyle.color(share.color),
+                        label = share.name,
+                        amount = share.amount,
+                        pct = share.pct,
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun DonutLegendRow(color: Color, label: String, amount: Money, pct: Double) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier.fillMaxWidth(),
+    ) {
         Box(Modifier.size(8.dp).background(color, CircleShape))
+        Spacer(Modifier.width(6.dp))
         Text(
-            text = " %s • %.0f%%".format(label, pct * 100),
+            label,
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurface,
+            modifier = Modifier.weight(1f),
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+        )
+        Text(
+            formatMoney(amount),
+            style = HisabakType.amount,
+            color = MaterialTheme.colorScheme.onSurface,
+        )
+        Spacer(Modifier.width(4.dp))
+        Text(
+            "%.0f%%".format(pct * 100),
             style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.width(30.dp),
+            textAlign = TextAlign.End,
         )
     }
 }
 
+// ── Category trends (existing, color-fixed) ───────────────────────────────────
+
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun CategoryTrendsRow(
     snap: DashboardSnapshot,
@@ -316,26 +518,25 @@ private fun CategoryTrendsRow(
     onOverallCategoryChanged: (CategoryId) -> Unit,
     onDailyCategoryChanged: (CategoryId) -> Unit,
 ) {
+    val c = HisabakTheme.colors
     val overallPoints = overallCategoryId?.let { snap.overallTrendByCategory[it] }.orEmpty()
     val dailyPoints = dailyCategoryId?.let { snap.dailyTrendByCategory[it] }.orEmpty()
-    val overallTotal = overallPoints.sumOf { it.amountMinor }
-    val dailyTotal = dailyPoints.sumOf { it.amountMinor }
     Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
         CategoryTrendCard(
-            title = "Overall Trend by Category",
-            totalLabel = formatCompactUnits(overallTotal),
+            title = "Overall",
+            totalLabel = formatCompactUnits(overallPoints.sumOf { it.amountMinor }),
             values = overallPoints.map { it.amountMinor / 100.0 },
-            color = MaterialTheme.colorScheme.primary,
+            color = c.income,
             options = snap.categoryOptions,
             selectedId = overallCategoryId,
             onSelected = onOverallCategoryChanged,
             modifier = Modifier.weight(1f),
         )
         CategoryTrendCard(
-            title = "Daily Trend by Category",
-            totalLabel = formatCompactUnits(dailyTotal),
+            title = "Daily",
+            totalLabel = formatCompactUnits(dailyPoints.sumOf { it.amountMinor }),
             values = dailyPoints.map { it.amountMinor / 100.0 },
-            color = MaterialTheme.colorScheme.error,
+            color = c.expense,
             options = snap.categoryOptions,
             selectedId = dailyCategoryId,
             onSelected = onDailyCategoryChanged,
@@ -358,12 +559,9 @@ private fun CategoryTrendCard(
 ) {
     val selected = options.firstOrNull { it.id == selectedId }
     var expanded by remember { mutableStateOf(false) }
-    MetricCard(modifier = modifier) {
+    DashCard(modifier = modifier) {
         Text(title, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-        ExposedDropdownMenuBox(
-            expanded = expanded,
-            onExpandedChange = { expanded = it },
-        ) {
+        ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = { expanded = it }) {
             OutlinedTextField(
                 value = selected?.name ?: "—",
                 onValueChange = {},
@@ -371,32 +569,25 @@ private fun CategoryTrendCard(
                 singleLine = true,
                 textStyle = MaterialTheme.typography.labelSmall,
                 trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .menuAnchor(MenuAnchorType.PrimaryNotEditable),
+                modifier = Modifier.fillMaxWidth().menuAnchor(MenuAnchorType.PrimaryNotEditable),
             )
-            ExposedDropdownMenu(
-                expanded = expanded,
-                onDismissRequest = { expanded = false },
-            ) {
+            ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
                 options.forEach { option ->
                     DropdownMenuItem(
                         text = { Text(option.name) },
                         leadingIcon = {
-                            Box(Modifier.size(10.dp).background(
-                                CategoryStyle.color(option.color), CircleShape))
+                            Box(
+                                Modifier.size(10.dp).background(CategoryStyle.color(option.color), CircleShape)
+                            )
                         },
-                        onClick = {
-                            onSelected(option.id)
-                            expanded = false
-                        },
+                        onClick = { onSelected(option.id); expanded = false },
                     )
                 }
             }
         }
         Text(
             totalLabel,
-            style = MaterialTheme.typography.titleMedium,
+            style = HisabakType.amountLarge,
             color = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier.padding(top = 4.dp),
         )
@@ -404,90 +595,77 @@ private fun CategoryTrendCard(
             AreaLineChart(
                 values = values,
                 lineColor = color,
-                fillColor = color.copy(alpha = 0.15f),
+                fillColor = color.copy(alpha = 0.12f),
                 modifier = Modifier.fillMaxWidth().padding(top = 4.dp),
+                heightDp = 80.dp,
             )
         }
     }
 }
 
-@Composable
-private fun BrandRow(snap: DashboardSnapshot) {
-    Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-        BrandDonutCard(
-            title = "Spending by Brand",
-            shares = snap.expenseByBrand,
-            modifier = Modifier.weight(1f),
-        )
-        TrendCard(
-            title = "Top Brand — ${snap.topBrandName ?: "—"}",
-            totalLabel = totalOf(snap.topBrandTrend),
-            values = snap.topBrandTrend.map { it.amountMinor / 100.0 },
-            color = HisabakTheme.colors.investment,
-            modifier = Modifier.weight(1f),
-        )
-    }
-}
+// ── Shared card shell ─────────────────────────────────────────────────────────
 
 @Composable
-private fun BrandDonutCard(
-    title: String,
-    shares: List<BrandShare>,
+private fun DashCard(
     modifier: Modifier = Modifier,
+    content: @Composable ColumnScope.() -> Unit,
 ) {
-    MetricCard(modifier = modifier) {
-        Text(title, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-        if (shares.isEmpty()) {
-            Text("—", style = MaterialTheme.typography.titleMedium)
-            return@MetricCard
-        }
-        DonutChart(
-            slices = shares.map { DonutSlice(it.pct, CategoryStyle.color(it.color)) },
-            modifier = Modifier.align(Alignment.CenterHorizontally).padding(vertical = 8.dp),
-        )
-        shares.take(4).forEach { share ->
-            LegendRow(color = CategoryStyle.color(share.color), label = share.name, pct = share.pct)
-        }
-    }
+    SurfaceCard(modifier = modifier, contentPadding = 16.dp, content = content)
 }
+
+// ── Grouped bar legend dot ────────────────────────────────────────────────────
 
 @Composable
-private fun TrendCard(
-    title: String,
-    totalLabel: String,
-    values: List<Double>,
-    color: Color,
-    modifier: Modifier = Modifier,
-) {
-    MetricCard(modifier = modifier) {
-        Text(title, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-        Text(totalLabel, style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurface)
-        if (values.isNotEmpty()) {
-            AreaLineChart(
-                values = values,
-                lineColor = color,
-                fillColor = color.copy(alpha = 0.15f),
-                modifier = Modifier.fillMaxWidth().padding(top = 4.dp),
-            )
-        }
+private fun LegendDot(color: Color, label: String) {
+    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+        Box(Modifier.size(9.dp).background(color, androidx.compose.foundation.shape.RoundedCornerShape(2.dp)))
+        Text(label, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
     }
 }
 
-private fun totalOf(points: List<MonthPoint>): String {
-    val total = points.sumOf { it.amountMinor }
-    return formatCompactUnits(total)
+// ── Data helpers ──────────────────────────────────────────────────────────────
+
+private fun netWorthTrend(series: List<MonthPoint>): Double? {
+    if (series.size < 2) return null
+    val prev = series[series.size - 2].amountMinor
+    val curr = series.last().amountMinor
+    return if (prev != 0L) (curr - prev).toDouble() / prev.toDouble() * 100 else null
 }
 
-private fun formatCompactMoney(money: Money): String =
-    "${money.currency.code} ${formatCompactUnits(money.amountMinor)}"
+/** Aggregate daily points into parallel monthly series (last 5 months). */
+private fun monthlyPairs(
+    income: List<DayPoint>,
+    expense: List<DayPoint>,
+): Pair<List<Double>, List<Double>> {
+    val incomeByMonth = income
+        .groupBy { it.day.withDayOfMonth(1) }
+        .mapValues { (_, v) -> v.sumOf { it.amountMinor } / 100.0 }
+    val expenseByMonth = expense
+        .groupBy { it.day.withDayOfMonth(1) }
+        .mapValues { (_, v) -> v.sumOf { it.amountMinor } / 100.0 }
+    val months = (incomeByMonth.keys + expenseByMonth.keys)
+        .toSortedSet()
+        .takeLast(5)
+    if (months.isEmpty()) return emptyList<Double>() to emptyList()
+    return months.map { incomeByMonth[it] ?: 0.0 } to months.map { expenseByMonth[it] ?: 0.0 }
+}
+
+private fun formatMoney(money: Money): String {
+    val major = money.amountMinor / 100.0
+    val abs = abs(major)
+    val formatted = when {
+        abs >= 1_000_000 -> "%.2fM".format(major / 1_000_000.0)
+        else -> "%,.0f".format(major)
+    }
+    return "${money.currency.code} $formatted"
+}
 
 private fun formatCompactUnits(amountMinor: Long): String {
-    val major = amountMinor.toDouble() / 100.0
-    val abs = kotlin.math.abs(major)
+    val major = amountMinor / 100.0
+    val abs = abs(major)
     return when {
-        abs >= 1_000_000 -> "%.3fM".format(major / 1_000_000.0)
-        abs >= 1_000 -> "%.3fk".format(major / 1_000.0)
-        else -> "%.2f".format(major)
+        abs >= 1_000_000 -> "%.2fM".format(major / 1_000_000.0)
+        abs >= 1_000 -> "%.1fk".format(major / 1_000.0)
+        else -> "%.0f".format(major)
     }
 }
-
