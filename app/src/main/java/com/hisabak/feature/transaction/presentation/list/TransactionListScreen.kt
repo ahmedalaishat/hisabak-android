@@ -249,7 +249,7 @@ private fun TransactionRowItem(
 
     ListRow(
         title = row.brandName,
-        subtitle = listOfNotNull(row.note?.takeIf { it.isNotBlank() }, dateLabel).joinToString(" · "),
+        subtitle = row.note?.takeIf { it.isNotBlank() },
         leading = {
             CircleIconTile(
                 icon = iconForKey(null),
