@@ -93,15 +93,6 @@ fun DashboardScreen(
         contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 32.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        // ── Page title ──────────────────────────────────────────────────────
-        item {
-            Text(
-                "Dashboard",
-                style = MaterialTheme.typography.titleLarge,
-                color = MaterialTheme.colorScheme.onSurface,
-            )
-        }
-
         // ── Net worth hero ──────────────────────────────────────────────────
         item {
             NetWorthCard(snap = snap, period = period, onPeriodChange = { period = it })
