@@ -10,6 +10,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.hisabak.ui.theme.HisabakTheme
+import com.hisabak.ui.theme.HisabakType
 
 /**
  * Recent-activity / recent-brand row: leading icon slot, two-line text column,
@@ -62,13 +64,21 @@ fun ListRow(
 fun TrailingAmount(
     amount: String,
     caption: String? = null,
-    positive: Boolean = false,
+    tone: AmountTone = AmountTone.Neutral,
 ) {
-    val color = if (positive) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
+    val c = HisabakTheme.colors
+    val color = when (tone) {
+        AmountTone.Income     -> c.income
+        AmountTone.Expense    -> c.expense
+        AmountTone.Savings    -> c.savings
+        AmountTone.Investment -> c.investment
+        AmountTone.Auto,
+        AmountTone.Neutral    -> MaterialTheme.colorScheme.onSurface
+    }
     Column(horizontalAlignment = Alignment.End) {
         Text(
             amount,
-            style = MaterialTheme.typography.titleMedium,
+            style = HisabakType.amount,
             color = color,
             maxLines = 1,
         )
@@ -82,4 +92,3 @@ fun TrailingAmount(
         }
     }
 }
-

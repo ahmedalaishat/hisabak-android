@@ -24,6 +24,8 @@ fun EmptyStatePanel(
     modifier: Modifier = Modifier,
     subtitle: String? = null,
     icon: ImageVector = Icons.Filled.Inbox,
+    actionLabel: String? = null,
+    onAction: (() -> Unit)? = null,
 ) {
     Box(modifier = modifier.fillMaxWidth().padding(vertical = 40.dp), contentAlignment = Alignment.Center) {
         Column(
@@ -48,6 +50,13 @@ fun EmptyStatePanel(
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     textAlign = TextAlign.Center,
+                )
+            }
+            if (actionLabel != null && onAction != null) {
+                PrimaryPillButton(
+                    text = actionLabel,
+                    onClick = onAction,
+                    modifier = Modifier.padding(top = 6.dp),
                 )
             }
         }

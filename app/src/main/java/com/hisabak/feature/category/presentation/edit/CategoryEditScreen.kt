@@ -6,22 +6,27 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material3.AssistChip
-import androidx.compose.material3.AssistChipDefaults
-import androidx.compose.material3.Button
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -29,13 +34,23 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import com.hisabak.feature.category.domain.CategoryType
 import com.hisabak.feature.category.presentation.CategoryStyle
+import com.hisabak.ui.components.BadgeTone
+import com.hisabak.ui.components.HisabakButton
+import com.hisabak.ui.components.ButtonVariant
+import com.hisabak.ui.components.IconTile
+import com.hisabak.ui.components.SegmentOption
+import com.hisabak.ui.components.SegmentedControl
+import com.hisabak.ui.components.SurfaceCard
+import com.hisabak.ui.components.iconForKey
+import com.hisabak.ui.components.tintPairForColor
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -51,23 +66,48 @@ fun CategoryEditScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(if (state.isNew) "Add category" else "Edit category") },
+                title = {
+                    Text(
+                        if (state.isNew) "New category" else "Edit category",
+                        style = MaterialTheme.typography.titleMedium,
+                    )
+                },
                 navigationIcon = {
                     IconButton(onClick = onCancel) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(
+                            Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Back",
+                        )
                     }
                 },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.surface,
+                ),
             )
         },
-    ) { padding ->
+        containerColor = MaterialTheme.colorScheme.surface,
+    ) { scaffoldPadding ->
+        if (state.isLoading) {
+            Box(
+                Modifier
+                    .fillMaxSize()
+                    .padding(scaffoldPadding),
+                contentAlignment = Alignment.Center,
+            ) {
+                CircularProgressIndicator()
+            }
+            return@Scaffold
+        }
+
         Column(
             modifier = Modifier
-                .padding(padding)
                 .fillMaxSize()
+                .padding(scaffoldPadding)
                 .verticalScroll(rememberScrollState())
                 .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
+            verticalArrangement = Arrangement.spacedBy(20.dp),
         ) {
+            // Name field
             OutlinedTextField(
                 value = state.nameInput,
                 onValueChange = onNameChange,
@@ -78,91 +118,203 @@ fun CategoryEditScreen(
                 modifier = Modifier.fillMaxWidth(),
             )
 
-            LabeledSection("Type") {
-                TypePicker(selected = state.type, onSelect = onTypeChange)
+            // Type picker
+            FormSection(label = "Type") {
+                SegmentedControl(
+                    options = listOf(
+                        SegmentOption(CategoryType.INCOME, "Income", BadgeTone.Income),
+                        SegmentOption(CategoryType.EXPENSES, "Expenses", BadgeTone.Expense),
+                        SegmentOption(CategoryType.SAVINGS, "Savings", BadgeTone.Savings),
+                        SegmentOption(CategoryType.INVESTMENT, "Invest", BadgeTone.Investment),
+                    ),
+                    selected = state.type,
+                    onSelect = onTypeChange,
+                    modifier = Modifier.fillMaxWidth(),
+                )
             }
 
-            LabeledSection("Color") {
-                ColorSwatchGrid(selected = state.color, onSelect = onColorChange)
-            }
-
-            LabeledSection("Icon") {
-                IconPicker(selected = state.icon, onSelect = onIconChange)
-            }
-
-            state.generalError?.let {
-                Text(it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
-            }
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.End,
-            ) {
-                Button(onClick = onSave, enabled = state.canSave) {
-                    Text(if (state.isSaving) "Saving…" else "Save")
+            // Color picker
+            FormSection(label = "Color") {
+                LazyRow(
+                    horizontalArrangement = Arrangement.spacedBy(10.dp),
+                    contentPadding = PaddingValues(0.dp),
+                ) {
+                    items(CategoryStyle.palette) { key ->
+                        ColorSwatch(
+                            colorKey = key,
+                            selected = key == state.color,
+                            onSelect = { onColorChange(key) },
+                        )
+                    }
                 }
             }
+
+            // Icon picker
+            FormSection(label = "Icon") {
+                LazyVerticalGrid(
+                    columns = GridCells.Fixed(4),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(((56 + 8) * 3).dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    userScrollEnabled = false,
+                ) {
+                    items(CategoryStyle.icons) { key ->
+                        IconChip(
+                            iconKey = key,
+                            colorKey = state.color,
+                            selected = key == state.icon,
+                            onSelect = { onIconChange(key) },
+                        )
+                    }
+                }
+            }
+
+            // Live preview
+            FormSection(label = "Preview") {
+                LivePreviewTile(
+                    name = state.nameInput.ifBlank { "Category name" },
+                    iconKey = state.icon,
+                    colorKey = state.color,
+                )
+            }
+
+            // General error
+            state.generalError?.let {
+                Text(
+                    it,
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodySmall,
+                )
+            }
+
+            // Actions
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                HisabakButton(
+                    text = if (state.isSaving) "Saving…" else "Save",
+                    onClick = onSave,
+                    enabled = state.canSave,
+                    variant = ButtonVariant.Primary,
+                    fullWidth = true,
+                )
+                HisabakButton(
+                    text = "Cancel",
+                    onClick = onCancel,
+                    variant = ButtonVariant.Ghost,
+                    fullWidth = true,
+                )
+            }
+
+            Spacer(Modifier.height(8.dp))
         }
     }
 }
 
 @Composable
-private fun LabeledSection(label: String, content: @Composable () -> Unit) {
-    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        Text(label, style = MaterialTheme.typography.labelLarge)
+private fun FormSection(
+    label: String,
+    content: @Composable () -> Unit,
+) {
+    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        Text(
+            label,
+            style = MaterialTheme.typography.labelLarge,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
         content()
     }
 }
 
 @Composable
-private fun TypePicker(selected: CategoryType, onSelect: (CategoryType) -> Unit) {
-    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        CategoryType.entries.forEach { type ->
-            FilterChip(
-                selected = type == selected,
-                onClick = { onSelect(type) },
-                label = { Text(type.name.lowercase().replaceFirstChar { it.uppercase() }) },
+private fun ColorSwatch(
+    colorKey: String,
+    selected: Boolean,
+    onSelect: () -> Unit,
+) {
+    val swatchColor = CategoryStyle.color(colorKey)
+    val swatchShape = RoundedCornerShape(8.dp)
+    Box(
+        modifier = Modifier
+            .size(36.dp)
+            .clip(swatchShape)
+            .background(swatchColor, swatchShape)
+            .then(
+                if (selected)
+                    Modifier.border(2.dp, MaterialTheme.colorScheme.onSurface, swatchShape)
+                else
+                    Modifier
+            )
+            .clickable(onClick = onSelect),
+        contentAlignment = Alignment.Center,
+    ) {
+        if (selected) {
+            Icon(
+                Icons.Filled.Check,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.surface,
+                modifier = Modifier.size(18.dp),
             )
         }
     }
 }
 
-@OptIn(androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
 @Composable
-private fun ColorSwatchGrid(selected: String, onSelect: (String) -> Unit) {
-    FlowRow(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        CategoryStyle.palette.forEach { key ->
-            val color = CategoryStyle.color(key)
-            val isSelected = key == selected
-            val borderColor = if (isSelected) MaterialTheme.colorScheme.onSurface else Color.Transparent
-            Box(
-                modifier = Modifier
-                    .size(36.dp)
-                    .background(color, CircleShape)
-                    .border(width = 2.dp, color = borderColor, shape = CircleShape)
-                    .clickable { onSelect(key) },
-                contentAlignment = Alignment.Center,
-            ) {
-                if (isSelected) {
-                    Text("✓", color = Color.White, style = MaterialTheme.typography.labelLarge)
-                }
-            }
-        }
+private fun IconChip(
+    iconKey: String,
+    colorKey: String,
+    selected: Boolean,
+    onSelect: () -> Unit,
+) {
+    val (bg, fg) = tintPairForColor(colorKey)
+    val shape = RoundedCornerShape(12.dp)
+    val borderColor = if (selected)
+        MaterialTheme.colorScheme.primary
+    else
+        MaterialTheme.colorScheme.outlineVariant
+
+    Box(
+        modifier = Modifier
+            .size(56.dp)
+            .clip(shape)
+            .border(1.dp, borderColor, shape)
+            .clickable(onClick = onSelect),
+        contentAlignment = Alignment.Center,
+    ) {
+        IconTile(
+            icon = iconForKey(iconKey),
+            size = 36.dp,
+            iconSize = 18.dp,
+            background = bg,
+            foreground = fg,
+        )
     }
 }
 
-@OptIn(androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
 @Composable
-private fun IconPicker(selected: String, onSelect: (String) -> Unit) {
-    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        CategoryStyle.icons.forEach { key ->
-            val isSelected = key == selected
-            AssistChip(
-                onClick = { onSelect(key) },
-                label = { Text(key) },
-                colors = if (isSelected)
-                    AssistChipDefaults.assistChipColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
-                else AssistChipDefaults.assistChipColors(),
+private fun LivePreviewTile(
+    name: String,
+    iconKey: String,
+    colorKey: String,
+) {
+    val (bg, fg) = tintPairForColor(colorKey)
+    SurfaceCard(modifier = Modifier.fillMaxWidth()) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(14.dp),
+        ) {
+            IconTile(
+                icon = iconForKey(iconKey),
+                size = 44.dp,
+                iconSize = 22.dp,
+                background = bg,
+                foreground = fg,
+            )
+            Text(
+                text = name,
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onSurface,
+                maxLines = 1,
             )
         }
     }

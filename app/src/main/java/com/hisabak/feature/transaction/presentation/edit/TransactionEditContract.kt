@@ -4,6 +4,7 @@ import com.hisabak.core.presentation.ViewEffect
 import com.hisabak.core.presentation.ViewIntent
 import com.hisabak.core.presentation.ViewState
 import com.hisabak.feature.brand.domain.BrandId
+import com.hisabak.feature.category.domain.CategoryType
 import java.time.Instant
 
 data class TransactionEditUiState(
@@ -12,6 +13,7 @@ data class TransactionEditUiState(
     val brandOptions: List<BrandOption> = emptyList(),
     val noteInput: String = "",
     val occurredAt: Instant = Instant.EPOCH,
+    val selectedType: CategoryType = CategoryType.EXPENSES,
     val showDatePicker: Boolean = false,
     val isLoading: Boolean = false,
     val isSaving: Boolean = false,
@@ -35,6 +37,7 @@ sealed interface TransactionEditIntent : ViewIntent {
     data class BrandSelected(val brandId: BrandId) : TransactionEditIntent
     data class NoteChanged(val value: String) : TransactionEditIntent
     data class DateChanged(val instant: Instant) : TransactionEditIntent
+    data class TypeSelected(val type: CategoryType) : TransactionEditIntent
     data object DatePickerOpened : TransactionEditIntent
     data object DatePickerDismissed : TransactionEditIntent
     data object Save : TransactionEditIntent

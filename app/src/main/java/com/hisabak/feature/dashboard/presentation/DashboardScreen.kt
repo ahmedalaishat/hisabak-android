@@ -645,6 +645,7 @@ private fun monthlyPairs(
         .mapValues { (_, v) -> v.sumOf { it.amountMinor } / 100.0 }
     val months = (incomeByMonth.keys + expenseByMonth.keys)
         .toSortedSet()
+        .toList()
         .takeLast(5)
     if (months.isEmpty()) return emptyList<Double>() to emptyList()
     return months.map { incomeByMonth[it] ?: 0.0 } to months.map { expenseByMonth[it] ?: 0.0 }
