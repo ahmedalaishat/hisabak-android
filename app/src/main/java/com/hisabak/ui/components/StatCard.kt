@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.TrendingDown
 import androidx.compose.material.icons.filled.TrendingUp
@@ -23,6 +22,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import com.hisabak.ui.theme.HisabakTheme
+import com.hisabak.ui.theme.PillShape
+import com.hisabak.ui.theme.Spacing
 
 /**
  * Small KPI card used in 2-up grids: tinted icon tile + label + big value,
@@ -49,7 +50,7 @@ fun StatCard(
     SurfaceCard(modifier = modifier) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            horizontalArrangement = Arrangement.spacedBy(Spacing.s3),
         ) {
             IconTile(
                 icon = icon,
@@ -64,14 +65,14 @@ fun StatCard(
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
-        Spacer(Modifier.height(6.dp))
+        Spacer(Modifier.height(Spacing.s2))
         Text(
             value,
             style = MaterialTheme.typography.titleLarge,
             color = MaterialTheme.colorScheme.onSurface,
         )
         if (progress != null) {
-            Spacer(Modifier.height(8.dp))
+            Spacer(Modifier.height(Spacing.s3))
             ProgressBar(progress = progress, color = fg)
         }
     }
@@ -90,13 +91,13 @@ fun ProgressBar(
         modifier
             .fillMaxWidth()
             .height(4.dp)
-            .background(MaterialTheme.colorScheme.surfaceContainerHigh, RoundedCornerShape(999.dp)),
+            .background(MaterialTheme.colorScheme.surfaceContainerHigh, PillShape),
     ) {
         Box(
             Modifier
                 .fillMaxWidth(clamped)
                 .height(4.dp)
-                .background(color, RoundedCornerShape(999.dp)),
+                .background(color, PillShape),
         )
     }
 }

@@ -16,7 +16,6 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.DeleteOutline
@@ -50,6 +49,8 @@ import com.hisabak.ui.components.SurfaceCard
 import com.hisabak.ui.components.iconForKey
 import com.hisabak.ui.components.tintPairForColor
 import com.hisabak.ui.theme.HisabakTheme
+import com.hisabak.ui.theme.Sizing
+import com.hisabak.ui.theme.Spacing
 
 @Composable
 fun CategoryListScreen(
@@ -86,9 +87,9 @@ fun CategoryListScreen(
     LazyVerticalGrid(
         columns = GridCells.Fixed(2),
         modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 16.dp),
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp),
+        contentPadding = PaddingValues(horizontal = Spacing.pageMargin, vertical = Spacing.s5),
+        horizontalArrangement = Arrangement.spacedBy(Spacing.cardGap),
+        verticalArrangement = Arrangement.spacedBy(Spacing.cardGap),
     ) {
         if (showHeader) item(span = { GridItemSpan(maxLineSpan) }) {
             Row(
@@ -171,7 +172,7 @@ fun CategoryListScreen(
         }
 
         item(span = { GridItemSpan(maxLineSpan) }) {
-            Spacer(Modifier.height(8.dp))
+            Spacer(Modifier.height(Spacing.s3))
         }
     }
 }
@@ -186,20 +187,20 @@ private fun MostUsedCard(row: CategoryRow) {
     ) {
         Row(
             Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(14.dp),
+            horizontalArrangement = Arrangement.spacedBy(Spacing.s4),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             IconTile(
                 icon = iconForKey(row.icon),
-                size = 48.dp,
-                iconSize = 24.dp,
+                size = Sizing.controlHeight,
+                iconSize = Sizing.icon,
                 background = bg,
                 foreground = fg,
             )
             Column(modifier = Modifier.weight(1f)) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(4.dp),
+                    horizontalArrangement = Arrangement.spacedBy(Spacing.s2),
                 ) {
                     Icon(
                         Icons.Filled.Star,
@@ -213,7 +214,7 @@ private fun MostUsedCard(row: CategoryRow) {
                         color = MaterialTheme.colorScheme.primary,
                     )
                 }
-                Spacer(Modifier.height(2.dp))
+                Spacer(Modifier.height(Spacing.s1))
                 Text(
                     row.name,
                     style = MaterialTheme.typography.titleMedium,
@@ -268,7 +269,7 @@ private fun CategoryTile(
             color = MaterialTheme.colorScheme.onSurface,
             maxLines = 1,
         )
-        Spacer(Modifier.height(4.dp))
+        Spacer(Modifier.height(Spacing.s2))
         Badge(
             label = row.type.displayName(),
             tone = row.type.badgeTone(),
@@ -278,7 +279,7 @@ private fun CategoryTile(
 
 @Composable
 private fun AddNewTile(onClick: () -> Unit) {
-    val shape = RoundedCornerShape(12.dp)
+    val shape = MaterialTheme.shapes.medium
     val dashColor = MaterialTheme.colorScheme.outlineVariant
     Box(
         modifier = Modifier
@@ -299,14 +300,14 @@ private fun AddNewTile(onClick: () -> Unit) {
             )
         }
         Column(
-            modifier = Modifier.padding(20.dp),
+            modifier = Modifier.padding(Spacing.s6),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(8.dp),
+            verticalArrangement = Arrangement.spacedBy(Spacing.s3),
         ) {
             CircleIconTile(
                 icon = Icons.Filled.Add,
                 size = 40.dp,
-                iconSize = 20.dp,
+                iconSize = Sizing.iconSm,
                 background = HisabakTheme.colors.incomeSoft,
                 foreground = MaterialTheme.colorScheme.primary,
             )

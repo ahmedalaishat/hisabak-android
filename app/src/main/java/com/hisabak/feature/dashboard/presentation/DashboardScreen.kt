@@ -65,6 +65,8 @@ import com.hisabak.ui.components.SectionHeader
 import com.hisabak.ui.components.SurfaceCard
 import com.hisabak.ui.theme.HisabakTheme
 import com.hisabak.ui.theme.HisabakType
+import com.hisabak.ui.theme.Sizing
+import com.hisabak.ui.theme.Spacing
 import kotlin.math.abs
 
 private val PERIODS = listOf("Week", "Month", "Year", "All")
@@ -90,8 +92,8 @@ fun DashboardScreen(
 
     LazyColumn(
         modifier = modifier.fillMaxSize(),
-        contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 32.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp),
+        contentPadding = PaddingValues(start = Spacing.pageMargin, end = Spacing.pageMargin, top = Spacing.s5, bottom = Spacing.s8),
+        verticalArrangement = Arrangement.spacedBy(Spacing.cardGap),
     ) {
         // ── Net worth hero ──────────────────────────────────────────────────
         item {
@@ -130,7 +132,7 @@ fun DashboardScreen(
 
         // ── Income / Expenses ───────────────────────────────────────────────
         item {
-            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            Row(horizontalArrangement = Arrangement.spacedBy(Spacing.cardGap)) {
                 KpiCard(
                     label = "Income",
                     money = snap.incomeMonth,
@@ -162,7 +164,7 @@ fun DashboardScreen(
                 DashCard(modifier = Modifier.fillMaxWidth()) {
                     Row(
                         horizontalArrangement = Arrangement.spacedBy(14.dp),
-                        modifier = Modifier.padding(bottom = 10.dp),
+                        modifier = Modifier.padding(bottom = Spacing.s4),
                     ) {
                         LegendDot(color = c.income, label = "Income")
                         LegendDot(color = c.expense, label = "Expenses")
@@ -238,7 +240,7 @@ private fun NetWorthCard(
             style = MaterialTheme.typography.labelMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
-        Spacer(Modifier.height(4.dp))
+        Spacer(Modifier.height(Spacing.s2))
         Row(verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
             Text(
                 formatMoney(snap.netWorth),
@@ -254,13 +256,13 @@ private fun NetWorthCard(
                 values = snap.netWorthSeries.map { it.amountMinor / 100.0 },
                 lineColor = MaterialTheme.colorScheme.primary,
                 fillColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f),
-                modifier = Modifier.fillMaxWidth().padding(top = 12.dp, bottom = 4.dp),
+                modifier = Modifier.fillMaxWidth().padding(top = Spacing.cardGap, bottom = Spacing.s2),
                 heightDp = 96.dp,
             )
         }
         LazyRow(
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            modifier = Modifier.padding(top = 8.dp),
+            horizontalArrangement = Arrangement.spacedBy(Spacing.s3),
+            modifier = Modifier.padding(top = Spacing.s3),
         ) {
             items(PERIODS.size) { i ->
                 val p = PERIODS[i]
@@ -295,13 +297,13 @@ private fun TotalPill(
     fgColor: Color,
     modifier: Modifier = Modifier,
 ) {
-    SurfaceCard(modifier = modifier, contentPadding = 12.dp) {
+    SurfaceCard(modifier = modifier, contentPadding = Spacing.cardGap) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(6.dp),
             modifier = Modifier
                 .background(bgColor, CircleShape)
-                .padding(horizontal = 8.dp, vertical = 4.dp),
+                .padding(horizontal = Spacing.s3, vertical = Spacing.s2),
         ) {
             Box(contentAlignment = Alignment.Center, modifier = Modifier.size(16.dp)) {
                 androidx.compose.runtime.CompositionLocalProvider(
@@ -359,7 +361,7 @@ private fun KpiCard(
             BarSparkline(
                 values = sparklineValues,
                 barColor = sparklineColor,
-                modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+                modifier = Modifier.fillMaxWidth().padding(top = Spacing.s3),
                 heightDp = 48.dp,
             )
         }
@@ -381,7 +383,7 @@ private fun TrendBadge(pct: Double, positiveIsGood: Boolean) {
     }
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(2.dp),
+        horizontalArrangement = Arrangement.spacedBy(Spacing.s1),
     ) {
         Icon(icon, contentDescription = null, tint = color, modifier = Modifier.size(13.dp))
         Text(
@@ -414,7 +416,7 @@ private fun CategoryDonutCard(
                 modifier = Modifier.size(112.dp),
             )
             Column(
-                verticalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(Spacing.s3),
                 modifier = Modifier.weight(1f),
             ) {
                 shares.take(5).forEach { share ->
@@ -450,7 +452,7 @@ private fun BrandDonutCard(
                 modifier = Modifier.size(112.dp),
             )
             Column(
-                verticalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(Spacing.s3),
                 modifier = Modifier.weight(1f),
             ) {
                 shares.take(5).forEach { share ->
@@ -472,7 +474,7 @@ private fun DonutLegendRow(color: Color, label: String, amount: Money, pct: Doub
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier.fillMaxWidth(),
     ) {
-        Box(Modifier.size(8.dp).background(color, CircleShape))
+        Box(Modifier.size(Spacing.s3).background(color, CircleShape))
         Spacer(Modifier.width(6.dp))
         Text(
             label,
@@ -487,7 +489,7 @@ private fun DonutLegendRow(color: Color, label: String, amount: Money, pct: Doub
             style = HisabakType.amount,
             color = MaterialTheme.colorScheme.onSurface,
         )
-        Spacer(Modifier.width(4.dp))
+        Spacer(Modifier.width(Spacing.s2))
         Text(
             "%.0f%%".format(pct * 100),
             style = MaterialTheme.typography.labelSmall,
@@ -512,7 +514,7 @@ private fun CategoryTrendsRow(
     val c = HisabakTheme.colors
     val overallPoints = overallCategoryId?.let { snap.overallTrendByCategory[it] }.orEmpty()
     val dailyPoints = dailyCategoryId?.let { snap.dailyTrendByCategory[it] }.orEmpty()
-    Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+    Row(horizontalArrangement = Arrangement.spacedBy(Spacing.cardGap)) {
         CategoryTrendCard(
             title = "Overall",
             totalLabel = formatCompactUnits(overallPoints.sumOf { it.amountMinor }),
@@ -580,14 +582,14 @@ private fun CategoryTrendCard(
             totalLabel,
             style = HisabakType.amountLarge,
             color = MaterialTheme.colorScheme.onSurface,
-            modifier = Modifier.padding(top = 4.dp),
+            modifier = Modifier.padding(top = Spacing.s2),
         )
         if (values.isNotEmpty()) {
             AreaLineChart(
                 values = values,
                 lineColor = color,
                 fillColor = color.copy(alpha = 0.12f),
-                modifier = Modifier.fillMaxWidth().padding(top = 4.dp),
+                modifier = Modifier.fillMaxWidth().padding(top = Spacing.s2),
                 heightDp = 80.dp,
             )
         }
@@ -601,7 +603,7 @@ private fun DashCard(
     modifier: Modifier = Modifier,
     content: @Composable ColumnScope.() -> Unit,
 ) {
-    SurfaceCard(modifier = modifier, contentPadding = 16.dp, content = content)
+    SurfaceCard(modifier = modifier, contentPadding = Spacing.cardPadding, content = content)
 }
 
 // ── Grouped bar legend dot ────────────────────────────────────────────────────

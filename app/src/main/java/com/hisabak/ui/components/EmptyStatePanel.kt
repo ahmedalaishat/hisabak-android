@@ -17,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.hisabak.ui.theme.Spacing
 
 @Composable
 fun EmptyStatePanel(
@@ -27,16 +28,16 @@ fun EmptyStatePanel(
     actionLabel: String? = null,
     onAction: (() -> Unit)? = null,
 ) {
-    Box(modifier = modifier.fillMaxWidth().padding(vertical = 40.dp), contentAlignment = Alignment.Center) {
+    Box(modifier = modifier.fillMaxWidth().padding(vertical = Spacing.s9), contentAlignment = Alignment.Center) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(8.dp),
+            verticalArrangement = Arrangement.spacedBy(Spacing.sectionTitleGap),
         ) {
             Icon(
                 icon,
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.size(40.dp),
+                modifier = Modifier.size(Spacing.s9),
             )
             Text(
                 title,

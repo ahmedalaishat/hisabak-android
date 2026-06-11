@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Icon
@@ -26,10 +25,11 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.hisabak.ui.theme.HisabakTheme
+import com.hisabak.ui.theme.PillShape
+import com.hisabak.ui.theme.Sizing
+import com.hisabak.ui.theme.Spacing
 
 enum class ButtonVariant { Primary, Secondary, Ghost, Danger }
-
-private val PillShape = RoundedCornerShape(percent = 50)
 
 @Composable
 fun HisabakButton(
@@ -66,7 +66,7 @@ fun HisabakButton(
 
     Row(
         modifier = alphaModifier
-            .height(48.dp)
+            .height(Sizing.controlHeight)
             .clip(PillShape)
             .background(bg, PillShape)
             .then(
@@ -76,16 +76,16 @@ fun HisabakButton(
                     Modifier
             )
             .clickable(enabled = enabled, onClick = onClick)
-            .padding(horizontal = 20.dp),
+            .padding(horizontal = Spacing.s6),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
+        horizontalArrangement = Arrangement.spacedBy(Spacing.s3, Alignment.CenterHorizontally),
     ) {
         if (leadingIcon != null) {
             Icon(
                 imageVector = leadingIcon,
                 contentDescription = null,
                 tint = fg,
-                modifier = Modifier.size(20.dp),
+                modifier = Modifier.size(Sizing.iconSm),
             )
         }
         Text(
@@ -109,12 +109,12 @@ fun PrimaryPillButton(
     leadingIcon: ImageVector? = null,
     containerColor: Color = MaterialTheme.colorScheme.primary,
     contentColor: Color = MaterialTheme.colorScheme.onPrimary,
-    horizontal: Dp = 16.dp,
-    vertical: Dp = 10.dp,
+    horizontal: Dp = Spacing.cardPadding,
+    vertical: Dp = Spacing.s4,
 ) {
     Row(
         modifier = modifier
-            .clip(RoundedCornerShape(12.dp))
+            .clip(MaterialTheme.shapes.medium)
             .background(containerColor)
             .clickable(onClick = onClick)
             .padding(PaddingValues(horizontal = horizontal, vertical = vertical)),

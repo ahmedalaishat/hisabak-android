@@ -16,7 +16,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import com.hisabak.feature.brand.domain.BrandId
 import com.hisabak.feature.brand.presentation.edit.BrandEditRoute
 import com.hisabak.feature.brand.presentation.list.BrandListRoute
@@ -26,6 +25,7 @@ import com.hisabak.feature.category.presentation.list.CategoryListRoute
 import com.hisabak.ui.components.CreateActionButton
 import com.hisabak.ui.components.SegmentedControl
 import com.hisabak.ui.components.SegmentOption
+import com.hisabak.ui.theme.Spacing
 
 private enum class ManageTab { Brands, Categories }
 
@@ -92,7 +92,7 @@ fun ManageRoute(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 12.dp),
+                .padding(horizontal = Spacing.pageMargin, vertical = Spacing.cardGap),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             SegmentedControl(
@@ -112,7 +112,7 @@ fun ManageRoute(
                         ManageTab.Categories -> catNav = CategoriesNav.Edit(null)
                     }
                 },
-                modifier = Modifier.padding(start = 12.dp),
+                modifier = Modifier.padding(start = Spacing.cardGap),
             )
         }
         when (tab) {

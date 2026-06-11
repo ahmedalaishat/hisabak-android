@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -23,8 +22,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
-
-private val ChipShape = RoundedCornerShape(999.dp)
+import com.hisabak.ui.theme.PillShape
+import com.hisabak.ui.theme.Spacing
 
 @Composable
 fun <T> FilterChipRow(
@@ -32,11 +31,11 @@ fun <T> FilterChipRow(
     selected: T,
     onSelect: (T) -> Unit,
     modifier: Modifier = Modifier,
-    contentPadding: PaddingValues = PaddingValues(horizontal = 16.dp),
+    contentPadding: PaddingValues = PaddingValues(horizontal = Spacing.pageMargin),
 ) {
     LazyRow(
         modifier = modifier,
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        horizontalArrangement = Arrangement.spacedBy(Spacing.s3),
         contentPadding = contentPadding,
     ) {
         items(options) { option ->
@@ -63,10 +62,10 @@ fun FilterPill(
         style = MaterialTheme.typography.labelMedium,
         color = fg,
         modifier = Modifier
-            .clip(ChipShape)
+            .clip(PillShape)
             .background(bg)
             .clickable(onClick = onClick)
-            .padding(horizontal = 16.dp, vertical = 10.dp),
+            .padding(horizontal = Spacing.pageMargin, vertical = 10.dp),
     )
 }
 
@@ -83,7 +82,7 @@ fun ColoredFilterChip(
 
     Row(
         modifier = Modifier
-            .clip(ChipShape)
+            .clip(PillShape)
             .background(bg)
             .clickable(onClick = onClick)
             .padding(horizontal = if (colorKey != null) 10.dp else 18.dp, vertical = 10.dp),
@@ -93,7 +92,7 @@ fun ColoredFilterChip(
         if (colorKey != null) {
             Box(
                 modifier = Modifier
-                    .size(8.dp)
+                    .size(Spacing.s3)
                     .background(dotColor, CircleShape),
             )
         }
@@ -117,7 +116,7 @@ fun LeadingIconChip(
 
     Row(
         modifier = Modifier
-            .clip(ChipShape)
+            .clip(PillShape)
             .background(bg)
             .clickable(onClick = onClick)
             .padding(start = 10.dp, end = 14.dp, top = 10.dp, bottom = 10.dp),

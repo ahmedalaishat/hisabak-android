@@ -32,6 +32,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.hisabak.ui.theme.HisabakTheme
+import com.hisabak.ui.theme.Sizing
+import com.hisabak.ui.theme.Spacing
 
 /** Detail screen top bar — back arrow + title only, no avatar or bell. */
 @OptIn(ExperimentalMaterial3Api::class)
@@ -83,14 +85,14 @@ fun HisabakTopBar(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(64.dp)
-                .padding(horizontal = 16.dp),
+                .padding(horizontal = Spacing.pageMargin),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween,
         ) {
-        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(Spacing.cardGap)) {
             Box(
                 Modifier
-                    .size(36.dp)
+                    .size(Sizing.avatar)
                     .background(HisabakTheme.colors.incomeSoft, CircleShape)
                     .border(1.dp, MaterialTheme.colorScheme.outlineVariant, CircleShape),
                 contentAlignment = Alignment.Center,
@@ -99,7 +101,7 @@ fun HisabakTopBar(
                     Icons.Filled.Person,
                     contentDescription = null,
                     tint = HisabakTheme.colors.income,
-                    modifier = Modifier.size(20.dp),
+                    modifier = Modifier.size(Sizing.iconSm),
                 )
             }
             Text(

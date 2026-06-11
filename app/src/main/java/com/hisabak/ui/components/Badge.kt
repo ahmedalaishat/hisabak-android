@@ -7,16 +7,16 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.hisabak.ui.theme.HisabakTheme
+import com.hisabak.ui.theme.PillShape
+import com.hisabak.ui.theme.Spacing
 
 enum class BadgeTone { Neutral, Income, Expense, Savings, Investment, Success, Warning, Danger, Info }
 
@@ -42,16 +42,16 @@ fun Badge(
 
     Row(
         modifier = modifier
-            .clip(RoundedCornerShape(50))
+            .clip(PillShape)
             .background(bg)
-            .padding(horizontal = 10.dp, vertical = 4.dp),
+            .padding(horizontal = 10.dp, vertical = Spacing.s2),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(6.dp),
     ) {
         if (dot) {
             Box(
                 modifier = Modifier
-                    .size(8.dp)
+                    .size(Spacing.s3)
                     .clip(CircleShape)
                     .background(fg),
             )

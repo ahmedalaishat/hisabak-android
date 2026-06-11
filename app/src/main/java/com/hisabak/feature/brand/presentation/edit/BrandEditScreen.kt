@@ -27,6 +27,7 @@ import com.hisabak.feature.category.domain.CategoryId
 import com.hisabak.ui.components.ButtonVariant
 import com.hisabak.ui.components.ColoredFilterChip
 import com.hisabak.ui.components.HisabakButton
+import com.hisabak.ui.theme.Spacing
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -48,8 +49,8 @@ fun BrandEditScreen(
         modifier = Modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
-            .padding(horizontal = 16.dp, vertical = 20.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp),
+            .padding(horizontal = Spacing.pageMargin, vertical = Spacing.s6),
+        verticalArrangement = Arrangement.spacedBy(Spacing.s5),
     ) {
             NameField(
                 value = state.nameInput,
@@ -71,7 +72,7 @@ fun BrandEditScreen(
                 )
             }
 
-            Spacer(Modifier.height(4.dp))
+            Spacer(Modifier.height(Spacing.s2))
 
             HisabakButton(
                 text = if (state.isSaving) "Saving…" else "Save",
@@ -96,7 +97,7 @@ private fun NameField(
     error: String?,
     onValueChange: (String) -> Unit,
 ) {
-    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+    Column(verticalArrangement = Arrangement.spacedBy(Spacing.s2)) {
         OutlinedTextField(
             value = value,
             onValueChange = onValueChange,
@@ -110,7 +111,7 @@ private fun NameField(
                 text = error,
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.error,
-                modifier = Modifier.padding(start = 4.dp),
+                modifier = Modifier.padding(start = Spacing.s2),
             )
         }
     }
@@ -129,7 +130,7 @@ private fun CategorySection(
             color = MaterialTheme.colorScheme.onSurface,
         )
         LazyRow(
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            horizontalArrangement = Arrangement.spacedBy(Spacing.s3),
             contentPadding = PaddingValues(horizontal = 0.dp),
         ) {
             item {

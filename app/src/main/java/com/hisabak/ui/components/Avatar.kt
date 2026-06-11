@@ -16,12 +16,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.hisabak.ui.theme.HisabakTheme
 import com.hisabak.ui.theme.HisabakType
+import com.hisabak.ui.theme.Sizing
 
 @Composable
 fun Avatar(
     name: String,
     modifier: Modifier = Modifier,
-    size: Dp = 36.dp,
+    size: Dp = Sizing.avatar,
     src: Any? = null,
 ) {
     val initials = name

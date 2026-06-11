@@ -4,18 +4,17 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.hisabak.ui.theme.HisabakTheme
 import com.hisabak.ui.theme.HisabakType
+import com.hisabak.ui.theme.PillShape
+import com.hisabak.ui.theme.Spacing
 import java.text.NumberFormat
 import java.util.Locale
 
@@ -61,7 +60,7 @@ fun AmountText(
     val nf = NumberFormat.getNumberInstance(Locale.US).apply {
         minimumFractionDigits = 2; maximumFractionDigits = 2
     }
-    val prefix = if (showSign && tone != AmountTone.Neutral) (if (value < 0) "\u2212" else "+") else ""
+    val prefix = if (showSign && tone != AmountTone.Neutral) (if (value < 0) "−" else "+") else ""
     Text(
         text = "$prefix$currency ${nf.format(kotlin.math.abs(value))}",
         color = color,
@@ -88,8 +87,8 @@ fun StatusChip(status: SmsStatus, modifier: Modifier = Modifier) {
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(5.dp),
         modifier = modifier
-            .background(bg, RoundedCornerShape(percent = 50))
-            .padding(horizontal = 10.dp, vertical = 4.dp),
+            .background(bg, PillShape)
+            .padding(horizontal = 10.dp, vertical = Spacing.s2),
     ) {
         Text(label, color = fg, fontWeight = FontWeight.SemiBold, fontSize = 12.sp)
     }

@@ -48,6 +48,7 @@ import com.hisabak.ui.components.SurfaceCard
 import com.hisabak.ui.components.iconForKey
 import com.hisabak.ui.components.tintPairForColor
 import com.hisabak.ui.theme.HisabakTheme
+import com.hisabak.ui.theme.Spacing
 import java.time.Duration
 import java.time.Instant
 import java.time.ZoneId
@@ -76,15 +77,15 @@ fun TransactionListScreen(
 
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp),
+        contentPadding = PaddingValues(horizontal = Spacing.pageMargin, vertical = Spacing.s3),
+        verticalArrangement = Arrangement.spacedBy(Spacing.cardGap),
     ) {
         item { BalanceHeroCard(totals = totals, onAdd = onAdd) }
 
         item {
             Row(
                 Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                horizontalArrangement = Arrangement.spacedBy(Spacing.cardGap),
             ) {
                 IncomeStatCard(
                     value = formatMoneyMajor(totals.income, totals.currencyCode),
@@ -108,8 +109,8 @@ fun TransactionListScreen(
 
         item {
             LazyRow(
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                contentPadding = PaddingValues(horizontal = 0.dp),
+                horizontalArrangement = Arrangement.spacedBy(Spacing.s3),
+                contentPadding = PaddingValues(0.dp),
             ) {
                 item {
                     FilterPill(label = "Today", selected = period == Period.TODAY, onClick = { period = Period.TODAY })
@@ -146,7 +147,7 @@ fun TransactionListScreen(
             }
         }
 
-        item { Spacer(Modifier.height(8.dp)) }
+        item { Spacer(Modifier.height(Spacing.s3)) }
     }
 }
 
@@ -186,13 +187,13 @@ private fun BalanceHeroCard(totals: Totals, onAdd: () -> Unit) {
     val incomeRatio = if (totals.income == 0L) 0f else
         (totals.income.toFloat() / (totals.income + totals.expenses).toFloat().coerceAtLeast(1f))
 
-    SurfaceCard(modifier = Modifier.fillMaxWidth(), contentPadding = 20.dp) {
+    SurfaceCard(modifier = Modifier.fillMaxWidth(), contentPadding = Spacing.s6) {
         Text(
             text = "Total Balance",
             style = MaterialTheme.typography.labelMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
-        Spacer(Modifier.height(4.dp))
+        Spacer(Modifier.height(Spacing.s2))
         AmountText(
             value = totals.balance.toMajorDouble(),
             currency = totals.currencyCode.ifBlank { "SAR" },
@@ -221,7 +222,7 @@ private fun BalanceHeroCard(totals: Totals, onAdd: () -> Unit) {
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
-        Spacer(Modifier.height(16.dp))
+        Spacer(Modifier.height(Spacing.s5))
         HisabakButton(
             text = "Add Transaction",
             onClick = onAdd,

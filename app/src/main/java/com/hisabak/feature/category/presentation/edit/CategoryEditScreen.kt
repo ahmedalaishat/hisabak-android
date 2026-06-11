@@ -20,7 +20,6 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
@@ -46,6 +45,8 @@ import com.hisabak.ui.components.SegmentedControl
 import com.hisabak.ui.components.SurfaceCard
 import com.hisabak.ui.components.iconForKey
 import com.hisabak.ui.components.tintPairForColor
+import com.hisabak.ui.theme.Sizing
+import com.hisabak.ui.theme.Spacing
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -69,8 +70,8 @@ fun CategoryEditScreen(
         modifier = Modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
-            .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp),
+            .padding(Spacing.pageMargin),
+        verticalArrangement = Arrangement.spacedBy(Spacing.s5),
     ) {
             // Name field
             OutlinedTextField(
@@ -121,8 +122,8 @@ fun CategoryEditScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(184.dp),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    horizontalArrangement = Arrangement.spacedBy(Spacing.s3),
+                    verticalArrangement = Arrangement.spacedBy(Spacing.s3),
                     userScrollEnabled = false,
                 ) {
                     items(CategoryStyle.icons) { key ->
@@ -155,7 +156,7 @@ fun CategoryEditScreen(
             }
 
             // Actions
-            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Column(verticalArrangement = Arrangement.spacedBy(Spacing.s3)) {
                 HisabakButton(
                     text = if (state.isSaving) "Saving…" else "Save",
                     onClick = onSave,
@@ -171,7 +172,7 @@ fun CategoryEditScreen(
                 )
             }
 
-            Spacer(Modifier.height(8.dp))
+            Spacer(Modifier.height(Spacing.s3))
         }
 }
 
@@ -197,10 +198,10 @@ private fun ColorSwatch(
     onSelect: () -> Unit,
 ) {
     val swatchColor = CategoryStyle.color(colorKey)
-    val swatchShape = RoundedCornerShape(8.dp)
+    val swatchShape = MaterialTheme.shapes.small
     Box(
         modifier = Modifier
-            .size(36.dp)
+            .size(Sizing.avatar)
             .clip(swatchShape)
             .background(swatchColor, swatchShape)
             .then(
@@ -231,7 +232,7 @@ private fun IconChip(
     onSelect: () -> Unit,
 ) {
     val (bg, fg) = tintPairForColor(colorKey)
-    val shape = RoundedCornerShape(12.dp)
+    val shape = MaterialTheme.shapes.medium
     val borderColor = if (selected)
         MaterialTheme.colorScheme.primary
     else
@@ -247,7 +248,7 @@ private fun IconChip(
     ) {
         IconTile(
             icon = iconForKey(iconKey),
-            size = 36.dp,
+            size = Sizing.avatar,
             iconSize = 18.dp,
             background = bg,
             foreground = fg,
@@ -265,11 +266,11 @@ private fun LivePreviewTile(
     SurfaceCard(modifier = Modifier.fillMaxWidth()) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(14.dp),
+            horizontalArrangement = Arrangement.spacedBy(Spacing.s4),
         ) {
             IconTile(
                 icon = iconForKey(iconKey),
-                size = 44.dp,
+                size = Sizing.tileSize,
                 iconSize = 22.dp,
                 background = bg,
                 foreground = fg,
