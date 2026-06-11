@@ -238,7 +238,6 @@ private fun MostUsedCard(row: BrandRow) {
                         imageVector = Icons.Filled.Star,
                         contentDescription = null,
                         tint = HisabakTheme.colors.income,
-                        modifier = Modifier.padding(0.dp),
                     )
                     Badge(label = "Most used", tone = BadgeTone.Income)
                 }

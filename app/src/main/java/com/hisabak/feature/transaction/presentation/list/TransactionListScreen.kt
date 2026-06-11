@@ -45,7 +45,6 @@ import com.hisabak.ui.components.ListRow
 import com.hisabak.ui.components.ProgressBar
 import com.hisabak.ui.components.SearchField
 import com.hisabak.ui.components.SurfaceCard
-import com.hisabak.ui.components.TrailingAmount
 import com.hisabak.ui.components.iconForKey
 import com.hisabak.ui.components.tintPairForColor
 import com.hisabak.ui.theme.HisabakTheme
@@ -239,7 +238,6 @@ private fun TransactionRowItem(
     onEdit: () -> Unit,
     onDelete: () -> Unit,
 ) {
-    val isIncome = row.categoryType == CategoryType.INCOME
     val tone = when (row.categoryType) {
         CategoryType.INCOME -> AmountTone.Income
         CategoryType.EXPENSES -> AmountTone.Expense
