@@ -59,6 +59,7 @@ fun CategoryListScreen(
     onDelete: (CategoryId) -> Unit,
     onAdd: () -> Unit,
     onEdit: (CategoryId) -> Unit,
+    showHeader: Boolean = true,
 ) {
     if (state.isLoading) {
         Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -89,7 +90,7 @@ fun CategoryListScreen(
         horizontalArrangement = Arrangement.spacedBy(12.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        item(span = { GridItemSpan(maxLineSpan) }) {
+        if (showHeader) item(span = { GridItemSpan(maxLineSpan) }) {
             Row(
                 Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,

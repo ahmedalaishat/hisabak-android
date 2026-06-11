@@ -52,6 +52,7 @@ fun BrandListScreen(
     onDelete: (BrandId) -> Unit,
     onAdd: () -> Unit,
     onEdit: (BrandId) -> Unit,
+    showHeader: Boolean = true,
 ) {
     if (state.isLoading) {
         Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -71,7 +72,7 @@ fun BrandListScreen(
         contentPadding = PaddingValues(horizontal = 16.dp, vertical = 16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
-        item { HeaderRow(onCreate = onAdd) }
+        if (showHeader) item { HeaderRow(onCreate = onAdd) }
 
         item { InsightPills(brandCount = state.rows.size, categoryCount = state.availableCategories.size) }
 
