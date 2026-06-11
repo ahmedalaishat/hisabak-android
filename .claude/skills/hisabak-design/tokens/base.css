@@ -1,0 +1,25 @@
+/* ============================================================
+   HISABAK — base layer (resets + page defaults)
+   ============================================================ */
+
+*, *::before, *::after { box-sizing: border-box; }
+
+:root { color-scheme: light; }
+[data-theme="dark"] { color-scheme: dark; }
+
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: var(--fs-body);
+  line-height: var(--lh-normal);
+  color: var(--text-primary);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+h1, h2, h3, h4, p { margin: 0; }
+button { font-family: inherit; }
+
+::selection { background: var(--accent-soft); color: var(--text-primary); }

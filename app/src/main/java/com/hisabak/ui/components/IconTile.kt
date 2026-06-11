@@ -20,6 +20,7 @@ import androidx.compose.material.icons.filled.Savings
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material.icons.filled.Work
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -28,22 +29,7 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.hisabak.ui.theme.TintBlue
-import com.hisabak.ui.theme.TintBlueOn
-import com.hisabak.ui.theme.TintEmerald
-import com.hisabak.ui.theme.TintEmeraldOn
-import com.hisabak.ui.theme.TintGray
-import com.hisabak.ui.theme.TintGrayOn
-import com.hisabak.ui.theme.TintOrange
-import com.hisabak.ui.theme.TintOrangeOn
-import com.hisabak.ui.theme.TintPink
-import com.hisabak.ui.theme.TintPinkOn
-import com.hisabak.ui.theme.TintPurple
-import com.hisabak.ui.theme.TintPurpleOn
-import com.hisabak.ui.theme.TintRed
-import com.hisabak.ui.theme.TintRedOn
-import com.hisabak.ui.theme.TintTeal
-import com.hisabak.ui.theme.TintTealOn
+import com.hisabak.ui.theme.HisabakTheme
 
 /**
  * Rounded tile with a tinted background and a centered icon. Used for category
@@ -55,21 +41,24 @@ fun IconTile(
     modifier: Modifier = Modifier,
     size: Dp = 40.dp,
     iconSize: Dp = 20.dp,
-    background: Color = TintGray,
-    foreground: Color = TintGrayOn,
+    background: Color = Color.Unspecified,
+    foreground: Color = Color.Unspecified,
     shape: Shape = RoundedCornerShape(10.dp),
     contentDescription: String? = null,
 ) {
+    val c = HisabakTheme.colors
+    val bg = if (background == Color.Unspecified) c.catGray.copy(alpha = 0.15f) else background
+    val fg = if (foreground == Color.Unspecified) c.catGray else foreground
     Box(
         modifier = modifier
             .size(size)
-            .background(background, shape),
+            .background(bg, shape),
         contentAlignment = Alignment.Center,
     ) {
         Icon(
             imageVector = icon,
             contentDescription = contentDescription,
-            tint = foreground,
+            tint = fg,
             modifier = Modifier.size(iconSize),
         )
     }
@@ -81,8 +70,8 @@ fun CircleIconTile(
     modifier: Modifier = Modifier,
     size: Dp = 48.dp,
     iconSize: Dp = 24.dp,
-    background: Color = TintGray,
-    foreground: Color = TintGrayOn,
+    background: Color = Color.Unspecified,
+    foreground: Color = Color.Unspecified,
     contentDescription: String? = null,
 ) = IconTile(
     icon = icon,
@@ -96,30 +85,34 @@ fun CircleIconTile(
 )
 
 /** Maps the app's category color keys to (background, foreground) pairs. */
-fun tintPairForColor(key: String?): Pair<Color, Color> = when (key) {
-    "green" -> TintEmerald to TintEmeraldOn
-    "blue" -> TintBlue to TintBlueOn
-    "orange" -> TintOrange to TintOrangeOn
-    "red" -> TintRed to TintRedOn
-    "teal" -> TintTeal to TintTealOn
-    "purple" -> TintPurple to TintPurpleOn
-    "pink" -> TintPink to TintPinkOn
-    else -> TintGray to TintGrayOn
+@Composable
+fun tintPairForColor(key: String?): Pair<Color, Color> {
+    val c = HisabakTheme.colors
+    return when (key) {
+        "green"  -> c.incomeSoft to c.income
+        "blue"   -> c.savingsSoft to c.savings
+        "orange" -> c.catOrange.copy(alpha = 0.15f) to c.catOrange
+        "red"    -> c.expenseSoft to c.expense
+        "teal"   -> c.catTeal.copy(alpha = 0.15f) to c.catTeal
+        "purple" -> c.investmentSoft to c.investment
+        "pink"   -> c.catPink.copy(alpha = 0.15f) to c.catPink
+        else     -> MaterialTheme.colorScheme.surfaceVariant to MaterialTheme.colorScheme.onSurfaceVariant
+    }
 }
 
 /** Maps category icon keys (persisted as short strings) to Material vectors. */
 fun iconForKey(key: String?): ImageVector = when (key) {
-    "wallet" -> Icons.Filled.AccountBalanceWallet
-    "cart" -> Icons.Filled.ShoppingCart
+    "wallet"    -> Icons.Filled.AccountBalanceWallet
+    "cart"      -> Icons.Filled.ShoppingCart
     "briefcase" -> Icons.Filled.Work
-    "car" -> Icons.Filled.DirectionsCar
-    "utensils" -> Icons.Filled.Restaurant
-    "piggy-bank" -> Icons.Filled.Savings
-    "home" -> Icons.Filled.Home
-    "film" -> Icons.Filled.Movie
-    "book" -> Icons.Filled.MenuBook
-    "heart" -> Icons.Filled.Favorite
-    "gift" -> Icons.Filled.CardGiftcard
-    "plane" -> Icons.Filled.FlightTakeoff
-    else -> Icons.Filled.Circle
+    "car"       -> Icons.Filled.DirectionsCar
+    "utensils"  -> Icons.Filled.Restaurant
+    "piggy-bank"-> Icons.Filled.Savings
+    "home"      -> Icons.Filled.Home
+    "film"      -> Icons.Filled.Movie
+    "book"      -> Icons.Filled.MenuBook
+    "heart"     -> Icons.Filled.Favorite
+    "gift"      -> Icons.Filled.CardGiftcard
+    "plane"     -> Icons.Filled.FlightTakeoff
+    else        -> Icons.Filled.Circle
 }

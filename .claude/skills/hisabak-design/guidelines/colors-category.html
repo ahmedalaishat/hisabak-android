@@ -1,0 +1,22 @@
+<!-- @dsCard group="Colors" viewport="700x140" name="Category Palette" subtitle="8 swatches for category color picker" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="../styles.css">
+<style>
+  body { padding: 16px; background: var(--bg); }
+  .row { display: grid; grid-template-columns: repeat(8, 1fr); gap: 12px; }
+  .sw { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+  .chip { width: 100%; height: 60px; border-radius: 14px; box-shadow: var(--ring-card); }
+  .k { font: var(--fw-medium) 11px/1.2 var(--font-sans); color: var(--text-primary); }
+</style>
+</head>
+<body>
+  <div class="row" id="row"></div>
+  <script>
+    const cats = [['Green','--cat-green'],['Blue','--cat-blue'],['Orange','--cat-orange'],['Red','--cat-red'],['Teal','--cat-teal'],['Purple','--cat-purple'],['Pink','--cat-pink'],['Gray','--cat-gray']];
+    row.innerHTML = cats.map(([k,v]) => `<div class="sw"><div class="chip" style="background:var(${v})"></div><div class="k">${k}</div></div>`).join('');
+  </script>
+</body>
+</html>

@@ -1,0 +1,44 @@
+<!-- @dsCard group="Colors" viewport="700x180" name="Financial Semantics" subtitle="Income · Expense · Savings · Investment — each color means one thing" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="../styles.css">
+<style>
+  body { padding: 16px; background: var(--bg); }
+  .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+  .item { background: var(--surface); border-radius: 12px; box-shadow: var(--ring-card); padding: 14px; display: flex; flex-direction: column; gap: 10px; }
+  .top { display: flex; align-items: center; gap: 10px; }
+  .dot { width: 28px; height: 28px; border-radius: 8px; display: grid; place-items: center; }
+  .dot .material-symbols-rounded { font-size: 18px; color: #fff; }
+  .name { font: var(--fw-semibold) 14px/1 var(--font-sans); color: var(--text-primary); }
+  .hexes { display: flex; gap: 6px; }
+  .hx { font: 400 10px/1.4 var(--font-mono); color: var(--text-secondary); }
+  .soft { height: 18px; border-radius: 6px; }
+</style>
+</head>
+<body>
+  <div class="grid">
+    <div class="item">
+      <div class="top"><div class="dot" style="background:var(--income)"><span class="material-symbols-rounded">south_west</span></div><div class="name">Income</div></div>
+      <div class="soft" style="background:var(--income-soft)"></div>
+      <div class="hx">#0B7A5B · soft #E7F5EF</div>
+    </div>
+    <div class="item">
+      <div class="top"><div class="dot" style="background:var(--expense)"><span class="material-symbols-rounded">north_east</span></div><div class="name">Expense</div></div>
+      <div class="soft" style="background:var(--expense-soft)"></div>
+      <div class="hx">#E5544B · soft #FCEAE9</div>
+    </div>
+    <div class="item">
+      <div class="top"><div class="dot" style="background:var(--savings)"><span class="material-symbols-rounded">savings</span></div><div class="name">Savings</div></div>
+      <div class="soft" style="background:var(--savings-soft)"></div>
+      <div class="hx">#2F6FED · soft #E6EEFD</div>
+    </div>
+    <div class="item">
+      <div class="top"><div class="dot" style="background:var(--investment)"><span class="material-symbols-rounded">trending_up</span></div><div class="name">Investment</div></div>
+      <div class="soft" style="background:var(--investment-soft)"></div>
+      <div class="hx">#7C5CFC · soft #ECE7FE</div>
+    </div>
+  </div>
+</body>
+</html>

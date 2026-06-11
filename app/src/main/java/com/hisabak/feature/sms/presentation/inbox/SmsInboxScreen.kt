@@ -42,8 +42,7 @@ import com.hisabak.ui.components.PrimaryPillButton
 import com.hisabak.ui.components.SearchField
 import com.hisabak.ui.components.SectionHeader
 import com.hisabak.ui.components.SurfaceCard
-import com.hisabak.ui.theme.TintEmerald
-import com.hisabak.ui.theme.TintEmeraldOn
+import com.hisabak.ui.theme.HisabakTheme
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -125,8 +124,8 @@ private fun AutoImportBanner(granted: Boolean, onEnable: () -> Unit) {
         ) {
             IconTile(
                 icon = Icons.Filled.Check,
-                background = if (granted) TintEmerald else MaterialTheme.colorScheme.surfaceContainerHigh,
-                foreground = if (granted) TintEmeraldOn else MaterialTheme.colorScheme.onSurfaceVariant,
+                background = if (granted) HisabakTheme.colors.incomeSoft else MaterialTheme.colorScheme.surfaceContainerHigh,
+                foreground = if (granted) HisabakTheme.colors.income else MaterialTheme.colorScheme.onSurfaceVariant,
             )
             Column(Modifier.weight(1f)) {
                 Text(
@@ -252,7 +251,7 @@ private fun SmsRowItem(row: SmsInboxRow, onDelete: () -> Unit) {
 @Composable
 private fun StatusChip(linked: Boolean) {
     val (label, bg, fg) = if (linked) {
-        Triple("Linked", TintEmerald, TintEmeraldOn)
+        Triple("Linked", HisabakTheme.colors.incomeSoft, HisabakTheme.colors.income)
     } else {
         Triple("Unparsed", MaterialTheme.colorScheme.surfaceContainerHigh, MaterialTheme.colorScheme.onSurfaceVariant)
     }

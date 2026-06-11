@@ -24,7 +24,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
-import com.hisabak.ui.theme.TintEmerald
+import com.hisabak.ui.theme.HisabakTheme
 
 /** A single tab destination rendered in [HisabakBottomNav]. */
 data class BottomNavTab(
@@ -77,7 +77,7 @@ private fun NavItem(
     selected: Boolean,
     onClick: () -> Unit,
 ) {
-    val bg = if (selected) TintEmerald else MaterialTheme.colorScheme.surfaceContainerLowest
+    val bg = if (selected) HisabakTheme.colors.incomeSoft else MaterialTheme.colorScheme.surfaceContainerLowest
     val fg = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,

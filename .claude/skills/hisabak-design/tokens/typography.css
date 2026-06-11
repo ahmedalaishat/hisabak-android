@@ -1,0 +1,52 @@
+/* ============================================================
+   HISABAK — TYPOGRAPHY
+   DM Sans for all UI. Geist Mono for amounts (tabular) and SMS bodies.
+   Sizes mirror the Android spec (sp ≈ px at 1x).
+   ============================================================ */
+
+:root {
+  --font-sans: 'DM Sans', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'Geist Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+
+  /* type scale (px) */
+  --fs-hero:       40px;  /* dashboard net-worth amount */
+  --fs-display:    32px;  /* add-transaction amount input */
+  --fs-title:      24px;  /* page title */
+  --fs-section:    18px;  /* section header */
+  --fs-amount:     16px;  /* list amount */
+  --fs-body:       16px;  /* row title / body */
+  --fs-label:      14px;  /* chip / tab / button */
+  --fs-caption:    13px;  /* secondary text */
+  --fs-micro:      11px;  /* overline / fine print */
+
+  /* weights */
+  --fw-regular:  400;  /* @kind other */
+  --fw-medium:   500;  /* @kind other */
+  --fw-semibold: 600;  /* @kind other */
+  --fw-bold:     700;  /* @kind other */
+
+  /* line heights */
+  --lh-tight:   1.1;   /* @kind other */
+  --lh-snug:    1.25;  /* @kind other */
+  --lh-normal:  1.45;  /* @kind other */
+
+  /* letter spacing */
+  --ls-tight:   -0.02em;   /* @kind other */
+  --ls-normal:  0;         /* @kind other */
+  --ls-wide:    0.04em;    /* @kind other */
+}
+
+/* convenience text classes (used in cards + kits) */
+.t-hero    { font: var(--fw-bold) var(--fs-hero)/var(--lh-tight) var(--font-sans); letter-spacing: var(--ls-tight); font-variant-numeric: tabular-nums; }
+.t-display { font: var(--fw-bold) var(--fs-display)/var(--lh-tight) var(--font-sans); letter-spacing: var(--ls-tight); font-variant-numeric: tabular-nums; }
+.t-title   { font: var(--fw-semibold) var(--fs-title)/var(--lh-snug) var(--font-sans); letter-spacing: var(--ls-tight); }
+.t-section { font: var(--fw-semibold) var(--fs-section)/var(--lh-snug) var(--font-sans); }
+.t-body    { font: var(--fw-regular) var(--fs-body)/var(--lh-normal) var(--font-sans); }
+.t-row     { font: var(--fw-medium) var(--fs-body)/var(--lh-snug) var(--font-sans); }
+.t-label   { font: var(--fw-medium) var(--fs-label)/1.2 var(--font-sans); }
+.t-caption { font: var(--fw-regular) var(--fs-caption)/var(--lh-normal) var(--font-sans); }
+.t-overline{ font: var(--fw-semibold) var(--fs-micro)/1.2 var(--font-sans); letter-spacing: var(--ls-wide); text-transform: uppercase; }
+
+/* amounts always tabular + mono for crisp column alignment */
+.t-amount  { font: var(--fw-semibold) var(--fs-amount)/1.2 var(--font-mono); font-variant-numeric: tabular-nums; letter-spacing: var(--ls-tight); }
+.t-amount-hero { font: var(--fw-semibold) var(--fs-hero)/var(--lh-tight) var(--font-mono); font-variant-numeric: tabular-nums; letter-spacing: var(--ls-tight); }

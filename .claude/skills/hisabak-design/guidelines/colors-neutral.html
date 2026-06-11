@@ -1,0 +1,23 @@
+<!-- @dsCard group="Colors" viewport="700x150" name="Neutral Scale" subtitle="Backgrounds, surfaces, text, borders" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="../styles.css">
+<style>
+  body { padding: 16px; background: var(--bg); }
+  .row { display: grid; grid-template-columns: repeat(12, 1fr); gap: 6px; }
+  .sw { display: flex; flex-direction: column; gap: 6px; }
+  .chip { height: 56px; border-radius: 10px; box-shadow: var(--ring-card); }
+  .k { font: var(--fw-semibold) 10px/1.2 var(--font-mono); color: var(--text-primary); }
+  .v { font: 400 9px/1.2 var(--font-mono); color: var(--text-secondary); }
+</style>
+</head>
+<body>
+  <div class="row" id="row"></div>
+  <script>
+    const scale = [['0','#FFFFFF'],['25','#FBFBFC'],['50','#F6F7F9'],['100','#EDEFF2'],['200','#E5E7EB'],['300','#D3D7DE'],['400','#9CA3AF'],['500','#6B7280'],['600','#4B5563'],['700','#374151'],['800','#1F2530'],['900','#111827']];
+    row.innerHTML = scale.map(([k,v]) => `<div class="sw"><div class="chip" style="background:${v}"></div><div class="k">${k}</div><div class="v">${v}</div></div>`).join('');
+  </script>
+</body>
+</html>

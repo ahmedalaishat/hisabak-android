@@ -1,0 +1,28 @@
+/* Hisabak typefaces
+   UI: DM Sans — geometric, modern, calm. The brand voice.
+   Numeric/mono: Geist Mono — precise tabular figures for amounts, codes, SMS bodies.
+   Icons: Material Symbols Rounded — Android-native, matches Material 3 surfaces.
+   Loaded from Google Fonts CDN; @font-face url() targets are shipped to consumers. */
+
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Geist+Mono:wght@400;500;600&display=swap');
+
+@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0&display=block');
+
+/* Filled variant of the icon font for active states (bottom nav, etc.) */
+.material-symbols-rounded {
+  font-family: 'Material Symbols Rounded';
+  font-weight: normal;
+  font-style: normal;
+  font-size: 24px;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-block;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  -webkit-font-feature-settings: 'liga';
+  -webkit-font-smoothing: antialiased;
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+.material-symbols-rounded.is-filled { font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24; }

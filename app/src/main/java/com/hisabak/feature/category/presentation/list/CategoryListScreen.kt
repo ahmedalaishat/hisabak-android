@@ -44,9 +44,7 @@ import com.hisabak.ui.components.StatCard
 import com.hisabak.ui.components.SurfaceCard
 import com.hisabak.ui.components.iconForKey
 import com.hisabak.ui.components.tintPairForColor
-import com.hisabak.ui.theme.TintEmerald
-import com.hisabak.ui.theme.TintOrange
-import com.hisabak.ui.theme.TintOrangeOn
+import com.hisabak.ui.theme.HisabakTheme
 
 @Composable
 fun CategoryListScreen(
@@ -202,8 +200,8 @@ private fun MostUsedCard(name: String, count: Int) {
                 icon = Icons.Filled.ShoppingBag,
                 size = 44.dp,
                 iconSize = 22.dp,
-                background = TintOrange,
-                foreground = TintOrangeOn,
+                background = HisabakTheme.colors.catOrange.copy(alpha = 0.15f),
+                foreground = HisabakTheme.colors.catOrange,
                 shape = androidx.compose.foundation.shape.CircleShape,
             )
         }
@@ -280,7 +278,7 @@ private fun AddNewTile(onClick: () -> Unit) {
                 icon = Icons.Filled.AddCircleOutline,
                 size = 32.dp,
                 iconSize = 20.dp,
-                background = TintEmerald,
+                background = HisabakTheme.colors.incomeSoft,
                 foreground = MaterialTheme.colorScheme.primary,
             )
             Text(

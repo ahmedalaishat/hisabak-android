@@ -1,0 +1,24 @@
+<!-- @dsCard group="Spacing" viewport="700x180" name="Elevation" subtitle="Depth via surface contrast; soft shadows for floating layers" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="../styles.css">
+<style>
+  body { padding: 22px; background: var(--bg); }
+  .row { display: flex; gap: 22px; align-items: center; flex-wrap: wrap; }
+  .col { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+  .sq { width: 92px; height: 64px; background: var(--surface); border-radius: 12px; }
+  .k { font: var(--fw-semibold) 11px/1 var(--font-mono); color: var(--text-primary); }
+</style>
+</head>
+<body>
+  <div class="row">
+    <div class="col"><div class="sq" style="box-shadow:var(--ring-card)"></div><div class="k">ring-card</div></div>
+    <div class="col"><div class="sq" style="box-shadow:var(--shadow-card)"></div><div class="k">card</div></div>
+    <div class="col"><div class="sq" style="box-shadow:var(--shadow-md)"></div><div class="k">md · sheet</div></div>
+    <div class="col"><div class="sq" style="box-shadow:var(--shadow-lg)"></div><div class="k">lg · menu</div></div>
+    <div class="col"><div class="sq" style="box-shadow:var(--shadow-accent);background:var(--accent)"></div><div class="k">accent · FAB</div></div>
+  </div>
+</body>
+</html>

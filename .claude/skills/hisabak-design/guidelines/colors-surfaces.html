@@ -1,0 +1,39 @@
+<!-- @dsCard group="Colors" viewport="700x200" name="Light & Dark Surfaces" subtitle="Semantic surface + text tokens, both themes" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="../styles.css">
+<style>
+  body { margin: 0; display: grid; grid-template-columns: 1fr 1fr; font-family: var(--font-sans); }
+  .pane { padding: 18px; background: var(--bg); color: var(--text-primary); }
+  .lbl { font: var(--fw-semibold) 11px/1 var(--font-sans); letter-spacing: .04em; text-transform: uppercase; color: var(--text-tertiary); margin-bottom: 12px; }
+  .card { background: var(--surface); border-radius: 12px; box-shadow: var(--shadow-card); padding: 14px; }
+  .ttl { font: var(--fw-semibold) 15px/1.2 var(--font-sans); color: var(--text-primary); }
+  .sub { font: 400 13px/1.4 var(--font-sans); color: var(--text-secondary); margin-top: 2px; }
+  .pill { display:inline-block; margin-top:10px; padding:6px 12px; border-radius:999px; background: var(--accent); color: var(--accent-on); font: var(--fw-semibold) 12px/1 var(--font-sans); }
+  .div { height:1px; background: var(--divider); margin: 12px 0; }
+  .meta { display:flex; gap:6px; font: 400 11px/1.4 var(--font-mono); color: var(--text-tertiary); }
+</style>
+</head>
+<body>
+  <div class="pane">
+    <div class="lbl">Light</div>
+    <div class="card">
+      <div class="ttl">Net Worth</div>
+      <div class="sub">Secondary text reads here</div>
+      <div class="div"></div>
+      <div class="pill">Primary action</div>
+    </div>
+  </div>
+  <div class="pane" data-theme="dark">
+    <div class="lbl">Dark</div>
+    <div class="card">
+      <div class="ttl">Net Worth</div>
+      <div class="sub">Secondary text reads here</div>
+      <div class="div"></div>
+      <div class="pill">Primary action</div>
+    </div>
+  </div>
+</body>
+</html>

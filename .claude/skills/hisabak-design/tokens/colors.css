@@ -1,0 +1,147 @@
+/* ============================================================
+   HISABAK — COLOR SYSTEM
+   Calm, trustworthy fintech. Green is MEANINGFUL, never decorative:
+   it signals money-positive (income), the primary action, and the
+   active nav state. Everything else is neutral or semantic.
+   Light is the default (:root); dark overrides under [data-theme="dark"].
+   ============================================================ */
+
+:root {
+  /* ---- Brand green scale (primary / income) ---- */
+  --green-50:  #E7F5EF;
+  --green-100: #C9E9DB;
+  --green-200: #95D4BB;
+  --green-300: #5DBC97;
+  --green-400: #2A9E76;
+  --green-500: #0B7A5B;   /* brand primary */
+  --green-600: #096A4F;
+  --green-700: #08543F;
+  --green-800: #0E3A2F;   /* deep brand green */
+  --green-900: #0A2A22;
+
+  /* ---- Neutral / gray scale ---- */
+  --gray-0:   #FFFFFF;
+  --gray-25:  #FBFBFC;
+  --gray-50:  #F6F7F9;
+  --gray-100: #EDEFF2;
+  --gray-200: #E5E7EB;
+  --gray-300: #D3D7DE;
+  --gray-400: #9CA3AF;
+  --gray-500: #6B7280;
+  --gray-600: #4B5563;
+  --gray-700: #374151;
+  --gray-800: #1F2530;
+  --gray-900: #111827;
+  --gray-950: #0B0D12;
+
+  /* ---- Financial / semantic hues ---- */
+  --income:      #0B7A5B;   /* green  — money in */
+  --income-soft: #E7F5EF;
+  --expense:      #E5544B;  /* coral  — money out */
+  --expense-soft: #FCEAE9;
+  --savings:      #2F6FED;  /* blue   — set aside */
+  --savings-soft: #E6EEFD;
+  --investment:      #7C5CFC; /* purple — invested */
+  --investment-soft: #ECE7FE;
+
+  /* ---- Status / feedback ---- */
+  --success: #0B7A5B;
+  --warning: #C98A14;   --warning-soft: #FBF1DC;
+  --danger:  #DC2626;   --danger-soft:  #FCEAE9;
+  --info:    #2F6FED;   --info-soft:    #E6EEFD;
+
+  /* ---- 8 category swatches (color picker) ---- */
+  --cat-green:  #0B7A5B;
+  --cat-blue:   #2F6FED;
+  --cat-orange: #E8842B;
+  --cat-red:    #E5544B;
+  --cat-teal:   #138D90;
+  --cat-purple: #7C5CFC;
+  --cat-pink:   #DB4C8A;
+  --cat-gray:   #6B7280;
+
+  /* ============ SEMANTIC ALIASES (use these in UI) ============ */
+  --bg:            var(--gray-50);    /* page background */
+  --bg-subtle:     var(--gray-100);
+  --surface:       var(--gray-0);     /* cards */
+  --surface-2:     var(--gray-25);    /* nested / inset surfaces */
+  --surface-sunken:var(--gray-100);   /* wells, inputs at rest */
+  --scrim:         rgba(17, 24, 39, 0.45);
+
+  --text-primary:   var(--gray-900);
+  --text-secondary: var(--gray-500);
+  --text-tertiary:  var(--gray-400);
+  --text-on-accent: #FFFFFF;
+  --text-inverse:   var(--gray-0);
+
+  --border:        var(--gray-200);
+  --border-strong: var(--gray-300);
+  --divider:       var(--gray-100);
+
+  --accent:          var(--green-500);
+  --accent-hover:    var(--green-600);
+  --accent-pressed:  var(--green-700);
+  --accent-soft:     var(--green-50);
+  --accent-on:       #FFFFFF;
+  --focus-ring:      rgba(11, 122, 91, 0.40);
+
+  /* nav */
+  --nav-bg:        var(--gray-0);
+  --nav-icon:      var(--gray-400);
+  --nav-icon-active: var(--green-500);
+  --nav-label:     var(--gray-500);
+  --nav-label-active: var(--green-600);
+}
+
+/* ===================== DARK THEME ===================== */
+[data-theme="dark"] {
+  --bg:            #0B0D12;
+  --bg-subtle:     #11141B;
+  --surface:       #161A22;
+  --surface-2:     #1C212B;
+  --surface-sunken:#11141B;
+  --scrim:         rgba(0, 0, 0, 0.60);
+
+  --text-primary:   #F3F5F8;
+  --text-secondary: #9BA3B0;
+  --text-tertiary:  #6B7280;
+  --text-on-accent: #FFFFFF;
+  --text-inverse:   #0B0D12;
+
+  --border:        #262C38;
+  --border-strong: #333B49;
+  --divider:       #20252F;
+
+  /* green lifts a touch for contrast on dark surfaces */
+  --accent:          #21A87C;
+  --accent-hover:    #2DBC8C;
+  --accent-pressed:  #1B8C68;
+  --accent-soft:     rgba(33, 168, 124, 0.14);
+  --accent-on:       #06120D;
+  --focus-ring:      rgba(45, 188, 140, 0.45);
+
+  --income:      #2DBC8C;  --income-soft: rgba(45,188,140,0.14);
+  --expense:      #F0726A; --expense-soft: rgba(240,114,106,0.14);
+  --savings:      #5B8DF5; --savings-soft: rgba(91,141,245,0.14);
+  --investment:   #9C82FF; --investment-soft: rgba(156,130,255,0.14);
+
+  --success: #2DBC8C;
+  --warning: #E0A53A;  --warning-soft: rgba(224,165,58,0.14);
+  --danger:  #F0726A;  --danger-soft:  rgba(240,114,106,0.14);
+  --info:    #5B8DF5;  --info-soft:    rgba(91,141,245,0.14);
+
+  --cat-green:  #2DBC8C;
+  --cat-blue:   #5B8DF5;
+  --cat-orange: #F0A05A;
+  --cat-red:    #F0726A;
+  --cat-teal:   #36B5B8;
+  --cat-purple: #9C82FF;
+  --cat-pink:   #EC6FA6;
+  --cat-gray:   #9BA3B0;
+
+  --nav-bg:        #11141B;
+  --nav-icon:      #6B7280;
+  --nav-icon-active: #2DBC8C;
+  --nav-label:     #9BA3B0;
+  --nav-label-active: #2DBC8C;
+}

@@ -50,6 +50,7 @@ import com.hisabak.feature.dashboard.presentation.components.DonutChart
 import com.hisabak.feature.dashboard.presentation.components.DonutSlice
 import com.hisabak.ui.components.SectionHeader
 import com.hisabak.ui.components.SurfaceCard
+import com.hisabak.ui.theme.HisabakTheme
 import kotlin.math.abs
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -422,7 +423,7 @@ private fun BrandRow(snap: DashboardSnapshot) {
             title = "Top Brand — ${snap.topBrandName ?: "—"}",
             totalLabel = totalOf(snap.topBrandTrend),
             values = snap.topBrandTrend.map { it.amountMinor / 100.0 },
-            color = MaterialTheme.colorScheme.tertiary,
+            color = HisabakTheme.colors.investment,
             modifier = Modifier.weight(1f),
         )
     }

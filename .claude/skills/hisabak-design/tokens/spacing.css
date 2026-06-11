@@ -1,0 +1,51 @@
+/* ============================================================
+   HISABAK — SPACING, RADIUS, SIZING, LAYOUT
+   8dp base grid. 16dp page margin. 12dp card radius.
+   ============================================================ */
+
+:root {
+  /* spacing scale (8dp base; 2/4 for fine work) */
+  --sp-0:   0;      /* @kind spacing */
+  --sp-1:   2px;
+  --sp-2:   4px;
+  --sp-3:   8px;
+  --sp-4:   12px;
+  --sp-5:   16px;   /* page margin / card padding */
+  --sp-6:   20px;
+  --sp-7:   24px;
+  --sp-8:   32px;
+  --sp-9:   40px;
+  --sp-10:  48px;
+
+  /* corner radii */
+  --r-xs:   6px;
+  --r-sm:   8px;
+  --r-md:   12px;   /* default card */
+  --r-lg:   16px;   /* hero card / sheet */
+  --r-xl:   24px;
+  --r-pill: 999px;
+  --r-tile: 14px;   /* category icon tile */
+
+  /* semantic spacing */
+  --page-margin:    16px;
+  --card-pad:       16px;
+  --card-gap:       12px;
+  --section-gap:    24px;
+  --section-title-mb: 8px;
+
+  /* component sizing */
+  --control-h:    48px;   /* buttons / inputs */
+  --control-h-sm: 36px;   /* chips / small buttons */
+  --tile-size:    44px;   /* category icon tile */
+  --avatar:       36px;
+  --tap-min:      44px;   /* minimum touch target */
+  --icon:         24px;
+  --icon-sm:      20px;
+
+  /* shell metrics (Android edge-to-edge) */
+  --statusbar-h:  28px;
+  --appbar-h:     56px;
+  --bottomnav-h:  64px;
+  --navbar-inset: 16px;   /* gesture nav safe area */
+  --device-w:     390px;  /* design canvas width */
+}

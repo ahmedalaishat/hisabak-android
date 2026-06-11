@@ -1,0 +1,24 @@
+<!-- @dsCard group="Spacing" viewport="700x170" name="Spacing Scale" subtitle="8dp base grid · 16dp page margin" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="../styles.css">
+<style>
+  body { padding: 18px; background: var(--bg); }
+  .row { display: flex; align-items: flex-end; gap: 16px; flex-wrap: wrap; }
+  .col { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+  .bar { background: var(--accent); border-radius: 4px; width: 100%; }
+  .box { width: 48px; display: flex; align-items: flex-end; height: 56px; }
+  .k { font: var(--fw-semibold) 11px/1 var(--font-mono); color: var(--text-primary); }
+  .v { font: 400 10px/1 var(--font-mono); color: var(--text-secondary); }
+</style>
+</head>
+<body>
+  <div class="row" id="row"></div>
+  <script>
+    const s = [['1','2'],['2','4'],['3','8'],['4','12'],['5','16'],['6','20'],['7','24'],['8','32'],['9','40'],['10','48']];
+    row.innerHTML = s.map(([k,v]) => `<div class="col"><div class="box"><div class="bar" style="height:${v}px"></div></div><div class="k">sp-${k}</div><div class="v">${v}px</div></div>`).join('');
+  </script>
+</body>
+</html>
