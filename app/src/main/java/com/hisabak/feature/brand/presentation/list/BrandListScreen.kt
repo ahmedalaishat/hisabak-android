@@ -70,7 +70,7 @@ fun BrandListScreen(
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(horizontal = 16.dp, vertical = 16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         if (showHeader) item { HeaderRow(onCreate = onAdd) }
 
@@ -159,7 +159,7 @@ private fun InsightPills(brandCount: Int, categoryCount: Int) {
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        SurfaceCard(modifier = Modifier.weight(1f), contentPadding = 14.dp) {
+        SurfaceCard(modifier = Modifier.weight(1f), contentPadding = 12.dp) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(10.dp),
@@ -185,7 +185,7 @@ private fun InsightPills(brandCount: Int, categoryCount: Int) {
                 }
             }
         }
-        SurfaceCard(modifier = Modifier.weight(1f), contentPadding = 14.dp) {
+        SurfaceCard(modifier = Modifier.weight(1f), contentPadding = 12.dp) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(10.dp),

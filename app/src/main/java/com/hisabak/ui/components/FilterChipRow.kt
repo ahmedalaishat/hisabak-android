@@ -66,7 +66,7 @@ fun FilterPill(
             .clip(ChipShape)
             .background(bg)
             .clickable(onClick = onClick)
-            .padding(horizontal = 18.dp, vertical = 10.dp),
+            .padding(horizontal = 16.dp, vertical = 10.dp),
     )
 }
 
