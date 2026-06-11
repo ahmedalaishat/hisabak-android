@@ -10,9 +10,14 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.automirrored.filled.Message
+import androidx.compose.material.icons.automirrored.outlined.List as ListOutlined
+import androidx.compose.material.icons.automirrored.outlined.Message as MessageOutlined
 import androidx.compose.material.icons.filled.Category
 import androidx.compose.material.icons.filled.SpaceDashboard
 import androidx.compose.material.icons.filled.Storefront
+import androidx.compose.material.icons.outlined.Category as CategoryOutlined
+import androidx.compose.material.icons.outlined.SpaceDashboard as SpaceDashboardOutlined
+import androidx.compose.material.icons.outlined.Storefront as StorefrontOutlined
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
@@ -51,12 +56,12 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-private enum class RootTab(val label: String, val icon: ImageVector) {
-    Dashboard("Dashboard", Icons.Filled.SpaceDashboard),
-    Transactions("Transactions", Icons.AutoMirrored.Filled.List),
-    Sms("SMS", Icons.AutoMirrored.Filled.Message),
-    Brands("Brands", Icons.Filled.Storefront),
-    Categories("Categories", Icons.Filled.Category),
+private enum class RootTab(val label: String, val icon: ImageVector, val iconOutlined: ImageVector) {
+    Dashboard("Dashboard",    Icons.Filled.SpaceDashboard,         SpaceDashboardOutlined),
+    Transactions("Transactions", Icons.AutoMirrored.Filled.List,   ListOutlined),
+    Sms("SMS",                Icons.AutoMirrored.Filled.Message,   MessageOutlined),
+    Brands("Brands",          Icons.Filled.Storefront,             StorefrontOutlined),
+    Categories("Categories",  Icons.Filled.Category,               CategoryOutlined),
 }
 
 private sealed interface TransactionsNav {
@@ -82,7 +87,7 @@ private fun HisabakNav() {
     var catNav: CategoriesNav by remember { mutableStateOf(CategoriesNav.List) }
 
     val tabs = remember {
-        RootTab.entries.map { BottomNavTab(key = it.name, label = it.label, icon = it.icon) }
+        RootTab.entries.map { BottomNavTab(key = it.name, label = it.label, icon = it.icon, iconOutlined = it.iconOutlined) }
     }
 
     Scaffold(
