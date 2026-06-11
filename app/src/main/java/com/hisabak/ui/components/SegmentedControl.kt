@@ -15,6 +15,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
+import com.hisabak.ui.theme.Spacing
 
 data class SegmentOption<T>(
     val value: T,
@@ -62,7 +63,7 @@ fun <T> SegmentedControl(
             Box(
                 modifier = Modifier
                     .weight(1f)
-                    .height(40.dp)
+                    .height(Spacing.s9)
                     .clip(segmentShape)
                     .background(segBg)
                     .clickable { onSelect(option.value) },

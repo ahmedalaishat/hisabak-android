@@ -43,6 +43,8 @@ import com.hisabak.ui.components.SurfaceCard
 import com.hisabak.ui.components.iconForKey
 import com.hisabak.ui.components.tintPairForColor
 import com.hisabak.ui.theme.HisabakTheme
+import com.hisabak.ui.theme.Sizing
+import com.hisabak.ui.theme.Spacing
 
 @Composable
 fun BrandListScreen(
@@ -69,8 +71,8 @@ fun BrandListScreen(
 
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 16.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp),
+        contentPadding = PaddingValues(horizontal = Spacing.pageMargin, vertical = Spacing.s5),
+        verticalArrangement = Arrangement.spacedBy(Spacing.cardGap),
     ) {
         if (showHeader) item { HeaderRow(onCreate = onAdd) }
 
@@ -133,7 +135,7 @@ fun BrandListScreen(
             }
         }
 
-        item { Spacer(Modifier.height(8.dp)) }
+        item { Spacer(Modifier.height(Spacing.s3)) }
     }
 }
 
@@ -157,16 +159,16 @@ private fun HeaderRow(onCreate: () -> Unit) {
 private fun InsightPills(brandCount: Int, categoryCount: Int) {
     Row(
         modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
+        horizontalArrangement = Arrangement.spacedBy(Spacing.cardGap),
     ) {
-        SurfaceCard(modifier = Modifier.weight(1f), contentPadding = 12.dp) {
+        SurfaceCard(modifier = Modifier.weight(1f), contentPadding = Spacing.s4) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(10.dp),
             ) {
                 IconTile(
                     icon = Icons.Filled.Storefront,
-                    size = 32.dp,
+                    size = Spacing.s8,
                     iconSize = 16.dp,
                     background = MaterialTheme.colorScheme.surfaceVariant,
                     foreground = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -185,14 +187,14 @@ private fun InsightPills(brandCount: Int, categoryCount: Int) {
                 }
             }
         }
-        SurfaceCard(modifier = Modifier.weight(1f), contentPadding = 12.dp) {
+        SurfaceCard(modifier = Modifier.weight(1f), contentPadding = Spacing.s4) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(10.dp),
             ) {
                 IconTile(
                     icon = Icons.Filled.Layers,
-                    size = 32.dp,
+                    size = Spacing.s8,
                     iconSize = 16.dp,
                     background = MaterialTheme.colorScheme.surfaceVariant,
                     foreground = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -221,7 +223,7 @@ private fun MostUsedCard(row: BrandRow) {
 
     SurfaceCard(
         modifier = Modifier.fillMaxWidth(),
-        contentPadding = 16.dp,
+        contentPadding = Spacing.cardPadding,
         backgroundColor = incomeSoft,
         borderColor = HisabakTheme.colors.income.copy(alpha = 0.18f),
     ) {
@@ -233,7 +235,7 @@ private fun MostUsedCard(row: BrandRow) {
             Column(modifier = Modifier.weight(1f)) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    horizontalArrangement = Arrangement.spacedBy(Spacing.s3),
                 ) {
                     Icon(
                         imageVector = Icons.Filled.Star,
@@ -249,7 +251,7 @@ private fun MostUsedCard(row: BrandRow) {
                     color = MaterialTheme.colorScheme.onSurface,
                 )
                 if (row.categoryName != null) {
-                    Spacer(Modifier.height(6.dp))
+                    Spacer(Modifier.height(Spacing.s3))
                     ColoredFilterChip(
                         label = row.categoryName,
                         colorKey = row.categoryColor,
@@ -278,7 +280,7 @@ private fun CategoryFilterRow(
     onSelect: (CategoryId?) -> Unit,
 ) {
     LazyRow(
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        horizontalArrangement = Arrangement.spacedBy(Spacing.s3),
         contentPadding = PaddingValues(horizontal = 0.dp),
     ) {
         items(allOptions) { (label, value) ->

@@ -15,6 +15,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.hisabak.ui.theme.Spacing
 
 /**
  * White-ish panel with a subtle outline — the base container used across every
@@ -24,7 +25,7 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun SurfaceCard(
     modifier: Modifier = Modifier,
-    contentPadding: Dp = 16.dp,
+    contentPadding: Dp = Spacing.cardPadding,
     shape: RoundedCornerShape = RoundedCornerShape(12.dp),
     backgroundColor: Color = MaterialTheme.colorScheme.surfaceContainerLowest,
     borderColor: Color = MaterialTheme.colorScheme.outlineVariant,

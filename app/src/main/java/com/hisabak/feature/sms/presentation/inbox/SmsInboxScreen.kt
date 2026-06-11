@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DeleteOutline
 import androidx.compose.material.icons.filled.Download
@@ -51,6 +50,8 @@ import com.hisabak.ui.components.SectionHeader
 import com.hisabak.ui.components.SmsStatus
 import com.hisabak.ui.components.StatusChip
 import com.hisabak.ui.components.SurfaceCard
+import com.hisabak.ui.theme.Sizing
+import com.hisabak.ui.theme.Spacing
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import kotlin.math.abs
@@ -70,8 +71,8 @@ fun SmsInboxScreen(
     Box(modifier.fillMaxSize()) {
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
+            contentPadding = PaddingValues(horizontal = Spacing.pageMargin, vertical = Spacing.s5),
+            verticalArrangement = Arrangement.spacedBy(Spacing.cardGap),
         ) {
             item { AutoImportBanner(granted = state.autoImportGranted, onEnable = onEnableAutoImport) }
             item { PasteParseCard(draft = state.draftBody, isProcessing = state.isProcessing, onDraftChange = onDraftChange, onIngest = onIngest) }
@@ -89,7 +90,7 @@ fun SmsInboxScreen(
                     Box(
                         Modifier
                             .fillMaxWidth()
-                            .padding(vertical = 40.dp),
+                            .padding(vertical = Spacing.s9),
                         contentAlignment = Alignment.Center,
                     ) {
                         CircularProgressIndicator()
@@ -120,7 +121,7 @@ fun SmsInboxScreen(
             hostState = snackbarHostState,
             modifier = Modifier
                 .align(Alignment.BottomCenter)
-                .padding(16.dp),
+                .padding(Spacing.pageMargin),
         )
     }
 }
@@ -130,10 +131,10 @@ private fun AutoImportBanner(granted: Boolean, onEnable: () -> Unit) {
     SurfaceCard(modifier = Modifier.fillMaxWidth()) {
         Row(
             Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            horizontalArrangement = Arrangement.spacedBy(Spacing.cardGap),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(Spacing.s2)) {
                 Text(
                     if (granted) "Auto-import active" else "Auto-import is disabled",
                     style = MaterialTheme.typography.titleSmall,
@@ -152,7 +153,7 @@ private fun AutoImportBanner(granted: Boolean, onEnable: () -> Unit) {
                 Badge(label = "Active", tone = BadgeTone.Income)
             } else {
                 Row(
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    horizontalArrangement = Arrangement.spacedBy(Spacing.s3),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Badge(label = "Auto-import off", tone = BadgeTone.Warning, dot = true)
@@ -181,7 +182,7 @@ private fun PasteParseCard(
             style = MaterialTheme.typography.titleSmall,
             color = MaterialTheme.colorScheme.onSurface,
         )
-        Spacer(Modifier.height(8.dp))
+        Spacer(Modifier.height(Spacing.sectionTitleGap))
         OutlinedTextField(
             value = draft,
             onValueChange = onDraftChange,
@@ -193,7 +194,7 @@ private fun PasteParseCard(
                 )
             },
             minLines = 2,
-            shape = RoundedCornerShape(12.dp),
+            shape = MaterialTheme.shapes.medium,
             textStyle = MaterialTheme.typography.bodyMedium,
             colors = OutlinedTextFieldDefaults.colors(
                 focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
@@ -203,7 +204,7 @@ private fun PasteParseCard(
             ),
             modifier = Modifier.fillMaxWidth(),
         )
-        Spacer(Modifier.height(12.dp))
+        Spacer(Modifier.height(Spacing.cardGap))
         Row(
             Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.End,
@@ -250,7 +251,7 @@ private fun SmsRowCard(
             )
             StatusChip(status = status)
         }
-        Spacer(Modifier.height(8.dp))
+        Spacer(Modifier.height(Spacing.sectionTitleGap))
         // SMS body capped at 2 lines
         Text(
             row.body,
@@ -269,7 +270,7 @@ private fun SmsRowCard(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Row(
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    horizontalArrangement = Arrangement.spacedBy(Spacing.s3),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Text(
@@ -286,7 +287,7 @@ private fun SmsRowCard(
                     )
                 }
                 Row(
-                    horizontalArrangement = Arrangement.spacedBy(4.dp),
+                    horizontalArrangement = Arrangement.spacedBy(Spacing.s2),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     PrimaryPillButton(
@@ -294,7 +295,7 @@ private fun SmsRowCard(
                         onClick = onImport,
                         leadingIcon = Icons.Filled.Download,
                     )
-                    IconButton(onClick = onDelete, modifier = Modifier.size(36.dp)) {
+                    IconButton(onClick = onDelete, modifier = Modifier.size(Sizing.controlHeightSm)) {
                         Icon(
                             Icons.Filled.DeleteOutline,
                             contentDescription = "Delete",
@@ -305,9 +306,9 @@ private fun SmsRowCard(
                 }
             }
         } else {
-            Spacer(Modifier.height(6.dp))
+            Spacer(Modifier.height(Spacing.s3))
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
-                IconButton(onClick = onDelete, modifier = Modifier.size(36.dp)) {
+                IconButton(onClick = onDelete, modifier = Modifier.size(Sizing.controlHeightSm)) {
                     Icon(
                         Icons.Filled.DeleteOutline,
                         contentDescription = "Delete",

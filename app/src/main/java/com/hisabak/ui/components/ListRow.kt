@@ -10,9 +10,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.dp
 import com.hisabak.ui.theme.HisabakTheme
 import com.hisabak.ui.theme.HisabakType
+import com.hisabak.ui.theme.Spacing
 
 /**
  * Recent-activity / recent-brand row: leading icon slot, two-line text column,
@@ -31,13 +31,13 @@ fun ListRow(
 ) {
     SurfaceCard(
         modifier = modifier.fillMaxWidth(),
-        contentPadding = 12.dp,
+        contentPadding = Spacing.cardGap,
         onClick = onClick,
     ) {
         Row(
             Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            horizontalArrangement = Arrangement.spacedBy(Spacing.cardGap),
         ) {
             leading()
             Column(Modifier.weight(1f)) {

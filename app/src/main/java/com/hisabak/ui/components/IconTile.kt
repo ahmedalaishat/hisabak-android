@@ -30,6 +30,8 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.hisabak.ui.theme.HisabakTheme
+import com.hisabak.ui.theme.Sizing
+import com.hisabak.ui.theme.Spacing
 
 /**
  * Rounded tile with a tinted background and a centered icon. Used for category
@@ -39,8 +41,8 @@ import com.hisabak.ui.theme.HisabakTheme
 fun IconTile(
     icon: ImageVector,
     modifier: Modifier = Modifier,
-    size: Dp = 40.dp,
-    iconSize: Dp = 20.dp,
+    size: Dp = Spacing.s9,
+    iconSize: Dp = Sizing.iconSm,
     background: Color = Color.Unspecified,
     foreground: Color = Color.Unspecified,
     shape: Shape = RoundedCornerShape(10.dp),
@@ -68,8 +70,8 @@ fun IconTile(
 fun CircleIconTile(
     icon: ImageVector,
     modifier: Modifier = Modifier,
-    size: Dp = 48.dp,
-    iconSize: Dp = 24.dp,
+    size: Dp = Sizing.controlHeight,
+    iconSize: Dp = Sizing.icon,
     background: Color = Color.Unspecified,
     foreground: Color = Color.Unspecified,
     contentDescription: String? = null,

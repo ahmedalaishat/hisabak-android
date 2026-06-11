@@ -42,6 +42,7 @@ import com.hisabak.ui.components.ColoredFilterChip
 import com.hisabak.ui.components.HisabakButton
 import com.hisabak.ui.components.SegmentOption
 import com.hisabak.ui.components.SegmentedControl
+import com.hisabak.ui.theme.Spacing
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -72,8 +73,8 @@ fun TransactionEditScreen(
         modifier = Modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
-            .padding(horizontal = 16.dp, vertical = 8.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp),
+            .padding(horizontal = Spacing.pageMargin, vertical = Spacing.s3),
+        verticalArrangement = Arrangement.spacedBy(Spacing.s5),
     ) {
         AmountHeroDisplay(state = state)
 
@@ -100,7 +101,7 @@ fun TransactionEditScreen(
             modifier = Modifier.fillMaxWidth(),
         )
 
-        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Column(verticalArrangement = Arrangement.spacedBy(Spacing.sectionTitleGap)) {
             Text(
                 text = "Brand",
                 style = MaterialTheme.typography.labelLarge,
@@ -114,7 +115,7 @@ fun TransactionEditScreen(
                 )
             } else {
                 LazyRow(
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    horizontalArrangement = Arrangement.spacedBy(Spacing.s3),
                     contentPadding = PaddingValues(0.dp),
                 ) {
                     items(state.brandOptions, key = { it.id.value }) { option ->
@@ -132,7 +133,7 @@ fun TransactionEditScreen(
             }
         }
 
-        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Column(verticalArrangement = Arrangement.spacedBy(Spacing.sectionTitleGap)) {
             Text(
                 text = "Date",
                 style = MaterialTheme.typography.labelLarge,
@@ -174,7 +175,7 @@ fun TransactionEditScreen(
             fullWidth = true,
         )
 
-        Spacer(Modifier.height(8.dp))
+        Spacer(Modifier.height(Spacing.s3))
     }
 
     if (state.showDatePicker) {
@@ -208,11 +209,11 @@ private fun AmountHeroDisplay(state: TransactionEditUiState) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 8.dp),
+            .padding(vertical = Spacing.s3),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Text("SAR", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-        Spacer(Modifier.height(4.dp))
+        Spacer(Modifier.height(Spacing.s2))
         AmountText(value = amountValue, currency = "", showSign = false, tone = tone, size = 44.sp)
         if (state.amountInput.isBlank()) {
             Text(
