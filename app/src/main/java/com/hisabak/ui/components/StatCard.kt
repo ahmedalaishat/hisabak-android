@@ -22,8 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
-import com.hisabak.ui.theme.TintEmerald
-import com.hisabak.ui.theme.TintRed
+import com.hisabak.ui.theme.HisabakTheme
 
 /**
  * Small KPI card used in 2-up grids: tinted icon tile + label + big value,
@@ -38,9 +37,10 @@ fun StatCard(
     progress: Float? = null,
     accent: StatAccent = StatAccent.Positive,
 ) {
+    val c = HisabakTheme.colors
     val bg = when (accent) {
-        StatAccent.Positive -> TintEmerald
-        StatAccent.Negative -> TintRed
+        StatAccent.Positive -> c.incomeSoft
+        StatAccent.Negative -> c.expenseSoft
     }
     val fg = when (accent) {
         StatAccent.Positive -> MaterialTheme.colorScheme.primary

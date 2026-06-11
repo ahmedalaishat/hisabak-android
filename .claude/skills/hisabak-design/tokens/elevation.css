@@ -1,0 +1,50 @@
+/* ============================================================
+   HISABAK — ELEVATION & MOTION
+   Depth comes mostly from background/surface contrast, NOT heavy
+   shadows. Shadows are soft, low, and reserved for floating layers
+   (sheets, dialogs, menus, the active FAB).
+   ============================================================ */
+
+:root {
+  /* shadows — light theme */
+  --shadow-none:  none;
+  --shadow-xs:    0 1px 2px rgba(17, 24, 39, 0.04);
+  --shadow-sm:    0 1px 3px rgba(17, 24, 39, 0.06), 0 1px 2px rgba(17, 24, 39, 0.04);
+  --shadow-card:  0 1px 2px rgba(17, 24, 39, 0.05), 0 2px 8px rgba(17, 24, 39, 0.04);
+  --shadow-md:    0 4px 16px rgba(17, 24, 39, 0.08);   /* sheets / dialogs */
+  --shadow-lg:    0 12px 32px rgba(17, 24, 39, 0.14);  /* menus / popovers */
+  --shadow-accent:0 6px 18px rgba(11, 122, 91, 0.28);  /* primary FAB / CTA */
+
+  /* hairline border substitute for flat cards */
+  --ring-card:    inset 0 0 0 1px var(--border);
+
+  /* motion — calm, no bounce on functional UI */
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);      /* @kind other */
+  --ease-emphasis: cubic-bezier(0.3, 0, 0, 1);      /* @kind other */
+  --ease-out:      cubic-bezier(0.0, 0, 0.2, 1);    /* @kind other */
+  --dur-fast:    120ms;   /* @kind other */
+  --dur-base:    200ms;   /* @kind other */
+  --dur-slow:    320ms;   /* @kind other */
+
+  /* interaction deltas */
+  --press-scale:  0.97;     /* @kind other */
+  --hover-lift:   -1px;     /* @kind other */
+}
+
+[data-theme="dark"] {
+  --shadow-xs:    0 1px 2px rgba(0, 0, 0, 0.30);
+  --shadow-sm:    0 1px 3px rgba(0, 0, 0, 0.40);
+  --shadow-card:  0 1px 2px rgba(0, 0, 0, 0.40), 0 2px 8px rgba(0, 0, 0, 0.30);
+  --shadow-md:    0 4px 16px rgba(0, 0, 0, 0.50);
+  --shadow-lg:    0 12px 32px rgba(0, 0, 0, 0.60);
+  --shadow-accent:0 6px 18px rgba(0, 0, 0, 0.50);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --dur-fast: 0ms;   /* @kind other */
+    --dur-base: 0ms;   /* @kind other */
+    --dur-slow: 0ms;   /* @kind other */
+    --press-scale: 1;  /* @kind other */
+  }
+}

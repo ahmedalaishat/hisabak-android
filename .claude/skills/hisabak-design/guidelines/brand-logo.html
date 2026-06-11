@@ -1,0 +1,25 @@
+<!-- @dsCard group="Brand" viewport="700x180" name="Logo & Mark" subtitle="Wordmark, mark, and clear-space — light and dark" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="../styles.css">
+<style>
+  body { margin: 0; display: grid; grid-template-columns: 1fr 1fr; }
+  .pane { padding: 28px; display: flex; align-items: center; gap: 28px; }
+  .light { background: var(--gray-50); }
+  .dark { background: #0B0D12; }
+  img { display: block; }
+</style>
+</head>
+<body>
+  <div class="pane light">
+    <img src="../assets/logo-mark.svg" width="56" height="56" alt="mark">
+    <img src="../assets/logo-wordmark.svg" width="156" alt="Hisabak">
+  </div>
+  <div class="pane dark">
+    <img src="../assets/app-icon.svg" width="56" height="56" alt="app icon">
+    <img src="../assets/logo-wordmark-dark.svg" width="156" alt="Hisabak">
+  </div>
+</body>
+</html>

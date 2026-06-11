@@ -27,8 +27,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.hisabak.ui.theme.TintEmerald
-import com.hisabak.ui.theme.TintEmeraldOn
+import com.hisabak.ui.theme.HisabakTheme
 
 /**
  * Persistent app header: round avatar on the left, product title beside it,
@@ -61,14 +60,14 @@ fun HisabakTopBar(
             Box(
                 Modifier
                     .size(36.dp)
-                    .background(TintEmerald, CircleShape)
+                    .background(HisabakTheme.colors.incomeSoft, CircleShape)
                     .border(1.dp, MaterialTheme.colorScheme.outlineVariant, CircleShape),
                 contentAlignment = Alignment.Center,
             ) {
                 Icon(
                     Icons.Filled.Person,
                     contentDescription = null,
-                    tint = TintEmeraldOn,
+                    tint = HisabakTheme.colors.income,
                     modifier = Modifier.size(20.dp),
                 )
             }

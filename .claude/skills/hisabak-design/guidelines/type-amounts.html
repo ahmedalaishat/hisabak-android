@@ -1,0 +1,26 @@
+<!-- @dsCard group="Type" viewport="700x180" name="Amounts — Geist Mono" subtitle="Tabular figures align in columns; income green, expense coral" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="../styles.css">
+<style>
+  body { padding: 18px; background: var(--bg); }
+  .wrap { background: var(--surface); border-radius: 12px; box-shadow: var(--ring-card); padding: 8px 16px; max-width: 360px; }
+  .r { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--divider); }
+  .r:last-child { border-bottom: 0; }
+  .nm { font: var(--fw-medium) 14px/1 var(--font-sans); color: var(--text-primary); }
+  .amt { font: var(--fw-semibold) 16px/1 var(--font-mono); font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
+  .in { color: var(--income); } .ex { color: var(--expense); }
+  .hero { font: var(--fw-semibold) 40px/1 var(--font-mono); font-variant-numeric: tabular-nums; letter-spacing: -0.02em; color: var(--text-primary); margin-bottom: 14px; }
+</style>
+</head>
+<body>
+  <div class="hero">SAR 12,450.00</div>
+  <div class="wrap">
+    <div class="r"><div class="nm">Salary</div><div class="amt in">+SAR 8,200.00</div></div>
+    <div class="r"><div class="nm">Carrefour</div><div class="amt ex">−SAR 342.75</div></div>
+    <div class="r"><div class="nm">Netflix</div><div class="amt ex">−SAR 56.00</div></div>
+  </div>
+</body>
+</html>

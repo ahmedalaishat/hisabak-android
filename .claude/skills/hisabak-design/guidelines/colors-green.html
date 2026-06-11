@@ -1,0 +1,23 @@
+<!-- @dsCard group="Colors" viewport="700x150" name="Brand Green Scale" subtitle="Primary green — meaningful, never decorative" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="../styles.css">
+<style>
+  body { padding: 16px; background: var(--bg); }
+  .row { display: grid; grid-template-columns: repeat(10, 1fr); gap: 6px; }
+  .sw { display: flex; flex-direction: column; gap: 6px; }
+  .chip { height: 56px; border-radius: 10px; box-shadow: var(--ring-card); }
+  .k { font: var(--fw-semibold) 11px/1.2 var(--font-mono); color: var(--text-primary); }
+  .v { font: 400 10px/1.2 var(--font-mono); color: var(--text-secondary); }
+</style>
+</head>
+<body>
+  <div class="row" id="row"></div>
+  <script>
+    const scale = [['50','#E7F5EF'],['100','#C9E9DB'],['200','#95D4BB'],['300','#5DBC97'],['400','#2A9E76'],['500','#0B7A5B'],['600','#096A4F'],['700','#08543F'],['800','#0E3A2F'],['900','#0A2A22']];
+    row.innerHTML = scale.map(([k,v]) => `<div class="sw"><div class="chip" style="background:${v}"></div><div class="k">${k}</div><div class="v">${v}</div></div>`).join('');
+  </script>
+</body>
+</html>

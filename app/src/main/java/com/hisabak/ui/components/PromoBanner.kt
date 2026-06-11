@@ -14,7 +14,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.hisabak.ui.theme.PrimaryFixedDim
+import com.hisabak.ui.theme.Green300
 
 /** Green gradient call-out used for the "Smart Saving Tip" card. */
 @Composable
@@ -29,7 +29,7 @@ fun GradientBanner(
             .clip(RoundedCornerShape(16.dp))
             .background(
                 Brush.horizontalGradient(
-                    listOf(MaterialTheme.colorScheme.primary, PrimaryFixedDim),
+                    listOf(MaterialTheme.colorScheme.primary, Green300),
                 ),
             )
             .padding(20.dp),

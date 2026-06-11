@@ -1,0 +1,62 @@
+<!-- @dsCard group="Components" viewport="700x620" name="Data — Cards, Rows, Tiles" subtitle="StatCard, ListRow, CategoryTile, CategoryIcon, EmptyState" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="../../styles.css">
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script src="../../_ds_bundle.js"></script>
+<style>
+  body { margin: 0; padding: 20px; background: var(--bg); }
+  .wrap { max-width: 380px; display: flex; flex-direction: column; gap: 16px; }
+  .lbl { font: 600 11px/1 var(--font-sans); letter-spacing: .05em; text-transform: uppercase; color: var(--text-tertiary); margin-bottom: 8px; }
+  .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .tiles { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { StatCard, ListRow, CategoryTile, CategoryIcon, EmptyState } = window.HisabakDesignSystem_aa2548;
+function Demo() {
+  return (
+    <div className="wrap">
+      <div>
+        <div className="lbl">Stat cards</div>
+        <div className="stats">
+          <StatCard label="Income" value={9420} icon="south_west" tone="income" delta={12.4} emphasis />
+          <StatCard label="Expenses" value={6180} icon="north_east" tone="expense" delta={-4.1} emphasis />
+        </div>
+      </div>
+      <div>
+        <div className="lbl">List rows</div>
+        <div style={{background:'var(--surface)', borderRadius:12, boxShadow:'var(--ring-card)', padding:'4px 14px'}}>
+          <ListRow title="Carrefour" subtitle="Groceries" leadingText="C" color="var(--cat-orange)" amount={-342.75} meta="Today" />
+          <ListRow title="Salary" subtitle="Acme Corp" leadingIcon="payments" color="var(--cat-green)" amount={8200} meta="1 Jun" />
+          <ListRow title="Netflix" subtitle="Entertainment" leadingText="N" color="var(--cat-red)" amount={-56} meta="28 May" divider={false} />
+        </div>
+      </div>
+      <div>
+        <div className="lbl">Category tiles</div>
+        <div className="tiles">
+          <CategoryTile name="Groceries" icon="shopping_cart" color="var(--cat-orange)" type="expense" total="SAR 1,240" onDelete={()=>{}} />
+          <CategoryTile name="Salary" icon="work" color="var(--cat-green)" type="income" total="SAR 8,200" onDelete={()=>{}} />
+          <CategoryTile name="Savings" icon="savings" color="var(--cat-blue)" type="savings" total="SAR 2,000" onDelete={()=>{}} />
+          <CategoryTile addNew />
+        </div>
+      </div>
+      <div>
+        <div className="lbl">Empty state</div>
+        <div style={{background:'var(--surface)', borderRadius:12, boxShadow:'var(--ring-card)'}}>
+          <EmptyState icon="receipt_long" title="No transactions yet" description="Add your first transaction or import one from an SMS." actionLabel="Add Transaction" />
+        </div>
+      </div>
+    </div>
+  );
+}
+ReactDOM.createRoot(document.getElementById('root')).render(<Demo />);
+</script>
+</body>
+</html>

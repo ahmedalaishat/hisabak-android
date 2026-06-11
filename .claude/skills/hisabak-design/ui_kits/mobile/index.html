@@ -1,0 +1,145 @@
+<!-- @dsCard group="Mobile App" viewport="412x760" name="Hisabak App — interactive" subtitle="Dashboard · Transactions · Add · SMS · Categories — tap the nav, toggle dark" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hisabak — Mobile UI Kit</title>
+<link rel="stylesheet" href="../../styles.css">
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script src="../../_ds_bundle.js"></script>
+<script src="mock.js"></script>
+<style>
+  html, body { margin: 0; height: 100%; }
+  body { background: #1A1D24; display: grid; place-items: center; min-height: 100vh; font-family: var(--font-sans); padding: 24px 0; }
+  .stage { display: flex; flex-direction: column; align-items: center; gap: 16px; }
+  .toolbar { display: inline-flex; align-items: center; gap: 4px; padding: 4px; background: rgba(255,255,255,0.08); border-radius: 999px; }
+  .toolbar button { border: none; background: transparent; color: rgba(255,255,255,0.7); font-family: var(--font-sans); font-weight: 600; font-size: 13px; padding: 7px 14px; border-radius: 999px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
+  .toolbar button.on { background: #fff; color: #111827; }
+  .phone {
+    width: 412px; height: 844px; position: relative;
+    background: var(--bg); border-radius: 44px; overflow: hidden;
+    box-shadow: 0 0 0 11px #0c0e12, 0 0 0 13px #2a2e38, 0 30px 70px rgba(0,0,0,0.55);
+  }
+  .app { position: absolute; inset: 0; display: flex; flex-direction: column; }
+  .statusbar { height: 30px; flex: none; display: flex; align-items: center; justify-content: space-between; padding: 0 22px; font-family: var(--font-sans); font-weight: 600; font-size: 13px; color: var(--text-primary); background: var(--nav-bg); }
+  .statusbar .icons { display: flex; align-items: center; gap: 6px; }
+  .statusbar .material-symbols-rounded { font-size: 16px; }
+  .scroll { flex: 1; overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch; }
+  .scroll::-webkit-scrollbar { width: 0; }
+  .fab { position: absolute; right: 18px; bottom: 84px; width: 56px; height: 56px; border-radius: 18px; border: none; background: var(--accent); color: #fff; display: grid; place-items: center; cursor: pointer; box-shadow: var(--shadow-accent); z-index: 20; transition: transform var(--dur-fast); }
+  .fab:active { transform: scale(0.94); }
+  .fab .material-symbols-rounded { font-size: 28px; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/babel" src="charts.jsx"></script>
+<script type="text/babel" src="Dashboard.jsx"></script>
+<script type="text/babel" src="Transactions.jsx"></script>
+<script type="text/babel" src="AddTransactionSheet.jsx"></script>
+<script type="text/babel" src="SmsInbox.jsx"></script>
+<script type="text/babel" src="Categories.jsx"></script>
+
+<script type="text/babel" data-presets="react">
+const NS = window.HisabakDesignSystem_aa2548;
+const { TopAppBar, BottomNav } = NS;
+
+const TITLES = { dashboard: 'Dashboard', transactions: 'Transactions', sms: 'SMS Inbox', brands: 'Brands', categories: 'Categories' };
+
+function StatusBar() {
+  return (
+    <div className="statusbar">
+      <span>9:41</span>
+      <span className="icons">
+        <span className="material-symbols-rounded">signal_cellular_alt</span>
+        <span className="material-symbols-rounded">wifi</span>
+        <span className="material-symbols-rounded">battery_full</span>
+      </span>
+    </div>
+  );
+}
+
+function BrandsPlaceholder({ onAdd }) {
+  const { Card, Button, SearchBar, Chip, ListRow, Badge, AmountText } = NS;
+  const M = window.HisabakMock;
+  const [q, setQ] = React.useState('');
+  const catName = (id) => (M.CATEGORIES.find(c => c.id === id) || {}).name || '';
+  const catColor = (id) => (M.CATEGORIES.find(c => c.id === id) || {}).color || 'var(--cat-gray)';
+  const totals = { carrefour: 1240, stc: 820, talabat: 540, uber: 388, netflix: 256, acme: 8200, starbucks: 210, amazon: 180 };
+  const list = M.BRANDS.filter(b => b.name.toLowerCase().includes(q.toLowerCase()));
+  return (
+    <div style={{ padding: '8px 16px 24px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 8 }}>
+        <h1 style={{ margin: 0, fontFamily: 'var(--font-sans)', fontWeight: 700, fontSize: 22, letterSpacing: '-0.02em', color: 'var(--text-primary)' }}>Brands</h1>
+        <Button size="sm" leadingIcon="add">New</Button>
+      </div>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginTop: 14 }}>
+        <Card padding={14}><div style={{ fontFamily: 'var(--font-sans)', fontSize: 12.5, color: 'var(--text-secondary)' }}>Brands</div><div style={{ fontFamily: 'var(--font-mono)', fontWeight: 700, fontSize: 22, color: 'var(--text-primary)' }}>8</div></Card>
+        <Card padding={14}><div style={{ fontFamily: 'var(--font-sans)', fontSize: 12.5, color: 'var(--text-secondary)' }}>Categories</div><div style={{ fontFamily: 'var(--font-mono)', fontWeight: 700, fontSize: 22, color: 'var(--text-primary)' }}>8</div></Card>
+      </div>
+      <Card variant="tinted" tint="var(--accent-soft)" padding={16} style={{ marginTop: 12, display: 'flex', alignItems: 'center', gap: 14 }}>
+        <span style={{ display: 'grid', placeItems: 'center', width: 44, height: 44, borderRadius: 14, background: 'var(--cat-orange)', color: '#fff', fontWeight: 700, fontFamily: 'var(--font-sans)' }}>C</span>
+        <div style={{ flex: 1 }}>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontFamily: 'var(--font-sans)', fontWeight: 600, fontSize: 11.5, letterSpacing: '0.04em', textTransform: 'uppercase', color: 'var(--accent-hover)' }}><span className="material-symbols-rounded is-filled" style={{ fontSize: 14 }}>star</span>Most used</div>
+          <div style={{ fontFamily: 'var(--font-sans)', fontWeight: 700, fontSize: 18, color: 'var(--text-primary)', marginTop: 2 }}>Carrefour</div>
+        </div>
+        <AmountText value={1240} tone="neutral" sign="never" size={17} weight={700} />
+      </Card>
+      <div style={{ marginTop: 14 }}><SearchBar value={q} placeholder="Search brands" onChange={e => setQ(e.target.value)} onClear={() => setQ('')} /></div>
+      <Card padding={0} style={{ marginTop: 14, padding: '2px 14px' }}>
+        {list.map((b, i) => (
+          <ListRow key={b.id} title={b.name} subtitle={catName(b.category)} leadingText={b.initial} color={catColor(b.category)}
+            divider={i < list.length - 1}
+            trailing={<div style={{ display: 'flex', alignItems: 'center', gap: 8 }}><AmountText value={totals[b.id] || 0} tone="neutral" sign="never" size={14} /><span className="material-symbols-rounded" style={{ fontSize: 18, color: 'var(--text-tertiary)' }}>chevron_right</span></div>} />
+        ))}
+      </Card>
+    </div>
+  );
+}
+
+function App() {
+  const [theme, setTheme] = React.useState('light');
+  const [tab, setTab] = React.useState('dashboard');
+  const [sheet, setSheet] = React.useState(false);
+  const scrollRef = React.useRef(null);
+
+  React.useEffect(() => { if (scrollRef.current) scrollRef.current.scrollTop = 0; }, [tab]);
+
+  const openAdd = () => setSheet(true);
+  const screens = {
+    dashboard: <window.HisabakDashboard />,
+    transactions: <window.HisabakTransactions onAdd={openAdd} />,
+    sms: <window.HisabakSms />,
+    brands: <BrandsPlaceholder onAdd={openAdd} />,
+    categories: <window.HisabakCategories onAdd={openAdd} />,
+  };
+  const showFab = tab === 'dashboard' || tab === 'sms' || tab === 'brands';
+
+  return (
+    <div className="stage">
+      <div className="toolbar">
+        <button className={theme === 'light' ? 'on' : ''} onClick={() => setTheme('light')}><span className="material-symbols-rounded" style={{ fontSize: 16 }}>light_mode</span>Light</button>
+        <button className={theme === 'dark' ? 'on' : ''} onClick={() => setTheme('dark')}><span className="material-symbols-rounded" style={{ fontSize: 16 }}>dark_mode</span>Dark</button>
+      </div>
+      <div className="phone" data-theme={theme === 'dark' ? 'dark' : undefined}>
+        <div className="app">
+          <StatusBar />
+          <TopAppBar brand showAvatar showBell avatarName="Layla Khan" />
+          <div className="scroll" ref={scrollRef}>{screens[tab]}</div>
+          {showFab && <button className="fab" onClick={openAdd} aria-label="Add transaction"><span className="material-symbols-rounded">add</span></button>}
+          <BottomNav value={tab} onChange={setTab} />
+          <window.HisabakAddSheet open={sheet} onClose={() => setSheet(false)} />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>

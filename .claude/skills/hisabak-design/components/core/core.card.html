@@ -1,0 +1,77 @@
+<!-- @dsCard group="Components" viewport="700x560" name="Core — Buttons, Chips, Badges" subtitle="Button, IconButton, Chip, Badge, StatusChip, Avatar, ProgressBar, AmountText" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="../../styles.css">
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script src="../../_ds_bundle.js"></script>
+<style>
+  body { margin: 0; padding: 20px; background: var(--bg); }
+  .group { margin-bottom: 18px; }
+  .lbl { font: 600 11px/1 var(--font-sans); letter-spacing: .05em; text-transform: uppercase; color: var(--text-tertiary); margin-bottom: 10px; }
+  .row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { Button, IconButton, Chip, Badge, StatusChip, Avatar, ProgressBar, AmountText } = window.HisabakDesignSystem_aa2548;
+const G = ({label, children}) => (
+  <div className="group"><div className="lbl">{label}</div><div className="row">{children}</div></div>
+);
+function Demo() {
+  return (
+    <div>
+      <G label="Buttons">
+        <Button leadingIcon="add">Add Transaction</Button>
+        <Button variant="secondary">Cancel</Button>
+        <Button variant="ghost">Skip</Button>
+        <Button variant="danger" leadingIcon="delete">Delete</Button>
+        <Button size="sm">Small</Button>
+        <Button disabled>Disabled</Button>
+      </G>
+      <G label="Icon buttons">
+        <IconButton icon="notifications" />
+        <IconButton icon="search" variant="soft" />
+        <IconButton icon="add" variant="accent" filled />
+        <IconButton icon="tune" variant="soft" />
+      </G>
+      <G label="Chips">
+        <Chip selected>This Month</Chip>
+        <Chip>This Week</Chip>
+        <Chip>All Time</Chip>
+        <Chip color="var(--cat-orange)">Groceries</Chip>
+        <Chip leadingIcon="add">New Brand</Chip>
+      </G>
+      <G label="Badges">
+        <Badge tone="income" dot>Income</Badge>
+        <Badge tone="expense" dot>Expense</Badge>
+        <Badge tone="savings" dot>Savings</Badge>
+        <Badge tone="investment" dot>Investment</Badge>
+        <Badge tone="warning">Auto-import off</Badge>
+      </G>
+      <G label="SMS status">
+        <StatusChip status="linked" />
+        <StatusChip status="parsed" />
+        <StatusChip status="unparsed" />
+      </G>
+      <G label="Avatar · Amounts">
+        <Avatar name="Layla Khan" />
+        <Avatar name="Omar S" style={{background:'var(--investment-soft)', color:'var(--investment)'}} />
+        <AmountText value={8200} size={20} />
+        <AmountText value={-342.75} size={20} />
+        <AmountText value={12450} tone="neutral" sign="never" size={20} />
+      </G>
+      <G label="Progress">
+        <div style={{width:'60%'}}><ProgressBar value={68} /></div>
+      </G>
+    </div>
+  );
+}
+ReactDOM.createRoot(document.getElementById('root')).render(<Demo />);
+</script>
+</body>
+</html>

@@ -39,8 +39,7 @@ import com.hisabak.ui.components.SectionHeader
 import com.hisabak.ui.components.SurfaceCard
 import com.hisabak.ui.components.iconForKey
 import com.hisabak.ui.components.tintPairForColor
-import com.hisabak.ui.theme.TintEmerald
-import com.hisabak.ui.theme.TintRed
+import com.hisabak.ui.theme.HisabakTheme
 
 @Composable
 fun BrandListScreen(
@@ -146,7 +145,7 @@ private fun InsightsRow(totalBrands: Int, categoryCount: Int) {
             icon = Icons.Filled.TrendingUp,
             label = "Total brands",
             value = totalBrands.toString(),
-            accentBg = TintEmerald,
+            accentBg = HisabakTheme.colors.incomeSoft,
             accentFg = MaterialTheme.colorScheme.primary,
             modifier = Modifier.weight(1f),
         )
@@ -154,7 +153,7 @@ private fun InsightsRow(totalBrands: Int, categoryCount: Int) {
             icon = Icons.Filled.TrendingDown,
             label = "Categories",
             value = categoryCount.toString(),
-            accentBg = TintRed,
+            accentBg = HisabakTheme.colors.expenseSoft,
             accentFg = MaterialTheme.colorScheme.error,
             modifier = Modifier.weight(1f),
         )
@@ -205,7 +204,7 @@ private fun MostUsedBrandCard(name: String, categoryName: String?, colorKey: Str
                 Text(
                     "MOST USED",
                     style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.onTertiaryContainer,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier
                         .padding(bottom = 6.dp),
                 )

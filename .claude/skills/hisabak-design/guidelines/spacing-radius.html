@@ -1,0 +1,23 @@
+<!-- @dsCard group="Spacing" viewport="700x160" name="Corner Radii" subtitle="6 → 24 · pill · 14 tile" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="../styles.css">
+<style>
+  body { padding: 18px; background: var(--bg); }
+  .row { display: flex; gap: 18px; align-items: flex-end; flex-wrap: wrap; }
+  .col { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+  .sq { width: 64px; height: 64px; background: var(--surface); box-shadow: var(--ring-card); border-top: 2px solid var(--accent); border-left: 2px solid var(--accent); }
+  .k { font: var(--fw-semibold) 11px/1 var(--font-mono); color: var(--text-primary); }
+  .v { font: 400 10px/1 var(--font-mono); color: var(--text-secondary); }
+</style>
+</head>
+<body>
+  <div class="row" id="row"></div>
+  <script>
+    const r = [['xs','6'],['sm','8'],['md','12'],['tile','14'],['lg','16'],['xl','24'],['pill','999']];
+    row.innerHTML = r.map(([k,v]) => `<div class="col"><div class="sq" style="border-radius:${v}px"></div><div class="k">r-${k}</div><div class="v">${v==='999'?'pill':v+'px'}</div></div>`).join('');
+  </script>
+</body>
+</html>

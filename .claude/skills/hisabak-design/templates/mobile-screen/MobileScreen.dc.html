@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="support.js"></script>
+</head>
+<body>
+<x-dc>
+<!-- @template name="Mobile App Screen" description="Hisabak Android screen scaffold — phone frame, status bar, brand app bar, bottom nav, and a content area to fill." -->
+<helmet>
+  <script src="ds-base.js"></script>
+  <style>
+    html, body { margin: 0; height: 100%; }
+    body { background: #1A1D24; display: grid; place-items: center; min-height: 100vh; font-family: var(--font-sans); padding: 24px 0; }
+  </style>
+</helmet>
+<div style="width:412px; height:844px; position:relative; background:var(--bg); border-radius:44px; overflow:hidden; box-shadow:0 0 0 11px #0c0e12, 0 0 0 13px #2a2e38, 0 30px 70px rgba(0,0,0,0.55);">
+  <div style="position:absolute; inset:0; display:flex; flex-direction:column;">
+
+    <div style="height:30px; flex:none; display:flex; align-items:center; justify-content:space-between; padding:0 22px; font-weight:600; font-size:13px; color:var(--text-primary); background:var(--nav-bg);">
+      <span>9:41</span>
+      <span style="display:flex; gap:6px;">
+        <span class="material-symbols-rounded" style="font-size:16px">signal_cellular_alt</span>
+        <span class="material-symbols-rounded" style="font-size:16px">wifi</span>
+        <span class="material-symbols-rounded" style="font-size:16px">battery_full</span>
+      </span>
+    </div>
+
+    <x-import component-from-global-scope="HisabakDesignSystem_aa2548.TopAppBar" brand="{{ true }}" show-avatar="{{ true }}" show-bell="{{ true }}" avatar-name="Layla Khan" hint-size="100%,56px"></x-import>
+
+    <div style="flex:1; overflow-y:auto; padding:12px 16px 24px;">
+      <!-- ▼ Replace this content with your screen ▼ -->
+      <div style="background:var(--surface); border-radius:var(--r-lg); box-shadow:var(--shadow-card); padding:18px;">
+        <div style="font-weight:500; font-size:13px; color:var(--text-secondary);">Net Worth</div>
+        <div style="font-family:var(--font-mono); font-weight:700; font-size:36px; letter-spacing:-0.02em; color:var(--text-primary); font-variant-numeric:tabular-nums; margin-top:4px;">SAR 12,450</div>
+      </div>
+
+      <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-top:12px;">
+        <div style="background:var(--surface); border-radius:var(--r-md); box-shadow:var(--ring-card); padding:14px;">
+          <div style="font-size:12.5px; color:var(--text-secondary);">Cash</div>
+          <div style="font-family:var(--font-mono); font-weight:700; font-size:16px; color:var(--text-primary); margin-top:6px;">SAR 6,450</div>
+        </div>
+        <div style="background:var(--surface); border-radius:var(--r-md); box-shadow:var(--ring-card); padding:14px;">
+          <div style="font-size:12.5px; color:var(--text-secondary);">Savings</div>
+          <div style="font-family:var(--font-mono); font-weight:700; font-size:16px; color:var(--savings); margin-top:6px;">SAR 4,000</div>
+        </div>
+        <div style="background:var(--surface); border-radius:var(--r-md); box-shadow:var(--ring-card); padding:14px;">
+          <div style="font-size:12.5px; color:var(--text-secondary);">Invest</div>
+          <div style="font-family:var(--font-mono); font-weight:700; font-size:16px; color:var(--investment); margin-top:6px;">SAR 2,000</div>
+        </div>
+      </div>
+      <!-- ▲ Replace this content with your screen ▲ -->
+    </div>
+
+    <x-import component-from-global-scope="HisabakDesignSystem_aa2548.BottomNav" value="dashboard" hint-size="100%,64px"></x-import>
+  </div>
+</div>
+
+</x-dc>
+</body>
+</html>
