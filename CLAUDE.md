@@ -139,7 +139,7 @@ Category icons sit on a tinted rounded-square tile in the category color.
 
 - Address the user as **you**. **Sentence case** for buttons/labels; Title Case only for
   proper screen names ("SMS Inbox"). No emoji.
-- Money is always `SAR 1,234.56` with tabular figures. Income shows `+`, expenses the true
+- Money is always `AED 1,234.56` with tabular figures. Income shows `+`, expenses the true
   minus `−` (U+2212), both colored. Hero balances drop the sign and use neutral text.
 - Every list screen needs a real empty state: icon + "No … yet" + one-line guidance + a CTA.
 

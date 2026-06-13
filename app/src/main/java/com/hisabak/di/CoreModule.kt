@@ -7,6 +7,6 @@ import org.koin.dsl.module
 
 val coreModule = module {
     single<Clock> { SystemClock() }
-    single { Currency.USD }
+    single { Currency.AED }
     single { SeedData(clock = get(), currency = get()) }
 }
