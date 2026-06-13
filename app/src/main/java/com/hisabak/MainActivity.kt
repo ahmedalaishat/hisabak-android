@@ -39,6 +39,7 @@ import com.hisabak.feature.transaction.presentation.list.TransactionListRoute
 import com.hisabak.ui.components.BottomNavTab
 import com.hisabak.ui.components.HisabakBottomNav
 import com.hisabak.ui.components.HisabakTopBar
+import com.hisabak.ui.components.clearFocusOnTap
 import com.hisabak.ui.theme.HisabakTheme
 
 class MainActivity : ComponentActivity() {
@@ -123,7 +124,7 @@ private fun HisabakNav() {
         },
         containerColor = MaterialTheme.colorScheme.background,
     ) { padding ->
-        val tabModifier = Modifier.fillMaxSize().padding(padding)
+        val tabModifier = Modifier.fillMaxSize().padding(padding).clearFocusOnTap()
         when (currentTab) {
             RootTab.Dashboard    -> DashboardRoute(modifier = tabModifier)
             RootTab.Transactions -> TransactionsGraph(
