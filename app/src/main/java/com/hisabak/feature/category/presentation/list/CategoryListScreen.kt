@@ -120,6 +120,15 @@ fun CategoryListScreen(
             )
         }
 
+        item(span = { GridItemSpan(maxLineSpan) }) {
+            FilterChipRow(
+                options = typeOptions,
+                selected = state.typeFilter,
+                onSelect = onTypeFilterChange,
+                contentPadding = PaddingValues(0.dp),
+            )
+        }
+
         if (mostUsed != null) {
             item(span = { GridItemSpan(maxLineSpan) }) {
                 MostUsedCard(row = mostUsed)
@@ -137,15 +146,6 @@ fun CategoryListScreen(
             ExpensesStatCard(
                 value = expenseCount.toString(),
                 progress = if (total == 0) 0f else expenseCount.toFloat() / total,
-            )
-        }
-
-        item(span = { GridItemSpan(maxLineSpan) }) {
-            FilterChipRow(
-                options = typeOptions,
-                selected = state.typeFilter,
-                onSelect = onTypeFilterChange,
-                contentPadding = PaddingValues(0.dp),
             )
         }
 
