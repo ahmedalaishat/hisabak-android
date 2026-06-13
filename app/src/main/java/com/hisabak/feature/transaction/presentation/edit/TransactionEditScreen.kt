@@ -9,9 +9,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -28,20 +30,22 @@ import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.hisabak.feature.brand.domain.BrandId
 import com.hisabak.feature.category.domain.CategoryType
-import com.hisabak.ui.components.AmountText
-import com.hisabak.ui.components.AmountTone
 import com.hisabak.ui.components.BadgeTone
 import com.hisabak.ui.components.ButtonVariant
 import com.hisabak.ui.components.ColoredFilterChip
+import com.hisabak.ui.components.DirhamGlyph
 import com.hisabak.ui.components.HisabakButton
 import com.hisabak.ui.components.SegmentOption
 import com.hisabak.ui.components.SegmentedControl
+import com.hisabak.ui.theme.HisabakTheme
+import com.hisabak.ui.theme.HisabakType
 import com.hisabak.ui.theme.Spacing
 import java.time.Instant
 import java.time.ZoneId
@@ -76,7 +80,12 @@ fun TransactionEditScreen(
             .padding(horizontal = Spacing.pageMargin, vertical = Spacing.s3),
         verticalArrangement = Arrangement.spacedBy(Spacing.s5),
     ) {
-        AmountHeroDisplay(state = state)
+        AmountHeroField(
+            amountInput = state.amountInput,
+            error = state.amountError,
+            type = state.selectedType,
+            onAmountChange = onAmountChange,
+        )
 
         SegmentedControl(
             options = listOf(
@@ -87,17 +96,6 @@ fun TransactionEditScreen(
             ),
             selected = state.selectedType,
             onSelect = onTypeSelected,
-            modifier = Modifier.fillMaxWidth(),
-        )
-
-        OutlinedTextField(
-            value = state.amountInput,
-            onValueChange = onAmountChange,
-            label = { Text("Amount") },
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-            isError = state.amountError != null,
-            supportingText = state.amountError?.let { { Text(it) } },
-            singleLine = true,
             modifier = Modifier.fillMaxWidth(),
         )
 
@@ -197,31 +195,79 @@ fun TransactionEditScreen(
     }
 }
 
+/** Large editable amount — the dirham glyph + an inline borderless field, tinted by type. */
 @Composable
-private fun AmountHeroDisplay(state: TransactionEditUiState) {
-    val amountValue = state.amountInput.toDoubleOrNull() ?: 0.0
-    val tone = when (state.selectedType) {
-        CategoryType.INCOME     -> AmountTone.Income
-        CategoryType.EXPENSES   -> AmountTone.Expense
-        CategoryType.SAVINGS    -> AmountTone.Savings
-        CategoryType.INVESTMENT -> AmountTone.Investment
+private fun AmountHeroField(
+    amountInput: String,
+    error: String?,
+    type: CategoryType,
+    onAmountChange: (String) -> Unit,
+) {
+    val c = HisabakTheme.colors
+    val color = when (type) {
+        CategoryType.INCOME     -> c.income
+        CategoryType.EXPENSES   -> c.expense
+        CategoryType.SAVINGS    -> c.savings
+        CategoryType.INVESTMENT -> c.investment
     }
+    val heroStyle = HisabakType.amount.copy(
+        fontSize = 44.sp,
+        fontWeight = FontWeight.Bold,
+        color = color,
+    )
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = Spacing.s3),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        AmountText(value = amountValue, showSign = false, tone = tone, size = 44.sp)
-        if (state.amountInput.isBlank()) {
+        BasicTextField(
+            value = amountInput,
+            onValueChange = { onAmountChange(sanitizeAmount(it)) },
+            textStyle = heroStyle,
+            singleLine = true,
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+            cursorBrush = SolidColor(color),
+            modifier = Modifier.fillMaxWidth(),
+            decorationBox = { inner ->
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    DirhamGlyph(size = 44.sp * 0.82f, tint = color)
+                    Spacer(Modifier.width(Spacing.s2))
+                    Box(contentAlignment = Alignment.CenterStart) {
+                        if (amountInput.isEmpty()) {
+                            Text("0.00", style = heroStyle.copy(color = c.textTertiary))
+                        }
+                        inner()
+                    }
+                }
+            },
+        )
+        if (error != null) {
+            Spacer(Modifier.height(Spacing.s2))
             Text(
-                text = "Enter amount above",
+                text = error,
                 style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                textAlign = TextAlign.Center,
+                color = MaterialTheme.colorScheme.error,
             )
         }
     }
+}
+
+/** Keeps digits and a single decimal point; drops anything else the keyboard sends. */
+private fun sanitizeAmount(input: String): String {
+    val sb = StringBuilder()
+    var hasDot = false
+    for (ch in input) {
+        when {
+            ch.isDigit() -> sb.append(ch)
+            ch == '.' && !hasDot -> { sb.append(ch); hasDot = true }
+        }
+    }
+    return sb.toString()
 }
 
 private val dateFormatter: DateTimeFormatter =
