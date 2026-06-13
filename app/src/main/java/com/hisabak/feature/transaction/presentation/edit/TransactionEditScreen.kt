@@ -4,7 +4,9 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -221,31 +223,31 @@ private fun AmountHeroField(
             .padding(vertical = Spacing.s3),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        BasicTextField(
-            value = amountInput,
-            onValueChange = { onAmountChange(sanitizeAmount(it)) },
-            textStyle = heroStyle,
-            singleLine = true,
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-            cursorBrush = SolidColor(color),
+        // Center the glyph + field as one tight cluster. The field wraps to its
+        // content width (IntrinsicSize.Min) so it doesn't eat the row and push
+        // the glyph to the edge.
+        Row(
             modifier = Modifier.fillMaxWidth(),
-            decorationBox = { inner ->
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.Center,
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    DirhamGlyph(size = 44.sp * 0.82f, tint = color)
-                    Spacer(Modifier.width(Spacing.s2))
-                    Box(contentAlignment = Alignment.CenterStart) {
-                        if (amountInput.isEmpty()) {
-                            Text("0.00", style = heroStyle.copy(color = c.textTertiary))
-                        }
-                        inner()
-                    }
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            DirhamGlyph(size = 44.sp * 0.82f, tint = color)
+            Spacer(Modifier.width(Spacing.s2))
+            Box(contentAlignment = Alignment.CenterStart) {
+                if (amountInput.isEmpty()) {
+                    Text("0.00", style = heroStyle.copy(color = c.textTertiary))
                 }
-            },
-        )
+                BasicTextField(
+                    value = amountInput,
+                    onValueChange = { onAmountChange(sanitizeAmount(it)) },
+                    textStyle = heroStyle,
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                    cursorBrush = SolidColor(color),
+                    modifier = Modifier.width(IntrinsicSize.Min),
+                )
+            }
+        }
         if (error != null) {
             Spacer(Modifier.height(Spacing.s2))
             Text(
