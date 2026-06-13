@@ -15,7 +15,6 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DeleteOutline
-import androidx.compose.material.icons.filled.Layers
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.Storefront
 import androidx.compose.material3.CircularProgressIndicator
@@ -71,12 +70,15 @@ fun BrandListScreen(
 
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(horizontal = Spacing.pageMargin, vertical = Spacing.s5),
+        contentPadding = PaddingValues(
+            start = Spacing.pageMargin,
+            end = Spacing.pageMargin,
+            top = Spacing.s5,
+            bottom = Spacing.s10 + Spacing.s7, // clear the Manage FAB
+        ),
         verticalArrangement = Arrangement.spacedBy(Spacing.cardGap),
     ) {
         if (showHeader) item { HeaderRow(onCreate = onAdd) }
-
-        item { InsightPills(brandCount = state.rows.size, categoryCount = state.availableCategories.size) }
 
         item {
             SearchField(
@@ -155,66 +157,6 @@ private fun HeaderRow(onCreate: () -> Unit) {
     }
 }
 
-@Composable
-private fun InsightPills(brandCount: Int, categoryCount: Int) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(Spacing.cardGap),
-    ) {
-        SurfaceCard(modifier = Modifier.weight(1f), contentPadding = Spacing.s4) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(10.dp),
-            ) {
-                IconTile(
-                    icon = Icons.Filled.Storefront,
-                    size = Spacing.s8,
-                    iconSize = 16.dp,
-                    background = MaterialTheme.colorScheme.surfaceVariant,
-                    foreground = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-                Column {
-                    Text(
-                        text = brandCount.toString(),
-                        style = MaterialTheme.typography.titleMedium,
-                        color = MaterialTheme.colorScheme.onSurface,
-                    )
-                    Text(
-                        text = "brands",
-                        style = MaterialTheme.typography.labelMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
-            }
-        }
-        SurfaceCard(modifier = Modifier.weight(1f), contentPadding = Spacing.s4) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(10.dp),
-            ) {
-                IconTile(
-                    icon = Icons.Filled.Layers,
-                    size = Spacing.s8,
-                    iconSize = 16.dp,
-                    background = MaterialTheme.colorScheme.surfaceVariant,
-                    foreground = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-                Column {
-                    Text(
-                        text = categoryCount.toString(),
-                        style = MaterialTheme.typography.titleMedium,
-                        color = MaterialTheme.colorScheme.onSurface,
-                    )
-                    Text(
-                        text = "categories",
-                        style = MaterialTheme.typography.labelMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
-            }
-        }
-    }
-}
 
 @Composable
 private fun MostUsedCard(row: BrandRow) {
