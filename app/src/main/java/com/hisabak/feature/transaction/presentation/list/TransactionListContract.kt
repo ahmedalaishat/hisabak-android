@@ -15,6 +15,7 @@ data class TransactionRow(
     val categoryName: String?,
     val categoryType: CategoryType?,
     val categoryColor: String?,
+    val categoryIcon: String?,
     val note: String?,
     val occurredAt: Instant,
 )

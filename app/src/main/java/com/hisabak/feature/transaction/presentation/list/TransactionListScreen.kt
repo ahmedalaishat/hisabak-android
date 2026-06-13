@@ -311,7 +311,7 @@ private fun TransactionRowItem(
         subtitle = row.note?.takeIf { it.isNotBlank() },
         leading = {
             CircleIconTile(
-                icon = iconForKey(null),
+                icon = iconForKey(row.categoryIcon),
                 background = bg,
                 foreground = fg,
             )

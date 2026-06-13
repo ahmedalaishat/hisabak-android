@@ -80,6 +80,7 @@ class TransactionListViewModel(
                 categoryName = category?.name,
                 categoryType = category?.type,
                 categoryColor = category?.color,
+                categoryIcon = category?.icon,
                 note = tx.note,
                 occurredAt = tx.occurredAt,
             )
