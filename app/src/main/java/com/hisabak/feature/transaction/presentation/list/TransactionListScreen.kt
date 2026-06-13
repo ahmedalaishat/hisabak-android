@@ -7,15 +7,13 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.ExpandMore
@@ -35,26 +33,20 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.hisabak.core.common.Money
 import com.hisabak.feature.category.domain.CategoryType
 import com.hisabak.feature.transaction.domain.TransactionId
 import com.hisabak.ui.components.AmountText
 import com.hisabak.ui.components.AmountTone
-import com.hisabak.ui.components.ButtonVariant
 import com.hisabak.ui.components.CircleIconTile
 import com.hisabak.ui.components.EmptyStatePanel
 import com.hisabak.ui.components.ExpensesStatCard
-import com.hisabak.ui.components.HisabakButton
 import com.hisabak.ui.components.IncomeStatCard
 import com.hisabak.ui.components.ListRow
-import com.hisabak.ui.components.ProgressBar
 import com.hisabak.ui.components.SearchField
-import com.hisabak.ui.components.SurfaceCard
 import com.hisabak.ui.components.iconForKey
 import com.hisabak.ui.components.tintPairForColor
-import com.hisabak.ui.theme.HisabakTheme
 import com.hisabak.ui.theme.PillShape
 import com.hisabak.ui.theme.Sizing
 import com.hisabak.ui.theme.Spacing
@@ -88,21 +80,26 @@ fun TransactionListScreen(
         return
     }
 
-    // Balance hero reflects all transactions; the period filter scopes only the
-    // income / expenses summary cards below it.
-    val allTotals = remember(state.rows) { computeTotals(state.rows) }
+    // The period filter scopes the income / expenses summary cards. Net worth lives
+    // on the Dashboard; this screen is about activity, not a wealth snapshot.
     var period by rememberSaveable { mutableStateOf(Period.CURRENT_MONTH) }
     val periodTotals = remember(state.rows, period) {
         computeTotals(filterByPeriod(state.rows, period))
     }
+    val fallbackCurrency = remember(state.rows) {
+        state.rows.firstOrNull()?.amount?.currency?.code.orEmpty()
+    }
 
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(horizontal = Spacing.pageMargin, vertical = Spacing.s3),
+        contentPadding = PaddingValues(
+            start = Spacing.pageMargin,
+            end = Spacing.pageMargin,
+            top = Spacing.s3,
+            bottom = Spacing.s10 + Spacing.s7, // clear the Add FAB
+        ),
         verticalArrangement = Arrangement.spacedBy(Spacing.cardGap),
     ) {
-        item { BalanceHeroCard(totals = allTotals, onAdd = onAdd) }
-
         item {
             Row(
                 Modifier.fillMaxWidth(),
@@ -123,7 +120,7 @@ fun TransactionListScreen(
                 Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(Spacing.cardGap),
             ) {
-                val currency = periodTotals.currencyCode.ifBlank { allTotals.currencyCode }
+                val currency = periodTotals.currencyCode.ifBlank { fallbackCurrency }
                 IncomeStatCard(
                     value = formatMoneyMajor(periodTotals.income, currency),
                     modifier = Modifier.weight(1f),
@@ -163,22 +160,19 @@ fun TransactionListScreen(
                 )
             }
         }
-
-        item { Spacer(Modifier.height(Spacing.s3)) }
     }
 }
 
 // ---- internals -----------------------------------------------------------
 
 private data class Totals(
-    val balance: Long,
     val income: Long,
     val expenses: Long,
     val currencyCode: String,
 )
 
 private fun computeTotals(rows: List<TransactionRow>): Totals {
-    if (rows.isEmpty()) return Totals(0, 0, 0, "")
+    if (rows.isEmpty()) return Totals(0, 0, "")
     var income = 0L
     var expenses = 0L
     rows.forEach { row ->
@@ -192,7 +186,6 @@ private fun computeTotals(rows: List<TransactionRow>): Totals {
         }
     }
     return Totals(
-        balance = income - expenses,
         income = income,
         expenses = expenses,
         currencyCode = rows.first().amount.currency.code,
@@ -296,56 +289,6 @@ private fun PeriodFilterChip(period: Period, onSelect: (Period) -> Unit) {
     }
 }
 
-@Composable
-private fun BalanceHeroCard(totals: Totals, onAdd: () -> Unit) {
-    val incomeRatio = if (totals.income == 0L) 0f else
-        (totals.income.toFloat() / (totals.income + totals.expenses).toFloat().coerceAtLeast(1f))
-
-    SurfaceCard(modifier = Modifier.fillMaxWidth(), contentPadding = Spacing.s6) {
-        Text(
-            text = "Total Balance",
-            style = MaterialTheme.typography.labelMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
-        Spacer(Modifier.height(Spacing.s2))
-        AmountText(
-            value = totals.balance.toMajorDouble(),
-            currency = totals.currencyCode.ifBlank { "SAR" },
-            showSign = false,
-            tone = AmountTone.Neutral,
-            size = 36.sp,
-        )
-        Spacer(Modifier.height(14.dp))
-        ProgressBar(
-            progress = incomeRatio,
-            color = HisabakTheme.colors.income,
-        )
-        Spacer(Modifier.height(6.dp))
-        Row(
-            Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-        ) {
-            Text(
-                text = "${(incomeRatio * 100).toInt()}% income ratio",
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-            Text(
-                text = "${totals.currencyCode} ${totals.income.toMajor()} in · ${totals.currencyCode} ${totals.expenses.toMajor()} out",
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-        }
-        Spacer(Modifier.height(Spacing.s5))
-        HisabakButton(
-            text = "Add Transaction",
-            onClick = onAdd,
-            variant = ButtonVariant.Primary,
-            leadingIcon = Icons.Filled.Add,
-            fullWidth = true,
-        )
-    }
-}
 
 @Composable
 private fun TransactionRowItem(
