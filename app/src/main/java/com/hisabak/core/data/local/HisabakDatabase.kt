@@ -18,7 +18,7 @@ import com.hisabak.feature.transaction.data.local.TransactionEntity
         TransactionEntity::class,
         SmsMessageEntity::class,
     ],
-    version = 2,
+    version = 3, // bumped to drop & re-seed the demo data in AED (was USD)
     exportSchema = false,
 )
 abstract class HisabakDatabase : RoomDatabase() {
