@@ -3,20 +3,33 @@ package com.hisabak.ui.components
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.material3.Icon
+import androidx.compose.material3.LocalContentColor
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.hisabak.R
 import com.hisabak.ui.theme.HisabakTheme
 import com.hisabak.ui.theme.HisabakType
 import com.hisabak.ui.theme.PillShape
 import com.hisabak.ui.theme.Spacing
 import java.text.NumberFormat
 import java.util.Locale
+import kotlin.math.abs
 
 /*
  * Worked examples — these show how the HTML/React design-system primitives translate
@@ -26,11 +39,30 @@ import java.util.Locale
  */
 
 /**
+ * DirhamGlyph — the AED currency mark (res/drawable/ic_dirham), sized to sit
+ * inline with text and tinted to match. Use before a number instead of "AED".
+ */
+@Composable
+fun DirhamGlyph(
+    modifier: Modifier = Modifier,
+    size: TextUnit = 14.sp,
+    tint: Color = LocalContentColor.current,
+) {
+    val sizeDp = with(LocalDensity.current) { size.toDp() }
+    Icon(
+        painter = painterResource(R.drawable.ic_dirham),
+        contentDescription = "AED",
+        tint = tint,
+        modifier = modifier.size(sizeDp),
+    )
+}
+
+/**
  * AmountText — money with tabular Geist Mono figures and signed coloring.
- * Mirrors components/core/AmountText. Income green, expense coral.
+ * Renders the dirham glyph in place of a currency code. Income green, expense coral.
  *
- *   AmountText(value = 8200.0)            // +AED 8,200.00 (green)
- *   AmountText(value = -342.75)           // −AED 342.75 (coral)
+ *   AmountText(value = 8200.0)            // +⊅ 8,200.00 (green)
+ *   AmountText(value = -342.75)           // −⊅ 342.75 (coral)
  *   AmountText(value = 12450.0, tone = AmountTone.Neutral, showSign = false, size = 40.sp)
  */
 enum class AmountTone { Auto, Income, Expense, Savings, Investment, Neutral }
@@ -39,10 +71,10 @@ enum class AmountTone { Auto, Income, Expense, Savings, Investment, Neutral }
 fun AmountText(
     value: Double,
     modifier: Modifier = Modifier,
-    currency: String = "AED",
+    currency: String = "AED", // retained for API compatibility; AED renders as the dirham glyph
     showSign: Boolean = true,
     tone: AmountTone = AmountTone.Auto,
-    size: androidx.compose.ui.unit.TextUnit = 16.sp,
+    size: TextUnit = 16.sp,
     weight: FontWeight = FontWeight.SemiBold,
 ) {
     val c = HisabakTheme.colors
@@ -55,18 +87,44 @@ fun AmountText(
         AmountTone.Expense -> c.expense
         AmountTone.Savings -> c.savings
         AmountTone.Investment -> c.investment
-        else -> androidx.compose.material3.MaterialTheme.colorScheme.onSurface
+        else -> MaterialTheme.colorScheme.onSurface
     }
     val nf = NumberFormat.getNumberInstance(Locale.US).apply {
         minimumFractionDigits = 2; maximumFractionDigits = 2
     }
-    val prefix = if (showSign && tone != AmountTone.Neutral) (if (value < 0) "−" else "+") else ""
-    Text(
-        text = "$prefix$currency ${nf.format(kotlin.math.abs(value))}",
-        color = color,
-        style = HisabakType.amount.copy(fontSize = size, fontWeight = weight),
-        modifier = modifier,
-    )
+    val sign = if (showSign && tone != AmountTone.Neutral) (if (value < 0) "−" else "+") else ""
+    val numberStyle = HisabakType.amount.copy(fontSize = size, fontWeight = weight)
+    Row(modifier = modifier, verticalAlignment = Alignment.CenterVertically) {
+        if (sign.isNotEmpty()) Text(sign, color = color, style = numberStyle)
+        DirhamGlyph(size = size * 0.82f, tint = color)
+        Spacer(Modifier.width(3.dp))
+        Text(nf.format(abs(value)), color = color, style = numberStyle)
+    }
+}
+
+/**
+ * MoneyText — dirham glyph + grouped amount (no decimals, "M" for millions),
+ * for headline/summary figures that take a [Money]'s minor units.
+ */
+@Composable
+fun MoneyText(
+    amountMinor: Long,
+    style: TextStyle,
+    color: Color,
+    modifier: Modifier = Modifier,
+    symbolScale: Float = 0.8f,
+) {
+    Row(modifier = modifier, verticalAlignment = Alignment.CenterVertically) {
+        DirhamGlyph(size = style.fontSize * symbolScale, tint = color)
+        Spacer(Modifier.width(3.dp))
+        Text(formatGroupedMajor(amountMinor), style = style, color = color, maxLines = 1)
+    }
+}
+
+private fun formatGroupedMajor(amountMinor: Long): String {
+    val major = amountMinor / 100.0
+    return if (abs(major) >= 1_000_000) "%.2fM".format(major / 1_000_000.0)
+    else "%,.0f".format(major)
 }
 
 /**
