@@ -212,7 +212,7 @@ private fun AmountHeroDisplay(state: TransactionEditUiState) {
             .padding(vertical = Spacing.s3),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Text("SAR", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Text("AED", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
         Spacer(Modifier.height(Spacing.s2))
         AmountText(value = amountValue, currency = "", showSign = false, tone = tone, size = 44.sp)
         if (state.amountInput.isBlank()) {

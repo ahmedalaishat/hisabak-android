@@ -29,8 +29,8 @@ import java.util.Locale
  * AmountText — money with tabular Geist Mono figures and signed coloring.
  * Mirrors components/core/AmountText. Income green, expense coral.
  *
- *   AmountText(value = 8200.0)            // +SAR 8,200.00 (green)
- *   AmountText(value = -342.75)           // −SAR 342.75 (coral)
+ *   AmountText(value = 8200.0)            // +AED 8,200.00 (green)
+ *   AmountText(value = -342.75)           // −AED 342.75 (coral)
  *   AmountText(value = 12450.0, tone = AmountTone.Neutral, showSign = false, size = 40.sp)
  */
 enum class AmountTone { Auto, Income, Expense, Savings, Investment, Neutral }
@@ -39,7 +39,7 @@ enum class AmountTone { Auto, Income, Expense, Savings, Investment, Neutral }
 fun AmountText(
     value: Double,
     modifier: Modifier = Modifier,
-    currency: String = "SAR",
+    currency: String = "AED",
     showSign: Boolean = true,
     tone: AmountTone = AmountTone.Auto,
     size: androidx.compose.ui.unit.TextUnit = 16.sp,
