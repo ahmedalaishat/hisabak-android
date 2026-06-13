@@ -89,10 +89,6 @@ fun BrandListScreen(
             )
         }
 
-        if (mostUsed != null) {
-            item { MostUsedCard(row = mostUsed) }
-        }
-
         if (state.availableCategories.isNotEmpty()) {
             item {
                 CategoryFilterRow(
@@ -102,6 +98,10 @@ fun BrandListScreen(
                     onSelect = onCategoryFilterChange,
                 )
             }
+        }
+
+        if (mostUsed != null) {
+            item { MostUsedCard(row = mostUsed) }
         }
 
         item {
