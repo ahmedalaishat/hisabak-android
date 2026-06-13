@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
@@ -69,7 +70,10 @@ fun TransactionEditScreen(
     onCancel: () -> Unit,
 ) {
     if (state.isLoading) {
-        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        Box(
+            Modifier.fillMaxWidth().padding(Spacing.s8),
+            contentAlignment = Alignment.Center,
+        ) {
             CircularProgressIndicator()
         }
         return
@@ -77,11 +81,19 @@ fun TransactionEditScreen(
 
     Column(
         modifier = Modifier
-            .fillMaxSize()
+            .fillMaxWidth()
             .verticalScroll(rememberScrollState())
-            .padding(horizontal = Spacing.pageMargin, vertical = Spacing.s3),
+            .padding(horizontal = Spacing.pageMargin)
+            .padding(bottom = Spacing.s5)
+            .imePadding(),
         verticalArrangement = Arrangement.spacedBy(Spacing.s5),
     ) {
+        Text(
+            text = if (state.isNew) "New transaction" else "Edit transaction",
+            style = MaterialTheme.typography.titleLarge,
+            color = MaterialTheme.colorScheme.onSurface,
+        )
+
         AmountHeroField(
             amountInput = state.amountInput,
             error = state.amountError,
@@ -159,14 +171,6 @@ fun TransactionEditScreen(
             Text(it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
         }
 
-        Spacer(Modifier.weight(1f, fill = false))
-
-        HisabakButton(
-            text = "Cancel",
-            onClick = onCancel,
-            variant = ButtonVariant.Ghost,
-            fullWidth = true,
-        )
         HisabakButton(
             text = if (state.isSaving) "Saving…" else "Save",
             onClick = onSave,
@@ -174,8 +178,12 @@ fun TransactionEditScreen(
             enabled = state.canSave,
             fullWidth = true,
         )
-
-        Spacer(Modifier.height(Spacing.s3))
+        HisabakButton(
+            text = "Cancel",
+            onClick = onCancel,
+            variant = ButtonVariant.Ghost,
+            fullWidth = true,
+        )
     }
 
     if (state.showDatePicker) {
