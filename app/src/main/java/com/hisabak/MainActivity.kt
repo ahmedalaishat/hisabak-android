@@ -17,11 +17,14 @@ import androidx.compose.material.icons.filled.Layers
 import androidx.compose.material.icons.filled.SpaceDashboard
 import androidx.compose.material.icons.outlined.Layers
 import androidx.compose.material.icons.outlined.SpaceDashboard
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import com.hisabak.ui.components.DetailTopBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -78,16 +81,13 @@ private fun HisabakNav() {
         RootTab.entries.map { BottomNavTab(key = it.name, label = it.label, icon = it.icon, iconOutlined = it.iconOutlined) }
     }
 
-    val txEditNav = txNav as? TransactionsNav.Edit
-    val isOnDetail = txEditNav != null || manageDetail != null
+    // Transaction add/edit is a bottom sheet (see TransactionsGraph), so it does
+    // not count as a "detail" screen — the nav bar stays visible behind its scrim.
+    val isOnDetail = manageDetail != null
 
     Scaffold(
         topBar = {
             when {
-                txEditNav != null -> DetailTopBar(
-                    title = if (txEditNav.id == null) "New transaction" else "Edit transaction",
-                    onBack = { txNav = TransactionsNav.List },
-                )
                 manageDetail != null -> DetailTopBar(
                     title = manageDetail!!.first,
                     onBack = manageDetail!!.second,
@@ -142,6 +142,7 @@ private fun HisabakNav() {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun TransactionsGraph(
     nav: TransactionsNav,
@@ -149,13 +150,21 @@ private fun TransactionsGraph(
     modifier: Modifier = Modifier,
 ) {
     Box(modifier) {
-        when (nav) {
-            TransactionsNav.List -> TransactionListRoute(
-                onAdd = { onNavChange(TransactionsNav.Edit(id = null)) },
-                onEdit = { id -> onNavChange(TransactionsNav.Edit(id = id)) },
-            )
-            is TransactionsNav.Edit -> TransactionEditRoute(
-                transactionId = nav.id,
+        TransactionListRoute(
+            onAdd = { onNavChange(TransactionsNav.Edit(id = null)) },
+            onEdit = { id -> onNavChange(TransactionsNav.Edit(id = id)) },
+        )
+    }
+
+    val editNav = nav as? TransactionsNav.Edit
+    if (editNav != null) {
+        val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+        ModalBottomSheet(
+            onDismissRequest = { onNavChange(TransactionsNav.List) },
+            sheetState = sheetState,
+        ) {
+            TransactionEditRoute(
+                transactionId = editNav.id,
                 onDone = { onNavChange(TransactionsNav.List) },
                 onCancel = { onNavChange(TransactionsNav.List) },
             )
