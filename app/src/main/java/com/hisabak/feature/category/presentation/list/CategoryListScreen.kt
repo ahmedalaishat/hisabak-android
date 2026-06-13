@@ -87,7 +87,12 @@ fun CategoryListScreen(
     LazyVerticalGrid(
         columns = GridCells.Fixed(2),
         modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(horizontal = Spacing.pageMargin, vertical = Spacing.s5),
+        contentPadding = PaddingValues(
+            start = Spacing.pageMargin,
+            end = Spacing.pageMargin,
+            top = Spacing.s5,
+            bottom = Spacing.s10 + Spacing.s7, // clear the Manage FAB
+        ),
         horizontalArrangement = Arrangement.spacedBy(Spacing.cardGap),
         verticalArrangement = Arrangement.spacedBy(Spacing.cardGap),
     ) {

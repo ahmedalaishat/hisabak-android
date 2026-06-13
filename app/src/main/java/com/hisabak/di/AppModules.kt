@@ -15,4 +15,5 @@ val appModules: List<Module> = listOf(
     transactionModule,
     dashboardModule,
     smsModule,
+    manageModule,
 )
