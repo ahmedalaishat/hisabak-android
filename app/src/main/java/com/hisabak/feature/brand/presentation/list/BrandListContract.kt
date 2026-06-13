@@ -12,6 +12,7 @@ data class BrandRow(
     val categoryId: CategoryId?,
     val categoryName: String?,
     val categoryColor: String?,
+    val categoryIcon: String?,
 )
 
 data class BrandListUiState(

@@ -83,6 +83,7 @@ class BrandListViewModel(
                 categoryId = brand.categoryId,
                 categoryName = category?.name,
                 categoryColor = category?.color,
+                categoryIcon = category?.icon,
             )
         }
     }

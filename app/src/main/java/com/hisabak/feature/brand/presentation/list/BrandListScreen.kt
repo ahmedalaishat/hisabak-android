@@ -261,7 +261,7 @@ private fun MostUsedCard(row: BrandRow) {
                 }
             }
             IconTile(
-                icon = iconForKey(null),
+                icon = iconForKey(row.categoryIcon),
                 size = 52.dp,
                 iconSize = 26.dp,
                 background = tileBg,
@@ -306,7 +306,7 @@ private fun BrandRowItem(
         subtitle = row.categoryName,
         leading = {
             CircleIconTile(
-                icon = iconForKey(null),
+                icon = iconForKey(row.categoryIcon),
                 background = bg,
                 foreground = fg,
             )
