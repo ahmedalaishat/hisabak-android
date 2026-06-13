@@ -18,12 +18,11 @@ import androidx.compose.material.icons.filled.SpaceDashboard
 import androidx.compose.material.icons.outlined.Layers
 import androidx.compose.material.icons.outlined.SpaceDashboard
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExtendedFloatingActionButton
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import com.hisabak.ui.components.DetailTopBar
 import androidx.compose.runtime.Composable
@@ -113,13 +112,13 @@ private fun HisabakNav() {
         },
         floatingActionButton = {
             if (currentTab == RootTab.Transactions && txNav is TransactionsNav.List) {
-                ExtendedFloatingActionButton(
+                FloatingActionButton(
                     onClick = { txNav = TransactionsNav.Edit(id = null) },
-                    text = { Text("Add") },
-                    icon = { Icon(Icons.Filled.Add, contentDescription = null) },
                     containerColor = MaterialTheme.colorScheme.primary,
                     contentColor = MaterialTheme.colorScheme.onPrimary,
-                )
+                ) {
+                    Icon(Icons.Filled.Add, contentDescription = "Add transaction")
+                }
             }
         },
         containerColor = MaterialTheme.colorScheme.background,

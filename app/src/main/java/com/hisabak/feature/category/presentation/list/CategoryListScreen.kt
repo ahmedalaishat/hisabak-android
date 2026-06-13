@@ -125,7 +125,7 @@ fun CategoryListScreen(
                 options = typeOptions,
                 selected = state.typeFilter,
                 onSelect = onTypeFilterChange,
-                contentPadding = PaddingValues(0.dp),
+                contentPadding = PaddingValues(vertical = Spacing.s1),
             )
         }
 

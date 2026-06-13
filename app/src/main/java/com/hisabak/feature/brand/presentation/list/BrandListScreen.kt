@@ -171,8 +171,8 @@ private fun MostUsedCard(row: BrandRow) {
     ) {
         Row(
             Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.Top,
+            horizontalArrangement = Arrangement.spacedBy(Spacing.cardGap),
+            verticalAlignment = Alignment.CenterVertically,
         ) {
             Column(modifier = Modifier.weight(1f)) {
                 Row(
@@ -186,14 +186,26 @@ private fun MostUsedCard(row: BrandRow) {
                     )
                     Badge(label = "Most used", tone = BadgeTone.Income)
                 }
-                Spacer(Modifier.height(10.dp))
+                Spacer(Modifier.height(Spacing.s3))
                 Text(
                     text = row.name,
                     style = MaterialTheme.typography.titleLarge,
                     color = MaterialTheme.colorScheme.onSurface,
                 )
+            }
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(Spacing.s2),
+            ) {
+                IconTile(
+                    icon = iconForKey(row.categoryIcon),
+                    size = 52.dp,
+                    iconSize = 26.dp,
+                    background = tileBg,
+                    foreground = tileFg,
+                    shape = androidx.compose.foundation.shape.CircleShape,
+                )
                 if (row.categoryName != null) {
-                    Spacer(Modifier.height(Spacing.s3))
                     ColoredFilterChip(
                         label = row.categoryName,
                         colorKey = row.categoryColor,
@@ -202,14 +214,6 @@ private fun MostUsedCard(row: BrandRow) {
                     )
                 }
             }
-            IconTile(
-                icon = iconForKey(row.categoryIcon),
-                size = 52.dp,
-                iconSize = 26.dp,
-                background = tileBg,
-                foreground = tileFg,
-                shape = androidx.compose.foundation.shape.CircleShape,
-            )
         }
     }
 }
@@ -223,7 +227,7 @@ private fun CategoryFilterRow(
 ) {
     LazyRow(
         horizontalArrangement = Arrangement.spacedBy(Spacing.s3),
-        contentPadding = PaddingValues(horizontal = 0.dp),
+        contentPadding = PaddingValues(vertical = Spacing.s1),
     ) {
         items(allOptions) { (label, value) ->
             ColoredFilterChip(

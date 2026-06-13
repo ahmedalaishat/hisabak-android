@@ -12,7 +12,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Category
 import androidx.compose.material.icons.filled.Storefront
-import androidx.compose.material3.ExtendedFloatingActionButton
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -143,21 +143,24 @@ fun ManageRoute(
             }
         }
 
-        ExtendedFloatingActionButton(
+        FloatingActionButton(
             onClick = {
                 when (tab) {
                     ManageTab.Brands -> brandNav = BrandsNav.Edit(null)
                     ManageTab.Categories -> catNav = CategoriesNav.Edit(null)
                 }
             },
-            text = { Text(if (tab == ManageTab.Brands) "New brand" else "New category") },
-            icon = { Icon(Icons.Filled.Add, contentDescription = null) },
             containerColor = MaterialTheme.colorScheme.primary,
             contentColor = MaterialTheme.colorScheme.onPrimary,
             modifier = Modifier
                 .align(Alignment.BottomEnd)
                 .padding(Spacing.pageMargin),
-        )
+        ) {
+            Icon(
+                Icons.Filled.Add,
+                contentDescription = if (tab == ManageTab.Brands) "New brand" else "New category",
+            )
+        }
     }
 }
 
