@@ -4,8 +4,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalContentColor
@@ -42,18 +42,22 @@ import kotlin.math.abs
  * DirhamGlyph — the AED currency mark (res/drawable/ic_dirham), sized to sit
  * inline with text and tinted to match. Use before a number instead of "AED".
  */
+private const val DIRHAM_ASPECT = 1000f / 870f // symbol is wider than tall
+
 @Composable
 fun DirhamGlyph(
     modifier: Modifier = Modifier,
     size: TextUnit = 14.sp,
     tint: Color = LocalContentColor.current,
 ) {
-    val sizeDp = with(LocalDensity.current) { size.toDp() }
+    val heightDp = with(LocalDensity.current) { size.toDp() }
     Icon(
         painter = painterResource(R.drawable.ic_dirham),
         contentDescription = "AED",
         tint = tint,
-        modifier = modifier.size(sizeDp),
+        modifier = modifier
+            .height(heightDp)
+            .width(heightDp * DIRHAM_ASPECT),
     )
 }
 
