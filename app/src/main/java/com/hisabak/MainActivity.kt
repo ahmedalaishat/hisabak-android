@@ -8,17 +8,21 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import com.hisabak.ui.components.DetailTopBar
 import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.automirrored.filled.Message
 import androidx.compose.material.icons.automirrored.outlined.List
 import androidx.compose.material.icons.automirrored.outlined.Message
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Layers
 import androidx.compose.material.icons.filled.SpaceDashboard
 import androidx.compose.material.icons.outlined.Layers
 import androidx.compose.material.icons.outlined.SpaceDashboard
+import androidx.compose.material3.ExtendedFloatingActionButton
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import com.hisabak.ui.components.DetailTopBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -103,6 +107,17 @@ private fun HisabakNav() {
                     tabs = tabs,
                     selectedKey = currentTab.name,
                     onSelect = { key -> currentTab = RootTab.valueOf(key) },
+                )
+            }
+        },
+        floatingActionButton = {
+            if (currentTab == RootTab.Transactions && txNav is TransactionsNav.List) {
+                ExtendedFloatingActionButton(
+                    onClick = { txNav = TransactionsNav.Edit(id = null) },
+                    text = { Text("Add") },
+                    icon = { Icon(Icons.Filled.Add, contentDescription = null) },
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary,
                 )
             }
         },
