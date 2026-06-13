@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.TrendingDown
 import androidx.compose.material.icons.filled.TrendingUp
@@ -37,6 +38,7 @@ fun StatCard(
     modifier: Modifier = Modifier,
     progress: Float? = null,
     accent: StatAccent = StatAccent.Positive,
+    currencySymbol: Boolean = false,
 ) {
     val c = HisabakTheme.colors
     val bg = when (accent) {
@@ -66,11 +68,27 @@ fun StatCard(
             )
         }
         Spacer(Modifier.height(Spacing.s2))
-        Text(
-            value,
-            style = MaterialTheme.typography.titleLarge,
-            color = MaterialTheme.colorScheme.onSurface,
-        )
+        if (currencySymbol) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                DirhamGlyph(
+                    size = MaterialTheme.typography.titleLarge.fontSize * 0.8f,
+                    tint = MaterialTheme.colorScheme.onSurface,
+                )
+                Spacer(Modifier.width(Spacing.s1))
+                Text(
+                    value,
+                    style = MaterialTheme.typography.titleLarge,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    maxLines = 1,
+                )
+            }
+        } else {
+            Text(
+                value,
+                style = MaterialTheme.typography.titleLarge,
+                color = MaterialTheme.colorScheme.onSurface,
+            )
+        }
         if (progress != null) {
             Spacer(Modifier.height(Spacing.s3))
             ProgressBar(progress = progress, color = fg)
@@ -104,23 +122,33 @@ fun ProgressBar(
 
 // Convenience wrappers that match the two most common call sites in the design.
 @Composable
-fun IncomeStatCard(value: String, progress: Float? = null, modifier: Modifier = Modifier) =
-    StatCard(
-        label = "Income",
-        value = value,
-        icon = Icons.Filled.TrendingUp,
-        accent = StatAccent.Positive,
-        progress = progress,
-        modifier = modifier,
-    )
+fun IncomeStatCard(
+    value: String,
+    progress: Float? = null,
+    modifier: Modifier = Modifier,
+    currencySymbol: Boolean = false,
+) = StatCard(
+    label = "Income",
+    value = value,
+    icon = Icons.Filled.TrendingUp,
+    accent = StatAccent.Positive,
+    progress = progress,
+    modifier = modifier,
+    currencySymbol = currencySymbol,
+)
 
 @Composable
-fun ExpensesStatCard(value: String, progress: Float? = null, modifier: Modifier = Modifier) =
-    StatCard(
-        label = "Expenses",
-        value = value,
-        icon = Icons.Filled.TrendingDown,
-        accent = StatAccent.Negative,
-        progress = progress,
-        modifier = modifier,
-    )
+fun ExpensesStatCard(
+    value: String,
+    progress: Float? = null,
+    modifier: Modifier = Modifier,
+    currencySymbol: Boolean = false,
+) = StatCard(
+    label = "Expenses",
+    value = value,
+    icon = Icons.Filled.TrendingDown,
+    accent = StatAccent.Negative,
+    progress = progress,
+    modifier = modifier,
+    currencySymbol = currencySymbol,
+)

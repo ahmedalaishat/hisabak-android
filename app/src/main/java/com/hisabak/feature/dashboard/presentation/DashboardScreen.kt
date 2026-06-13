@@ -61,6 +61,7 @@ import com.hisabak.feature.dashboard.presentation.components.BarSparkline
 import com.hisabak.feature.dashboard.presentation.components.DonutChart
 import com.hisabak.feature.dashboard.presentation.components.DonutSlice
 import com.hisabak.feature.dashboard.presentation.components.GroupedBarChart
+import com.hisabak.ui.components.MoneyText
 import com.hisabak.ui.components.SectionHeader
 import com.hisabak.ui.components.SurfaceCard
 import com.hisabak.ui.theme.HisabakTheme
@@ -242,8 +243,8 @@ private fun NetWorthCard(
         )
         Spacer(Modifier.height(Spacing.s2))
         Row(verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-            Text(
-                formatMoney(snap.netWorth),
+            MoneyText(
+                amountMinor = snap.netWorth.amountMinor,
                 style = HisabakType.amountHero,
                 color = MaterialTheme.colorScheme.onSurface,
             )
@@ -313,12 +314,10 @@ private fun TotalPill(
             Text(label, style = MaterialTheme.typography.labelSmall, color = fgColor)
         }
         Spacer(Modifier.height(6.dp))
-        Text(
-            formatMoney(money),
+        MoneyText(
+            amountMinor = money.amountMinor,
             style = HisabakType.amount,
             color = MaterialTheme.colorScheme.onSurface,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
         )
     }
 }
@@ -352,8 +351,8 @@ private fun KpiCard(
             }
         }
         Spacer(Modifier.height(6.dp))
-        Text(
-            formatMoney(money),
+        MoneyText(
+            amountMinor = money.amountMinor,
             style = HisabakType.amountLarge,
             color = amountColor,
         )
@@ -484,8 +483,8 @@ private fun DonutLegendRow(color: Color, label: String, amount: Money, pct: Doub
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
         )
-        Text(
-            formatMoney(amount),
+        MoneyText(
+            amountMinor = amount.amountMinor,
             style = HisabakType.amount,
             color = MaterialTheme.colorScheme.onSurface,
         )
@@ -642,16 +641,6 @@ private fun monthlyPairs(
         .takeLast(5)
     if (months.isEmpty()) return emptyList<Double>() to emptyList()
     return months.map { incomeByMonth[it] ?: 0.0 } to months.map { expenseByMonth[it] ?: 0.0 }
-}
-
-private fun formatMoney(money: Money): String {
-    val major = money.amountMinor / 100.0
-    val abs = abs(major)
-    val formatted = when {
-        abs >= 1_000_000 -> "%.2fM".format(major / 1_000_000.0)
-        else -> "%,.0f".format(major)
-    }
-    return "${money.currency.code} $formatted"
 }
 
 private fun formatCompactUnits(amountMinor: Long): String {

@@ -89,9 +89,6 @@ fun TransactionListScreen(
     val periodTotals = remember(state.rows, period) {
         computeTotals(filterByPeriod(state.rows, period))
     }
-    val fallbackCurrency = remember(state.rows) {
-        state.rows.firstOrNull()?.amount?.currency?.code.orEmpty()
-    }
 
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
@@ -123,13 +120,14 @@ fun TransactionListScreen(
                 Modifier.fillMaxWidth().height(IntrinsicSize.Min),
                 horizontalArrangement = Arrangement.spacedBy(Spacing.cardGap),
             ) {
-                val currency = periodTotals.currencyCode.ifBlank { fallbackCurrency }
                 IncomeStatCard(
-                    value = formatMoneyMajor(periodTotals.income, currency),
+                    value = formatAmountMajor(periodTotals.income),
+                    currencySymbol = true,
                     modifier = Modifier.weight(1f).fillMaxHeight(),
                 )
                 ExpensesStatCard(
-                    value = formatMoneyMajor(periodTotals.expenses, currency),
+                    value = formatAmountMajor(periodTotals.expenses),
+                    currencySymbol = true,
                     modifier = Modifier.weight(1f).fillMaxHeight(),
                 )
             }
@@ -350,6 +348,9 @@ internal fun formatMoneyMajor(amountMinor: Long, currency: String): String {
     val prefix = if (currency.isBlank()) "" else "$currency "
     return prefix + amountMinor.toMajor()
 }
+
+/** Grouped, 2-decimal amount with no currency code (the glyph is shown separately). */
+private fun formatAmountMajor(amountMinor: Long): String = "%,.2f".format(amountMinor / 100.0)
 
 internal fun formatSignedAmount(money: Money, positive: Boolean): String {
     val sign = if (positive) "+" else "-"
