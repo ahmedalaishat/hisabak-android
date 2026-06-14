@@ -5,9 +5,9 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -39,7 +39,10 @@ fun BrandEditScreen(
     onCancel: () -> Unit,
 ) {
     if (state.isLoading) {
-        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        Box(
+            Modifier.fillMaxWidth().padding(Spacing.s8),
+            contentAlignment = Alignment.Center,
+        ) {
             CircularProgressIndicator()
         }
         return
@@ -47,11 +50,18 @@ fun BrandEditScreen(
 
     Column(
         modifier = Modifier
-            .fillMaxSize()
+            .fillMaxWidth()
             .verticalScroll(rememberScrollState())
-            .padding(horizontal = Spacing.pageMargin, vertical = Spacing.s6),
+            .padding(horizontal = Spacing.pageMargin, vertical = Spacing.s6)
+            .imePadding(),
         verticalArrangement = Arrangement.spacedBy(Spacing.s5),
     ) {
+            Text(
+                text = if (state.isNew) "New brand" else "Edit brand",
+                style = MaterialTheme.typography.titleLarge,
+                color = MaterialTheme.colorScheme.onSurface,
+            )
+
             NameField(
                 value = state.nameInput,
                 error = state.nameError,
@@ -79,13 +89,6 @@ fun BrandEditScreen(
                 onClick = onSave,
                 variant = ButtonVariant.Primary,
                 enabled = state.canSave,
-                fullWidth = true,
-            )
-
-            HisabakButton(
-                text = "Cancel",
-                onClick = onCancel,
-                variant = ButtonVariant.Ghost,
                 fullWidth = true,
             )
         }
