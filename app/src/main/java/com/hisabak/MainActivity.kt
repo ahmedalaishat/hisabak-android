@@ -50,7 +50,6 @@ import com.hisabak.nav.TransactionsKey
 import com.hisabak.nav.rememberNavigationState
 import com.hisabak.nav.toEntries
 import com.hisabak.ui.components.BottomNavTab
-import com.hisabak.ui.components.DetailTopBar
 import com.hisabak.ui.components.HisabakBottomNav
 import com.hisabak.ui.components.HisabakTopBar
 import com.hisabak.ui.components.clearFocusOnTap
@@ -97,39 +96,27 @@ private fun HisabakNav() {
     }
 
     val currentTab = RootTab.entries.first { it.key == navigationState.topLevelRoute }
+    // Edit screens are all overlay bottom sheets, so the tab chrome stays visible
+    // behind them.
     val leaf = navigationState.backStacks[navigationState.topLevelRoute]?.lastOrNull()
-
-    // Brand/category edit are full-screen details. The transaction edit is an overlay
-    // bottom sheet, so the tab chrome stays visible behind it.
-    val detailTitle = when (leaf) {
-        is BrandEditKey -> if (leaf.id == null) "New brand" else "Edit brand"
-        is CategoryEditKey -> if (leaf.id == null) "New category" else "Edit category"
-        else -> null
-    }
 
     Scaffold(
         topBar = {
-            if (detailTitle != null) {
-                DetailTopBar(title = detailTitle, onBack = { navigator.goBack() })
-            } else {
-                HisabakTopBar(
-                    title = when (currentTab) {
-                        RootTab.Dashboard -> "Hisabak"
-                        RootTab.Transactions -> "Transactions"
-                        RootTab.Sms -> "SMS Inbox"
-                        RootTab.Manage -> "Manage"
-                    },
-                )
-            }
+            HisabakTopBar(
+                title = when (currentTab) {
+                    RootTab.Dashboard -> "Hisabak"
+                    RootTab.Transactions -> "Transactions"
+                    RootTab.Sms -> "SMS Inbox"
+                    RootTab.Manage -> "Manage"
+                },
+            )
         },
         bottomBar = {
-            if (detailTitle == null) {
-                HisabakBottomNav(
-                    tabs = tabs,
-                    selectedKey = currentTab.name,
-                    onSelect = { key -> navigator.navigate(RootTab.valueOf(key).key) },
-                )
-            }
+            HisabakBottomNav(
+                tabs = tabs,
+                selectedKey = currentTab.name,
+                onSelect = { key -> navigator.navigate(RootTab.valueOf(key).key) },
+            )
         },
         floatingActionButton = {
             if (leaf == TransactionsKey) {
@@ -173,14 +160,14 @@ private fun HisabakNav() {
                     onCancel = { navigator.goBack() },
                 )
             }
-            entry<BrandEditKey> { key ->
+            entry<BrandEditKey>(metadata = BottomSheetSceneStrategy.bottomSheet()) { key ->
                 BrandEditRoute(
                     brandId = key.id?.let(::BrandId),
                     onDone = { navigator.goBack() },
                     onCancel = { navigator.goBack() },
                 )
             }
-            entry<CategoryEditKey> { key ->
+            entry<CategoryEditKey>(metadata = BottomSheetSceneStrategy.bottomSheet()) { key ->
                 CategoryEditRoute(
                     categoryId = key.id?.let(::CategoryId),
                     onDone = { navigator.goBack() },

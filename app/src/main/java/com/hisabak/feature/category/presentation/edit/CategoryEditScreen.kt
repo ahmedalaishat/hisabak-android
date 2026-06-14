@@ -9,15 +9,12 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -39,6 +36,7 @@ import com.hisabak.feature.category.presentation.CategoryStyle
 import com.hisabak.ui.components.BadgeTone
 import com.hisabak.ui.components.HisabakButton
 import com.hisabak.ui.components.ButtonVariant
+import com.hisabak.ui.components.IconTile
 import com.hisabak.ui.components.SegmentOption
 import com.hisabak.ui.components.SegmentedControl
 import com.hisabak.ui.components.SurfaceCard
@@ -59,7 +57,10 @@ fun CategoryEditScreen(
     onCancel: () -> Unit,
 ) {
     if (state.isLoading) {
-        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        Box(
+            Modifier.fillMaxWidth().padding(Spacing.s8),
+            contentAlignment = Alignment.Center,
+        ) {
             CircularProgressIndicator()
         }
         return
@@ -67,11 +68,18 @@ fun CategoryEditScreen(
 
     Column(
         modifier = Modifier
-            .fillMaxSize()
+            .fillMaxWidth()
             .verticalScroll(rememberScrollState())
-            .padding(Spacing.pageMargin),
+            .padding(Spacing.pageMargin)
+            .imePadding(),
         verticalArrangement = Arrangement.spacedBy(Spacing.s5),
     ) {
+            Text(
+                text = if (state.isNew) "New category" else "Edit category",
+                style = MaterialTheme.typography.titleLarge,
+                color = MaterialTheme.colorScheme.onSurface,
+            )
+
             // Name field
             OutlinedTextField(
                 value = state.nameInput,
@@ -116,14 +124,9 @@ fun CategoryEditScreen(
 
             // Icon picker
             FormSection(label = "Icon") {
-                LazyVerticalGrid(
-                    columns = GridCells.Fixed(4),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(184.dp),
-                    horizontalArrangement = Arrangement.spacedBy(Spacing.s3),
-                    verticalArrangement = Arrangement.spacedBy(Spacing.s3),
-                    userScrollEnabled = false,
+                LazyRow(
+                    horizontalArrangement = Arrangement.spacedBy(10.dp),
+                    contentPadding = PaddingValues(0.dp),
                 ) {
                     items(CategoryStyle.icons) { key ->
                         IconChip(
@@ -155,21 +158,13 @@ fun CategoryEditScreen(
             }
 
             // Actions
-            Column(verticalArrangement = Arrangement.spacedBy(Spacing.s3)) {
-                HisabakButton(
-                    text = if (state.isSaving) "Saving…" else "Save",
-                    onClick = onSave,
-                    enabled = state.canSave,
-                    variant = ButtonVariant.Primary,
-                    fullWidth = true,
-                )
-                HisabakButton(
-                    text = "Cancel",
-                    onClick = onCancel,
-                    variant = ButtonVariant.Ghost,
-                    fullWidth = true,
-                )
-            }
+            HisabakButton(
+                text = if (state.isSaving) "Saving…" else "Save",
+                onClick = onSave,
+                enabled = state.canSave,
+                variant = ButtonVariant.Primary,
+                fullWidth = true,
+            )
 
             Spacer(Modifier.height(Spacing.s3))
         }
@@ -239,7 +234,7 @@ private fun IconChip(
 
     Box(
         modifier = Modifier
-            .size(56.dp)
+            .size(44.dp)
             .clip(shape)
             .background(bg, shape)
             .border(1.dp, borderColor, shape)
@@ -250,7 +245,7 @@ private fun IconChip(
             imageVector = iconForKey(iconKey),
             contentDescription = null,
             tint = fg,
-            modifier = Modifier.size(22.dp),
+            modifier = Modifier.size(18.dp),
         )
     }
 }
