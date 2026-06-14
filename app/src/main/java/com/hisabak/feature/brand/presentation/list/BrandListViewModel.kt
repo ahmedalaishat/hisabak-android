@@ -8,6 +8,8 @@ import com.hisabak.feature.brand.domain.usecase.ObserveBrandsUseCase
 import com.hisabak.feature.category.domain.Category
 import com.hisabak.feature.category.domain.CategoryId
 import com.hisabak.feature.category.domain.usecase.ObserveCategoriesUseCase
+import com.hisabak.feature.transaction.domain.Transaction
+import com.hisabak.feature.transaction.domain.usecase.ObserveTransactionsUseCase
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -20,6 +22,7 @@ import kotlinx.coroutines.launch
 class BrandListViewModel(
     private val observeBrands: ObserveBrandsUseCase,
     private val observeCategories: ObserveCategoriesUseCase,
+    private val observeTransactions: ObserveTransactionsUseCase,
     private val deleteBrand: DeleteBrandUseCase,
 ) : BaseViewModel<BrandListIntent, BrandListUiState, BrandListEffect>() {
 
@@ -56,7 +59,8 @@ class BrandListViewModel(
                         categoryId = categoryId,
                     ),
                     observeCategories(),
-                ) { brands, categories -> buildRows(brands, categories) }
+                    observeTransactions(),
+                ) { brands, categories, transactions -> buildRows(brands, categories, transactions) }
             }
             .onEach { rows -> setState { copy(rows = rows, isLoading = false) } }
             .launchIn(viewModelScope)
@@ -73,8 +77,13 @@ class BrandListViewModel(
             .launchIn(viewModelScope)
     }
 
-    private fun buildRows(brands: List<Brand>, categories: List<Category>): List<BrandRow> {
+    private fun buildRows(
+        brands: List<Brand>,
+        categories: List<Category>,
+        transactions: List<Transaction>,
+    ): List<BrandRow> {
         val byId: Map<CategoryId, Category> = categories.associateBy { it.id }
+        val countByBrand = transactions.groupingBy { it.brandId }.eachCount()
         return brands.map { brand ->
             val category = brand.categoryId?.let { byId[it] }
             BrandRow(
@@ -84,6 +93,7 @@ class BrandListViewModel(
                 categoryName = category?.name,
                 categoryColor = category?.color,
                 categoryIcon = category?.icon,
+                transactionCount = countByBrand[brand.id] ?: 0,
             )
         }
     }

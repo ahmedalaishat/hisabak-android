@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -28,8 +29,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.hisabak.feature.brand.domain.BrandId
 import com.hisabak.feature.category.domain.CategoryId
-import com.hisabak.ui.components.Badge
-import com.hisabak.ui.components.BadgeTone
 import com.hisabak.ui.components.CircleIconTile
 import com.hisabak.ui.components.ColoredFilterChip
 import com.hisabak.ui.components.CreateActionButton
@@ -41,7 +40,6 @@ import com.hisabak.ui.components.SectionHeader
 import com.hisabak.ui.components.SurfaceCard
 import com.hisabak.ui.components.iconForKey
 import com.hisabak.ui.components.tintPairForColor
-import com.hisabak.ui.theme.HisabakTheme
 import com.hisabak.ui.theme.Sizing
 import com.hisabak.ui.theme.Spacing
 
@@ -62,7 +60,6 @@ fun BrandListScreen(
         return
     }
 
-    val mostUsed = state.rows.firstOrNull()
     val filterOptions: List<Pair<String, CategoryId?>> = buildList {
         add("All" to null)
         state.availableCategories.forEach { add(it.name to it.id) }
@@ -100,9 +97,7 @@ fun BrandListScreen(
             }
         }
 
-        if (mostUsed != null) {
-            item { MostUsedCard(row = mostUsed) }
-        }
+        // Most-used card hidden for now (see MostUsedCard / BrandRow.transactionCount).
 
         item {
             SectionHeader(
@@ -161,58 +156,54 @@ private fun HeaderRow(onCreate: () -> Unit) {
 @Composable
 private fun MostUsedCard(row: BrandRow) {
     val (tileBg, tileFg) = tintPairForColor(row.categoryColor)
-    val incomeSoft = HisabakTheme.colors.incomeSoft
-
     SurfaceCard(
         modifier = Modifier.fillMaxWidth(),
-        contentPadding = Spacing.cardPadding,
-        backgroundColor = incomeSoft,
-        borderColor = HisabakTheme.colors.income.copy(alpha = 0.18f),
+        backgroundColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.4f),
+        borderColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.2f),
     ) {
         Row(
             Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(Spacing.cardGap),
+            horizontalArrangement = Arrangement.spacedBy(Spacing.s4),
             verticalAlignment = Alignment.CenterVertically,
         ) {
+            IconTile(
+                icon = iconForKey(row.categoryIcon),
+                size = Sizing.controlHeight,
+                iconSize = Sizing.icon,
+                background = tileBg,
+                foreground = tileFg,
+            )
             Column(modifier = Modifier.weight(1f)) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(Spacing.s3),
+                    horizontalArrangement = Arrangement.spacedBy(Spacing.s2),
                 ) {
                     Icon(
-                        imageVector = Icons.Filled.Star,
+                        Icons.Filled.Star,
                         contentDescription = null,
-                        tint = HisabakTheme.colors.income,
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(14.dp),
                     )
-                    Badge(label = "Most used", tone = BadgeTone.Income)
+                    Text(
+                        "MOST USED",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.primary,
+                    )
                 }
-                Spacer(Modifier.height(Spacing.s3))
+                Spacer(Modifier.height(Spacing.s1))
                 Text(
                     text = row.name,
-                    style = MaterialTheme.typography.titleLarge,
+                    style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.onSurface,
                 )
             }
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(Spacing.s2),
-            ) {
-                IconTile(
-                    icon = iconForKey(row.categoryIcon),
-                    size = 52.dp,
-                    iconSize = 26.dp,
-                    background = tileBg,
-                    foreground = tileFg,
-                    shape = androidx.compose.foundation.shape.CircleShape,
+            if (row.categoryName != null) {
+                ColoredFilterChip(
+                    label = row.categoryName,
+                    colorKey = row.categoryColor,
+                    selected = false,
+                    onClick = {},
                 )
-                if (row.categoryName != null) {
-                    ColoredFilterChip(
-                        label = row.categoryName,
-                        colorKey = row.categoryColor,
-                        selected = false,
-                        onClick = {},
-                    )
-                }
             }
         }
     }

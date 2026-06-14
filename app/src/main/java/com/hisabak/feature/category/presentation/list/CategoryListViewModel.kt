@@ -2,9 +2,13 @@ package com.hisabak.feature.category.presentation.list
 
 import androidx.lifecycle.viewModelScope
 import com.hisabak.core.presentation.BaseViewModel
+import com.hisabak.feature.brand.domain.Brand
+import com.hisabak.feature.brand.domain.usecase.ObserveBrandsUseCase
 import com.hisabak.feature.category.domain.Category
 import com.hisabak.feature.category.domain.usecase.DeleteCategoryUseCase
 import com.hisabak.feature.category.domain.usecase.ObserveCategoriesUseCase
+import com.hisabak.feature.transaction.domain.Transaction
+import com.hisabak.feature.transaction.domain.usecase.ObserveTransactionsUseCase
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -16,6 +20,8 @@ import kotlinx.coroutines.launch
 
 class CategoryListViewModel(
     private val observeCategories: ObserveCategoriesUseCase,
+    private val observeBrands: ObserveBrandsUseCase,
+    private val observeTransactions: ObserveTransactionsUseCase,
     private val deleteCategory: DeleteCategoryUseCase,
 ) : BaseViewModel<CategoryListIntent, CategoryListUiState, CategoryListEffect>() {
 
@@ -45,25 +51,40 @@ class CategoryListViewModel(
 
         combine(searchFlow, filterFlow) { search, type -> search to type }
             .flatMapLatest { (search, type) ->
-                observeCategories(
-                    type = type,
-                    search = search.takeIf { it.isNotBlank() },
-                )
+                combine(
+                    observeCategories(
+                        type = type,
+                        search = search.takeIf { it.isNotBlank() },
+                    ),
+                    observeBrands(),
+                    observeTransactions(),
+                ) { categories, brands, transactions -> buildRows(categories, brands, transactions) }
             }
-            .onEach { categories -> setState { copy(rows = buildRows(categories), isLoading = false) } }
+            .onEach { rows -> setState { copy(rows = rows, isLoading = false) } }
             .launchIn(viewModelScope)
     }
 
-    private fun buildRows(categories: List<Category>): List<CategoryRow> =
-        categories.map {
+    private fun buildRows(
+        categories: List<Category>,
+        brands: List<Brand>,
+        transactions: List<Transaction>,
+    ): List<CategoryRow> {
+        val categoryByBrand = brands.associate { it.id to it.categoryId }
+        val countByCategory = transactions
+            .mapNotNull { categoryByBrand[it.brandId] }
+            .groupingBy { it }
+            .eachCount()
+        return categories.map {
             CategoryRow(
                 id = it.id,
                 name = it.name,
                 type = it.type,
                 color = it.color,
                 icon = it.icon,
+                transactionCount = countByCategory[it.id] ?: 0,
             )
         }
+    }
 
     private companion object {
         const val SEARCH_DEBOUNCE_MS = 250L

@@ -12,6 +12,7 @@ data class CategoryRow(
     val type: CategoryType,
     val color: String,
     val icon: String,
+    val transactionCount: Int,
 )
 
 data class CategoryListUiState(
