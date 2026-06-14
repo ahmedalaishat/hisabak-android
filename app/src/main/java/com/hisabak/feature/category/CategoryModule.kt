@@ -23,6 +23,8 @@ val categoryModule = module {
     viewModel {
         CategoryListViewModel(
             observeCategories = get(),
+            observeBrands = get(),
+            observeTransactions = get(),
             deleteCategory = get(),
         )
     }

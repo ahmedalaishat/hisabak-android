@@ -40,10 +40,8 @@ import com.hisabak.ui.components.BadgeTone
 import com.hisabak.ui.components.CircleIconTile
 import com.hisabak.ui.components.CreateActionButton
 import com.hisabak.ui.components.EmptyStatePanel
-import com.hisabak.ui.components.ExpensesStatCard
 import com.hisabak.ui.components.FilterChipRow
 import com.hisabak.ui.components.IconTile
-import com.hisabak.ui.components.IncomeStatCard
 import com.hisabak.ui.components.SearchField
 import com.hisabak.ui.components.SurfaceCard
 import com.hisabak.ui.components.iconForKey
@@ -76,13 +74,6 @@ fun CategoryListScreen(
         "Savings" to CategoryType.SAVINGS,
         "Investment" to CategoryType.INVESTMENT,
     )
-
-    val incomeCount = state.rows.count { it.type == CategoryType.INCOME }
-    val expenseCount = state.rows.count { it.type == CategoryType.EXPENSES }
-    val total = state.rows.size
-    val mostUsed = state.rows.maxByOrNull { row ->
-        state.rows.count { it.type == row.type }
-    }
 
     LazyVerticalGrid(
         columns = GridCells.Fixed(2),
@@ -129,25 +120,7 @@ fun CategoryListScreen(
             )
         }
 
-        if (mostUsed != null) {
-            item(span = { GridItemSpan(maxLineSpan) }) {
-                MostUsedCard(row = mostUsed)
-            }
-        }
-
-        item {
-            IncomeStatCard(
-                value = incomeCount.toString(),
-                progress = if (total == 0) 0f else incomeCount.toFloat() / total,
-            )
-        }
-
-        item {
-            ExpensesStatCard(
-                value = expenseCount.toString(),
-                progress = if (total == 0) 0f else expenseCount.toFloat() / total,
-            )
-        }
+        // Most-used card hidden for now (see MostUsedCard / CategoryRow.transactionCount).
 
         if (state.rows.isEmpty()) {
             item(span = { GridItemSpan(maxLineSpan) }) {

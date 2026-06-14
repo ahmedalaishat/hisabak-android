@@ -26,6 +26,7 @@ val brandModule = module {
         BrandListViewModel(
             observeBrands = get(),
             observeCategories = get(),
+            observeTransactions = get(),
             deleteBrand = get(),
         )
     }
