@@ -121,7 +121,7 @@ fun TransactionEditScreen(
             )
             if (state.brandOptions.isEmpty()) {
                 Text(
-                    text = "No brands yet. Add one from the Manage tab first.",
+                    text = "No brands for this type. Add one from the Manage tab first.",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
