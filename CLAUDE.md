@@ -43,17 +43,31 @@ com.hisabak
 
 ## Navigation
 
-5-tab bottom navigation. Each tab manages its own internal nav state via sealed interfaces.
+**Jetpack Navigation 3** (`com.hisabak.nav`). 4-tab bottom navigation, each tab a
+top-level destination with its own back stack. State is retained per tab when
+switching; the user always exits the app through the **Dashboard** (home) tab.
 
-| Tab | Route | Internal screens |
-|-----|-------|-----------------|
-| Dashboard | DashboardRoute | Single screen |
-| Transactions | TransactionsGraph | List ↔ Edit |
-| SMS | SmsInboxRoute | Single screen |
-| Brands | BrandsGraph | List ↔ Edit |
-| Categories | CategoriesGraph | List ↔ Edit |
+- `NavKeys.kt` — destination keys: `DashboardKey`, `TransactionsKey`, `SmsKey`,
+  `ManageKey` (top-level) + `TransactionEditKey/BrandEditKey/CategoryEditKey(id)` (children).
+- `NavigationState.kt` — `NavigationState` (one back stack per tab), `Navigator`
+  (`navigate`/`goBack`: back from a tab → home; back from home → exit), and `toEntries()`
+  which wires the saveable-state + **ViewModel-store** entry decorators. The ViewModel
+  decorator scopes each screen's ViewModel to its `NavEntry`, so a popped destination's
+  ViewModel is cleared — re-entering a screen starts fresh (no stale state).
+- `BottomSheetScene.kt` — `BottomSheetSceneStrategy`; the transaction add/edit destination
+  is marked with `bottomSheet()` metadata so it renders as a modal bottom sheet overlay.
+- `MainActivity.kt` — `Scaffold` + `NavDisplay`. Top bar / bottom nav / FAB are derived
+  from the current destination.
 
-Pattern: `List` → tap row or "Create" button → `Edit(id?)` → Save/Cancel → back to `List`
+| Tab | Top-level key | Internal screens |
+|-----|---------------|-----------------|
+| Dashboard | DashboardKey | Single screen |
+| Transactions | TransactionsKey | List → Edit (bottom sheet) |
+| SMS | SmsKey | Single screen |
+| Manage | ManageKey | Brands/Categories list → Edit (full screen) |
+
+Pattern: `List` → tap row or FAB → push `Edit(id?)` destination → Save/Cancel calls
+`navigator.goBack()` → back to `List`.
 
 ---
 

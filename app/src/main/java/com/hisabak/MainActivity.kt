@@ -4,7 +4,6 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -21,24 +20,37 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.rememberModalBottomSheetState
-import com.hisabak.ui.components.DetailTopBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.navigation3.runtime.NavKey
+import androidx.navigation3.runtime.entryProvider
+import androidx.navigation3.scene.SinglePaneSceneStrategy
+import androidx.navigation3.ui.NavDisplay
+import com.hisabak.feature.brand.domain.BrandId
+import com.hisabak.feature.brand.presentation.edit.BrandEditRoute
+import com.hisabak.feature.category.domain.CategoryId
+import com.hisabak.feature.category.presentation.edit.CategoryEditRoute
 import com.hisabak.feature.dashboard.presentation.DashboardRoute
 import com.hisabak.feature.sms.presentation.inbox.SmsInboxRoute
 import com.hisabak.feature.transaction.domain.TransactionId
 import com.hisabak.feature.transaction.presentation.edit.TransactionEditRoute
 import com.hisabak.feature.transaction.presentation.list.TransactionListRoute
+import com.hisabak.nav.BottomSheetSceneStrategy
+import com.hisabak.nav.BrandEditKey
+import com.hisabak.nav.CategoryEditKey
+import com.hisabak.nav.DashboardKey
+import com.hisabak.nav.ManageKey
+import com.hisabak.nav.Navigator
+import com.hisabak.nav.SmsKey
+import com.hisabak.nav.TransactionEditKey
+import com.hisabak.nav.TransactionsKey
+import com.hisabak.nav.rememberNavigationState
+import com.hisabak.nav.toEntries
 import com.hisabak.ui.components.BottomNavTab
+import com.hisabak.ui.components.DetailTopBar
 import com.hisabak.ui.components.HisabakBottomNav
 import com.hisabak.ui.components.HisabakTopBar
 import com.hisabak.ui.components.clearFocusOnTap
@@ -56,64 +68,73 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-private enum class RootTab(val label: String, val icon: ImageVector, val iconOutlined: ImageVector) {
-    Dashboard("Dashboard",       Icons.Filled.SpaceDashboard,       Icons.Outlined.SpaceDashboard),
-    Transactions("Transactions", Icons.AutoMirrored.Filled.List,    Icons.AutoMirrored.Outlined.List),
-    Sms("SMS",                   Icons.AutoMirrored.Filled.Message,  Icons.AutoMirrored.Outlined.Message),
-    Manage("Manage",             Icons.Filled.Layers,                Icons.Outlined.Layers),
+private enum class RootTab(
+    val key: NavKey,
+    val label: String,
+    val icon: ImageVector,
+    val iconOutlined: ImageVector,
+) {
+    Dashboard(DashboardKey, "Dashboard", Icons.Filled.SpaceDashboard, Icons.Outlined.SpaceDashboard),
+    Transactions(TransactionsKey, "Transactions", Icons.AutoMirrored.Filled.List, Icons.AutoMirrored.Outlined.List),
+    Sms(SmsKey, "SMS", Icons.AutoMirrored.Filled.Message, Icons.AutoMirrored.Outlined.Message),
+    Manage(ManageKey, "Manage", Icons.Filled.Layers, Icons.Outlined.Layers),
 }
 
-private sealed interface TransactionsNav {
-    data object List : TransactionsNav
-    data class Edit(val id: TransactionId?) : TransactionsNav
-}
-
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun HisabakNav() {
-    var currentTab by rememberSaveable { mutableStateOf(RootTab.Dashboard) }
-    var txNav: TransactionsNav by remember { mutableStateOf(TransactionsNav.List) }
-
-    // ManageRoute surfaces its detail state here so the Scaffold can render the right top bar
-    var manageDetail by remember { mutableStateOf<Pair<String, () -> Unit>?>(null) }
+    val navigationState = rememberNavigationState(
+        startRoute = DashboardKey,
+        topLevelRoutes = RootTab.entries.map { it.key },
+    )
+    val navigator = remember { Navigator(navigationState) }
+    val bottomSheetStrategy = remember { BottomSheetSceneStrategy<NavKey>() }
 
     val tabs = remember {
-        RootTab.entries.map { BottomNavTab(key = it.name, label = it.label, icon = it.icon, iconOutlined = it.iconOutlined) }
+        RootTab.entries.map {
+            BottomNavTab(key = it.name, label = it.label, icon = it.icon, iconOutlined = it.iconOutlined)
+        }
     }
 
-    // Transaction add/edit is a bottom sheet (see TransactionsGraph), so it does
-    // not count as a "detail" screen — the nav bar stays visible behind its scrim.
-    val isOnDetail = manageDetail != null
+    val currentTab = RootTab.entries.first { it.key == navigationState.topLevelRoute }
+    val leaf = navigationState.backStacks[navigationState.topLevelRoute]?.lastOrNull()
+
+    // Brand/category edit are full-screen details. The transaction edit is an overlay
+    // bottom sheet, so the tab chrome stays visible behind it.
+    val detailTitle = when (leaf) {
+        is BrandEditKey -> if (leaf.id == null) "New brand" else "Edit brand"
+        is CategoryEditKey -> if (leaf.id == null) "New category" else "Edit category"
+        else -> null
+    }
 
     Scaffold(
         topBar = {
-            when {
-                manageDetail != null -> DetailTopBar(
-                    title = manageDetail!!.first,
-                    onBack = manageDetail!!.second,
-                )
-                else -> HisabakTopBar(
+            if (detailTitle != null) {
+                DetailTopBar(title = detailTitle, onBack = { navigator.goBack() })
+            } else {
+                HisabakTopBar(
                     title = when (currentTab) {
-                        RootTab.Dashboard    -> "Hisabak"
+                        RootTab.Dashboard -> "Hisabak"
                         RootTab.Transactions -> "Transactions"
-                        RootTab.Sms          -> "SMS Inbox"
-                        RootTab.Manage       -> "Manage"
+                        RootTab.Sms -> "SMS Inbox"
+                        RootTab.Manage -> "Manage"
                     },
                 )
             }
         },
         bottomBar = {
-            if (!isOnDetail) {
+            if (detailTitle == null) {
                 HisabakBottomNav(
                     tabs = tabs,
                     selectedKey = currentTab.name,
-                    onSelect = { key -> currentTab = RootTab.valueOf(key) },
+                    onSelect = { key -> navigator.navigate(RootTab.valueOf(key).key) },
                 )
             }
         },
         floatingActionButton = {
-            if (currentTab == RootTab.Transactions && txNav is TransactionsNav.List) {
+            if (leaf == TransactionsKey) {
                 FloatingActionButton(
-                    onClick = { txNav = TransactionsNav.Edit(id = null) },
+                    onClick = { navigator.navigate(TransactionEditKey(id = null)) },
                     containerColor = MaterialTheme.colorScheme.primary,
                     contentColor = MaterialTheme.colorScheme.onPrimary,
                 ) {
@@ -123,51 +144,59 @@ private fun HisabakNav() {
         },
         containerColor = MaterialTheme.colorScheme.background,
     ) { padding ->
-        val tabModifier = Modifier.fillMaxSize().padding(padding).clearFocusOnTap()
-        when (currentTab) {
-            RootTab.Dashboard    -> DashboardRoute(modifier = tabModifier)
-            RootTab.Transactions -> TransactionsGraph(
-                nav = txNav,
-                onNavChange = { txNav = it },
-                modifier = tabModifier,
-            )
-            RootTab.Sms          -> SmsInboxRoute(modifier = tabModifier)
-            RootTab.Manage       -> ManageRoute(
-                modifier = tabModifier,
-                onDetailEnter = { title, back -> manageDetail = title to back },
-                onDetailExit  = { manageDetail = null },
-            )
+        val entryProvider = entryProvider<NavKey> {
+            entry<DashboardKey> {
+                DashboardRoute(modifier = Modifier.fillMaxSize())
+            }
+            entry<TransactionsKey> {
+                TransactionListRoute(
+                    onAdd = { navigator.navigate(TransactionEditKey(id = null)) },
+                    onEdit = { id -> navigator.navigate(TransactionEditKey(id = id.value)) },
+                )
+            }
+            entry<SmsKey> {
+                SmsInboxRoute(modifier = Modifier.fillMaxSize())
+            }
+            entry<ManageKey> {
+                ManageRoute(
+                    modifier = Modifier.fillMaxSize(),
+                    onAddBrand = { navigator.navigate(BrandEditKey(id = null)) },
+                    onEditBrand = { id -> navigator.navigate(BrandEditKey(id = id.value)) },
+                    onAddCategory = { navigator.navigate(CategoryEditKey(id = null)) },
+                    onEditCategory = { id -> navigator.navigate(CategoryEditKey(id = id.value)) },
+                )
+            }
+            entry<TransactionEditKey>(metadata = BottomSheetSceneStrategy.bottomSheet()) { key ->
+                TransactionEditRoute(
+                    transactionId = key.id?.let(::TransactionId),
+                    onDone = { navigator.goBack() },
+                    onCancel = { navigator.goBack() },
+                )
+            }
+            entry<BrandEditKey> { key ->
+                BrandEditRoute(
+                    brandId = key.id?.let(::BrandId),
+                    onDone = { navigator.goBack() },
+                    onCancel = { navigator.goBack() },
+                )
+            }
+            entry<CategoryEditKey> { key ->
+                CategoryEditRoute(
+                    categoryId = key.id?.let(::CategoryId),
+                    onDone = { navigator.goBack() },
+                    onCancel = { navigator.goBack() },
+                )
+            }
         }
-    }
-}
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun TransactionsGraph(
-    nav: TransactionsNav,
-    onNavChange: (TransactionsNav) -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    Box(modifier) {
-        TransactionListRoute(
-            onAdd = { onNavChange(TransactionsNav.Edit(id = null)) },
-            onEdit = { id -> onNavChange(TransactionsNav.Edit(id = id)) },
+        NavDisplay(
+            entries = navigationState.toEntries(entryProvider),
+            onBack = { navigator.goBack() },
+            sceneStrategy = bottomSheetStrategy.then(SinglePaneSceneStrategy()),
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+                .clearFocusOnTap(),
         )
     }
-
-    val editNav = nav as? TransactionsNav.Edit
-    if (editNav != null) {
-        val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-        ModalBottomSheet(
-            onDismissRequest = { onNavChange(TransactionsNav.List) },
-            sheetState = sheetState,
-        ) {
-            TransactionEditRoute(
-                transactionId = editNav.id,
-                onDone = { onNavChange(TransactionsNav.List) },
-                onCancel = { onNavChange(TransactionsNav.List) },
-            )
-        }
-    }
 }
-
