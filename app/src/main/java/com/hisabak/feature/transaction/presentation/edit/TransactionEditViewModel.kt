@@ -6,13 +6,18 @@ import com.hisabak.core.common.Currency
 import com.hisabak.core.common.DomainResult
 import com.hisabak.core.common.Money
 import com.hisabak.core.presentation.BaseViewModel
+import com.hisabak.feature.brand.domain.BrandId
 import com.hisabak.feature.brand.domain.usecase.ObserveBrandsUseCase
+import com.hisabak.feature.category.domain.CategoryType
 import com.hisabak.feature.category.domain.usecase.ObserveCategoriesUseCase
 import com.hisabak.feature.transaction.domain.TransactionId
 import com.hisabak.feature.transaction.domain.TransactionRepository
 import com.hisabak.feature.transaction.domain.usecase.CreateTransactionUseCase
 import com.hisabak.feature.transaction.domain.usecase.UpdateTransactionUseCase
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
 class TransactionEditViewModel(
@@ -31,9 +36,12 @@ class TransactionEditViewModel(
     init {
         if (transactionId == null) setState { copy(occurredAt = clock.now()) }
         viewModelScope.launch {
-            combine(observeBrands(), observeCategories()) { brands, categories ->
+            val selectedTypeFlow = state.map { it.selectedType }.distinctUntilChanged()
+            combine(observeBrands(), observeCategories(), selectedTypeFlow) { brands, categories, type ->
                 val colorById = categories.associate { it.id to it.color }
+                val typeById = categories.associate { it.id to it.type }
                 brands
+                    .filter { brand -> brand.categoryId?.let(typeById::get) == type }
                     .map { brand ->
                         TransactionEditUiState.BrandOption(
                             id = brand.id,
@@ -58,7 +66,7 @@ class TransactionEditViewModel(
             is TransactionEditIntent.NoteChanged ->
                 setState { copy(noteInput = intent.value) }
             is TransactionEditIntent.TypeSelected ->
-                setState { copy(selectedType = intent.type) }
+                setState { copy(selectedType = intent.type, selectedBrandId = null, brandError = null) }
             is TransactionEditIntent.DateChanged ->
                 setState { copy(occurredAt = intent.instant, showDatePicker = false) }
             TransactionEditIntent.DatePickerOpened ->
@@ -76,11 +84,13 @@ class TransactionEditViewModel(
             when (val result = transactionRepository.getById(id)) {
                 is DomainResult.Success -> {
                     val tx = result.value
+                    val type = resolveBrandType(tx.brandId)
                     setState {
                         copy(
                             isLoading = false,
                             amountInput = formatAmountInput(tx.amount),
                             selectedBrandId = tx.brandId,
+                            selectedType = type ?: selectedType,
                             noteInput = tx.note.orEmpty(),
                             occurredAt = tx.occurredAt,
                         )
@@ -91,6 +101,11 @@ class TransactionEditViewModel(
                 }
             }
         }
+    }
+
+    private suspend fun resolveBrandType(brandId: BrandId): CategoryType? {
+        val categoryId = observeBrands().first().firstOrNull { it.id == brandId }?.categoryId ?: return null
+        return observeCategories().first().firstOrNull { it.id == categoryId }?.type
     }
 
     private fun save() {
