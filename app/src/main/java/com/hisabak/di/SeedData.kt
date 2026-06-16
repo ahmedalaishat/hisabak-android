@@ -18,11 +18,12 @@ import java.time.ZoneId
 import kotlin.random.Random
 
 /**
- * Demo seed data — in-memory only. Replace when the DB layer lands.
+ * Demo seed data for a fresh install. Models an affluent professional (high income, healthy
+ * saving/investing, comfortable discretionary spend) so the dashboard, charts, breakdowns, and
+ * budget limits all show rich, realistic data out of the box. History runs from January 2024
+ * through today so every dashboard period (this/last month, this/last year, all time) has data.
  *
- * Generates a realistic transaction history from January 2024 through today so the
- * dashboard period filters (this month / last month / this year / last year / all time)
- * all have data to show.
+ * Amounts are in minor units (fils) — divide by 100 for the major AED value.
  */
 class SeedData(clock: Clock, private val currency: Currency) {
     private val now = clock.now()
@@ -30,46 +31,42 @@ class SeedData(clock: Clock, private val currency: Currency) {
     private val today = LocalDate.ofInstant(now, zone)
     private val sync = SyncMetadata(updatedAt = now)
 
+    private val groceries = Category(CategoryId.new(), "Groceries", CategoryType.EXPENSES, color = "green", icon = "cart", sync = sync)
+    private val salary = Category(CategoryId.new(), "Salary", CategoryType.INCOME, color = "blue", icon = "briefcase", sync = sync)
+    private val transport = Category(CategoryId.new(), "Transport", CategoryType.EXPENSES, color = "orange", icon = "car", sync = sync)
+    private val dining = Category(CategoryId.new(), "Dining", CategoryType.EXPENSES, color = "red", icon = "utensils", sync = sync)
+    private val shopping = Category(CategoryId.new(), "Shopping", CategoryType.EXPENSES, color = "pink", icon = "gift", sync = sync)
+    private val savingsCat = Category(CategoryId.new(), "Savings", CategoryType.SAVINGS, color = "teal", icon = "piggy-bank", sync = sync)
+    private val investments = Category(CategoryId.new(), "Investments", CategoryType.INVESTMENT, color = "purple", icon = "wallet", sync = sync)
+
     val categories: List<Category> = listOf(
-        Category(CategoryId.new(), "Groceries", CategoryType.EXPENSES, color = "green", icon = "cart", sync = sync),
-        Category(CategoryId.new(), "Salary", CategoryType.INCOME, color = "blue", icon = "briefcase", sync = sync),
-        Category(CategoryId.new(), "Transport", CategoryType.EXPENSES, color = "orange", icon = "car", sync = sync),
-        Category(CategoryId.new(), "Dining", CategoryType.EXPENSES, color = "red", icon = "utensils", sync = sync),
-        Category(CategoryId.new(), "Savings", CategoryType.SAVINGS, color = "teal", icon = "piggy-bank", sync = sync),
+        groceries, salary, transport, dining, shopping, savingsCat, investments,
     )
 
-    private val groceries = categories[0]
-    private val salary = categories[1]
-    private val transport = categories[2]
-    private val dining = categories[3]
-    private val savings = categories[4]
+    private val wholeFoods = Brand(BrandId.new(), "Whole Foods", groceries.id, sync)
+    private val traderJoes = Brand(BrandId.new(), "Trader Joe's", groceries.id, sync)
+    private val acme = Brand(BrandId.new(), "Acme Corp", salary.id, sync)
+    private val uber = Brand(BrandId.new(), "Uber", transport.id, sync)
+    private val starbucks = Brand(BrandId.new(), "Starbucks", dining.id, sync)
+    private val nobu = Brand(BrandId.new(), "Nobu", dining.id, sync)
+    private val appleStore = Brand(BrandId.new(), "Apple Store", shopping.id, sync)
+    private val vault = Brand(BrandId.new(), "Vault", savingsCat.id, sync)
+    private val sarwa = Brand(BrandId.new(), "Sarwa", investments.id, sync)
 
     val brands: List<Brand> = listOf(
-        Brand(BrandId.new(), "Whole Foods", groceries.id, sync),
-        Brand(BrandId.new(), "Trader Joe's", groceries.id, sync),
-        Brand(BrandId.new(), "Acme Corp", salary.id, sync),
-        Brand(BrandId.new(), "Uber", transport.id, sync),
-        Brand(BrandId.new(), "Starbucks", dining.id, sync),
-        Brand(BrandId.new(), "Chipotle", dining.id, sync),
-        Brand(BrandId.new(), "Vault", savings.id, sync),
+        wholeFoods, traderJoes, acme, uber, starbucks, nobu, appleStore, vault, sarwa,
     )
-
-    private val wholeFoods = brands[0]
-    private val traderJoes = brands[1]
-    private val acme = brands[2]
-    private val uber = brands[3]
-    private val starbucks = brands[4]
-    private val chipotle = brands[5]
-    private val vault = brands[6]
 
     val transactions: List<Transaction> = generate()
 
     val categoryLimits: List<CategoryLimit> = listOf(
-        // Groceries: 1,500/mo from the start, bumped to 1,800 in Sep 2025 (a stepped limit line).
-        CategoryLimit(groceries.id, Money(150_000, currency), YearMonth.of(2024, 1)),
-        CategoryLimit(groceries.id, Money(180_000, currency), YearMonth.of(2025, 9)),
-        // Dining: limit only introduced in 2025 (earlier months show a gap).
-        CategoryLimit(dining.id, Money(80_000, currency), YearMonth.of(2025, 1)),
+        // Groceries: AED 3,000/mo, bumped to 3,500 in Sep 2025 (a stepped limit line).
+        CategoryLimit(groceries.id, Money(300_000, currency), YearMonth.of(2024, 1)),
+        CategoryLimit(groceries.id, Money(350_000, currency), YearMonth.of(2025, 9)),
+        // Dining: AED 2,500/mo, introduced in 2025 (earlier months show a gap).
+        CategoryLimit(dining.id, Money(250_000, currency), YearMonth.of(2025, 1)),
+        // Shopping: AED 3,000/mo from the start (occasionally exceeded — exercises the alerts).
+        CategoryLimit(shopping.id, Money(300_000, currency), YearMonth.of(2024, 1)),
     )
 
     private fun generate(): List<Transaction> {
@@ -86,31 +83,41 @@ class SeedData(clock: Clock, private val currency: Currency) {
         while (!month.isAfter(endMonth)) {
             val len = month.lengthOfMonth()
 
-            // Salary on the 25th.
-            add(acme.id, 500000L + rnd.nextInt(0, 25_000), month.atDay(minOf(25, len)), "Monthly salary")
+            // Salary on the 25th (~AED 55k), plus a quarterly bonus.
+            add(acme.id, 5_500_000L + rnd.nextInt(0, 700_000), month.atDay(minOf(25, len)), "Monthly salary")
+            if (month.monthValue % 3 == 0) {
+                add(acme.id, 2_000_000L + rnd.nextInt(0, 800_000), month.atDay(minOf(25, len)), "Quarterly bonus")
+            }
 
-            // Monthly transfer to savings on the 26th.
-            add(vault.id, 100000L + rnd.nextInt(0, 50_000), month.atDay(minOf(26, len)), "Monthly savings")
+            // Monthly transfer to savings (~AED 12k) and investment contribution (~AED 8k).
+            add(vault.id, 1_200_000L + rnd.nextInt(0, 400_000), month.atDay(minOf(26, len)), "Monthly savings")
+            add(sarwa.id, 800_000L + rnd.nextInt(0, 500_000), month.atDay(minOf(27, len)), "Investment contribution")
 
-            // Weekly groceries.
+            // Weekly groceries (~AED 300–800).
             for (week in 0..3) {
                 val store = if (rnd.nextBoolean()) wholeFoods else traderJoes
-                add(store.id, (3000 + rnd.nextInt(0, 3500)).toLong(), month.atDay(minOf(3 + week * 7, len)), "Weekly groceries")
+                add(store.id, (30_000 + rnd.nextInt(0, 50_000)).toLong(), month.atDay(minOf(3 + week * 7, len)), "Weekly groceries")
             }
 
-            // Coffee a few mornings a week.
+            // Coffee a few mornings a week (~AED 25–55).
             for (day in listOf(2, 9, 16, 23)) {
-                add(starbucks.id, (450 + rnd.nextInt(0, 400)).toLong(), month.atDay(minOf(day, len)), "Morning coffee")
+                add(starbucks.id, (2_500 + rnd.nextInt(0, 3_000)).toLong(), month.atDay(minOf(day, len)), "Morning coffee")
             }
 
-            // Lunches out.
-            for (day in listOf(6, 14, 21, 28)) {
-                add(chipotle.id, (1100 + rnd.nextInt(0, 900)).toLong(), month.atDay(minOf(day, len)), "Lunch")
+            // Dinners out at nicer spots (~AED 350–950).
+            for (day in listOf(8, 22)) {
+                add(nobu.id, (35_000 + rnd.nextInt(0, 60_000)).toLong(), month.atDay(minOf(day, len)), "Dinner")
             }
 
-            // Rides through the month.
+            // Rides through the month (~AED 60–300).
             for (day in listOf(5, 12, 19, 27)) {
-                add(uber.id, (1200 + rnd.nextInt(0, 2500)).toLong(), month.atDay(minOf(day, len)), null)
+                add(uber.id, (6_000 + rnd.nextInt(0, 24_000)).toLong(), month.atDay(minOf(day, len)), null)
+            }
+
+            // Shopping once or twice a month (~AED 500–3,000).
+            add(appleStore.id, (50_000 + rnd.nextInt(0, 250_000)).toLong(), month.atDay(minOf(10, len)), "Shopping")
+            if (rnd.nextBoolean()) {
+                add(appleStore.id, (40_000 + rnd.nextInt(0, 160_000)).toLong(), month.atDay(minOf(20, len)), "Shopping")
             }
 
             month = month.plusMonths(1)
