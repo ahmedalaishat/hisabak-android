@@ -91,22 +91,28 @@ class GetDashboardMetricsUseCase(
         val incomeTrendPct = pctChange(sumType(prevTxs, CategoryType.INCOME), income)
         val expenseTrendPct = pctChange(sumType(prevTxs, CategoryType.EXPENSES), expense)
 
-        // Cumulative running series for the hero / over-time charts.
-        val openingNetWorth = transactions
-            .filter { range != null && it.occurredAt.isBefore(range.first) }
-            .sumOf(signedNetWorth)
+        // Cumulative-to-date running series for the hero / over-time charts. Each carries the
+        // balance accumulated before the period start, so they read as running totals.
+        val beforePeriod = transactions.filter { range != null && it.occurredAt.isBefore(range.first) }
+        val openingNetWorth = beforePeriod.sumOf(signedNetWorth)
+        val openingIncome = beforePeriod.filter { typeOf(it) == CategoryType.INCOME }.sumOf { it.amount.amountMinor }
+        val openingExpense = beforePeriod.filter { typeOf(it) == CategoryType.EXPENSES }.sumOf { it.amount.amountMinor }
+
         val netWorthSeries = cumulativeSeries(periodTxs, signedNetWorth, openingNetWorth, zone, period, today)
         val incomeSeries = cumulativeSeries(
             periodTxs.filter { typeOf(it) == CategoryType.INCOME },
-            { it.amount.amountMinor }, 0L, zone, period, today,
+            { it.amount.amountMinor }, openingIncome, zone, period, today,
         )
         val expenseSeries = cumulativeSeries(
             periodTxs.filter { typeOf(it) == CategoryType.EXPENSES },
-            { it.amount.amountMinor }, 0L, zone, period, today,
+            { it.amount.amountMinor }, openingExpense, zone, period, today,
         )
-        val netWorthTrendPct = if (netWorthSeries.size >= 2) {
-            pctChange(netWorthSeries.first().amountMinor, netWorthSeries.last().amountMinor)
-        } else null
+
+        fun seriesTrend(series: List<MonthPoint>): Double? =
+            if (series.size >= 2) pctChange(series.first().amountMinor, series.last().amountMinor) else null
+        val netWorthTrendPct = seriesTrend(netWorthSeries)
+        val incomeSeriesTrendPct = seriesTrend(incomeSeries)
+        val expenseSeriesTrendPct = seriesTrend(expenseSeries)
 
         // Per-bucket flow series for the small sparklines and grouped bars.
         val incomeDaily = flowSeries(periodTxs.filter { typeOf(it) == CategoryType.INCOME }, zone, period, today)
@@ -160,10 +166,14 @@ class GetDashboardMetricsUseCase(
             totalInvestment = Money(investmentCumulative, currency),
             income = Money(income, currency),
             incomeTrendPct = incomeTrendPct,
+            incomeTotal = Money(incomeCumulative, currency),
             incomeSeries = incomeSeries,
+            incomeSeriesTrendPct = incomeSeriesTrendPct,
             expense = Money(expense, currency),
             expenseTrendPct = expenseTrendPct,
+            expenseTotal = Money(expenseCumulative, currency),
             expenseSeries = expenseSeries,
+            expenseSeriesTrendPct = expenseSeriesTrendPct,
             incomeDaily = incomeDaily,
             expenseDaily = expenseDaily,
             incomeByCategory = incomeByCategory,
