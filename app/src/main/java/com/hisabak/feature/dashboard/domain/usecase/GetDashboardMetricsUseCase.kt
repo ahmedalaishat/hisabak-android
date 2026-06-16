@@ -3,6 +3,7 @@ package com.hisabak.feature.dashboard.domain.usecase
 import com.hisabak.core.common.Clock
 import com.hisabak.core.common.Currency
 import com.hisabak.core.common.Money
+import com.hisabak.core.common.SummaryPeriod
 import com.hisabak.feature.brand.domain.Brand
 import com.hisabak.feature.brand.domain.usecase.ObserveBrandsUseCase
 import com.hisabak.feature.category.domain.Category
@@ -29,20 +30,20 @@ class GetDashboardMetricsUseCase(
     private val currency: Currency,
     private val clock: Clock,
 ) {
-    operator fun invoke(): Flow<DashboardSnapshot> =
-        combine(observeTransactions(), observeCategories(), observeBrands()) { txs, cats, brands ->
-            compute(txs, cats, brands)
+    operator fun invoke(period: Flow<SummaryPeriod>): Flow<DashboardSnapshot> =
+        combine(observeTransactions(), observeCategories(), observeBrands(), period) { txs, cats, brands, p ->
+            compute(txs, cats, brands, p)
         }
 
     private fun compute(
         transactions: List<Transaction>,
         categories: List<Category>,
         brands: List<Brand>,
+        period: SummaryPeriod,
     ): DashboardSnapshot {
         val zone = ZoneId.systemDefault()
         val today = LocalDate.ofInstant(clock.now(), zone)
         val currentMonth = YearMonth.from(today)
-        val prevMonth = currentMonth.minusMonths(1)
 
         val catById = categories.associateBy { it.id }
         val brandById = brands.associateBy { it.id }
@@ -50,18 +51,19 @@ class GetDashboardMetricsUseCase(
         fun typeOf(tx: Transaction): CategoryType? =
             brandById[tx.brandId]?.categoryId?.let { catById[it]?.type }
 
-        val byType = transactions.groupBy { typeOf(it) }
-        fun sumMinorFor(type: CategoryType?): Long =
-            byType[type].orEmpty().sumOf { it.amount.amountMinor }
+        val range = period.instantRange(today, zone)
+        fun inPeriod(tx: Transaction): Boolean =
+            range == null || (!tx.occurredAt.isBefore(range.first) && tx.occurredAt.isBefore(range.second))
+        fun upToEnd(tx: Transaction): Boolean =
+            range == null || tx.occurredAt.isBefore(range.second)
 
-        val totalIncome = sumMinorFor(CategoryType.INCOME)
-        val totalExpense = sumMinorFor(CategoryType.EXPENSES)
-        val totalSavings = sumMinorFor(CategoryType.SAVINGS)
-        val totalInvestment = sumMinorFor(CategoryType.INVESTMENT)
-        val totalCash = totalIncome - totalExpense - totalSavings - totalInvestment
-        val netWorth = totalIncome - totalExpense
+        val periodTxs = transactions.filter(::inPeriod)
+        val cumulativeTxs = transactions.filter(::upToEnd)
 
-        val netWorthSeries = buildMonthlyRunningTotal(transactions, zone) { tx ->
+        fun sumType(list: List<Transaction>, type: CategoryType): Long =
+            list.filter { typeOf(it) == type }.sumOf { it.amount.amountMinor }
+
+        val signedNetWorth: (Transaction) -> Long = { tx ->
             when (typeOf(tx)) {
                 CategoryType.INCOME -> tx.amount.amountMinor
                 CategoryType.EXPENSES -> -tx.amount.amountMinor
@@ -69,36 +71,76 @@ class GetDashboardMetricsUseCase(
             }
         }
 
-        val monthTxs = transactions.filter {
-            YearMonth.from(LocalDate.ofInstant(it.occurredAt, zone)) == currentMonth
-        }
-        val prevMonthTxs = transactions.filter {
-            YearMonth.from(LocalDate.ofInstant(it.occurredAt, zone)) == prevMonth
-        }
+        // Cumulative-to-end-of-period balances (the wealth snapshot).
+        val incomeCumulative = sumType(cumulativeTxs, CategoryType.INCOME)
+        val expenseCumulative = sumType(cumulativeTxs, CategoryType.EXPENSES)
+        val savingsCumulative = sumType(cumulativeTxs, CategoryType.SAVINGS)
+        val investmentCumulative = sumType(cumulativeTxs, CategoryType.INVESTMENT)
+        val netWorth = incomeCumulative - expenseCumulative
+        val totalCash = netWorth - savingsCumulative - investmentCumulative
 
-        val incomeMonth = monthTxs.filter { typeOf(it) == CategoryType.INCOME }.sumOf { it.amount.amountMinor }
-        val expenseMonth = monthTxs.filter { typeOf(it) == CategoryType.EXPENSES }.sumOf { it.amount.amountMinor }
-        val incomePrev = prevMonthTxs.filter { typeOf(it) == CategoryType.INCOME }.sumOf { it.amount.amountMinor }
-        val expensePrev = prevMonthTxs.filter { typeOf(it) == CategoryType.EXPENSES }.sumOf { it.amount.amountMinor }
+        // Flow within the selected period.
+        val income = sumType(periodTxs, CategoryType.INCOME)
+        val expense = sumType(periodTxs, CategoryType.EXPENSES)
 
-        val incomeDaily = dailySeriesForMonth(monthTxs, zone, currentMonth) { typeOf(it) == CategoryType.INCOME }
-        val expenseDaily = dailySeriesForMonth(monthTxs, zone, currentMonth) { typeOf(it) == CategoryType.EXPENSES }
+        // Trend versus the equal-length window immediately before this one.
+        val prevRange = period.previousInstantRange(today, zone)
+        val prevTxs = prevRange?.let { (start, end) ->
+            transactions.filter { !it.occurredAt.isBefore(start) && it.occurredAt.isBefore(end) }
+        }.orEmpty()
+        val incomeTrendPct = pctChange(sumType(prevTxs, CategoryType.INCOME), income)
+        val expenseTrendPct = pctChange(sumType(prevTxs, CategoryType.EXPENSES), expense)
+
+        // Cumulative running series for the hero / over-time charts.
+        val openingNetWorth = transactions
+            .filter { range != null && it.occurredAt.isBefore(range.first) }
+            .sumOf(signedNetWorth)
+        val netWorthSeries = cumulativeSeries(periodTxs, signedNetWorth, openingNetWorth, zone, period, today)
+        val incomeSeries = cumulativeSeries(
+            periodTxs.filter { typeOf(it) == CategoryType.INCOME },
+            { it.amount.amountMinor }, 0L, zone, period, today,
+        )
+        val expenseSeries = cumulativeSeries(
+            periodTxs.filter { typeOf(it) == CategoryType.EXPENSES },
+            { it.amount.amountMinor }, 0L, zone, period, today,
+        )
+        val netWorthTrendPct = if (netWorthSeries.size >= 2) {
+            pctChange(netWorthSeries.first().amountMinor, netWorthSeries.last().amountMinor)
+        } else null
+
+        // Per-bucket flow series for the small sparklines and grouped bars.
+        val incomeDaily = flowSeries(periodTxs.filter { typeOf(it) == CategoryType.INCOME }, zone, period, today)
+        val expenseDaily = flowSeries(periodTxs.filter { typeOf(it) == CategoryType.EXPENSES }, zone, period, today)
 
         val incomeByCategory = breakdown(
-            transactions = monthTxs.filter { typeOf(it) == CategoryType.INCOME },
+            transactions = periodTxs.filter { typeOf(it) == CategoryType.INCOME },
             categoryOf = { brandById[it.brandId]?.categoryId?.let(catById::get) },
             currency = currency,
         )
         val expenseByCategory = breakdown(
-            transactions = monthTxs.filter { typeOf(it) == CategoryType.EXPENSES },
+            transactions = periodTxs.filter { typeOf(it) == CategoryType.EXPENSES },
             categoryOf = { brandById[it.brandId]?.categoryId?.let(catById::get) },
             currency = currency,
         )
 
+        val expenseByBrand = brandBreakdown(
+            transactions = periodTxs.filter { typeOf(it) == CategoryType.EXPENSES },
+            brandById = brandById,
+            catById = catById,
+            currency = currency,
+        )
+        val topBrand = expenseByBrand.firstOrNull()
+        val topBrandTrend = if (topBrand != null) {
+            buildMonthlySum(transactions.filter { it.brandId == topBrand.id }, zone)
+        } else emptyList()
+
+        // Category trends keep their own (current-month / all-time) scope.
+        val monthTxs = transactions.filter {
+            YearMonth.from(LocalDate.ofInstant(it.occurredAt, zone)) == currentMonth
+        }
         val categoryOf: (Transaction) -> Category? = { brandById[it.brandId]?.categoryId?.let(catById::get) }
         val txsByCategory = transactions.groupBy { categoryOf(it)?.id }
         val monthTxsByCategory = monthTxs.groupBy { categoryOf(it)?.id }
-
         val overallTrendByCategory = categories.associate { cat ->
             cat.id to buildMonthlySum(txsByCategory[cat.id].orEmpty(), zone)
         }
@@ -109,27 +151,19 @@ class GetDashboardMetricsUseCase(
             .sortedBy { it.name.lowercase() }
             .map { CategoryOption(id = it.id, name = it.name, color = it.color, type = it.type) }
 
-        val expenseByBrand = brandBreakdown(
-            transactions = monthTxs.filter { typeOf(it) == CategoryType.EXPENSES },
-            brandById = brandById,
-            catById = catById,
-            currency = currency,
-        )
-        val topBrand = expenseByBrand.firstOrNull()
-        val topBrandTrend = if (topBrand != null) {
-            buildMonthlySum(transactions.filter { it.brandId == topBrand.id }, zone)
-        } else emptyList()
-
         return DashboardSnapshot(
             netWorth = Money(netWorth, currency),
             netWorthSeries = netWorthSeries,
+            netWorthTrendPct = netWorthTrendPct,
             totalCash = Money(totalCash, currency),
-            totalSavings = Money(totalSavings, currency),
-            totalInvestment = Money(totalInvestment, currency),
-            incomeMonth = Money(incomeMonth, currency),
-            incomeTrendPct = pctChange(incomePrev, incomeMonth),
-            expenseMonth = Money(expenseMonth, currency),
-            expenseTrendPct = pctChange(expensePrev, expenseMonth),
+            totalSavings = Money(savingsCumulative, currency),
+            totalInvestment = Money(investmentCumulative, currency),
+            income = Money(income, currency),
+            incomeTrendPct = incomeTrendPct,
+            incomeSeries = incomeSeries,
+            expense = Money(expense, currency),
+            expenseTrendPct = expenseTrendPct,
+            expenseSeries = expenseSeries,
             incomeDaily = incomeDaily,
             expenseDaily = expenseDaily,
             incomeByCategory = incomeByCategory,
@@ -148,27 +182,77 @@ class GetDashboardMetricsUseCase(
         return ((current - prev).toDouble() / prev.toDouble()) * 100.0
     }
 
-    private fun buildMonthlyRunningTotal(
-        transactions: List<Transaction>,
+    /** Ordered bucket start dates for [period]: per-day for month windows, per-month otherwise. */
+    private fun bucketDates(
+        period: SummaryPeriod,
+        today: LocalDate,
+        bucketTxs: List<Transaction>,
         zone: ZoneId,
-        signedMinor: (Transaction) -> Long,
-    ): List<MonthPoint> {
-        if (transactions.isEmpty()) return emptyList()
-        val byMonth = transactions.groupBy { YearMonth.from(LocalDate.ofInstant(it.occurredAt, zone)) }
-            .mapValues { (_, list) -> list.sumOf(signedMinor) }
-        val sorted = byMonth.keys.sorted()
-        if (sorted.isEmpty()) return emptyList()
-        val start = sorted.first()
-        val end = sorted.last()
-        val points = mutableListOf<MonthPoint>()
-        var running = 0L
-        var cursor = start
-        while (!cursor.isAfter(end)) {
-            running += byMonth[cursor] ?: 0L
-            points += MonthPoint(cursor.atDay(1), running)
-            cursor = cursor.plusMonths(1)
+    ): List<LocalDate> = when (period) {
+        SummaryPeriod.CURRENT_MONTH -> {
+            val month = YearMonth.from(today)
+            (1..today.dayOfMonth).map { month.atDay(it) }
         }
-        return points
+        SummaryPeriod.LAST_MONTH -> {
+            val month = YearMonth.from(today).minusMonths(1)
+            (1..month.lengthOfMonth()).map { month.atDay(it) }
+        }
+        SummaryPeriod.CURRENT_YEAR -> (1..today.monthValue).map { LocalDate.of(today.year, it, 1) }
+        SummaryPeriod.LAST_YEAR -> (1..12).map { LocalDate.of(today.year - 1, it, 1) }
+        SummaryPeriod.ALL -> {
+            if (bucketTxs.isEmpty()) {
+                emptyList()
+            } else {
+                val months = bucketTxs.map { YearMonth.from(LocalDate.ofInstant(it.occurredAt, zone)) }
+                val out = mutableListOf<LocalDate>()
+                var cursor = months.min()
+                val end = months.max()
+                while (!cursor.isAfter(end)) {
+                    out += cursor.atDay(1)
+                    cursor = cursor.plusMonths(1)
+                }
+                out
+            }
+        }
+    }
+
+    private fun bucketKey(tx: Transaction, period: SummaryPeriod, zone: ZoneId): LocalDate {
+        val day = LocalDate.ofInstant(tx.occurredAt, zone)
+        return if (period == SummaryPeriod.CURRENT_MONTH || period == SummaryPeriod.LAST_MONTH) {
+            day
+        } else {
+            day.withDayOfMonth(1)
+        }
+    }
+
+    private fun cumulativeSeries(
+        bucketTxs: List<Transaction>,
+        valueOf: (Transaction) -> Long,
+        opening: Long,
+        zone: ZoneId,
+        period: SummaryPeriod,
+        today: LocalDate,
+    ): List<MonthPoint> {
+        val dates = bucketDates(period, today, bucketTxs, zone)
+        val byBucket = bucketTxs.groupBy { bucketKey(it, period, zone) }
+            .mapValues { (_, list) -> list.sumOf(valueOf) }
+        var running = opening
+        return dates.map { date ->
+            running += byBucket[date] ?: 0L
+            MonthPoint(date, running)
+        }
+    }
+
+    private fun flowSeries(
+        typeTxs: List<Transaction>,
+        zone: ZoneId,
+        period: SummaryPeriod,
+        today: LocalDate,
+    ): List<DayPoint> {
+        val dates = bucketDates(period, today, typeTxs, zone)
+        val byBucket = typeTxs.groupBy { bucketKey(it, period, zone) }
+            .mapValues { (_, list) -> list.sumOf { it.amount.amountMinor } }
+        return dates.map { DayPoint(it, byBucket[it] ?: 0L) }
     }
 
     private fun buildMonthlySum(transactions: List<Transaction>, zone: ZoneId): List<MonthPoint> {

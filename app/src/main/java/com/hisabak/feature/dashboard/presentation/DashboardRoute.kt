@@ -14,6 +14,7 @@ fun DashboardRoute(
     val state by viewModel.state.collectAsStateWithLifecycle()
     DashboardScreen(
         state = state,
+        onPeriodChange = { viewModel.onIntent(DashboardIntent.PeriodChanged(it)) },
         onOverallCategoryChanged = { viewModel.onIntent(DashboardIntent.OverallTrendCategoryChanged(it)) },
         onDailyCategoryChanged = { viewModel.onIntent(DashboardIntent.DailyTrendCategoryChanged(it)) },
         modifier = modifier,
