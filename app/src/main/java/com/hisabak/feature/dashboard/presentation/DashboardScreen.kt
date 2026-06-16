@@ -18,18 +18,18 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountBalanceWallet
 import androidx.compose.material.icons.filled.ArrowDownward
 import androidx.compose.material.icons.filled.ArrowUpward
+import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.Savings
 import androidx.compose.material.icons.filled.TrendingUp
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
@@ -54,7 +54,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.hisabak.core.common.Money
 import com.hisabak.core.common.SummaryPeriod
-import com.hisabak.feature.category.domain.CategoryId
 import com.hisabak.feature.category.domain.CategoryType
 import com.hisabak.feature.category.presentation.CategoryStyle
 import com.hisabak.feature.dashboard.domain.BrandShare
@@ -79,13 +78,13 @@ import com.hisabak.ui.theme.Spacing
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import kotlin.math.abs
+import kotlin.math.roundToInt
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DashboardScreen(
     state: DashboardUiState,
     onPeriodChange: (SummaryPeriod) -> Unit,
-    onTrendCategoryChanged: (CategoryId) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val snap = state.snapshot
@@ -99,6 +98,7 @@ fun DashboardScreen(
     var tab by rememberSaveable { mutableStateOf(DashboardTab.SUMMARY) }
     val summaryListState = rememberLazyListState()
     val trendsListState = rememberLazyListState()
+    val categoriesListState = rememberLazyListState()
 
     Column(modifier.fillMaxSize()) {
         Column(
@@ -120,9 +120,13 @@ fun DashboardScreen(
             )
             DashboardTab.TRENDS -> TrendsTab(
                 snap = snap,
-                state = state,
                 listState = trendsListState,
-                onTrendCategoryChanged = onTrendCategoryChanged,
+                modifier = Modifier.weight(1f),
+            )
+            DashboardTab.CATEGORIES -> CategoriesTab(
+                snap = snap,
+                period = state.period,
+                listState = categoriesListState,
                 modifier = Modifier.weight(1f),
             )
         }
@@ -132,6 +136,7 @@ fun DashboardScreen(
 private enum class DashboardTab(val label: String) {
     SUMMARY("Summary"),
     TRENDS("Trends"),
+    CATEGORIES("Categories"),
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -273,9 +278,7 @@ private fun SummaryTab(
 @Composable
 private fun TrendsTab(
     snap: DashboardSnapshot,
-    state: DashboardUiState,
     listState: LazyListState,
-    onTrendCategoryChanged: (CategoryId) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val c = HisabakTheme.colors
@@ -337,20 +340,6 @@ private fun TrendsTab(
                     modifier = Modifier.fillMaxWidth(),
                 )
             }
-        }
-
-        // ── Category trend ──────────────────────────────────────────────────
-        item { SectionHeader(title = "Category trend") }
-        item {
-            CategoryTrendCard(
-                options = snap.categoryOptions,
-                selectedId = state.trendCategoryId,
-                series = state.trendCategoryId?.let { snap.trendByCategory[it] }.orEmpty(),
-                prevTotal = state.trendCategoryId?.let { snap.trendPrevTotalByCategory[it] },
-                period = state.period,
-                onSelected = onTrendCategoryChanged,
-                modifier = Modifier.fillMaxWidth(),
-            )
         }
     }
 }
@@ -657,102 +646,208 @@ private fun DonutLegendRow(color: Color, label: String, amount: Money, pct: Doub
     }
 }
 
-// ── Category trend (single category, follows the selected period) ──────────────
+// ── Categories tab: per-category spend vs limit, expandable to a trend chart ────
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun CategoryTrendCard(
-    options: List<CategoryOption>,
-    selectedId: CategoryId?,
-    series: List<DayPoint>,
-    prevTotal: Long?,
+private fun CategoriesTab(
+    snap: DashboardSnapshot,
     period: SummaryPeriod,
-    onSelected: (CategoryId) -> Unit,
+    listState: LazyListState,
     modifier: Modifier = Modifier,
 ) {
-    val selected = options.firstOrNull { it.id == selectedId }
-    val lineColor = selected?.let { CategoryStyle.color(it.color) } ?: MaterialTheme.colorScheme.primary
-    val total = series.sumOf { it.amountMinor }
-    val trendPct = prevTotal?.takeIf { it != 0L }?.let { (total - it).toDouble() / it.toDouble() * 100.0 }
-    val risingIsGood = selected?.type != CategoryType.EXPENSES
-    var expanded by remember { mutableStateOf(false) }
+    var expandedId by rememberSaveable { mutableStateOf<String?>(null) }
+    val rows = snap.categoryOptions
+        .map { option ->
+            val series = snap.trendByCategory[option.id].orEmpty()
+            CategoryRowData(
+                option = option,
+                series = series,
+                limitSeries = snap.limitByCategory[option.id].orEmpty(),
+                spent = series.sumOf { it.amountMinor },
+                prevTotal = snap.trendPrevTotalByCategory[option.id] ?: 0L,
+            )
+        }
+        .filter { it.spent != 0L || periodLimit(it.limitSeries, period) != null }
+        .sortedByDescending { abs(it.spent) }
 
-    DashCard(modifier = modifier) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Box {
-                Row(
-                    modifier = Modifier
-                        .clip(PillShape)
-                        .background(MaterialTheme.colorScheme.surfaceContainerHigh)
-                        .clickable { expanded = true }
-                        .padding(horizontal = Spacing.s4, vertical = Spacing.s2),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(Spacing.s2),
-                ) {
-                    Box(Modifier.size(10.dp).background(lineColor, CircleShape))
-                    Text(
-                        selected?.name ?: "—",
-                        style = MaterialTheme.typography.labelLarge,
-                        color = MaterialTheme.colorScheme.onSurface,
-                    )
-                    Icon(
-                        Icons.Filled.ExpandMore,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.size(Sizing.iconSm),
-                    )
-                }
-                DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
-                    options.forEach { option ->
-                        DropdownMenuItem(
-                            text = { Text(option.name, maxLines = 1) },
-                            leadingIcon = {
-                                Box(Modifier.size(10.dp).background(CategoryStyle.color(option.color), CircleShape))
-                            },
-                            onClick = { onSelected(option.id); expanded = false },
-                        )
-                    }
-                }
+    LazyColumn(
+        state = listState,
+        modifier = modifier.fillMaxSize(),
+        contentPadding = PaddingValues(start = Spacing.pageMargin, end = Spacing.pageMargin, top = Spacing.s4, bottom = Spacing.s8),
+        verticalArrangement = Arrangement.spacedBy(Spacing.cardGap),
+    ) {
+        if (rows.isEmpty()) {
+            item {
+                Text(
+                    "No category activity in this period",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth().padding(top = Spacing.s8),
+                )
             }
+        }
+        items(rows, key = { it.option.id.value }) { row ->
+            CategoryLimitCard(
+                row = row,
+                period = period,
+                expanded = expandedId == row.option.id.value,
+                onToggle = {
+                    expandedId = if (expandedId == row.option.id.value) null else row.option.id.value
+                },
+            )
+        }
+    }
+}
+
+private data class CategoryRowData(
+    val option: CategoryOption,
+    val series: List<DayPoint>,
+    val limitSeries: List<Long?>,
+    val spent: Long,
+    val prevTotal: Long,
+)
+
+@Composable
+private fun CategoryLimitCard(
+    row: CategoryRowData,
+    period: SummaryPeriod,
+    expanded: Boolean,
+    onToggle: () -> Unit,
+) {
+    val color = CategoryStyle.color(row.option.color)
+    val limit = periodLimit(row.limitSeries, period)
+    val trendPct = row.prevTotal.takeIf { it != 0L }
+        ?.let { (row.spent - it).toDouble() / it.toDouble() * 100.0 }
+    val risingIsGood = row.option.type != CategoryType.EXPENSES
+
+    DashCard(modifier = Modifier.fillMaxWidth()) {
+        Row(
+            modifier = Modifier.fillMaxWidth().clickable(onClick = onToggle),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(Spacing.s3),
+        ) {
+            Box(Modifier.size(10.dp).background(color, CircleShape))
+            Text(
+                row.option.name,
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onSurface,
+                maxLines = 1,
+                modifier = Modifier.weight(1f),
+            )
+            MoneyText(
+                amountMinor = row.spent,
+                style = HisabakType.amount,
+                color = MaterialTheme.colorScheme.onSurface,
+            )
+            Icon(
+                if (expanded) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.size(Sizing.iconSm),
+            )
+        }
+        if (limit != null) {
+            LimitProgressRow(spent = row.spent, limit = limit)
+        }
+        if (expanded) {
+            Spacer(Modifier.height(Spacing.s3))
             if (trendPct != null) {
                 TrendBadge(pct = trendPct, positiveIsGood = risingIsGood)
             }
-        }
-        Spacer(Modifier.height(Spacing.s3))
-        MoneyText(
-            amountMinor = total,
-            style = HisabakType.amountLarge,
-            color = MaterialTheme.colorScheme.onSurface,
-        )
-        if (series.isNotEmpty() && total != 0L) {
-            AreaLineChart(
-                values = series.map { it.amountMinor / 100.0 },
-                lineColor = lineColor,
-                fillColor = lineColor.copy(alpha = 0.12f),
-                modifier = Modifier.fillMaxWidth().padding(top = Spacing.cardGap, bottom = Spacing.s2),
-                heightDp = 96.dp,
-                xLabels = dateLabels(series.map { it.day }, period),
-            )
-        } else {
-            Column(
-                modifier = Modifier.fillMaxWidth().padding(vertical = Spacing.s6),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(Spacing.s2),
-            ) {
-                Icon(
-                    Icons.Filled.TrendingUp,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.size(Sizing.icon),
+            if (row.series.isNotEmpty() && row.spent != 0L) {
+                val chart = buildCategoryChart(row.series, row.limitSeries, period)
+                AreaLineChart(
+                    values = chart.values,
+                    lineColor = color,
+                    fillColor = color.copy(alpha = 0.12f),
+                    modifier = Modifier.fillMaxWidth().padding(top = Spacing.s2, bottom = Spacing.s2),
+                    heightDp = 96.dp,
+                    xLabels = dateLabels(row.series.map { it.day }, period),
+                    overlayValues = chart.overlay,
+                    overlayColor = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
+            } else {
                 Text(
                     "No activity in this period",
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(vertical = Spacing.s4),
+                )
+            }
+        }
+    }
+}
+
+private data class CategoryChart(val values: List<Double>, val overlay: List<Double?>)
+
+/** A single-month window shows cumulative spend vs a flat limit ceiling; a multi-month window
+ *  shows monthly spend vs the (stepped, gap-aware) monthly limit. */
+private fun buildCategoryChart(
+    series: List<DayPoint>,
+    limitSeries: List<Long?>,
+    period: SummaryPeriod,
+): CategoryChart {
+    val singleMonth = period == SummaryPeriod.CURRENT_MONTH || period == SummaryPeriod.LAST_MONTH
+    val values = if (singleMonth) {
+        var running = 0L
+        series.map { running += it.amountMinor; running / 100.0 }
+    } else {
+        series.map { it.amountMinor / 100.0 }
+    }
+    val ceiling = if (singleMonth) limitSeries.firstOrNull { it != null } else null
+    val overlay = when {
+        singleMonth && ceiling != null -> List(series.size) { ceiling / 100.0 }
+        !singleMonth -> limitSeries.map { it?.let { v -> v / 100.0 } }
+        else -> emptyList()
+    }
+    return CategoryChart(values, overlay)
+}
+
+/** The limit budget for the selected period: the month's limit for a single-month window, or the
+ *  sum of each month's applicable limit for a multi-month window. Null if no limit applies. */
+private fun periodLimit(limitSeries: List<Long?>, period: SummaryPeriod): Long? {
+    val singleMonth = period == SummaryPeriod.CURRENT_MONTH || period == SummaryPeriod.LAST_MONTH
+    return if (singleMonth) {
+        limitSeries.firstOrNull { it != null }
+    } else {
+        limitSeries.filterNotNull().takeIf { it.isNotEmpty() }?.sum()
+    }
+}
+
+@Composable
+private fun LimitProgressRow(spent: Long, limit: Long) {
+    val c = HisabakTheme.colors
+    val over = spent > limit
+    val fraction = if (limit > 0) (spent.toDouble() / limit.toDouble()).toFloat().coerceIn(0f, 1f) else 0f
+    val pct = if (limit > 0) (spent * 100.0 / limit).roundToInt() else 0
+    val fillColor = if (over) c.expense else MaterialTheme.colorScheme.onSurfaceVariant
+    Column(
+        modifier = Modifier.fillMaxWidth().padding(top = Spacing.s3),
+        verticalArrangement = Arrangement.spacedBy(Spacing.s2),
+    ) {
+        Box(
+            Modifier.fillMaxWidth().height(6.dp).clip(PillShape)
+                .background(MaterialTheme.colorScheme.surfaceContainerHighest),
+        ) {
+            Box(Modifier.fillMaxWidth(fraction).height(6.dp).clip(PillShape).background(fillColor))
+        }
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(Spacing.s1)) {
+            Text(
+                "$pct% of",
+                style = MaterialTheme.typography.labelSmall,
+                color = if (over) c.expense else MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            MoneyText(
+                amountMinor = limit,
+                style = MaterialTheme.typography.labelSmall,
+                color = if (over) c.expense else MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            if (over) {
+                Text(
+                    "· over limit",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = c.expense,
                 )
             }
         }

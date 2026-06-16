@@ -7,8 +7,11 @@ import com.hisabak.core.common.SummaryPeriod
 import com.hisabak.feature.brand.domain.Brand
 import com.hisabak.feature.brand.domain.usecase.ObserveBrandsUseCase
 import com.hisabak.feature.category.domain.Category
+import com.hisabak.feature.category.domain.CategoryLimit
 import com.hisabak.feature.category.domain.CategoryType
+import com.hisabak.feature.category.domain.effectiveFor
 import com.hisabak.feature.category.domain.usecase.ObserveCategoriesUseCase
+import com.hisabak.feature.category.domain.usecase.ObserveCategoryLimitsUseCase
 import com.hisabak.feature.dashboard.domain.BrandShare
 import com.hisabak.feature.dashboard.domain.CategoryOption
 import com.hisabak.feature.dashboard.domain.CategoryShare
@@ -27,18 +30,26 @@ class GetDashboardMetricsUseCase(
     private val observeTransactions: ObserveTransactionsUseCase,
     private val observeCategories: ObserveCategoriesUseCase,
     private val observeBrands: ObserveBrandsUseCase,
+    private val observeCategoryLimits: ObserveCategoryLimitsUseCase,
     private val currency: Currency,
     private val clock: Clock,
 ) {
     operator fun invoke(period: Flow<SummaryPeriod>): Flow<DashboardSnapshot> =
-        combine(observeTransactions(), observeCategories(), observeBrands(), period) { txs, cats, brands, p ->
-            compute(txs, cats, brands, p)
+        combine(
+            observeTransactions(),
+            observeCategories(),
+            observeBrands(),
+            observeCategoryLimits(),
+            period,
+        ) { txs, cats, brands, limits, p ->
+            compute(txs, cats, brands, limits, p)
         }
 
     private fun compute(
         transactions: List<Transaction>,
         categories: List<Category>,
         brands: List<Brand>,
+        limits: List<CategoryLimit>,
         period: SummaryPeriod,
     ): DashboardSnapshot {
         val zone = ZoneId.systemDefault()
@@ -150,6 +161,12 @@ class GetDashboardMetricsUseCase(
         val trendPrevTotalByCategory = categories.associate { cat ->
             cat.id to prevTxsByCategory[cat.id].orEmpty().sumOf { it.amount.amountMinor }
         }
+        // The applicable monthly limit for each bucket of a category's trend (null = no limit then).
+        val limitByCategory = categories.associate { cat ->
+            cat.id to trendByCategory[cat.id].orEmpty().map { point ->
+                limits.effectiveFor(cat.id, YearMonth.from(point.day))?.amountMinor
+            }
+        }
         val categoryOptions = categories
             .sortedBy { it.name.lowercase() }
             .map { CategoryOption(id = it.id, name = it.name, color = it.color, type = it.type) }
@@ -178,6 +195,7 @@ class GetDashboardMetricsUseCase(
             categoryOptions = categoryOptions,
             trendByCategory = trendByCategory,
             trendPrevTotalByCategory = trendPrevTotalByCategory,
+            limitByCategory = limitByCategory,
             expenseByBrand = expenseByBrand,
             topBrandTrend = topBrandTrend,
             topBrandName = topBrand?.name,

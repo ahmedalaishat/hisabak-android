@@ -8,6 +8,7 @@ import com.hisabak.feature.brand.domain.Brand
 import com.hisabak.feature.brand.domain.BrandId
 import com.hisabak.feature.category.domain.Category
 import com.hisabak.feature.category.domain.CategoryId
+import com.hisabak.feature.category.domain.CategoryLimit
 import com.hisabak.feature.category.domain.CategoryType
 import com.hisabak.feature.transaction.domain.Transaction
 import com.hisabak.feature.transaction.domain.TransactionId
@@ -62,6 +63,14 @@ class SeedData(clock: Clock, private val currency: Currency) {
     private val vault = brands[6]
 
     val transactions: List<Transaction> = generate()
+
+    val categoryLimits: List<CategoryLimit> = listOf(
+        // Groceries: 1,500/mo from the start, bumped to 1,800 in Sep 2025 (a stepped limit line).
+        CategoryLimit(groceries.id, Money(150_000, currency), YearMonth.of(2024, 1)),
+        CategoryLimit(groceries.id, Money(180_000, currency), YearMonth.of(2025, 9)),
+        // Dining: limit only introduced in 2025 (earlier months show a gap).
+        CategoryLimit(dining.id, Money(80_000, currency), YearMonth.of(2025, 1)),
+    )
 
     private fun generate(): List<Transaction> {
         val rnd = Random(seed = 42)

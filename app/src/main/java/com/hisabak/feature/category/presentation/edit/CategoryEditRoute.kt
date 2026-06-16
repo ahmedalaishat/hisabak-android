@@ -35,6 +35,7 @@ fun CategoryEditRoute(
         onTypeChange = { viewModel.onIntent(CategoryEditIntent.TypeChanged(it)) },
         onColorChange = { viewModel.onIntent(CategoryEditIntent.ColorChanged(it)) },
         onIconChange = { viewModel.onIntent(CategoryEditIntent.IconChanged(it)) },
+        onLimitChange = { viewModel.onIntent(CategoryEditIntent.LimitChanged(it)) },
         onSave = { viewModel.onIntent(CategoryEditIntent.Save) },
         onCancel = onCancel,
     )

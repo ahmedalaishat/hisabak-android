@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Upsert
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -17,7 +18,9 @@ interface CategoryDao {
     @Query("SELECT COUNT(*) FROM categories")
     suspend fun count(): Int
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    // @Upsert (not @Insert REPLACE): REPLACE deletes + reinserts, which fires the brands'
+    // ON DELETE SET_NULL and unlinks them on every category update.
+    @Upsert
     suspend fun upsert(entity: CategoryEntity)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)

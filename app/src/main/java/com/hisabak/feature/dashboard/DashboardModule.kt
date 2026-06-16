@@ -11,6 +11,7 @@ val dashboardModule = module {
             observeTransactions = get(),
             observeCategories = get(),
             observeBrands = get(),
+            observeCategoryLimits = get(),
             currency = get(),
             clock = get(),
         )

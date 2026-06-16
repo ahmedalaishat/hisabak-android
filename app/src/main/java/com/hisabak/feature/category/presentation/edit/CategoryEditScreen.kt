@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
@@ -30,10 +31,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.hisabak.feature.category.domain.CategoryType
 import com.hisabak.feature.category.presentation.CategoryStyle
 import com.hisabak.ui.components.BadgeTone
+import com.hisabak.ui.components.DirhamGlyph
 import com.hisabak.ui.components.HisabakButton
 import com.hisabak.ui.components.ButtonVariant
 import com.hisabak.ui.components.IconTile
@@ -53,6 +57,7 @@ fun CategoryEditScreen(
     onTypeChange: (CategoryType) -> Unit,
     onColorChange: (String) -> Unit,
     onIconChange: (String) -> Unit,
+    onLimitChange: (String) -> Unit,
     onSave: () -> Unit,
     onCancel: () -> Unit,
 ) {
@@ -102,6 +107,23 @@ fun CategoryEditScreen(
                     ),
                     selected = state.type,
                     onSelect = onTypeChange,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+            }
+
+            // Monthly limit (expense categories only)
+            if (state.showLimit) {
+                OutlinedTextField(
+                    value = state.limitInput,
+                    onValueChange = onLimitChange,
+                    label = { Text("Monthly limit (optional)") },
+                    prefix = { DirhamGlyph(size = 16.sp, tint = MaterialTheme.colorScheme.onSurfaceVariant) },
+                    isError = state.limitError != null,
+                    supportingText = {
+                        Text(state.limitError ?: "Applies to this month and onward")
+                    },
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                     modifier = Modifier.fillMaxWidth(),
                 )
             }

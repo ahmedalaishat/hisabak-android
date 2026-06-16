@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Upsert
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -36,7 +37,9 @@ interface BrandDao {
     @Query("SELECT COUNT(*) FROM brands")
     suspend fun count(): Int
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    // @Upsert avoids the REPLACE delete+reinsert, which would trip the transactions'
+    // ON DELETE RESTRICT foreign key when editing a brand that has transactions.
+    @Upsert
     suspend fun upsert(entity: BrandEntity)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
