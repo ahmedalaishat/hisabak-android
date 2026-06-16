@@ -24,8 +24,12 @@ android {
 
     buildTypes {
         release {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
+            isShrinkResources = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+            // Signed with the debug keystore so the shared APK is directly installable for
+            // testing. Replace with a dedicated release keystore before publishing to Play.
+            signingConfig = signingConfigs.getByName("debug")
         }
     }
     compileOptions {
