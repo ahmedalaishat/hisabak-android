@@ -167,6 +167,10 @@ class GetDashboardMetricsUseCase(
                 limits.effectiveFor(cat.id, YearMonth.from(point.day))?.amountMinor
             }
         }
+
+        // Transactions whose brand has no category have no type, so they sit outside income/expense
+        // and net worth. Surface them as their own bucket instead of silently dropping them.
+        val uncategorizedTxs = periodTxs.filter { typeOf(it) == null }
         val categoryOptions = categories
             .sortedBy { it.name.lowercase() }
             .map { CategoryOption(id = it.id, name = it.name, color = it.color, type = it.type) }
@@ -196,6 +200,9 @@ class GetDashboardMetricsUseCase(
             trendByCategory = trendByCategory,
             trendPrevTotalByCategory = trendPrevTotalByCategory,
             limitByCategory = limitByCategory,
+            uncategorizedTotal = Money(uncategorizedTxs.sumOf { it.amount.amountMinor }, currency),
+            uncategorizedCount = uncategorizedTxs.size,
+            uncategorizedSeries = flowSeries(uncategorizedTxs, zone, period, today),
             expenseByBrand = expenseByBrand,
             topBrandTrend = topBrandTrend,
             topBrandName = topBrand?.name,

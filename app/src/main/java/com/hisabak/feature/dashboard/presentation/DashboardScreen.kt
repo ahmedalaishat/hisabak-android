@@ -17,7 +17,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
@@ -25,14 +24,13 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountBalanceWallet
 import androidx.compose.material.icons.filled.ArrowDownward
 import androidx.compose.material.icons.filled.ArrowUpward
+import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.Savings
 import androidx.compose.material.icons.filled.TrendingUp
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilterChip
-import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SegmentedButton
@@ -68,6 +66,7 @@ import com.hisabak.feature.dashboard.presentation.components.DonutChart
 import com.hisabak.feature.dashboard.presentation.components.DonutSlice
 import com.hisabak.feature.dashboard.presentation.components.GroupedBarChart
 import com.hisabak.ui.components.MoneyText
+import com.hisabak.ui.components.PeriodChipRow
 import com.hisabak.ui.components.SectionHeader
 import com.hisabak.ui.components.SurfaceCard
 import com.hisabak.ui.theme.HisabakTheme
@@ -108,7 +107,7 @@ fun DashboardScreen(
                 .padding(top = Spacing.s5),
             verticalArrangement = Arrangement.spacedBy(Spacing.s3),
         ) {
-            PeriodSelectorRow(selected = state.period, onSelect = onPeriodChange)
+            PeriodChipRow(selected = state.period, onSelect = onPeriodChange)
             DashboardTabs(selected = tab, onSelect = { tab = it })
         }
         when (tab) {
@@ -116,6 +115,7 @@ fun DashboardScreen(
                 snap = snap,
                 period = state.period,
                 listState = summaryListState,
+                onShowCategories = { tab = DashboardTab.CATEGORIES },
                 modifier = Modifier.weight(1f),
             )
             DashboardTab.TRENDS -> TrendsTab(
@@ -162,6 +162,7 @@ private fun SummaryTab(
     snap: DashboardSnapshot,
     period: SummaryPeriod,
     listState: LazyListState,
+    onShowCategories: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val c = HisabakTheme.colors
@@ -171,6 +172,17 @@ private fun SummaryTab(
         contentPadding = PaddingValues(start = Spacing.pageMargin, end = Spacing.pageMargin, top = Spacing.s4, bottom = Spacing.s8),
         verticalArrangement = Arrangement.spacedBy(Spacing.cardGap),
     ) {
+        // ── Uncategorized nudge ─────────────────────────────────────────────
+        if (snap.uncategorizedCount > 0) {
+            item {
+                UncategorizedBanner(
+                    count = snap.uncategorizedCount,
+                    total = snap.uncategorizedTotal,
+                    onClick = onShowCategories,
+                )
+            }
+        }
+
         // ── Net worth hero ──────────────────────────────────────────────────
         item {
             OverTimeCard(
@@ -340,35 +352,6 @@ private fun TrendsTab(
                     modifier = Modifier.fillMaxWidth(),
                 )
             }
-        }
-    }
-}
-
-// ── Shared period selector ─────────────────────────────────────────────────────
-
-@Composable
-private fun PeriodSelectorRow(
-    selected: SummaryPeriod,
-    onSelect: (SummaryPeriod) -> Unit,
-) {
-    LazyRow(horizontalArrangement = Arrangement.spacedBy(Spacing.s3)) {
-        items(SummaryPeriod.entries.size) { i ->
-            val option = SummaryPeriod.entries[i]
-            FilterChip(
-                selected = selected == option,
-                onClick = { onSelect(option) },
-                label = { Text(option.label, style = MaterialTheme.typography.labelMedium) },
-                colors = FilterChipDefaults.filterChipColors(
-                    selectedContainerColor = MaterialTheme.colorScheme.primary,
-                    selectedLabelColor = MaterialTheme.colorScheme.onPrimary,
-                ),
-                border = FilterChipDefaults.filterChipBorder(
-                    enabled = true,
-                    selected = selected == option,
-                    borderColor = MaterialTheme.colorScheme.outlineVariant,
-                    selectedBorderColor = MaterialTheme.colorScheme.primary,
-                ),
-            )
         }
     }
 }
@@ -676,7 +659,7 @@ private fun CategoriesTab(
         contentPadding = PaddingValues(start = Spacing.pageMargin, end = Spacing.pageMargin, top = Spacing.s4, bottom = Spacing.s8),
         verticalArrangement = Arrangement.spacedBy(Spacing.cardGap),
     ) {
-        if (rows.isEmpty()) {
+        if (rows.isEmpty() && snap.uncategorizedCount == 0) {
             item {
                 Text(
                     "No category activity in this period",
@@ -697,8 +680,24 @@ private fun CategoriesTab(
                 },
             )
         }
+        if (snap.uncategorizedCount > 0) {
+            item(key = UNCATEGORIZED_KEY) {
+                UncategorizedCard(
+                    total = snap.uncategorizedTotal,
+                    count = snap.uncategorizedCount,
+                    series = snap.uncategorizedSeries,
+                    period = period,
+                    expanded = expandedId == UNCATEGORIZED_KEY,
+                    onToggle = {
+                        expandedId = if (expandedId == UNCATEGORIZED_KEY) null else UNCATEGORIZED_KEY
+                    },
+                )
+            }
+        }
     }
 }
+
+private const val UNCATEGORIZED_KEY = "__uncategorized__"
 
 private data class CategoryRowData(
     val option: CategoryOption,
@@ -812,6 +811,97 @@ private fun periodLimit(limitSeries: List<Long?>, period: SummaryPeriod): Long? 
         limitSeries.firstOrNull { it != null }
     } else {
         limitSeries.filterNotNull().takeIf { it.isNotEmpty() }?.sum()
+    }
+}
+
+@Composable
+private fun UncategorizedBanner(count: Int, total: Money, onClick: () -> Unit) {
+    DashCard(modifier = Modifier.fillMaxWidth().clickable(onClick = onClick)) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(Spacing.s3),
+        ) {
+            Box(Modifier.size(10.dp).background(MaterialTheme.colorScheme.onSurfaceVariant, CircleShape))
+            Column(Modifier.weight(1f)) {
+                Text(
+                    if (count == 1) "1 transaction needs a category" else "$count transactions need a category",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurface,
+                )
+                Text(
+                    "Set their brand's category so they count in your totals",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+            MoneyText(
+                amountMinor = total.amountMinor,
+                style = HisabakType.amount,
+                color = MaterialTheme.colorScheme.onSurface,
+            )
+            Icon(
+                Icons.Filled.ChevronRight,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.size(Sizing.iconSm),
+            )
+        }
+    }
+}
+
+@Composable
+private fun UncategorizedCard(
+    total: Money,
+    count: Int,
+    series: List<DayPoint>,
+    period: SummaryPeriod,
+    expanded: Boolean,
+    onToggle: () -> Unit,
+) {
+    val color = MaterialTheme.colorScheme.onSurfaceVariant
+    DashCard(modifier = Modifier.fillMaxWidth()) {
+        Row(
+            modifier = Modifier.fillMaxWidth().clickable(onClick = onToggle),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(Spacing.s3),
+        ) {
+            Box(Modifier.size(10.dp).background(color, CircleShape))
+            Column(Modifier.weight(1f)) {
+                Text(
+                    "Uncategorized",
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    maxLines = 1,
+                )
+                Text(
+                    if (count == 1) "1 transaction" else "$count transactions",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = color,
+                )
+            }
+            MoneyText(
+                amountMinor = total.amountMinor,
+                style = HisabakType.amount,
+                color = MaterialTheme.colorScheme.onSurface,
+            )
+            Icon(
+                if (expanded) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
+                contentDescription = null,
+                tint = color,
+                modifier = Modifier.size(Sizing.iconSm),
+            )
+        }
+        if (expanded && series.isNotEmpty() && total.amountMinor != 0L) {
+            val chart = buildCategoryChart(series, emptyList(), period)
+            AreaLineChart(
+                values = chart.values,
+                lineColor = color,
+                fillColor = color.copy(alpha = 0.12f),
+                modifier = Modifier.fillMaxWidth().padding(top = Spacing.s3, bottom = Spacing.s2),
+                heightDp = 96.dp,
+                xLabels = dateLabels(series.map { it.day }, period),
+            )
+        }
     }
 }
 

@@ -1,7 +1,5 @@
 package com.hisabak.feature.transaction.presentation.list
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,15 +15,9 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.CalendarMonth
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.ReceiptLong
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -35,14 +27,15 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.sp
 import com.hisabak.core.common.Money
+import com.hisabak.core.common.SummaryPeriod
 import com.hisabak.feature.category.domain.CategoryType
 import com.hisabak.feature.transaction.domain.TransactionId
 import com.hisabak.ui.components.AmountText
 import com.hisabak.ui.components.AmountTone
 import com.hisabak.ui.components.CircleIconTile
+import com.hisabak.ui.components.PeriodChipRow
 import com.hisabak.ui.components.EmptyStatePanel
 import com.hisabak.ui.components.ExpensesStatCard
 import com.hisabak.ui.components.IncomeStatCard
@@ -50,8 +43,6 @@ import com.hisabak.ui.components.ListRow
 import com.hisabak.ui.components.SearchField
 import com.hisabak.ui.components.iconForKey
 import com.hisabak.ui.components.tintPairForColor
-import com.hisabak.ui.theme.PillShape
-import com.hisabak.ui.theme.Sizing
 import com.hisabak.ui.theme.Spacing
 import java.time.Duration
 import java.time.Instant
@@ -59,14 +50,6 @@ import java.time.LocalDate
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import kotlin.math.abs
-
-private enum class Period(val label: String) {
-    CURRENT_MONTH("This month"),
-    LAST_MONTH("Last month"),
-    CURRENT_YEAR("This year"),
-    LAST_YEAR("Last year"),
-    ALL("All time"),
-}
 
 @Composable
 fun TransactionListScreen(
@@ -85,7 +68,7 @@ fun TransactionListScreen(
 
     // The period filter scopes the income / expenses summary cards. Net worth lives
     // on the Dashboard; this screen is about activity, not a wealth snapshot.
-    var period by rememberSaveable { mutableStateOf(Period.CURRENT_MONTH) }
+    var period by rememberSaveable { mutableStateOf(SummaryPeriod.CURRENT_MONTH) }
     val periodTotals = remember(state.rows, period) {
         computeTotals(filterByPeriod(state.rows, period))
     }
@@ -101,17 +84,13 @@ fun TransactionListScreen(
         verticalArrangement = Arrangement.spacedBy(Spacing.cardGap),
     ) {
         item {
-            Row(
-                Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
+            Column(verticalArrangement = Arrangement.spacedBy(Spacing.s3)) {
                 Text(
                     text = "Summary",
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.onSurface,
                 )
-                PeriodFilterChip(period = period, onSelect = { period = it })
+                PeriodChipRow(selected = period, onSelect = { period = it })
             }
         }
 
@@ -178,12 +157,12 @@ private fun computeTotals(rows: List<TransactionRow>): Totals {
     var expenses = 0L
     rows.forEach { row ->
         val amount = row.amount.amountMinor
+        // Only typed income/expense count here; savings, investment and uncategorized
+        // transactions are excluded, matching the dashboard's income/expense figures.
         when (row.categoryType) {
             CategoryType.INCOME -> income += abs(amount)
             CategoryType.EXPENSES -> expenses += abs(amount)
-            else -> {
-                if (amount >= 0) income += amount else expenses += abs(amount)
-            }
+            else -> Unit
         }
     }
     return Totals(
@@ -194,100 +173,10 @@ private fun computeTotals(rows: List<TransactionRow>): Totals {
 }
 
 /** Keeps only the rows whose [TransactionRow.occurredAt] falls in [period]'s range. */
-private fun filterByPeriod(rows: List<TransactionRow>, period: Period): List<TransactionRow> {
-    val range = period.range() ?: return rows
-    val (start, end) = range
-    return rows.filter { !it.occurredAt.isBefore(start) && it.occurredAt.isBefore(end) }
-}
-
-/** [start, end) instants for the period, or null for [Period.ALL] (no bound). */
-private fun Period.range(): Pair<Instant, Instant>? {
+private fun filterByPeriod(rows: List<TransactionRow>, period: SummaryPeriod): List<TransactionRow> {
     val zone = ZoneId.systemDefault()
-    val today = LocalDate.now(zone)
-    val (startDate, endDate) = when (this) {
-        Period.CURRENT_MONTH -> today.withDayOfMonth(1).let { it to it.plusMonths(1) }
-        Period.LAST_MONTH -> today.withDayOfMonth(1).minusMonths(1).let { it to it.plusMonths(1) }
-        Period.CURRENT_YEAR -> today.withDayOfYear(1).let { it to it.plusYears(1) }
-        Period.LAST_YEAR -> today.withDayOfYear(1).minusYears(1).let { it to it.plusYears(1) }
-        Period.ALL -> return null
-    }
-    return startDate.atStartOfDay(zone).toInstant() to endDate.atStartOfDay(zone).toInstant()
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun PeriodFilterChip(period: Period, onSelect: (Period) -> Unit) {
-    var showSheet by remember { mutableStateOf(false) }
-
-    Row(
-        modifier = Modifier
-            .clip(PillShape)
-            .background(MaterialTheme.colorScheme.surfaceContainerHigh)
-            .clickable { showSheet = true }
-            .padding(horizontal = Spacing.s4, vertical = Spacing.s2),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(Spacing.s1),
-    ) {
-        Icon(
-            Icons.Filled.CalendarMonth,
-            contentDescription = null,
-            tint = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.size(Sizing.iconSm),
-        )
-        Text(
-            text = period.label,
-            style = MaterialTheme.typography.labelLarge,
-            color = MaterialTheme.colorScheme.onSurface,
-        )
-        Icon(
-            Icons.Filled.ExpandMore,
-            contentDescription = null,
-            tint = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.size(Sizing.iconSm),
-        )
-    }
-
-    if (showSheet) {
-        ModalBottomSheet(onDismissRequest = { showSheet = false }) {
-            Column(Modifier.fillMaxWidth().padding(bottom = Spacing.s7)) {
-                Text(
-                    text = "Summary period",
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    modifier = Modifier.padding(horizontal = Spacing.pageMargin, vertical = Spacing.s4),
-                )
-                Period.entries.forEach { option ->
-                    val selected = option == period
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable {
-                                onSelect(option)
-                                showSheet = false
-                            }
-                            .padding(horizontal = Spacing.pageMargin, vertical = Spacing.s4),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                    ) {
-                        Text(
-                            text = option.label,
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = if (selected) MaterialTheme.colorScheme.primary
-                                    else MaterialTheme.colorScheme.onSurface,
-                        )
-                        if (selected) {
-                            Icon(
-                                Icons.Filled.Check,
-                                contentDescription = "Selected",
-                                tint = MaterialTheme.colorScheme.primary,
-                                modifier = Modifier.size(Sizing.icon),
-                            )
-                        }
-                    }
-                }
-            }
-        }
-    }
+    val (start, end) = period.instantRange(LocalDate.now(zone), zone) ?: return rows
+    return rows.filter { !it.occurredAt.isBefore(start) && it.occurredAt.isBefore(end) }
 }
 
 
