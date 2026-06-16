@@ -3,6 +3,7 @@ package com.hisabak.di
 import androidx.room.Room
 import com.hisabak.core.data.local.DatabaseSeeder
 import com.hisabak.core.data.local.HisabakDatabase
+import com.hisabak.core.data.local.MIGRATION_1_2
 import org.koin.android.ext.koin.androidContext
 import org.koin.dsl.module
 
@@ -13,6 +14,7 @@ val databaseModule = module {
             klass = HisabakDatabase::class.java,
             name = HisabakDatabase.NAME,
         )
+            .addMigrations(MIGRATION_1_2)
             .fallbackToDestructiveMigration(dropAllTables = true)
             .build()
     }
@@ -21,5 +23,7 @@ val databaseModule = module {
     single { get<HisabakDatabase>().brandDao() }
     single { get<HisabakDatabase>().transactionDao() }
     single { get<HisabakDatabase>().smsDao() }
+    single { get<HisabakDatabase>().notificationDao() }
+    single { get<HisabakDatabase>().categoryLimitAlertDao() }
     single { DatabaseSeeder(db = get(), seed = get(), currency = get()) }
 }

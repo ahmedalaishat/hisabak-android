@@ -24,7 +24,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.ReceiptLong
-import androidx.compose.material3.CircularProgressIndicator
+import com.hisabak.ui.components.SkeletonCard
+import com.hisabak.ui.components.SkeletonRowList
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -81,8 +82,17 @@ fun TransactionListScreen(
     onEdit: (TransactionId) -> Unit,
 ) {
     if (state.isLoading) {
-        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            CircularProgressIndicator()
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = Spacing.pageMargin, vertical = Spacing.s3),
+            verticalArrangement = Arrangement.spacedBy(Spacing.cardGap),
+        ) {
+            Row(horizontalArrangement = Arrangement.spacedBy(Spacing.cardGap)) {
+                SkeletonCard(Modifier.weight(1f))
+                SkeletonCard(Modifier.weight(1f))
+            }
+            SkeletonRowList(count = 6)
         }
         return
     }
@@ -199,6 +209,7 @@ fun TransactionListScreen(
                     row = row,
                     onEdit = { onEdit(row.id) },
                     onDelete = { onDelete(row.id) },
+                    modifier = Modifier.animateItem(),
                 )
             }
         }
@@ -340,6 +351,7 @@ private fun TransactionRowItem(
     row: TransactionRow,
     onEdit: () -> Unit,
     onDelete: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     val tone = when (row.categoryType) {
         CategoryType.INCOME -> AmountTone.Income
@@ -351,6 +363,7 @@ private fun TransactionRowItem(
     val dateLabel = formatRelative(row.occurredAt)
 
     ListRow(
+        modifier = modifier,
         title = row.brandName,
         subtitle = row.note?.takeIf { it.isNotBlank() },
         leading = {

@@ -31,7 +31,10 @@ fun HisabakTheme(
     val colorScheme = if (darkTheme) HisabakDarkColorScheme else HisabakLightColorScheme
     val semantic = if (darkTheme) HisabakDarkSemantic else HisabakLightSemantic
 
-    CompositionLocalProvider(LocalHisabakColors provides semantic) {
+    CompositionLocalProvider(
+        LocalHisabakColors provides semantic,
+        LocalReducedMotion provides rememberReducedMotion(),
+    ) {
         MaterialTheme(
             colorScheme = colorScheme,
             typography = HisabakTypography,

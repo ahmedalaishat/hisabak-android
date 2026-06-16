@@ -1,5 +1,6 @@
 package com.hisabak.ui.components
 
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -17,14 +18,17 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import com.hisabak.ui.theme.HisabakTheme
+import com.hisabak.ui.theme.Motion
 import com.hisabak.ui.theme.PillShape
 import com.hisabak.ui.theme.Spacing
+import com.hisabak.ui.theme.standardTween
 
 /**
  * Small KPI card used in 2-up grids: tinted icon tile + label + big value,
@@ -105,6 +109,11 @@ fun ProgressBar(
     modifier: Modifier = Modifier,
 ) {
     val clamped = progress.coerceIn(0f, 1f)
+    val animated by animateFloatAsState(
+        targetValue = clamped,
+        animationSpec = standardTween(Motion.Duration.Slow),
+        label = "progressFill",
+    )
     Box(
         modifier
             .fillMaxWidth()
@@ -113,7 +122,7 @@ fun ProgressBar(
     ) {
         Box(
             Modifier
-                .fillMaxWidth(clamped)
+                .fillMaxWidth(animated)
                 .height(4.dp)
                 .background(color, PillShape),
         )

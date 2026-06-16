@@ -6,6 +6,10 @@ import androidx.compose.material3.ModalBottomSheetProperties
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.rememberLifecycleOwner
 import androidx.navigation3.runtime.NavEntry
@@ -31,8 +35,17 @@ internal data class BottomSheetScene<T : Any>(
 
     override val content: @Composable (() -> Unit) = {
         val lifecycleOwner = rememberLifecycleOwner()
+        // A drag-to-dismiss that oscillates near the threshold can fire onDismissRequest more
+        // than once; without this guard each call pops the back stack again, so a second pop
+        // would close the sheet *and* exit the tab (back-from-a-tab → home). Pop exactly once.
+        var dismissed by remember { mutableStateOf(false) }
         ModalBottomSheet(
-            onDismissRequest = onBack,
+            onDismissRequest = {
+                if (!dismissed) {
+                    dismissed = true
+                    onBack()
+                }
+            },
             sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
             properties = modalBottomSheetProperties,
         ) {
@@ -65,7 +78,7 @@ class BottomSheetSceneStrategy<T : Any> : SceneStrategy<T> {
     }
 
     companion object {
-        fun bottomSheet(
+        fun     bottomSheet(
             modalBottomSheetProperties: ModalBottomSheetProperties = ModalBottomSheetProperties(),
         ): Map<String, Any> = mapOf(BOTTOM_SHEET_KEY to modalBottomSheetProperties)
     }

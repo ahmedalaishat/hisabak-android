@@ -13,3 +13,6 @@ data object ManageKey : NavKey
 data class TransactionEditKey(val id: String?) : NavKey
 data class BrandEditKey(val id: String?) : NavKey
 data class CategoryEditKey(val id: String?) : NavKey
+
+// Full-screen child opened from the top-bar bell.
+data object NotificationsKey : NavKey
