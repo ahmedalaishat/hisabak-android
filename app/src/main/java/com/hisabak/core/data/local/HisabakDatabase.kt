@@ -21,7 +21,7 @@ import com.hisabak.feature.transaction.data.local.TransactionEntity
         TransactionEntity::class,
         SmsMessageEntity::class,
     ],
-    version = 5, // bumped to re-seed after the REPLACE cascade unlinked brands
+    version = 1, // v1.0.0 baseline schema; add real migrations for future versions
     exportSchema = false,
 )
 abstract class HisabakDatabase : RoomDatabase() {
