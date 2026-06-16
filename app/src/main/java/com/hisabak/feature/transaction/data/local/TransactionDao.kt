@@ -82,4 +82,10 @@ interface TransactionDao {
 
     @Query("SELECT COUNT(*) FROM transactions WHERE brandId = :brandId AND deletedAtMillis IS NULL")
     suspend fun countForBrand(brandId: String): Long
+
+    @Query(
+        "UPDATE transactions SET brandId = :toBrandId, updatedAtMillis = :nowMillis, isDirty = 1 " +
+            "WHERE brandId = :fromBrandId",
+    )
+    suspend fun reassignBrand(fromBrandId: String, toBrandId: String, nowMillis: Long)
 }

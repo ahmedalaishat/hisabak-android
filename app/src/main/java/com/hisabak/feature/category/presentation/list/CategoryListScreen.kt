@@ -20,12 +20,18 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.DeleteOutline
 import androidx.compose.material.icons.filled.Star
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -66,6 +72,8 @@ fun CategoryListScreen(
         }
         return
     }
+
+    var pendingDelete by remember { mutableStateOf<CategoryRow?>(null) }
 
     val typeOptions: List<Pair<String, CategoryType?>> = listOf(
         "All" to null,
@@ -141,7 +149,7 @@ fun CategoryListScreen(
                 CategoryTile(
                     row = row,
                     onEdit = { onEdit(row.id) },
-                    onDelete = { onDelete(row.id) },
+                    onDelete = { pendingDelete = row },
                 )
             }
             item {
@@ -152,6 +160,30 @@ fun CategoryListScreen(
         item(span = { GridItemSpan(maxLineSpan) }) {
             Spacer(Modifier.height(Spacing.s3))
         }
+    }
+
+    pendingDelete?.let { row ->
+        val count = row.transactionCount
+        AlertDialog(
+            onDismissRequest = { pendingDelete = null },
+            title = { Text("Delete ${row.name}?") },
+            text = {
+                Text(
+                    if (count > 0)
+                        "Its brands become uncategorized and $count " +
+                            "${if (count == 1) "transaction" else "transactions"} will no longer be " +
+                            "categorized. Nothing is deleted."
+                    else
+                        "Its brands become uncategorized. No transactions are affected.",
+                )
+            },
+            confirmButton = {
+                TextButton(onClick = { onDelete(row.id); pendingDelete = null }) { Text("Delete") }
+            },
+            dismissButton = {
+                TextButton(onClick = { pendingDelete = null }) { Text("Cancel") }
+            },
+        )
     }
 }
 

@@ -1,7 +1,9 @@
 package com.hisabak.feature.transaction.data
 
+import com.hisabak.core.common.Clock
 import com.hisabak.core.common.DomainError
 import com.hisabak.core.common.DomainResult
+import com.hisabak.feature.brand.domain.BrandId
 import com.hisabak.feature.transaction.data.local.TransactionDao
 import com.hisabak.feature.transaction.data.local.toDomain
 import com.hisabak.feature.transaction.data.local.toEntity
@@ -15,6 +17,7 @@ import kotlinx.coroutines.flow.map
 
 class RoomTransactionRepository(
     private val dao: TransactionDao,
+    private val clock: Clock,
 ) : TransactionRepository {
 
     override fun observe(filter: TransactionFilter): Flow<List<Transaction>> =
@@ -60,6 +63,11 @@ class RoomTransactionRepository(
 
     override suspend fun delete(id: TransactionId): DomainResult<Unit> {
         dao.deleteById(id.value)
+        return DomainResult.Success(Unit)
+    }
+
+    override suspend fun reassignBrand(fromBrandId: BrandId, toBrandId: BrandId): DomainResult<Unit> {
+        dao.reassignBrand(fromBrandId.value, toBrandId.value, clock.now().toEpochMilli())
         return DomainResult.Success(Unit)
     }
 }
