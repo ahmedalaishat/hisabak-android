@@ -1,24 +1,40 @@
 package com.hisabak.feature.category.presentation.edit
 
 import androidx.lifecycle.viewModelScope
+import com.hisabak.core.common.Clock
+import com.hisabak.core.common.Currency
 import com.hisabak.core.common.DomainResult
+import com.hisabak.core.common.Money
 import com.hisabak.core.presentation.BaseViewModel
 import com.hisabak.feature.category.domain.CategoryId
 import com.hisabak.feature.category.domain.CategoryRepository
+import com.hisabak.feature.category.domain.CategoryType
+import com.hisabak.feature.category.domain.effectiveFor
 import com.hisabak.feature.category.domain.usecase.CreateCategoryUseCase
+import com.hisabak.feature.category.domain.usecase.ObserveCategoryLimitsUseCase
+import com.hisabak.feature.category.domain.usecase.SetCategoryLimitUseCase
 import com.hisabak.feature.category.domain.usecase.UpdateCategoryUseCase
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import java.time.YearMonth
 
 class CategoryEditViewModel(
     private val categoryId: CategoryId?,
     private val categoryRepository: CategoryRepository,
     private val createCategory: CreateCategoryUseCase,
     private val updateCategory: UpdateCategoryUseCase,
+    private val observeCategoryLimits: ObserveCategoryLimitsUseCase,
+    private val setCategoryLimit: SetCategoryLimitUseCase,
+    private val currency: Currency,
+    private val clock: Clock,
 ) : BaseViewModel<CategoryEditIntent, CategoryEditUiState, CategoryEditEffect>() {
 
-    override fun initialState() = CategoryEditUiState(isNew = categoryId == null)
+    // categoryId isn't assigned yet when BaseViewModel builds the initial state, so seed
+    // isNew from init{} instead of initialState().
+    override fun initialState() = CategoryEditUiState()
 
     init {
+        setState { copy(isNew = categoryId == null) }
         if (categoryId != null) loadExisting(categoryId)
     }
 
@@ -32,6 +48,8 @@ class CategoryEditViewModel(
                 setState { copy(color = intent.value) }
             is CategoryEditIntent.IconChanged ->
                 setState { copy(icon = intent.value) }
+            is CategoryEditIntent.LimitChanged ->
+                setState { copy(limitInput = intent.value.filter { it.isDigit() || it == '.' }, limitError = null) }
             CategoryEditIntent.Save -> save()
             CategoryEditIntent.ConsumeEffect -> clearEffect()
         }
@@ -43,6 +61,8 @@ class CategoryEditViewModel(
             when (val result = categoryRepository.getById(id)) {
                 is DomainResult.Success -> {
                     val c = result.value
+                    val limit = observeCategoryLimits().first()
+                        .effectiveFor(id, YearMonth.from(clock.today()))
                     setState {
                         copy(
                             isLoading = false,
@@ -50,6 +70,7 @@ class CategoryEditViewModel(
                             type = c.type,
                             color = c.color,
                             icon = c.icon,
+                            limitInput = limit?.let { majorString(it.amountMinor) } ?: "",
                         )
                     }
                 }
@@ -67,28 +88,48 @@ class CategoryEditViewModel(
             setState { copy(nameError = "Name is required") }
             return
         }
+
+        val limit: Money?
+        if (s.showLimit && s.limitInput.isNotBlank()) {
+            val major = s.limitInput.toDoubleOrNull()
+            if (major == null || major <= 0.0) {
+                setState { copy(limitError = "Enter a valid amount") }
+                return
+            }
+            limit = Money.ofMajor(major, currency)
+        } else {
+            limit = null
+        }
+
         setState { copy(isSaving = true, generalError = null) }
         viewModelScope.launch {
-            val result: DomainResult<Unit> = if (categoryId == null) {
-                createCategory(name = name, type = s.type, color = s.color, icon = s.icon).map { }
+            val saved: DomainResult<CategoryId> = if (categoryId == null) {
+                createCategory(name = name, type = s.type, color = s.color, icon = s.icon).map { it.id }
             } else {
                 when (val existing = categoryRepository.getById(categoryId)) {
                     is DomainResult.Success -> updateCategory(
                         existing.value.copy(name = name, type = s.type, color = s.color, icon = s.icon),
-                    )
+                    ).map { categoryId }
                     is DomainResult.Failure -> DomainResult.Failure(existing.error)
                 }
             }
 
-            when (result) {
+            when (saved) {
                 is DomainResult.Success -> {
+                    // Persist the limit only for expense categories; clears (null) when blank.
+                    if (s.showLimit) setCategoryLimit(saved.value, limit)
                     setState { copy(isSaving = false) }
                     sendEffect(CategoryEditEffect.Saved)
                 }
                 is DomainResult.Failure -> setState {
-                    copy(isSaving = false, generalError = result.error.message)
+                    copy(isSaving = false, generalError = saved.error.message)
                 }
             }
         }
+    }
+
+    private fun majorString(amountMinor: Long): String {
+        val major = amountMinor / 100.0
+        return if (major % 1.0 == 0.0) major.toLong().toString() else major.toString()
     }
 }

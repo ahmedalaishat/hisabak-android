@@ -3,7 +3,6 @@ package com.hisabak.feature.dashboard.presentation
 import androidx.lifecycle.viewModelScope
 import com.hisabak.core.common.SummaryPeriod
 import com.hisabak.core.presentation.BaseViewModel
-import com.hisabak.feature.category.domain.CategoryType
 import com.hisabak.feature.dashboard.domain.usecase.GetDashboardMetricsUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.launchIn
@@ -19,17 +18,7 @@ class DashboardViewModel(
 
     init {
         getMetrics(period)
-            .onEach { snapshot ->
-                setState {
-                    copy(
-                        snapshot = snapshot,
-                        isLoading = false,
-                        trendCategoryId = trendCategoryId
-                            ?: snapshot.categoryOptions.firstOrNull { it.type == CategoryType.EXPENSES }?.id
-                            ?: snapshot.categoryOptions.firstOrNull()?.id,
-                    )
-                }
-            }
+            .onEach { snapshot -> setState { copy(snapshot = snapshot, isLoading = false) } }
             .launchIn(viewModelScope)
     }
 
@@ -39,8 +28,6 @@ class DashboardViewModel(
                 period.value = intent.period
                 setState { copy(period = intent.period) }
             }
-            is DashboardIntent.TrendCategoryChanged ->
-                setState { copy(trendCategoryId = intent.id) }
         }
     }
 }

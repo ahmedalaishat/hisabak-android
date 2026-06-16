@@ -42,17 +42,38 @@ fun AreaLineChart(
     modifier: Modifier = Modifier,
     heightDp: Dp = 120.dp,
     xLabels: List<String> = emptyList(),
+    overlayValues: List<Double?> = emptyList(),
+    overlayColor: Color = lineColor,
 ) {
+    // The overlay (e.g. a limit line) is plotted only at the points that have a value, using
+    // explicit x positions, so it begins partway in instead of inventing zeros for empty months.
+    val overlayXs = overlayValues.indices.filter { overlayValues[it] != null }
+    val overlayYs = overlayXs.map { overlayValues[it]!! }
+    val hasOverlay = overlayYs.isNotEmpty()
+
     val producer = remember { CartesianChartModelProducer() }
-    LaunchedEffect(values) {
+    LaunchedEffect(values, overlayXs, overlayYs) {
         if (values.isEmpty()) return@LaunchedEffect
-        producer.runTransaction { lineSeries { series(values) } }
+        producer.runTransaction {
+            lineSeries {
+                series(values)
+                if (hasOverlay) series(overlayXs, overlayYs)
+            }
+        }
     }
     if (values.isEmpty()) return
     val line = LineCartesianLayer.rememberLine(
         fill = LineCartesianLayer.LineFill.single(fill(lineColor)),
         areaFill = LineCartesianLayer.AreaFill.single(fill(fillColor)),
     )
+    val limitLine = LineCartesianLayer.rememberLine(
+        fill = LineCartesianLayer.LineFill.single(fill(overlayColor)),
+    )
+    val lineProvider = if (hasOverlay) {
+        LineCartesianLayer.LineProvider.series(line, limitLine)
+    } else {
+        LineCartesianLayer.LineProvider.series(line)
+    }
 
     val hasLabels = xLabels.isNotEmpty()
     // Thin the axis labels to ~5 so daily series don't overlap; the marker gives the exact value.
@@ -97,7 +118,7 @@ fun AreaLineChart(
     CartesianChartHost(
         chart = rememberCartesianChart(
             rememberLineCartesianLayer(
-                lineProvider = LineCartesianLayer.LineProvider.series(line),
+                lineProvider = lineProvider,
             ),
             bottomAxis = bottomAxis,
             marker = marker,

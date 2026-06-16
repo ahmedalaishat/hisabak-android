@@ -6,6 +6,8 @@ import com.hisabak.feature.brand.data.local.BrandDao
 import com.hisabak.feature.brand.data.local.BrandEntity
 import com.hisabak.feature.category.data.local.CategoryDao
 import com.hisabak.feature.category.data.local.CategoryEntity
+import com.hisabak.feature.category.data.local.CategoryLimitDao
+import com.hisabak.feature.category.data.local.CategoryLimitEntity
 import com.hisabak.feature.sms.data.local.SmsDao
 import com.hisabak.feature.sms.data.local.SmsMessageEntity
 import com.hisabak.feature.transaction.data.local.TransactionDao
@@ -14,15 +16,17 @@ import com.hisabak.feature.transaction.data.local.TransactionEntity
 @Database(
     entities = [
         CategoryEntity::class,
+        CategoryLimitEntity::class,
         BrandEntity::class,
         TransactionEntity::class,
         SmsMessageEntity::class,
     ],
-    version = 3, // bumped to drop & re-seed the demo data in AED (was USD)
+    version = 5, // bumped to re-seed after the REPLACE cascade unlinked brands
     exportSchema = false,
 )
 abstract class HisabakDatabase : RoomDatabase() {
     abstract fun categoryDao(): CategoryDao
+    abstract fun categoryLimitDao(): CategoryLimitDao
     abstract fun brandDao(): BrandDao
     abstract fun transactionDao(): TransactionDao
     abstract fun smsDao(): SmsDao

@@ -17,8 +17,9 @@ val databaseModule = module {
             .build()
     }
     single { get<HisabakDatabase>().categoryDao() }
+    single { get<HisabakDatabase>().categoryLimitDao() }
     single { get<HisabakDatabase>().brandDao() }
     single { get<HisabakDatabase>().transactionDao() }
     single { get<HisabakDatabase>().smsDao() }
-    single { DatabaseSeeder(db = get(), seed = get()) }
+    single { DatabaseSeeder(db = get(), seed = get(), currency = get()) }
 }

@@ -30,6 +30,7 @@ data class DashboardSnapshot(
     val categoryOptions: List<CategoryOption>,
     val trendByCategory: Map<CategoryId, List<DayPoint>>,
     val trendPrevTotalByCategory: Map<CategoryId, Long>,
+    val limitByCategory: Map<CategoryId, List<Long?>>,
     val expenseByBrand: List<BrandShare>,
     val topBrandTrend: List<MonthPoint>,
     val topBrandName: String?,
