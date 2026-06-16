@@ -20,6 +20,7 @@ fun BrandListRoute(
         onSearchChange = { viewModel.onIntent(BrandListIntent.SearchChanged(it)) },
         onCategoryFilterChange = { viewModel.onIntent(BrandListIntent.CategoryFilterChanged(it)) },
         onDelete = { viewModel.onIntent(BrandListIntent.Delete(it)) },
+        onMerge = { source, target -> viewModel.onIntent(BrandListIntent.MergeAndDelete(source, target)) },
         onAdd = onAdd,
         onEdit = onEdit,
         showHeader = showHeader,

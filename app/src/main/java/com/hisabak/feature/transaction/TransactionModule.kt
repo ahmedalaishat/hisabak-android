@@ -7,6 +7,7 @@ import com.hisabak.feature.transaction.domain.usecase.CreateTransactionUseCase
 import com.hisabak.feature.transaction.domain.usecase.DeleteTransactionUseCase
 import com.hisabak.feature.transaction.domain.usecase.GetTransactionsPageUseCase
 import com.hisabak.feature.transaction.domain.usecase.ObserveTransactionsUseCase
+import com.hisabak.feature.transaction.domain.usecase.ReassignBrandTransactionsUseCase
 import com.hisabak.feature.transaction.domain.usecase.UpdateTransactionUseCase
 import com.hisabak.feature.transaction.presentation.edit.TransactionEditViewModel
 import com.hisabak.feature.transaction.presentation.list.TransactionListFilterBus
@@ -15,7 +16,7 @@ import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
 
 val transactionModule = module {
-    single<TransactionRepository> { RoomTransactionRepository(dao = get()) }
+    single<TransactionRepository> { RoomTransactionRepository(dao = get(), clock = get()) }
     single { TransactionListFilterBus() }
 
     factory { ObserveTransactionsUseCase(get()) }
@@ -23,6 +24,7 @@ val transactionModule = module {
     factory { CreateTransactionUseCase(get(), get()) }
     factory { UpdateTransactionUseCase(get(), get()) }
     factory { DeleteTransactionUseCase(get()) }
+    factory { ReassignBrandTransactionsUseCase(get()) }
 
     viewModel {
         TransactionListViewModel(

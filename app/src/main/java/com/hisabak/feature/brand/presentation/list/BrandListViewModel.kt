@@ -10,6 +10,8 @@ import com.hisabak.feature.category.domain.CategoryId
 import com.hisabak.feature.category.domain.usecase.ObserveCategoriesUseCase
 import com.hisabak.feature.transaction.domain.Transaction
 import com.hisabak.feature.transaction.domain.usecase.ObserveTransactionsUseCase
+import com.hisabak.feature.transaction.domain.usecase.ReassignBrandTransactionsUseCase
+import com.hisabak.core.common.DomainResult
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -24,6 +26,7 @@ class BrandListViewModel(
     private val observeCategories: ObserveCategoriesUseCase,
     private val observeTransactions: ObserveTransactionsUseCase,
     private val deleteBrand: DeleteBrandUseCase,
+    private val reassignBrandTransactions: ReassignBrandTransactionsUseCase,
 ) : BaseViewModel<BrandListIntent, BrandListUiState, BrandListEffect>() {
 
     override fun initialState() = BrandListUiState()
@@ -41,6 +44,12 @@ class BrandListViewModel(
                 setState { copy(categoryFilter = intent.categoryId) }
             is BrandListIntent.Delete ->
                 viewModelScope.launch { deleteBrand(intent.id) }
+            is BrandListIntent.MergeAndDelete ->
+                viewModelScope.launch {
+                    if (reassignBrandTransactions(intent.sourceId, intent.targetId) is DomainResult.Success) {
+                        deleteBrand(intent.sourceId)
+                    }
+                }
             BrandListIntent.ConsumeEffect -> clearEffect()
         }
     }

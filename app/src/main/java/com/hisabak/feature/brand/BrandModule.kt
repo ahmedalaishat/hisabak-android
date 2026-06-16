@@ -28,6 +28,7 @@ val brandModule = module {
             observeCategories = get(),
             observeTransactions = get(),
             deleteBrand = get(),
+            reassignBrandTransactions = get(),
         )
     }
 

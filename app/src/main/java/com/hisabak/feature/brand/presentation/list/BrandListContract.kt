@@ -34,6 +34,8 @@ sealed interface BrandListIntent : ViewIntent {
     data class SearchChanged(val query: String) : BrandListIntent
     data class CategoryFilterChanged(val categoryId: CategoryId?) : BrandListIntent
     data class Delete(val id: BrandId) : BrandListIntent
+    /** Move [sourceId]'s transactions onto [targetId], then delete [sourceId]. */
+    data class MergeAndDelete(val sourceId: BrandId, val targetId: BrandId) : BrandListIntent
     data object ConsumeEffect : BrandListIntent
 }
 

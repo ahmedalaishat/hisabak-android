@@ -39,9 +39,13 @@ class RoomBrandRepository(
         return DomainResult.Success(Unit)
     }
 
-    override suspend fun delete(id: BrandId): DomainResult<Unit> {
+    override suspend fun delete(id: BrandId): DomainResult<Unit> = try {
+        // Transactions reference brands with ON DELETE RESTRICT, so deleting a brand that still
+        // has transactions throws. Surface it as a failure instead of crashing.
         dao.deleteById(id.value)
-        return DomainResult.Success(Unit)
+        DomainResult.Success(Unit)
+    } catch (e: Exception) {
+        DomainResult.Failure(DomainError.Unexpected(e))
     }
 
     override suspend fun countTransactions(id: BrandId): Long =
