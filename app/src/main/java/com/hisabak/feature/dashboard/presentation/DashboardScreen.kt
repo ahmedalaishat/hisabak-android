@@ -47,6 +47,7 @@ import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -99,6 +100,8 @@ fun DashboardScreen(
     state: DashboardUiState,
     onPeriodChange: (SummaryPeriod) -> Unit,
     onShowUncategorized: () -> Unit,
+    focusCategoryId: String? = null,
+    onFocusConsumed: () -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     val snap = state.snapshot
@@ -122,10 +125,20 @@ fun DashboardScreen(
     }
 
     var tab by rememberSaveable { mutableStateOf(DashboardTab.SUMMARY) }
+    var expandedCategoryId by rememberSaveable { mutableStateOf<String?>(null) }
     val tabDuration = if (LocalReducedMotion.current) 0 else Motion.Duration.Base
     val summaryListState = rememberLazyListState()
     val trendsListState = rememberLazyListState()
     val categoriesListState = rememberLazyListState()
+
+    // A notification tap focuses a category: jump to the Categories tab and expand it.
+    LaunchedEffect(focusCategoryId) {
+        if (focusCategoryId != null) {
+            tab = DashboardTab.CATEGORIES
+            expandedCategoryId = focusCategoryId
+            onFocusConsumed()
+        }
+    }
 
     Column(modifier.fillMaxSize()) {
         Column(
@@ -166,6 +179,10 @@ fun DashboardScreen(
                     snap = snap,
                     period = state.period,
                     listState = categoriesListState,
+                    expandedId = expandedCategoryId,
+                    onToggleExpand = { id ->
+                        expandedCategoryId = if (expandedCategoryId == id) null else id
+                    },
                     modifier = Modifier.fillMaxSize(),
                 )
             }
@@ -678,9 +695,10 @@ private fun CategoriesTab(
     snap: DashboardSnapshot,
     period: SummaryPeriod,
     listState: LazyListState,
+    expandedId: String?,
+    onToggleExpand: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    var expandedId by rememberSaveable { mutableStateOf<String?>(null) }
     val rows = snap.categoryOptions
         .map { option ->
             val series = snap.trendByCategory[option.id].orEmpty()
@@ -717,9 +735,7 @@ private fun CategoriesTab(
                 row = row,
                 period = period,
                 expanded = expandedId == row.option.id.value,
-                onToggle = {
-                    expandedId = if (expandedId == row.option.id.value) null else row.option.id.value
-                },
+                onToggle = { onToggleExpand(row.option.id.value) },
             )
         }
         if (snap.uncategorizedCount > 0) {
@@ -730,9 +746,7 @@ private fun CategoriesTab(
                     series = snap.uncategorizedSeries,
                     period = period,
                     expanded = expandedId == UNCATEGORIZED_KEY,
-                    onToggle = {
-                        expandedId = if (expandedId == UNCATEGORIZED_KEY) null else UNCATEGORIZED_KEY
-                    },
+                    onToggle = { onToggleExpand(UNCATEGORIZED_KEY) },
                 )
             }
         }

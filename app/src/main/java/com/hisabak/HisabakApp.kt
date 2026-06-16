@@ -3,6 +3,8 @@ package com.hisabak
 import android.app.Application
 import com.hisabak.core.data.local.DatabaseSeeder
 import com.hisabak.di.appModules
+import com.hisabak.feature.notification.domain.CategoryLimitMonitor
+import com.hisabak.feature.notification.platform.SystemNotifier
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -16,6 +18,8 @@ import org.koin.core.logger.Level
 class HisabakApp : Application() {
 
     private val seeder: DatabaseSeeder by inject()
+    private val systemNotifier: SystemNotifier by inject()
+    private val limitMonitor: CategoryLimitMonitor by inject()
     private val appScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     override fun onCreate() {
@@ -25,6 +29,8 @@ class HisabakApp : Application() {
             androidContext(this@HisabakApp)
             modules(appModules)
         }
+        systemNotifier.ensureChannel()
         appScope.launch { seeder.seedIfEmpty() }
+        limitMonitor.start(appScope)
     }
 }

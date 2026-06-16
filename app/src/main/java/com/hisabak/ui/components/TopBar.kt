@@ -81,6 +81,7 @@ fun DetailTopBar(
 fun HisabakTopBar(
     onNotificationsClick: () -> Unit = {},
     title: String = "WealthFlow",
+    unreadCount: Int = 0,
 ) {
     Column(
         modifier = Modifier
@@ -128,11 +129,21 @@ fun HisabakTopBar(
                 interactionSource = bellInteraction,
                 modifier = Modifier.iconPressScale(bellPressed),
             ) {
-                Icon(
-                    Icons.Filled.Notifications,
-                    contentDescription = "Notifications",
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
+                androidx.compose.material3.BadgedBox(
+                    badge = {
+                        if (unreadCount > 0) {
+                            androidx.compose.material3.Badge {
+                                Text(if (unreadCount > 9) "9+" else unreadCount.toString())
+                            }
+                        }
+                    },
+                ) {
+                    Icon(
+                        Icons.Filled.Notifications,
+                        contentDescription = "Notifications",
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
             }
         }
     }
