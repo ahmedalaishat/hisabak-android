@@ -69,6 +69,7 @@ import com.hisabak.ui.theme.HisabakTheme
 import com.hisabak.ui.theme.HisabakType
 import com.hisabak.ui.theme.Sizing
 import com.hisabak.ui.theme.Spacing
+import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import kotlin.math.abs
 
@@ -155,6 +156,7 @@ fun DashboardScreen(
                 amountColor = c.income,
                 sparklineValues = snap.incomeDaily.map { it.amountMinor / 100.0 },
                 sparklineColor = c.income,
+                sparklineLabels = dateLabels(snap.incomeDaily.map { it.day }, state.period),
                 modifier = Modifier.fillMaxWidth(),
             )
         }
@@ -167,6 +169,7 @@ fun DashboardScreen(
                 amountColor = c.expense,
                 sparklineValues = snap.expenseDaily.map { it.amountMinor / 100.0 },
                 sparklineColor = c.expense,
+                sparklineLabels = dateLabels(snap.expenseDaily.map { it.day }, state.period),
                 modifier = Modifier.fillMaxWidth(),
             )
         }
@@ -341,15 +344,18 @@ private fun OverTimeCard(
 
 /** Per-point x-axis labels: day-of-month for month windows, month (with year when
  *  the window spans years) otherwise. */
-private fun chartLabels(series: List<MonthPoint>, period: SummaryPeriod): List<String> {
+private fun chartLabels(series: List<MonthPoint>, period: SummaryPeriod): List<String> =
+    dateLabels(series.map { it.monthStart }, period)
+
+private fun dateLabels(dates: List<LocalDate>, period: SummaryPeriod): List<String> {
     val daily = period == SummaryPeriod.CURRENT_MONTH || period == SummaryPeriod.LAST_MONTH
-    val multiYear = series.mapTo(HashSet()) { it.monthStart.year }.size > 1
+    val multiYear = dates.mapTo(HashSet()) { it.year }.size > 1
     val formatter = when {
         daily -> DateTimeFormatter.ofPattern("d MMM")
         multiYear -> DateTimeFormatter.ofPattern("MMM ''yy")
         else -> DateTimeFormatter.ofPattern("MMM")
     }
-    return series.map { it.monthStart.format(formatter) }
+    return dates.map { it.format(formatter) }
 }
 
 // ── Stat pills ────────────────────────────────────────────────────────────────
@@ -398,6 +404,7 @@ private fun KpiCard(
     amountColor: Color,
     sparklineValues: List<Double>,
     sparklineColor: Color,
+    sparklineLabels: List<String> = emptyList(),
     modifier: Modifier = Modifier,
 ) {
     DashCard(modifier = modifier) {
@@ -426,7 +433,8 @@ private fun KpiCard(
                 values = sparklineValues,
                 barColor = sparklineColor,
                 modifier = Modifier.fillMaxWidth().padding(top = Spacing.s3),
-                heightDp = 48.dp,
+                heightDp = 64.dp,
+                xLabels = sparklineLabels,
             )
         }
     }
