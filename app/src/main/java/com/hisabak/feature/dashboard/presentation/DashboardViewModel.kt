@@ -24,10 +24,7 @@ class DashboardViewModel(
                     copy(
                         snapshot = snapshot,
                         isLoading = false,
-                        overallTrendCategoryId = overallTrendCategoryId
-                            ?: snapshot.categoryOptions.firstOrNull { it.type == CategoryType.INCOME }?.id
-                            ?: snapshot.categoryOptions.firstOrNull()?.id,
-                        dailyTrendCategoryId = dailyTrendCategoryId
+                        trendCategoryId = trendCategoryId
                             ?: snapshot.categoryOptions.firstOrNull { it.type == CategoryType.EXPENSES }?.id
                             ?: snapshot.categoryOptions.firstOrNull()?.id,
                     )
@@ -42,10 +39,8 @@ class DashboardViewModel(
                 period.value = intent.period
                 setState { copy(period = intent.period) }
             }
-            is DashboardIntent.OverallTrendCategoryChanged ->
-                setState { copy(overallTrendCategoryId = intent.id) }
-            is DashboardIntent.DailyTrendCategoryChanged ->
-                setState { copy(dailyTrendCategoryId = intent.id) }
+            is DashboardIntent.TrendCategoryChanged ->
+                setState { copy(trendCategoryId = intent.id) }
         }
     }
 }

@@ -15,8 +15,7 @@ fun DashboardRoute(
     DashboardScreen(
         state = state,
         onPeriodChange = { viewModel.onIntent(DashboardIntent.PeriodChanged(it)) },
-        onOverallCategoryChanged = { viewModel.onIntent(DashboardIntent.OverallTrendCategoryChanged(it)) },
-        onDailyCategoryChanged = { viewModel.onIntent(DashboardIntent.DailyTrendCategoryChanged(it)) },
+        onTrendCategoryChanged = { viewModel.onIntent(DashboardIntent.TrendCategoryChanged(it)) },
         modifier = modifier,
     )
 }
