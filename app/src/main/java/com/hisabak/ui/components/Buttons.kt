@@ -1,8 +1,8 @@
 package com.hisabak.ui.components
 
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -16,6 +16,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -62,7 +63,11 @@ fun HisabakButton(
     }
 
     val widthModifier = if (fullWidth) modifier.fillMaxWidth() else modifier
-    val alphaModifier = widthModifier.alpha(if (enabled) 1f else 0.45f)
+    val enabledAlpha by animateFloatAsState(
+        targetValue = if (enabled) 1f else 0.45f,
+        label = "buttonAlpha",
+    )
+    val alphaModifier = widthModifier.alpha(enabledAlpha)
 
     Row(
         modifier = alphaModifier
@@ -75,7 +80,7 @@ fun HisabakButton(
                 else
                     Modifier
             )
-            .clickable(enabled = enabled, onClick = onClick)
+            .hisabakClickable(enabled = enabled, onClick = onClick)
             .padding(horizontal = Spacing.s6),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(Spacing.s3, Alignment.CenterHorizontally),
@@ -116,7 +121,7 @@ fun PrimaryPillButton(
         modifier = modifier
             .clip(MaterialTheme.shapes.medium)
             .background(containerColor)
-            .clickable(onClick = onClick)
+            .hisabakClickable(onClick = onClick)
             .padding(PaddingValues(horizontal = horizontal, vertical = vertical)),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(6.dp),

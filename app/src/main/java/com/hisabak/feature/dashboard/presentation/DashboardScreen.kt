@@ -29,7 +29,16 @@ import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.Savings
 import androidx.compose.material.icons.filled.TrendingUp
-import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.SizeTransform
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.togetherWith
+import androidx.compose.animation.core.tween
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -67,13 +76,18 @@ import com.hisabak.feature.dashboard.presentation.components.DonutSlice
 import com.hisabak.feature.dashboard.presentation.components.GroupedBarChart
 import com.hisabak.ui.components.MoneyText
 import com.hisabak.ui.components.PeriodChipRow
+import com.hisabak.ui.components.animatedAmountMinor
 import com.hisabak.ui.components.SectionHeader
+import com.hisabak.ui.components.SkeletonCard
 import com.hisabak.ui.components.SurfaceCard
 import com.hisabak.ui.theme.HisabakTheme
 import com.hisabak.ui.theme.HisabakType
+import com.hisabak.ui.theme.LocalReducedMotion
+import com.hisabak.ui.theme.Motion
 import com.hisabak.ui.theme.PillShape
 import com.hisabak.ui.theme.Sizing
 import com.hisabak.ui.theme.Spacing
+import com.hisabak.ui.theme.standardTween
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import kotlin.math.abs
@@ -89,13 +103,26 @@ fun DashboardScreen(
 ) {
     val snap = state.snapshot
     if (snap == null) {
-        Box(modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            CircularProgressIndicator()
+        Column(
+            modifier = modifier
+                .fillMaxSize()
+                .padding(horizontal = Spacing.pageMargin, vertical = Spacing.s5),
+            verticalArrangement = Arrangement.spacedBy(Spacing.cardGap),
+        ) {
+            SkeletonCard(height = 168.dp) // net worth hero
+            Row(horizontalArrangement = Arrangement.spacedBy(Spacing.cardGap)) {
+                SkeletonCard(Modifier.weight(1f), height = 72.dp)
+                SkeletonCard(Modifier.weight(1f), height = 72.dp)
+                SkeletonCard(Modifier.weight(1f), height = 72.dp)
+            }
+            SkeletonCard(height = 120.dp)
+            SkeletonCard(height = 120.dp)
         }
         return
     }
 
     var tab by rememberSaveable { mutableStateOf(DashboardTab.SUMMARY) }
+    val tabDuration = if (LocalReducedMotion.current) 0 else Motion.Duration.Base
     val summaryListState = rememberLazyListState()
     val trendsListState = rememberLazyListState()
     val categoriesListState = rememberLazyListState()
@@ -111,25 +138,37 @@ fun DashboardScreen(
             PeriodChipRow(selected = state.period, onSelect = onPeriodChange)
             DashboardTabs(selected = tab, onSelect = { tab = it })
         }
-        when (tab) {
-            DashboardTab.SUMMARY -> SummaryTab(
-                snap = snap,
-                period = state.period,
-                listState = summaryListState,
-                onShowUncategorized = onShowUncategorized,
-                modifier = Modifier.weight(1f),
-            )
-            DashboardTab.TRENDS -> TrendsTab(
-                snap = snap,
-                listState = trendsListState,
-                modifier = Modifier.weight(1f),
-            )
-            DashboardTab.CATEGORIES -> CategoriesTab(
-                snap = snap,
-                period = state.period,
-                listState = categoriesListState,
-                modifier = Modifier.weight(1f),
-            )
+        AnimatedContent(
+            targetState = tab,
+            transitionSpec = {
+                (fadeIn(tween(tabDuration, easing = Motion.Easing.Standard)) +
+                    slideInHorizontally(tween(tabDuration, easing = Motion.Easing.Standard)) { it / 12 })
+                    .togetherWith(fadeOut(tween(tabDuration, easing = Motion.Easing.Standard)))
+                    .using(SizeTransform(clip = false))
+            },
+            modifier = Modifier.weight(1f),
+            label = "dashboardTab",
+        ) { current ->
+            when (current) {
+                DashboardTab.SUMMARY -> SummaryTab(
+                    snap = snap,
+                    period = state.period,
+                    listState = summaryListState,
+                    onShowUncategorized = onShowUncategorized,
+                    modifier = Modifier.fillMaxSize(),
+                )
+                DashboardTab.TRENDS -> TrendsTab(
+                    snap = snap,
+                    listState = trendsListState,
+                    modifier = Modifier.fillMaxSize(),
+                )
+                DashboardTab.CATEGORIES -> CategoriesTab(
+                    snap = snap,
+                    period = state.period,
+                    listState = categoriesListState,
+                    modifier = Modifier.fillMaxSize(),
+                )
+            }
         }
     }
 }
@@ -195,6 +234,7 @@ private fun SummaryTab(
                 period = period,
                 lineColor = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.fillMaxWidth(),
+                animateValue = true,
             )
         }
 
@@ -369,6 +409,7 @@ private fun OverTimeCard(
     period: SummaryPeriod,
     lineColor: Color,
     modifier: Modifier = Modifier,
+    animateValue: Boolean = false,
 ) {
     DashCard(modifier = modifier) {
         Text(
@@ -379,7 +420,7 @@ private fun OverTimeCard(
         Spacer(Modifier.height(Spacing.s2))
         Row(verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
             MoneyText(
-                amountMinor = money.amountMinor,
+                amountMinor = if (animateValue) animatedAmountMinor(money.amountMinor) else money.amountMinor,
                 style = HisabakType.amountHero,
                 color = MaterialTheme.colorScheme.onSurface,
             )
@@ -750,30 +791,36 @@ private fun CategoryLimitCard(
         if (limit != null) {
             LimitProgressRow(spent = row.spent, limit = limit)
         }
-        if (expanded) {
-            Spacer(Modifier.height(Spacing.s3))
-            if (trendPct != null) {
-                TrendBadge(pct = trendPct, positiveIsGood = risingIsGood)
-            }
-            if (row.series.isNotEmpty() && row.spent != 0L) {
-                val chart = buildCategoryChart(row.series, row.limitSeries, period)
-                AreaLineChart(
-                    values = chart.values,
-                    lineColor = color,
-                    fillColor = color.copy(alpha = 0.12f),
-                    modifier = Modifier.fillMaxWidth().padding(top = Spacing.s2, bottom = Spacing.s2),
-                    heightDp = 96.dp,
-                    xLabels = dateLabels(row.series.map { it.day }, period),
-                    overlayValues = chart.overlay,
-                    overlayColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-            } else {
-                Text(
-                    "No activity in this period",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(vertical = Spacing.s4),
-                )
+        AnimatedVisibility(
+            visible = expanded,
+            enter = expandVertically(standardTween()) + fadeIn(standardTween()),
+            exit = shrinkVertically(standardTween()) + fadeOut(standardTween()),
+        ) {
+            Column {
+                Spacer(Modifier.height(Spacing.s3))
+                if (trendPct != null) {
+                    TrendBadge(pct = trendPct, positiveIsGood = risingIsGood)
+                }
+                if (row.series.isNotEmpty() && row.spent != 0L) {
+                    val chart = buildCategoryChart(row.series, row.limitSeries, period)
+                    AreaLineChart(
+                        values = chart.values,
+                        lineColor = color,
+                        fillColor = color.copy(alpha = 0.12f),
+                        modifier = Modifier.fillMaxWidth().padding(top = Spacing.s2, bottom = Spacing.s2),
+                        heightDp = 96.dp,
+                        xLabels = dateLabels(row.series.map { it.day }, period),
+                        overlayValues = chart.overlay,
+                        overlayColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                } else {
+                    Text(
+                        "No activity in this period",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(vertical = Spacing.s4),
+                    )
+                }
             }
         }
     }
@@ -892,7 +939,11 @@ private fun UncategorizedCard(
                 modifier = Modifier.size(Sizing.iconSm),
             )
         }
-        if (expanded && series.isNotEmpty() && total.amountMinor != 0L) {
+        AnimatedVisibility(
+            visible = expanded && series.isNotEmpty() && total.amountMinor != 0L,
+            enter = expandVertically(standardTween()) + fadeIn(standardTween()),
+            exit = shrinkVertically(standardTween()) + fadeOut(standardTween()),
+        ) {
             val chart = buildCategoryChart(series, emptyList(), period)
             AreaLineChart(
                 values = chart.values,

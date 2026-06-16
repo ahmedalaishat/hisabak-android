@@ -79,12 +79,6 @@ fun CategoryEditScreen(
             .imePadding(),
         verticalArrangement = Arrangement.spacedBy(Spacing.s5),
     ) {
-            Text(
-                text = if (state.isNew) "New category" else "Edit category",
-                style = MaterialTheme.typography.titleLarge,
-                color = MaterialTheme.colorScheme.onSurface,
-            )
-
             // Name field
             OutlinedTextField(
                 value = state.nameInput,

@@ -52,6 +52,7 @@ import com.hisabak.nav.TransactionsKey
 import com.hisabak.nav.rememberNavigationState
 import com.hisabak.nav.toEntries
 import com.hisabak.ui.components.BottomNavTab
+import com.hisabak.ui.components.DetailTopBar
 import com.hisabak.ui.components.HisabakBottomNav
 import com.hisabak.ui.components.HisabakTopBar
 import com.hisabak.ui.components.clearFocusOnTap
@@ -100,27 +101,40 @@ private fun HisabakNav() {
     }
 
     val currentTab = RootTab.entries.first { it.key == navigationState.topLevelRoute }
-    // Edit screens are all overlay bottom sheets, so the tab chrome stays visible
-    // behind them.
+    // The transaction add/edit screen is an overlay bottom sheet (tab chrome stays behind it).
+    // Brand/Category edits are full-screen pages with a back arrow and no bottom nav.
     val leaf = navigationState.backStacks[navigationState.topLevelRoute]?.lastOrNull()
+    val fullScreenEdit = leaf is BrandEditKey || leaf is CategoryEditKey
 
     Scaffold(
         topBar = {
-            HisabakTopBar(
-                title = when (currentTab) {
-                    RootTab.Dashboard -> "Hisabak"
-                    RootTab.Transactions -> "Transactions"
-                    RootTab.Sms -> "SMS Inbox"
-                    RootTab.Manage -> "Manage"
-                },
-            )
+            when (leaf) {
+                is CategoryEditKey -> DetailTopBar(
+                    title = if (leaf.id == null) "New category" else "Edit category",
+                    onBack = { navigator.goBack() },
+                )
+                is BrandEditKey -> DetailTopBar(
+                    title = if (leaf.id == null) "New brand" else "Edit brand",
+                    onBack = { navigator.goBack() },
+                )
+                else -> HisabakTopBar(
+                    title = when (currentTab) {
+                        RootTab.Dashboard -> "Hisabak"
+                        RootTab.Transactions -> "Transactions"
+                        RootTab.Sms -> "SMS Inbox"
+                        RootTab.Manage -> "Manage"
+                    },
+                )
+            }
         },
         bottomBar = {
-            HisabakBottomNav(
-                tabs = tabs,
-                selectedKey = currentTab.name,
-                onSelect = { key -> navigator.navigate(RootTab.valueOf(key).key) },
-            )
+            if (!fullScreenEdit) {
+                HisabakBottomNav(
+                    tabs = tabs,
+                    selectedKey = currentTab.name,
+                    onSelect = { key -> navigator.navigate(RootTab.valueOf(key).key) },
+                )
+            }
         },
         floatingActionButton = {
             if (leaf == TransactionsKey) {
@@ -170,14 +184,14 @@ private fun HisabakNav() {
                     onCancel = { navigator.goBack() },
                 )
             }
-            entry<BrandEditKey>(metadata = BottomSheetSceneStrategy.bottomSheet()) { key ->
+            entry<BrandEditKey> { key ->
                 BrandEditRoute(
                     brandId = key.id?.let(::BrandId),
                     onDone = { navigator.goBack() },
                     onCancel = { navigator.goBack() },
                 )
             }
-            entry<CategoryEditKey>(metadata = BottomSheetSceneStrategy.bottomSheet()) { key ->
+            entry<CategoryEditKey> { key ->
                 CategoryEditRoute(
                     categoryId = key.id?.let(::CategoryId),
                     onDone = { navigator.goBack() },
@@ -186,6 +200,10 @@ private fun HisabakNav() {
             }
         }
 
+        // No custom NavDisplay transitions: the edit screens are bottom-sheet overlays, and a
+        // NavDisplay scene transition fights the sheet's own open/close animation (it made the
+        // sheet snap back to full and oscillate on dismiss). Sheets animate themselves; tab
+        // switches use NavDisplay's defaults.
         NavDisplay(
             entries = navigationState.toEntries(entryProvider),
             onBack = { navigator.goBack() },
