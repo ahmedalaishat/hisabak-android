@@ -9,12 +9,14 @@ import com.hisabak.feature.transaction.domain.usecase.GetTransactionsPageUseCase
 import com.hisabak.feature.transaction.domain.usecase.ObserveTransactionsUseCase
 import com.hisabak.feature.transaction.domain.usecase.UpdateTransactionUseCase
 import com.hisabak.feature.transaction.presentation.edit.TransactionEditViewModel
+import com.hisabak.feature.transaction.presentation.list.TransactionListFilterBus
 import com.hisabak.feature.transaction.presentation.list.TransactionListViewModel
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
 
 val transactionModule = module {
     single<TransactionRepository> { RoomTransactionRepository(dao = get()) }
+    single { TransactionListFilterBus() }
 
     factory { ObserveTransactionsUseCase(get()) }
     factory { GetTransactionsPageUseCase(get()) }
@@ -28,6 +30,8 @@ val transactionModule = module {
             observeBrands = get(),
             observeCategories = get(),
             deleteTransaction = get(),
+            clock = get(),
+            filterBus = get(),
         )
     }
 

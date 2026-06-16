@@ -1,9 +1,12 @@
 package com.hisabak.feature.transaction.presentation.list
 
 import com.hisabak.core.common.Money
+import com.hisabak.core.common.SummaryPeriod
 import com.hisabak.core.presentation.ViewEffect
 import com.hisabak.core.presentation.ViewIntent
 import com.hisabak.core.presentation.ViewState
+import com.hisabak.feature.brand.domain.BrandId
+import com.hisabak.feature.category.domain.CategoryId
 import com.hisabak.feature.category.domain.CategoryType
 import com.hisabak.feature.transaction.domain.TransactionId
 import java.time.Instant
@@ -20,15 +23,48 @@ data class TransactionRow(
     val occurredAt: Instant,
 )
 
+data class BrandFilterOption(val id: BrandId, val name: String)
+
+data class CategoryFilterOption(val id: CategoryId, val name: String, val color: String)
+
+/** Sentinel category id meaning "transactions whose brand has no category". */
+val UncategorizedCategoryId = CategoryId("__uncategorized__")
+
+/** Quick rolling date windows for the transaction list (separate from the summary period). */
+enum class DateRangeFilter(val label: String, val days: Long?) {
+    ALL("All dates", null),
+    LAST_7("Last 7 days", 7),
+    LAST_30("Last 30 days", 30),
+    LAST_90("Last 90 days", 90),
+}
+
 data class TransactionListUiState(
     val rows: List<TransactionRow> = emptyList(),
     val search: String = "",
+    val period: SummaryPeriod = SummaryPeriod.CURRENT_MONTH,
+    val summaryIncome: Long = 0L,
+    val summaryExpenses: Long = 0L,
+    val brandFilter: BrandId? = null,
+    val categoryFilter: CategoryId? = null,
+    val dateRange: DateRangeFilter = DateRangeFilter.ALL,
+    val brandOptions: List<BrandFilterOption> = emptyList(),
+    val categoryOptions: List<CategoryFilterOption> = emptyList(),
     val isLoading: Boolean = true,
     val error: String? = null,
-) : ViewState
+) : ViewState {
+    val hasActiveFilters: Boolean
+        get() = brandFilter != null || categoryFilter != null || dateRange != DateRangeFilter.ALL
+    val selectedBrandName: String? get() = brandOptions.firstOrNull { it.id == brandFilter }?.name
+    val selectedCategoryName: String? get() = categoryOptions.firstOrNull { it.id == categoryFilter }?.name
+}
 
 sealed interface TransactionListIntent : ViewIntent {
     data class SearchChanged(val query: String) : TransactionListIntent
+    data class PeriodChanged(val period: SummaryPeriod) : TransactionListIntent
+    data class BrandFilterChanged(val id: BrandId?) : TransactionListIntent
+    data class CategoryFilterChanged(val id: CategoryId?) : TransactionListIntent
+    data class DateRangeChanged(val range: DateRangeFilter) : TransactionListIntent
+    data object ClearFilters : TransactionListIntent
     data class Delete(val id: TransactionId) : TransactionListIntent
     data object ConsumeEffect : TransactionListIntent
 }
