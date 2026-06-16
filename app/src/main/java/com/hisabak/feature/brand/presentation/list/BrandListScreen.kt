@@ -22,7 +22,7 @@ import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.Storefront
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.CircularProgressIndicator
+import com.hisabak.ui.components.SkeletonRowList
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
@@ -68,8 +68,12 @@ fun BrandListScreen(
     showHeader: Boolean = true,
 ) {
     if (state.isLoading) {
-        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            CircularProgressIndicator()
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = Spacing.pageMargin, vertical = Spacing.s5),
+        ) {
+            SkeletonRowList(count = 7)
         }
         return
     }
@@ -144,6 +148,7 @@ fun BrandListScreen(
                     row = row,
                     onEdit = { onEdit(row.id) },
                     onDelete = { pendingDelete = row },
+                    modifier = Modifier.animateItem(),
                 )
             }
         }
@@ -346,9 +351,11 @@ private fun BrandRowItem(
     row: BrandRow,
     onEdit: () -> Unit,
     onDelete: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     val (bg, fg) = tintPairForColor(row.categoryColor)
     ListRow(
+        modifier = modifier,
         title = row.name,
         subtitle = row.categoryName,
         leading = {

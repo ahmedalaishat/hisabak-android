@@ -21,7 +21,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.DeleteOutline
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.CircularProgressIndicator
+import com.hisabak.ui.components.SkeletonCard
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -67,8 +67,18 @@ fun CategoryListScreen(
     showHeader: Boolean = true,
 ) {
     if (state.isLoading) {
-        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            CircularProgressIndicator()
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = Spacing.pageMargin, vertical = Spacing.s5),
+            verticalArrangement = Arrangement.spacedBy(Spacing.cardGap),
+        ) {
+            repeat(3) {
+                Row(horizontalArrangement = Arrangement.spacedBy(Spacing.cardGap)) {
+                    SkeletonCard(Modifier.weight(1f), height = 96.dp)
+                    SkeletonCard(Modifier.weight(1f), height = 96.dp)
+                }
+            }
         }
         return
     }
@@ -150,6 +160,7 @@ fun CategoryListScreen(
                     row = row,
                     onEdit = { onEdit(row.id) },
                     onDelete = { pendingDelete = row },
+                    modifier = Modifier.animateItem(),
                 )
             }
             item {
@@ -244,10 +255,11 @@ private fun CategoryTile(
     row: CategoryRow,
     onEdit: () -> Unit,
     onDelete: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     val (bg, fg) = tintPairForColor(row.color)
     SurfaceCard(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = modifier.fillMaxWidth(),
         onClick = onEdit,
     ) {
         Row(
