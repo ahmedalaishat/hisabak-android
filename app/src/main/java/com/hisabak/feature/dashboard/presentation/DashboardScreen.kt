@@ -178,8 +178,8 @@ fun DashboardScreen(
         item {
             OverTimeCard(
                 label = "Income over time",
-                money = snap.income,
-                trendPct = snap.incomeTrendPct,
+                money = snap.incomeTotal,
+                trendPct = snap.incomeSeriesTrendPct,
                 trendPositiveIsGood = true,
                 series = snap.incomeSeries,
                 period = state.period,
@@ -192,8 +192,8 @@ fun DashboardScreen(
         item {
             OverTimeCard(
                 label = "Expense over time",
-                money = snap.expense,
-                trendPct = snap.expenseTrendPct,
+                money = snap.expenseTotal,
+                trendPct = snap.expenseSeriesTrendPct,
                 trendPositiveIsGood = false,
                 series = snap.expenseSeries,
                 period = state.period,
