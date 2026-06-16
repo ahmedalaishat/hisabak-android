@@ -8,6 +8,7 @@ import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun DashboardRoute(
+    onShowUncategorized: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: DashboardViewModel = koinViewModel(),
 ) {
@@ -15,6 +16,7 @@ fun DashboardRoute(
     DashboardScreen(
         state = state,
         onPeriodChange = { viewModel.onIntent(DashboardIntent.PeriodChanged(it)) },
+        onShowUncategorized = onShowUncategorized,
         modifier = modifier,
     )
 }

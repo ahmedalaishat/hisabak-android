@@ -37,6 +37,8 @@ import com.hisabak.feature.dashboard.presentation.DashboardRoute
 import com.hisabak.feature.sms.presentation.inbox.SmsInboxRoute
 import com.hisabak.feature.transaction.domain.TransactionId
 import com.hisabak.feature.transaction.presentation.edit.TransactionEditRoute
+import com.hisabak.feature.transaction.presentation.list.TransactionListFilterBus
+import com.hisabak.feature.transaction.presentation.list.TransactionListFilterRequest
 import com.hisabak.feature.transaction.presentation.list.TransactionListRoute
 import com.hisabak.nav.BottomSheetSceneStrategy
 import com.hisabak.nav.BrandEditKey
@@ -54,6 +56,7 @@ import com.hisabak.ui.components.HisabakBottomNav
 import com.hisabak.ui.components.HisabakTopBar
 import com.hisabak.ui.components.clearFocusOnTap
 import com.hisabak.ui.theme.HisabakTheme
+import org.koin.compose.koinInject
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -88,6 +91,7 @@ private fun HisabakNav() {
     )
     val navigator = remember { Navigator(navigationState) }
     val bottomSheetStrategy = remember { BottomSheetSceneStrategy<NavKey>() }
+    val filterBus = koinInject<TransactionListFilterBus>()
 
     val tabs = remember {
         RootTab.entries.map {
@@ -133,7 +137,13 @@ private fun HisabakNav() {
     ) { padding ->
         val entryProvider = entryProvider<NavKey> {
             entry<DashboardKey> {
-                DashboardRoute(modifier = Modifier.fillMaxSize())
+                DashboardRoute(
+                    onShowUncategorized = {
+                        filterBus.request(TransactionListFilterRequest.Uncategorized)
+                        navigator.navigate(TransactionsKey)
+                    },
+                    modifier = Modifier.fillMaxSize(),
+                )
             }
             entry<TransactionsKey> {
                 TransactionListRoute(

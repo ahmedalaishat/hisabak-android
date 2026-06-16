@@ -17,6 +17,11 @@ fun TransactionListRoute(
     TransactionListScreen(
         state = state,
         onSearchChange = { viewModel.onIntent(TransactionListIntent.SearchChanged(it)) },
+        onPeriodChange = { viewModel.onIntent(TransactionListIntent.PeriodChanged(it)) },
+        onBrandFilterChange = { viewModel.onIntent(TransactionListIntent.BrandFilterChanged(it)) },
+        onCategoryFilterChange = { viewModel.onIntent(TransactionListIntent.CategoryFilterChanged(it)) },
+        onDateRangeChange = { viewModel.onIntent(TransactionListIntent.DateRangeChanged(it)) },
+        onClearFilters = { viewModel.onIntent(TransactionListIntent.ClearFilters) },
         onDelete = { viewModel.onIntent(TransactionListIntent.Delete(it)) },
         onAdd = onAdd,
         onEdit = onEdit,

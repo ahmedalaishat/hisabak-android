@@ -1,5 +1,8 @@
 package com.hisabak.feature.transaction.presentation.list
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -14,23 +17,35 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.ReceiptLong
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.hisabak.core.common.Money
 import com.hisabak.core.common.SummaryPeriod
+import com.hisabak.feature.brand.domain.BrandId
+import com.hisabak.feature.category.domain.CategoryId
 import com.hisabak.feature.category.domain.CategoryType
+import com.hisabak.feature.category.presentation.CategoryStyle
 import com.hisabak.feature.transaction.domain.TransactionId
 import com.hisabak.ui.components.AmountText
 import com.hisabak.ui.components.AmountTone
@@ -43,10 +58,11 @@ import com.hisabak.ui.components.ListRow
 import com.hisabak.ui.components.SearchField
 import com.hisabak.ui.components.iconForKey
 import com.hisabak.ui.components.tintPairForColor
+import com.hisabak.ui.theme.PillShape
+import com.hisabak.ui.theme.Sizing
 import com.hisabak.ui.theme.Spacing
 import java.time.Duration
 import java.time.Instant
-import java.time.LocalDate
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import kotlin.math.abs
@@ -55,6 +71,11 @@ import kotlin.math.abs
 fun TransactionListScreen(
     state: TransactionListUiState,
     onSearchChange: (String) -> Unit,
+    onPeriodChange: (SummaryPeriod) -> Unit,
+    onBrandFilterChange: (BrandId?) -> Unit,
+    onCategoryFilterChange: (CategoryId?) -> Unit,
+    onDateRangeChange: (DateRangeFilter) -> Unit,
+    onClearFilters: () -> Unit,
     onDelete: (TransactionId) -> Unit,
     onAdd: () -> Unit,
     onEdit: (TransactionId) -> Unit,
@@ -66,12 +87,8 @@ fun TransactionListScreen(
         return
     }
 
-    // The period filter scopes the income / expenses summary cards. Net worth lives
-    // on the Dashboard; this screen is about activity, not a wealth snapshot.
-    var period by rememberSaveable { mutableStateOf(SummaryPeriod.CURRENT_MONTH) }
-    val periodTotals = remember(state.rows, period) {
-        computeTotals(filterByPeriod(state.rows, period))
-    }
+    // The period scopes the summary cards; brand / category / date-range scope the list.
+    var openFilter by remember { mutableStateOf<FilterTarget?>(null) }
 
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
@@ -90,7 +107,7 @@ fun TransactionListScreen(
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.onSurface,
                 )
-                PeriodChipRow(selected = period, onSelect = { period = it })
+                PeriodChipRow(selected = state.period, onSelect = onPeriodChange)
             }
         }
 
@@ -100,12 +117,12 @@ fun TransactionListScreen(
                 horizontalArrangement = Arrangement.spacedBy(Spacing.cardGap),
             ) {
                 IncomeStatCard(
-                    value = formatAmountMajor(periodTotals.income),
+                    value = formatAmountMajor(state.summaryIncome),
                     currencySymbol = true,
                     modifier = Modifier.weight(1f).fillMaxHeight(),
                 )
                 ExpensesStatCard(
-                    value = formatAmountMajor(periodTotals.expenses),
+                    value = formatAmountMajor(state.summaryExpenses),
                     currencySymbol = true,
                     modifier = Modifier.weight(1f).fillMaxHeight(),
                 )
@@ -121,15 +138,60 @@ fun TransactionListScreen(
             )
         }
 
-        if (state.rows.isEmpty()) {
-            item {
-                EmptyStatePanel(
-                    title = "No transactions yet",
-                    subtitle = "Add your first or import from SMS",
-                    icon = Icons.Filled.ReceiptLong,
-                    actionLabel = "Add transaction",
-                    onAction = onAdd,
+        item {
+            Row(
+                modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
+                horizontalArrangement = Arrangement.spacedBy(Spacing.s2),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                FilterPill(
+                    label = state.selectedCategoryName ?: "Category",
+                    active = state.categoryFilter != null,
+                    onClick = { openFilter = FilterTarget.CATEGORY },
                 )
+                FilterPill(
+                    label = state.selectedBrandName ?: "Brand",
+                    active = state.brandFilter != null,
+                    onClick = { openFilter = FilterTarget.BRAND },
+                )
+                FilterPill(
+                    label = if (state.dateRange == DateRangeFilter.ALL) "Date" else state.dateRange.label,
+                    active = state.dateRange != DateRangeFilter.ALL,
+                    onClick = { openFilter = FilterTarget.DATE },
+                )
+                if (state.hasActiveFilters) {
+                    Text(
+                        text = "Clear",
+                        style = MaterialTheme.typography.labelLarge,
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier
+                            .clickable(onClick = onClearFilters)
+                            .padding(horizontal = Spacing.s2, vertical = Spacing.s2),
+                    )
+                }
+            }
+        }
+
+        if (state.rows.isEmpty()) {
+            val filtered = state.hasActiveFilters || state.search.isNotBlank()
+            item {
+                if (filtered) {
+                    EmptyStatePanel(
+                        title = "No matching transactions",
+                        subtitle = "Try a different period, brand or category",
+                        icon = Icons.Filled.ReceiptLong,
+                        actionLabel = if (state.hasActiveFilters) "Clear filters" else "Add transaction",
+                        onAction = if (state.hasActiveFilters) onClearFilters else onAdd,
+                    )
+                } else {
+                    EmptyStatePanel(
+                        title = "No transactions yet",
+                        subtitle = "Add your first or import from SMS",
+                        icon = Icons.Filled.ReceiptLong,
+                        actionLabel = "Add transaction",
+                        onAction = onAdd,
+                    )
+                }
             }
         } else {
             items(state.rows, key = { it.id.value }) { row ->
@@ -141,44 +203,137 @@ fun TransactionListScreen(
             }
         }
     }
+
+    when (openFilter) {
+        FilterTarget.CATEGORY -> FilterSelectSheet(
+            title = "Filter by category",
+            entries = state.categoryOptions.map { FilterEntry(it.id.value, it.name, it.color) },
+            selectedId = state.categoryFilter?.value,
+            onSelect = { id -> onCategoryFilterChange(id?.let(::CategoryId)); openFilter = null },
+            onDismiss = { openFilter = null },
+        )
+        FilterTarget.BRAND -> FilterSelectSheet(
+            title = "Filter by brand",
+            entries = state.brandOptions.map { FilterEntry(it.id.value, it.name, null) },
+            selectedId = state.brandFilter?.value,
+            onSelect = { id -> onBrandFilterChange(id?.let(::BrandId)); openFilter = null },
+            onDismiss = { openFilter = null },
+        )
+        FilterTarget.DATE -> FilterSelectSheet(
+            title = "Filter by date",
+            entries = DateRangeFilter.entries
+                .filter { it != DateRangeFilter.ALL }
+                .map { FilterEntry(it.name, it.label, null) },
+            selectedId = state.dateRange.takeIf { it != DateRangeFilter.ALL }?.name,
+            onSelect = { id ->
+                onDateRangeChange(id?.let { DateRangeFilter.valueOf(it) } ?: DateRangeFilter.ALL)
+                openFilter = null
+            },
+            onDismiss = { openFilter = null },
+            allLabel = DateRangeFilter.ALL.label,
+        )
+        null -> Unit
+    }
+}
+
+private enum class FilterTarget { CATEGORY, BRAND, DATE }
+
+private data class FilterEntry(val id: String, val label: String, val color: String?)
+
+@Composable
+private fun FilterPill(label: String, active: Boolean, onClick: () -> Unit) {
+    val bg = if (active) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceContainerHigh
+    val fg = if (active) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface
+    Row(
+        modifier = Modifier
+            .clip(PillShape)
+            .background(bg)
+            .clickable(onClick = onClick)
+            .padding(horizontal = Spacing.s4, vertical = Spacing.s2),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(Spacing.s1),
+    ) {
+        Text(label, style = MaterialTheme.typography.labelLarge, color = fg, maxLines = 1)
+        Icon(
+            Icons.Filled.ExpandMore,
+            contentDescription = null,
+            tint = fg,
+            modifier = Modifier.size(Sizing.iconSm),
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun FilterSelectSheet(
+    title: String,
+    entries: List<FilterEntry>,
+    selectedId: String?,
+    onSelect: (String?) -> Unit,
+    onDismiss: () -> Unit,
+    allLabel: String = "All",
+) {
+    ModalBottomSheet(onDismissRequest = onDismiss) {
+        Column(
+            Modifier
+                .fillMaxWidth()
+                .verticalScroll(rememberScrollState())
+                .padding(bottom = Spacing.s7),
+        ) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.padding(horizontal = Spacing.pageMargin, vertical = Spacing.s4),
+            )
+            FilterSheetRow(label = allLabel, colorKey = null, selected = selectedId == null) { onSelect(null) }
+            entries.forEach { entry ->
+                FilterSheetRow(
+                    label = entry.label,
+                    colorKey = entry.color,
+                    selected = selectedId == entry.id,
+                ) { onSelect(entry.id) }
+            }
+        }
+    }
+}
+
+@Composable
+private fun FilterSheetRow(
+    label: String,
+    colorKey: String?,
+    selected: Boolean,
+    onClick: () -> Unit,
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick)
+            .padding(horizontal = Spacing.pageMargin, vertical = Spacing.s4),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(Spacing.s3),
+    ) {
+        if (colorKey != null) {
+            Box(Modifier.size(10.dp).background(CategoryStyle.color(colorKey), CircleShape))
+        }
+        Text(
+            text = label,
+            style = MaterialTheme.typography.bodyLarge,
+            color = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
+            modifier = Modifier.weight(1f),
+        )
+        if (selected) {
+            Icon(
+                Icons.Filled.Check,
+                contentDescription = "Selected",
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(Sizing.icon),
+            )
+        }
+    }
 }
 
 // ---- internals -----------------------------------------------------------
-
-private data class Totals(
-    val income: Long,
-    val expenses: Long,
-    val currencyCode: String,
-)
-
-private fun computeTotals(rows: List<TransactionRow>): Totals {
-    if (rows.isEmpty()) return Totals(0, 0, "")
-    var income = 0L
-    var expenses = 0L
-    rows.forEach { row ->
-        val amount = row.amount.amountMinor
-        // Only typed income/expense count here; savings, investment and uncategorized
-        // transactions are excluded, matching the dashboard's income/expense figures.
-        when (row.categoryType) {
-            CategoryType.INCOME -> income += abs(amount)
-            CategoryType.EXPENSES -> expenses += abs(amount)
-            else -> Unit
-        }
-    }
-    return Totals(
-        income = income,
-        expenses = expenses,
-        currencyCode = rows.first().amount.currency.code,
-    )
-}
-
-/** Keeps only the rows whose [TransactionRow.occurredAt] falls in [period]'s range. */
-private fun filterByPeriod(rows: List<TransactionRow>, period: SummaryPeriod): List<TransactionRow> {
-    val zone = ZoneId.systemDefault()
-    val (start, end) = period.instantRange(LocalDate.now(zone), zone) ?: return rows
-    return rows.filter { !it.occurredAt.isBefore(start) && it.occurredAt.isBefore(end) }
-}
-
 
 @Composable
 private fun TransactionRowItem(

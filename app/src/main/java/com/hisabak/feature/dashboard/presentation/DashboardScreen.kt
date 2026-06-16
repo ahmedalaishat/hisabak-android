@@ -84,6 +84,7 @@ import kotlin.math.roundToInt
 fun DashboardScreen(
     state: DashboardUiState,
     onPeriodChange: (SummaryPeriod) -> Unit,
+    onShowUncategorized: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val snap = state.snapshot
@@ -115,7 +116,7 @@ fun DashboardScreen(
                 snap = snap,
                 period = state.period,
                 listState = summaryListState,
-                onShowCategories = { tab = DashboardTab.CATEGORIES },
+                onShowUncategorized = onShowUncategorized,
                 modifier = Modifier.weight(1f),
             )
             DashboardTab.TRENDS -> TrendsTab(
@@ -162,7 +163,7 @@ private fun SummaryTab(
     snap: DashboardSnapshot,
     period: SummaryPeriod,
     listState: LazyListState,
-    onShowCategories: () -> Unit,
+    onShowUncategorized: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val c = HisabakTheme.colors
@@ -178,7 +179,7 @@ private fun SummaryTab(
                 UncategorizedBanner(
                     count = snap.uncategorizedCount,
                     total = snap.uncategorizedTotal,
-                    onClick = onShowCategories,
+                    onClick = onShowUncategorized,
                 )
             }
         }
