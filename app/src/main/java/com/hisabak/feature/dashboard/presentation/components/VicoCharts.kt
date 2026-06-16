@@ -113,6 +113,7 @@ fun BarSparkline(
     barColor: Color,
     modifier: Modifier = Modifier,
     heightDp: Dp = 64.dp,
+    xLabels: List<String> = emptyList(),
 ) {
     val producer = remember { CartesianChartModelProducer() }
     LaunchedEffect(values) {
@@ -123,11 +124,30 @@ fun BarSparkline(
     val column = remember(barColor) {
         LineComponent(fill = Fill(barColor.toArgb()), thicknessDp = 4f)
     }
+
+    val labelStep = if (xLabels.size <= 1) 1 else maxOf(1, (xLabels.size - 1) / 4)
+    val bottomAxis = if (xLabels.isNotEmpty()) {
+        HorizontalAxis.rememberBottom(
+            label = rememberAxisLabelComponent(
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                textSize = 10.sp,
+            ),
+            line = null,
+            tick = null,
+            guideline = null,
+            itemPlacer = HorizontalAxis.ItemPlacer.aligned(spacing = { labelStep }),
+            valueFormatter = CartesianValueFormatter { _, value, _ ->
+                xLabels.getOrNull(value.toInt()).orEmpty().ifEmpty { " " }
+            },
+        )
+    } else null
+
     CartesianChartHost(
         chart = rememberCartesianChart(
             rememberColumnCartesianLayer(
                 columnProvider = ColumnCartesianLayer.ColumnProvider.series(column),
             ),
+            bottomAxis = bottomAxis,
         ),
         modelProducer = producer,
         modifier = modifier.height(heightDp),
