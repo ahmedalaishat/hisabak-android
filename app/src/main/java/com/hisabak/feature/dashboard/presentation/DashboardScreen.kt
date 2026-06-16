@@ -69,6 +69,7 @@ import com.hisabak.ui.theme.HisabakTheme
 import com.hisabak.ui.theme.HisabakType
 import com.hisabak.ui.theme.Sizing
 import com.hisabak.ui.theme.Spacing
+import java.time.format.DateTimeFormatter
 import kotlin.math.abs
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -108,6 +109,7 @@ fun DashboardScreen(
                 trendPct = snap.netWorthTrendPct,
                 trendPositiveIsGood = true,
                 series = snap.netWorthSeries,
+                period = state.period,
                 lineColor = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.fillMaxWidth(),
             )
@@ -177,6 +179,7 @@ fun DashboardScreen(
                 trendPct = snap.incomeTrendPct,
                 trendPositiveIsGood = true,
                 series = snap.incomeSeries,
+                period = state.period,
                 lineColor = c.income,
                 modifier = Modifier.fillMaxWidth(),
             )
@@ -190,6 +193,7 @@ fun DashboardScreen(
                 trendPct = snap.expenseTrendPct,
                 trendPositiveIsGood = false,
                 series = snap.expenseSeries,
+                period = state.period,
                 lineColor = c.expense,
                 modifier = Modifier.fillMaxWidth(),
             )
@@ -198,8 +202,8 @@ fun DashboardScreen(
         // ── Income & spending grouped bars ──────────────────────────────────
         item { SectionHeader(title = "Income & spending") }
         item {
-            val (incomeMonthly, expenseMonthly) = monthlyPairs(snap.incomeDaily, snap.expenseDaily)
-            if (incomeMonthly.isNotEmpty()) {
+            val bars = monthlyPairs(snap.incomeDaily, snap.expenseDaily)
+            if (bars.income.isNotEmpty()) {
                 DashCard(modifier = Modifier.fillMaxWidth()) {
                     Row(
                         horizontalArrangement = Arrangement.spacedBy(14.dp),
@@ -209,11 +213,12 @@ fun DashboardScreen(
                         LegendDot(color = c.expense, label = "Expenses")
                     }
                     GroupedBarChart(
-                        incomeValues = incomeMonthly,
-                        expenseValues = expenseMonthly,
+                        incomeValues = bars.income,
+                        expenseValues = bars.expense,
                         incomeColor = c.income,
                         expenseColor = c.expense,
                         modifier = Modifier.fillMaxWidth(),
+                        xLabels = bars.labels,
                     )
                 }
             }
@@ -300,6 +305,7 @@ private fun OverTimeCard(
     trendPct: Double?,
     trendPositiveIsGood: Boolean,
     series: List<MonthPoint>,
+    period: SummaryPeriod,
     lineColor: Color,
     modifier: Modifier = Modifier,
 ) {
@@ -327,9 +333,23 @@ private fun OverTimeCard(
                 fillColor = lineColor.copy(alpha = 0.12f),
                 modifier = Modifier.fillMaxWidth().padding(top = Spacing.cardGap, bottom = Spacing.s2),
                 heightDp = 96.dp,
+                xLabels = chartLabels(series, period),
             )
         }
     }
+}
+
+/** Per-point x-axis labels: day-of-month for month windows, month (with year when
+ *  the window spans years) otherwise. */
+private fun chartLabels(series: List<MonthPoint>, period: SummaryPeriod): List<String> {
+    val daily = period == SummaryPeriod.CURRENT_MONTH || period == SummaryPeriod.LAST_MONTH
+    val multiYear = series.mapTo(HashSet()) { it.monthStart.year }.size > 1
+    val formatter = when {
+        daily -> DateTimeFormatter.ofPattern("d MMM")
+        multiYear -> DateTimeFormatter.ofPattern("MMM ''yy")
+        else -> DateTimeFormatter.ofPattern("MMM")
+    }
+    return series.map { it.monthStart.format(formatter) }
 }
 
 // ── Stat pills ────────────────────────────────────────────────────────────────
@@ -662,11 +682,17 @@ private fun LegendDot(color: Color, label: String) {
 
 // ── Data helpers ──────────────────────────────────────────────────────────────
 
-/** Aggregate daily points into parallel monthly series (last 5 months). */
+private data class MonthlyBars(
+    val income: List<Double>,
+    val expense: List<Double>,
+    val labels: List<String>,
+)
+
+/** Aggregate daily points into parallel monthly income/expense series across the period. */
 private fun monthlyPairs(
     income: List<DayPoint>,
     expense: List<DayPoint>,
-): Pair<List<Double>, List<Double>> {
+): MonthlyBars {
     val incomeByMonth = income
         .groupBy { it.day.withDayOfMonth(1) }
         .mapValues { (_, v) -> v.sumOf { it.amountMinor } / 100.0 }
@@ -676,9 +702,14 @@ private fun monthlyPairs(
     val months = (incomeByMonth.keys + expenseByMonth.keys)
         .toSortedSet()
         .toList()
-        .takeLast(5)
-    if (months.isEmpty()) return emptyList<Double>() to emptyList()
-    return months.map { incomeByMonth[it] ?: 0.0 } to months.map { expenseByMonth[it] ?: 0.0 }
+    if (months.isEmpty()) return MonthlyBars(emptyList(), emptyList(), emptyList())
+    val multiYear = months.mapTo(HashSet()) { it.year }.size > 1
+    val formatter = DateTimeFormatter.ofPattern(if (multiYear) "MMM ''yy" else "MMM")
+    return MonthlyBars(
+        income = months.map { incomeByMonth[it] ?: 0.0 },
+        expense = months.map { expenseByMonth[it] ?: 0.0 },
+        labels = months.map { it.format(formatter) },
+    )
 }
 
 private fun formatCompactUnits(amountMinor: Long): String {

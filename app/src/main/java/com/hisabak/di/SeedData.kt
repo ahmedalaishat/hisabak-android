@@ -11,13 +11,22 @@ import com.hisabak.feature.category.domain.CategoryId
 import com.hisabak.feature.category.domain.CategoryType
 import com.hisabak.feature.transaction.domain.Transaction
 import com.hisabak.feature.transaction.domain.TransactionId
-import java.time.temporal.ChronoUnit
+import java.time.LocalDate
+import java.time.YearMonth
+import java.time.ZoneId
+import kotlin.random.Random
 
 /**
  * Demo seed data — in-memory only. Replace when the DB layer lands.
+ *
+ * Generates a realistic transaction history from January 2024 through today so the
+ * dashboard period filters (this month / last month / this year / last year / all time)
+ * all have data to show.
  */
-class SeedData(clock: Clock, currency: Currency) {
+class SeedData(clock: Clock, private val currency: Currency) {
     private val now = clock.now()
+    private val zone = ZoneId.systemDefault()
+    private val today = LocalDate.ofInstant(now, zone)
     private val sync = SyncMetadata(updatedAt = now)
 
     val categories: List<Category> = listOf(
@@ -32,6 +41,7 @@ class SeedData(clock: Clock, currency: Currency) {
     private val salary = categories[1]
     private val transport = categories[2]
     private val dining = categories[3]
+    private val savings = categories[4]
 
     val brands: List<Brand> = listOf(
         Brand(BrandId.new(), "Whole Foods", groceries.id, sync),
@@ -40,25 +50,72 @@ class SeedData(clock: Clock, currency: Currency) {
         Brand(BrandId.new(), "Uber", transport.id, sync),
         Brand(BrandId.new(), "Starbucks", dining.id, sync),
         Brand(BrandId.new(), "Chipotle", dining.id, sync),
+        Brand(BrandId.new(), "Vault", savings.id, sync),
     )
 
-    val transactions: List<Transaction> = listOf(
-        tx(brands[0].id, 4250, daysAgo = 0, currency = currency, note = "Weekly groceries"),
-        tx(brands[4].id, 675, daysAgo = 1, currency = currency, note = "Morning coffee"),
-        tx(brands[3].id, 1820, daysAgo = 1, currency = currency, note = null),
-        tx(brands[5].id, 1499, daysAgo = 2, currency = currency, note = "Lunch"),
-        tx(brands[2].id, 500000, daysAgo = 3, currency = currency, note = "Monthly salary"),
-        tx(brands[1].id, 3310, daysAgo = 4, currency = currency, note = null),
-        tx(brands[3].id, 2250, daysAgo = 5, currency = currency, note = "Airport ride"),
-    )
+    private val wholeFoods = brands[0]
+    private val traderJoes = brands[1]
+    private val acme = brands[2]
+    private val uber = brands[3]
+    private val starbucks = brands[4]
+    private val chipotle = brands[5]
+    private val vault = brands[6]
 
-    private fun tx(brandId: BrandId, amountMinor: Long, daysAgo: Long, currency: Currency, note: String?): Transaction =
+    val transactions: List<Transaction> = generate()
+
+    private fun generate(): List<Transaction> {
+        val rnd = Random(seed = 42)
+        val out = mutableListOf<Transaction>()
+        var month = YearMonth.of(2024, 1)
+        val endMonth = YearMonth.from(today)
+
+        fun add(brandId: BrandId, amountMinor: Long, date: LocalDate, note: String?) {
+            if (date.isAfter(today)) return
+            out += tx(brandId, amountMinor, date, note)
+        }
+
+        while (!month.isAfter(endMonth)) {
+            val len = month.lengthOfMonth()
+
+            // Salary on the 25th.
+            add(acme.id, 500000L + rnd.nextInt(0, 25_000), month.atDay(minOf(25, len)), "Monthly salary")
+
+            // Monthly transfer to savings on the 26th.
+            add(vault.id, 100000L + rnd.nextInt(0, 50_000), month.atDay(minOf(26, len)), "Monthly savings")
+
+            // Weekly groceries.
+            for (week in 0..3) {
+                val store = if (rnd.nextBoolean()) wholeFoods else traderJoes
+                add(store.id, (3000 + rnd.nextInt(0, 3500)).toLong(), month.atDay(minOf(3 + week * 7, len)), "Weekly groceries")
+            }
+
+            // Coffee a few mornings a week.
+            for (day in listOf(2, 9, 16, 23)) {
+                add(starbucks.id, (450 + rnd.nextInt(0, 400)).toLong(), month.atDay(minOf(day, len)), "Morning coffee")
+            }
+
+            // Lunches out.
+            for (day in listOf(6, 14, 21, 28)) {
+                add(chipotle.id, (1100 + rnd.nextInt(0, 900)).toLong(), month.atDay(minOf(day, len)), "Lunch")
+            }
+
+            // Rides through the month.
+            for (day in listOf(5, 12, 19, 27)) {
+                add(uber.id, (1200 + rnd.nextInt(0, 2500)).toLong(), month.atDay(minOf(day, len)), null)
+            }
+
+            month = month.plusMonths(1)
+        }
+        return out
+    }
+
+    private fun tx(brandId: BrandId, amountMinor: Long, date: LocalDate, note: String?): Transaction =
         Transaction(
             id = TransactionId.new(),
             amount = Money(amountMinor, currency),
             brandId = brandId,
             note = note,
-            occurredAt = now.minus(daysAgo, ChronoUnit.DAYS),
+            occurredAt = date.atTime(12, 0).atZone(zone).toInstant(),
             sync = sync,
         )
 }

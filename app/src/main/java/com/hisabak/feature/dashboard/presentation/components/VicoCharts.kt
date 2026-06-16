@@ -1,6 +1,7 @@
 package com.hisabak.feature.dashboard.presentation.components
 
 import androidx.compose.foundation.layout.height
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
@@ -9,17 +10,27 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.patrykandpatrick.vico.compose.cartesian.CartesianChartHost
+import com.patrykandpatrick.vico.compose.cartesian.axis.rememberAxisLabelComponent
+import com.patrykandpatrick.vico.compose.cartesian.axis.rememberBottom
 import com.patrykandpatrick.vico.compose.cartesian.layer.rememberColumnCartesianLayer
 import com.patrykandpatrick.vico.compose.cartesian.layer.rememberLine
 import com.patrykandpatrick.vico.compose.cartesian.layer.rememberLineCartesianLayer
+import com.patrykandpatrick.vico.compose.cartesian.marker.rememberDefaultCartesianMarker
 import com.patrykandpatrick.vico.compose.cartesian.rememberCartesianChart
+import com.patrykandpatrick.vico.compose.common.component.rememberLineComponent
+import com.patrykandpatrick.vico.compose.common.component.rememberTextComponent
 import com.patrykandpatrick.vico.compose.common.fill
+import com.patrykandpatrick.vico.core.cartesian.axis.HorizontalAxis
 import com.patrykandpatrick.vico.core.cartesian.data.CartesianChartModelProducer
+import com.patrykandpatrick.vico.core.cartesian.data.CartesianValueFormatter
 import com.patrykandpatrick.vico.core.cartesian.data.columnSeries
 import com.patrykandpatrick.vico.core.cartesian.data.lineSeries
 import com.patrykandpatrick.vico.core.cartesian.layer.ColumnCartesianLayer
 import com.patrykandpatrick.vico.core.cartesian.layer.LineCartesianLayer
+import com.patrykandpatrick.vico.core.cartesian.marker.DefaultCartesianMarker
+import com.patrykandpatrick.vico.core.cartesian.marker.LineCartesianLayerMarkerTarget
 import com.patrykandpatrick.vico.core.common.Fill
 import com.patrykandpatrick.vico.core.common.component.LineComponent
 
@@ -30,6 +41,7 @@ fun AreaLineChart(
     fillColor: Color,
     modifier: Modifier = Modifier,
     heightDp: Dp = 120.dp,
+    xLabels: List<String> = emptyList(),
 ) {
     val producer = remember { CartesianChartModelProducer() }
     LaunchedEffect(values) {
@@ -41,11 +53,54 @@ fun AreaLineChart(
         fill = LineCartesianLayer.LineFill.single(fill(lineColor)),
         areaFill = LineCartesianLayer.AreaFill.single(fill(fillColor)),
     )
+
+    val hasLabels = xLabels.isNotEmpty()
+    // Thin the axis labels to ~5 so daily series don't overlap; the marker gives the exact value.
+    val labelStep = if (xLabels.size <= 1) 1 else maxOf(1, (xLabels.size - 1) / 4)
+    val bottomAxis = if (hasLabels) {
+        HorizontalAxis.rememberBottom(
+            label = rememberAxisLabelComponent(
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                textSize = 10.sp,
+            ),
+            line = null,
+            tick = null,
+            guideline = null,
+            itemPlacer = HorizontalAxis.ItemPlacer.aligned(spacing = { labelStep }),
+            valueFormatter = CartesianValueFormatter { _, value, _ ->
+                xLabels.getOrNull(value.toInt()).orEmpty().ifEmpty { " " }
+            },
+        )
+    } else null
+
+    val marker = if (hasLabels) {
+        rememberDefaultCartesianMarker(
+            label = rememberTextComponent(
+                color = MaterialTheme.colorScheme.onSurface,
+                textSize = 11.sp,
+            ),
+            guideline = rememberLineComponent(
+                fill = fill(MaterialTheme.colorScheme.outlineVariant),
+                thickness = 1.dp,
+            ),
+            valueFormatter = DefaultCartesianMarker.ValueFormatter { _, targets ->
+                val target = targets.firstOrNull()
+                val i = target?.x?.toInt() ?: 0
+                val date = xLabels.getOrNull(i).orEmpty()
+                val amount = (target as? LineCartesianLayerMarkerTarget)
+                    ?.points?.firstOrNull()?.entry?.y
+                if (amount != null) "$date   ${"%,.0f".format(amount)}" else date
+            },
+        )
+    } else null
+
     CartesianChartHost(
         chart = rememberCartesianChart(
             rememberLineCartesianLayer(
                 lineProvider = LineCartesianLayer.LineProvider.series(line),
             ),
+            bottomAxis = bottomAxis,
+            marker = marker,
         ),
         modelProducer = producer,
         modifier = modifier.height(heightDp),
@@ -88,6 +143,7 @@ fun GroupedBarChart(
     expenseColor: Color,
     modifier: Modifier = Modifier,
     heightDp: Dp = 140.dp,
+    xLabels: List<String> = emptyList(),
 ) {
     if (incomeValues.isEmpty() || expenseValues.isEmpty()) return
     val producer = remember { CartesianChartModelProducer() }
@@ -105,11 +161,30 @@ fun GroupedBarChart(
     val expenseCol = remember(expenseColor) {
         LineComponent(fill = Fill(expenseColor.toArgb()), thicknessDp = 5f)
     }
+
+    val labelStep = if (xLabels.size <= 1) 1 else maxOf(1, (xLabels.size - 1) / 4)
+    val bottomAxis = if (xLabels.isNotEmpty()) {
+        HorizontalAxis.rememberBottom(
+            label = rememberAxisLabelComponent(
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                textSize = 10.sp,
+            ),
+            line = null,
+            tick = null,
+            guideline = null,
+            itemPlacer = HorizontalAxis.ItemPlacer.aligned(spacing = { labelStep }),
+            valueFormatter = CartesianValueFormatter { _, value, _ ->
+                xLabels.getOrNull(value.toInt()).orEmpty().ifEmpty { " " }
+            },
+        )
+    } else null
+
     CartesianChartHost(
         chart = rememberCartesianChart(
             rememberColumnCartesianLayer(
                 columnProvider = ColumnCartesianLayer.ColumnProvider.series(incomeCol, expenseCol),
             ),
+            bottomAxis = bottomAxis,
         ),
         modelProducer = producer,
         modifier = modifier.height(heightDp),
