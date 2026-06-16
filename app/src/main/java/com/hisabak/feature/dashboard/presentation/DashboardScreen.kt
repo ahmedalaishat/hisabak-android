@@ -48,6 +48,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.hisabak.core.common.Money
+import com.hisabak.core.common.SummaryPeriod
 import com.hisabak.feature.category.domain.CategoryId
 import com.hisabak.feature.category.presentation.CategoryStyle
 import com.hisabak.feature.dashboard.domain.BrandShare
@@ -70,12 +71,11 @@ import com.hisabak.ui.theme.Sizing
 import com.hisabak.ui.theme.Spacing
 import kotlin.math.abs
 
-private val PERIODS = listOf("Week", "Month", "Year", "All")
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DashboardScreen(
     state: DashboardUiState,
+    onPeriodChange: (SummaryPeriod) -> Unit,
     onOverallCategoryChanged: (CategoryId) -> Unit,
     onDailyCategoryChanged: (CategoryId) -> Unit,
     modifier: Modifier = Modifier,
@@ -89,16 +89,28 @@ fun DashboardScreen(
     }
 
     val c = HisabakTheme.colors
-    var period by rememberSaveable { mutableStateOf("Month") }
 
     LazyColumn(
         modifier = modifier.fillMaxSize(),
         contentPadding = PaddingValues(start = Spacing.pageMargin, end = Spacing.pageMargin, top = Spacing.s5, bottom = Spacing.s8),
         verticalArrangement = Arrangement.spacedBy(Spacing.cardGap),
     ) {
+        // ── Period selector (drives net worth, income & expenses) ───────────
+        item {
+            PeriodSelectorRow(selected = state.period, onSelect = onPeriodChange)
+        }
+
         // ── Net worth hero ──────────────────────────────────────────────────
         item {
-            NetWorthCard(snap = snap, period = period, onPeriodChange = { period = it })
+            OverTimeCard(
+                label = "Net worth",
+                money = snap.netWorth,
+                trendPct = snap.netWorthTrendPct,
+                trendPositiveIsGood = true,
+                series = snap.netWorthSeries,
+                lineColor = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.fillMaxWidth(),
+            )
         }
 
         // ── Cash / Savings / Investment pills ───────────────────────────────
@@ -131,30 +143,56 @@ fun DashboardScreen(
             }
         }
 
-        // ── Income / Expenses ───────────────────────────────────────────────
+        // ── Income / Expenses (net for the selected period) ─────────────────
         item {
-            Row(horizontalArrangement = Arrangement.spacedBy(Spacing.cardGap)) {
-                KpiCard(
-                    label = "Income",
-                    money = snap.incomeMonth,
-                    trendPct = snap.incomeTrendPct,
-                    trendPositiveIsGood = true,
-                    amountColor = c.income,
-                    sparklineValues = snap.incomeDaily.map { it.amountMinor / 100.0 },
-                    sparklineColor = c.income,
-                    modifier = Modifier.weight(1f),
-                )
-                KpiCard(
-                    label = "Expenses",
-                    money = snap.expenseMonth,
-                    trendPct = snap.expenseTrendPct,
-                    trendPositiveIsGood = false,
-                    amountColor = c.expense,
-                    sparklineValues = snap.expenseDaily.map { it.amountMinor / 100.0 },
-                    sparklineColor = c.expense,
-                    modifier = Modifier.weight(1f),
-                )
-            }
+            KpiCard(
+                label = "Income",
+                money = snap.income,
+                trendPct = snap.incomeTrendPct,
+                trendPositiveIsGood = true,
+                amountColor = c.income,
+                sparklineValues = snap.incomeDaily.map { it.amountMinor / 100.0 },
+                sparklineColor = c.income,
+                modifier = Modifier.fillMaxWidth(),
+            )
+        }
+        item {
+            KpiCard(
+                label = "Expenses",
+                money = snap.expense,
+                trendPct = snap.expenseTrendPct,
+                trendPositiveIsGood = false,
+                amountColor = c.expense,
+                sparklineValues = snap.expenseDaily.map { it.amountMinor / 100.0 },
+                sparklineColor = c.expense,
+                modifier = Modifier.fillMaxWidth(),
+            )
+        }
+
+        // ── Income over time ────────────────────────────────────────────────
+        item {
+            OverTimeCard(
+                label = "Income over time",
+                money = snap.income,
+                trendPct = snap.incomeTrendPct,
+                trendPositiveIsGood = true,
+                series = snap.incomeSeries,
+                lineColor = c.income,
+                modifier = Modifier.fillMaxWidth(),
+            )
+        }
+
+        // ── Expense over time ───────────────────────────────────────────────
+        item {
+            OverTimeCard(
+                label = "Expense over time",
+                money = snap.expense,
+                trendPct = snap.expenseTrendPct,
+                trendPositiveIsGood = false,
+                series = snap.expenseSeries,
+                lineColor = c.expense,
+                modifier = Modifier.fillMaxWidth(),
+            )
         }
 
         // ── Income & spending grouped bars ──────────────────────────────────
@@ -224,65 +262,72 @@ fun DashboardScreen(
     }
 }
 
-// ── Hero card ────────────────────────────────────────────────────────────────
+// ── Shared period selector ─────────────────────────────────────────────────────
 
 @Composable
-private fun NetWorthCard(
-    snap: DashboardSnapshot,
-    period: String,
-    onPeriodChange: (String) -> Unit,
+private fun PeriodSelectorRow(
+    selected: SummaryPeriod,
+    onSelect: (SummaryPeriod) -> Unit,
 ) {
-    val c = HisabakTheme.colors
-    val trendPct = netWorthTrend(snap.netWorthSeries)
+    LazyRow(horizontalArrangement = Arrangement.spacedBy(Spacing.s3)) {
+        items(SummaryPeriod.entries.size) { i ->
+            val option = SummaryPeriod.entries[i]
+            FilterChip(
+                selected = selected == option,
+                onClick = { onSelect(option) },
+                label = { Text(option.label, style = MaterialTheme.typography.labelMedium) },
+                colors = FilterChipDefaults.filterChipColors(
+                    selectedContainerColor = MaterialTheme.colorScheme.primary,
+                    selectedLabelColor = MaterialTheme.colorScheme.onPrimary,
+                ),
+                border = FilterChipDefaults.filterChipBorder(
+                    enabled = true,
+                    selected = selected == option,
+                    borderColor = MaterialTheme.colorScheme.outlineVariant,
+                    selectedBorderColor = MaterialTheme.colorScheme.primary,
+                ),
+            )
+        }
+    }
+}
 
-    DashCard(modifier = Modifier.fillMaxWidth()) {
+// ── Hero / over-time chart card ────────────────────────────────────────────────
+
+@Composable
+private fun OverTimeCard(
+    label: String,
+    money: Money,
+    trendPct: Double?,
+    trendPositiveIsGood: Boolean,
+    series: List<MonthPoint>,
+    lineColor: Color,
+    modifier: Modifier = Modifier,
+) {
+    DashCard(modifier = modifier) {
         Text(
-            "Net worth",
+            label,
             style = MaterialTheme.typography.labelMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
         Spacer(Modifier.height(Spacing.s2))
         Row(verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
             MoneyText(
-                amountMinor = snap.netWorth.amountMinor,
+                amountMinor = money.amountMinor,
                 style = HisabakType.amountHero,
                 color = MaterialTheme.colorScheme.onSurface,
             )
             if (trendPct != null) {
-                TrendBadge(pct = trendPct, positiveIsGood = true)
+                TrendBadge(pct = trendPct, positiveIsGood = trendPositiveIsGood)
             }
         }
-        if (snap.netWorthSeries.isNotEmpty()) {
+        if (series.isNotEmpty()) {
             AreaLineChart(
-                values = snap.netWorthSeries.map { it.amountMinor / 100.0 },
-                lineColor = MaterialTheme.colorScheme.primary,
-                fillColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f),
+                values = series.map { it.amountMinor / 100.0 },
+                lineColor = lineColor,
+                fillColor = lineColor.copy(alpha = 0.12f),
                 modifier = Modifier.fillMaxWidth().padding(top = Spacing.cardGap, bottom = Spacing.s2),
                 heightDp = 96.dp,
             )
-        }
-        LazyRow(
-            horizontalArrangement = Arrangement.spacedBy(Spacing.s3),
-            modifier = Modifier.padding(top = Spacing.s3),
-        ) {
-            items(PERIODS.size) { i ->
-                val p = PERIODS[i]
-                FilterChip(
-                    selected = period == p,
-                    onClick = { onPeriodChange(p) },
-                    label = { Text(p, style = MaterialTheme.typography.labelMedium) },
-                    colors = FilterChipDefaults.filterChipColors(
-                        selectedContainerColor = MaterialTheme.colorScheme.primary,
-                        selectedLabelColor = MaterialTheme.colorScheme.onPrimary,
-                    ),
-                    border = FilterChipDefaults.filterChipBorder(
-                        enabled = true,
-                        selected = period == p,
-                        borderColor = MaterialTheme.colorScheme.outlineVariant,
-                        selectedBorderColor = MaterialTheme.colorScheme.primary,
-                    ),
-                )
-            }
         }
     }
 }
@@ -616,13 +661,6 @@ private fun LegendDot(color: Color, label: String) {
 }
 
 // ── Data helpers ──────────────────────────────────────────────────────────────
-
-private fun netWorthTrend(series: List<MonthPoint>): Double? {
-    if (series.size < 2) return null
-    val prev = series[series.size - 2].amountMinor
-    val curr = series.last().amountMinor
-    return if (prev != 0L) (curr - prev).toDouble() / prev.toDouble() * 100 else null
-}
 
 /** Aggregate daily points into parallel monthly series (last 5 months). */
 private fun monthlyPairs(

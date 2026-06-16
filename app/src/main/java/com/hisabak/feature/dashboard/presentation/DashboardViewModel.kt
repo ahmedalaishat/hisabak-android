@@ -1,9 +1,11 @@
 package com.hisabak.feature.dashboard.presentation
 
 import androidx.lifecycle.viewModelScope
+import com.hisabak.core.common.SummaryPeriod
 import com.hisabak.core.presentation.BaseViewModel
 import com.hisabak.feature.category.domain.CategoryType
 import com.hisabak.feature.dashboard.domain.usecase.GetDashboardMetricsUseCase
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
@@ -11,10 +13,12 @@ class DashboardViewModel(
     private val getMetrics: GetDashboardMetricsUseCase,
 ) : BaseViewModel<DashboardIntent, DashboardUiState, DashboardEffect>() {
 
+    private val period = MutableStateFlow(SummaryPeriod.CURRENT_MONTH)
+
     override fun initialState() = DashboardUiState()
 
     init {
-        getMetrics()
+        getMetrics(period)
             .onEach { snapshot ->
                 setState {
                     copy(
@@ -34,6 +38,10 @@ class DashboardViewModel(
 
     override fun onIntent(intent: DashboardIntent) {
         when (intent) {
+            is DashboardIntent.PeriodChanged -> {
+                period.value = intent.period
+                setState { copy(period = intent.period) }
+            }
             is DashboardIntent.OverallTrendCategoryChanged ->
                 setState { copy(overallTrendCategoryId = intent.id) }
             is DashboardIntent.DailyTrendCategoryChanged ->
