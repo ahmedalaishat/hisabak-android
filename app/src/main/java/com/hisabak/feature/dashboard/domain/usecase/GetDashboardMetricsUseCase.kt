@@ -43,7 +43,6 @@ class GetDashboardMetricsUseCase(
     ): DashboardSnapshot {
         val zone = ZoneId.systemDefault()
         val today = LocalDate.ofInstant(clock.now(), zone)
-        val currentMonth = YearMonth.from(today)
 
         val catById = categories.associateBy { it.id }
         val brandById = brands.associateBy { it.id }
@@ -140,18 +139,16 @@ class GetDashboardMetricsUseCase(
             buildMonthlySum(transactions.filter { it.brandId == topBrand.id }, zone)
         } else emptyList()
 
-        // Category trends keep their own (current-month / all-time) scope.
-        val monthTxs = transactions.filter {
-            YearMonth.from(LocalDate.ofInstant(it.occurredAt, zone)) == currentMonth
-        }
+        // Category trends follow the selected period, with the same granularity as the
+        // over-time charts (daily for month windows, monthly otherwise).
         val categoryOf: (Transaction) -> Category? = { brandById[it.brandId]?.categoryId?.let(catById::get) }
-        val txsByCategory = transactions.groupBy { categoryOf(it)?.id }
-        val monthTxsByCategory = monthTxs.groupBy { categoryOf(it)?.id }
-        val overallTrendByCategory = categories.associate { cat ->
-            cat.id to buildMonthlySum(txsByCategory[cat.id].orEmpty(), zone)
+        val periodTxsByCategory = periodTxs.groupBy { categoryOf(it)?.id }
+        val prevTxsByCategory = prevTxs.groupBy { categoryOf(it)?.id }
+        val trendByCategory = categories.associate { cat ->
+            cat.id to flowSeries(periodTxsByCategory[cat.id].orEmpty(), zone, period, today)
         }
-        val dailyTrendByCategory = categories.associate { cat ->
-            cat.id to dailySeriesForMonth(monthTxsByCategory[cat.id].orEmpty(), zone, currentMonth) { true }
+        val trendPrevTotalByCategory = categories.associate { cat ->
+            cat.id to prevTxsByCategory[cat.id].orEmpty().sumOf { it.amount.amountMinor }
         }
         val categoryOptions = categories
             .sortedBy { it.name.lowercase() }
@@ -179,8 +176,8 @@ class GetDashboardMetricsUseCase(
             incomeByCategory = incomeByCategory,
             expenseByCategory = expenseByCategory,
             categoryOptions = categoryOptions,
-            overallTrendByCategory = overallTrendByCategory,
-            dailyTrendByCategory = dailyTrendByCategory,
+            trendByCategory = trendByCategory,
+            trendPrevTotalByCategory = trendPrevTotalByCategory,
             expenseByBrand = expenseByBrand,
             topBrandTrend = topBrandTrend,
             topBrandName = topBrand?.name,
@@ -279,19 +276,6 @@ class GetDashboardMetricsUseCase(
             cursor = cursor.plusMonths(1)
         }
         return points
-    }
-
-    private fun dailySeriesForMonth(
-        transactions: List<Transaction>,
-        zone: ZoneId,
-        month: YearMonth,
-        predicate: (Transaction) -> Boolean,
-    ): List<DayPoint> {
-        val byDay = transactions.filter(predicate)
-            .groupBy { LocalDate.ofInstant(it.occurredAt, zone) }
-            .mapValues { (_, list) -> list.sumOf { it.amount.amountMinor } }
-        val days = (1..month.lengthOfMonth()).map { month.atDay(it) }
-        return days.map { DayPoint(it, byDay[it] ?: 0L) }
     }
 
     private fun breakdown(

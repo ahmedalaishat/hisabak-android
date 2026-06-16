@@ -11,14 +11,12 @@ data class DashboardUiState(
     val snapshot: DashboardSnapshot? = null,
     val isLoading: Boolean = true,
     val period: SummaryPeriod = SummaryPeriod.CURRENT_MONTH,
-    val overallTrendCategoryId: CategoryId? = null,
-    val dailyTrendCategoryId: CategoryId? = null,
+    val trendCategoryId: CategoryId? = null,
 ) : ViewState
 
 sealed interface DashboardIntent : ViewIntent {
     data class PeriodChanged(val period: SummaryPeriod) : DashboardIntent
-    data class OverallTrendCategoryChanged(val id: CategoryId) : DashboardIntent
-    data class DailyTrendCategoryChanged(val id: CategoryId) : DashboardIntent
+    data class TrendCategoryChanged(val id: CategoryId) : DashboardIntent
 }
 
 sealed interface DashboardEffect : ViewEffect
