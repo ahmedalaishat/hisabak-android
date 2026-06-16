@@ -40,6 +40,7 @@ import com.hisabak.feature.sms.domain.SmsMessageId
 import com.hisabak.ui.components.AmountText
 import com.hisabak.ui.components.AmountTone
 import com.hisabak.ui.components.Badge
+import com.hisabak.ui.components.SkeletonRowList
 import com.hisabak.ui.components.BadgeTone
 import com.hisabak.ui.components.EmptyStatePanel
 import com.hisabak.ui.components.HisabakButton
@@ -86,16 +87,7 @@ fun SmsInboxScreen(
             }
             item { SectionHeader(title = "Recent SMS") }
             if (state.isLoading) {
-                item {
-                    Box(
-                        Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = Spacing.s9),
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        CircularProgressIndicator()
-                    }
-                }
+                item { SkeletonRowList(count = 5) }
             } else if (state.rows.isEmpty()) {
                 item {
                     EmptyStatePanel(
@@ -113,6 +105,7 @@ fun SmsInboxScreen(
                         row = row,
                         onImport = { onIngest() },
                         onDelete = { onDelete(row.id) },
+                        modifier = Modifier.animateItem(),
                     )
                 }
             }
@@ -229,6 +222,7 @@ private fun SmsRowCard(
     row: SmsInboxRow,
     onImport: () -> Unit,
     onDelete: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     val status = when {
         row.isLinked -> SmsStatus.Linked
@@ -237,7 +231,7 @@ private fun SmsRowCard(
     }
     val isParsed = status == SmsStatus.Parsed
 
-    SurfaceCard(modifier = Modifier.fillMaxWidth()) {
+    SurfaceCard(modifier = modifier.fillMaxWidth()) {
         // Top row: date/time left, StatusChip right
         Row(
             Modifier.fillMaxWidth(),

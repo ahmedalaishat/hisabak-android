@@ -22,6 +22,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -121,7 +122,10 @@ private fun ManageSwitchCard(
     modifier: Modifier = Modifier,
 ) {
     val border = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outlineVariant
-    val bg = if (selected) HisabakTheme.colors.incomeSoft else MaterialTheme.colorScheme.surfaceContainerLowest
+    // incomeSoft is a translucent tint in dark theme; composite it over the card surface so the
+    // selected card stays opaque and distinct from the page rather than blending into it.
+    val surface = MaterialTheme.colorScheme.surfaceContainerLowest
+    val bg = if (selected) HisabakTheme.colors.incomeSoft.compositeOver(surface) else surface
     val iconBg = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant
     val iconFg = if (selected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant
     SurfaceCard(

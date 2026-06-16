@@ -56,12 +56,6 @@ fun BrandEditScreen(
             .imePadding(),
         verticalArrangement = Arrangement.spacedBy(Spacing.s5),
     ) {
-            Text(
-                text = if (state.isNew) "New brand" else "Edit brand",
-                style = MaterialTheme.typography.titleLarge,
-                color = MaterialTheme.colorScheme.onSurface,
-            )
-
             NameField(
                 value = state.nameInput,
                 error = state.nameError,

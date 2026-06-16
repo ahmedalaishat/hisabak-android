@@ -2,6 +2,8 @@ package com.hisabak.ui.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -27,6 +29,8 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -51,7 +55,13 @@ fun DetailTopBar(
             )
         },
         navigationIcon = {
-            IconButton(onClick = onBack) {
+            val interactionSource = remember { MutableInteractionSource() }
+            val pressed by interactionSource.collectIsPressedAsState()
+            IconButton(
+                onClick = onBack,
+                interactionSource = interactionSource,
+                modifier = Modifier.iconPressScale(pressed),
+            ) {
                 Icon(
                     Icons.AutoMirrored.Filled.ArrowBack,
                     contentDescription = "Back",
@@ -71,6 +81,7 @@ fun DetailTopBar(
 fun HisabakTopBar(
     onNotificationsClick: () -> Unit = {},
     title: String = "WealthFlow",
+    unreadCount: Int = 0,
 ) {
     Column(
         modifier = Modifier
@@ -111,12 +122,28 @@ fun HisabakTopBar(
                 color = MaterialTheme.colorScheme.onSurface,
             )
         }
-            IconButton(onClick = onNotificationsClick) {
-                Icon(
-                    Icons.Filled.Notifications,
-                    contentDescription = "Notifications",
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
+            val bellInteraction = remember { MutableInteractionSource() }
+            val bellPressed by bellInteraction.collectIsPressedAsState()
+            IconButton(
+                onClick = onNotificationsClick,
+                interactionSource = bellInteraction,
+                modifier = Modifier.iconPressScale(bellPressed),
+            ) {
+                androidx.compose.material3.BadgedBox(
+                    badge = {
+                        if (unreadCount > 0) {
+                            androidx.compose.material3.Badge {
+                                Text(if (unreadCount > 9) "9+" else unreadCount.toString())
+                            }
+                        }
+                    },
+                ) {
+                    Icon(
+                        Icons.Filled.Notifications,
+                        contentDescription = "Notifications",
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
             }
         }
     }
