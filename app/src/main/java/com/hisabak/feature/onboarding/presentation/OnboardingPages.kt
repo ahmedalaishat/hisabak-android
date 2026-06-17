@@ -419,8 +419,9 @@ fun GetStartedPage(active: Boolean, parallax: Float) {
     ) {
         Column(Modifier.width(320.dp), verticalArrangement = Arrangement.spacedBy(Spacing.s3)) {
             RecapRow(p, 0f, Icons.Filled.Bolt, c.income, c.incomeSoft, "Automatic capture", "from your bank SMS")
-            RecapRow(p, 0.15f, Icons.Filled.Savings, c.warning, c.warningSoft, "Smart budgets", "alerts before you overshoot")
-            RecapRow(p, 0.30f, Icons.Filled.Insights, c.savings, c.savings.copy(alpha = 0.15f), "Clear insights", "trends, categories, brands")
+            RecapRow(p, 0.12f, Icons.Filled.Lock, MaterialTheme.colorScheme.primary, MaterialTheme.colorScheme.primary.copy(alpha = 0.12f), "Private by design", "your data stays on this device")
+            RecapRow(p, 0.24f, Icons.Filled.Savings, c.warning, c.warningSoft, "Smart budgets", "alerts before you overshoot")
+            RecapRow(p, 0.36f, Icons.Filled.Insights, c.savings, c.savings.copy(alpha = 0.15f), "Clear insights", "trends, categories, brands")
             Spacer(Modifier.height(Spacing.s2))
             Row(
                 verticalAlignment = Alignment.CenterVertically,
