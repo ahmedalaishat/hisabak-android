@@ -119,11 +119,7 @@ fun BrandListScreen(
         // Most-used card hidden for now (see the shared MostUsedCard / BrandRow.transactionCount).
 
         item {
-            SectionHeader(
-                title = "All brands",
-                actionLabel = if (state.rows.size > 6) "See all" else null,
-                onAction = if (state.rows.size > 6) ({}) else null,
-            )
+            SectionHeader(title = "All brands")
         }
 
         if (state.rows.isEmpty()) {
