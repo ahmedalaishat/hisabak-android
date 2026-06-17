@@ -218,6 +218,17 @@ code+tests → QA → docs → PR autonomously, then **stops for one review gate
 into `develop` only when the user says **"ship it"** (never auto-merge). Per-feature
 spec+design land in `docs/features/<slug>.md`; user-visible changes update `CHANGELOG.md`.
 
+### Pre-PR consistency check (every PR, not just `/feature`)
+
+After code review and **before opening any PR**, confirm the diff didn't leave docs/skills
+stale, and update whatever it touched **in the same PR**: `CLAUDE.md` (stack/architecture/
+commands), `README.md` (build/run/features/badges), `docs/` (`testing.md`, `cd.md`),
+`.claude/skills/` (`git-workflow`, `feature`, `hisabak-design/compose-bridge.md`),
+`.claude/hooks/run-tests.sh`, `.github/workflows/*.yml`, and `CHANGELOG.md`. Common triggers:
+renamed Gradle tasks/variants, changed `applicationId`/package, changed test/build/run
+commands, storage/architecture changes, design token/component changes, new dependencies,
+user-visible behavior. A `gh pr create` hook re-surfaces this checklist automatically.
+
 ---
 
 ## Active Design Work
