@@ -1,0 +1,75 @@
+package com.hisabak.core.common
+
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertThrows
+import org.junit.Assert.assertTrue
+import org.junit.Test
+
+class MoneyTest {
+
+    private val aed = Currency.AED
+    private fun money(minor: Long) = Money(minor, aed)
+
+    @Test
+    fun `plus adds amounts of the same currency`() {
+        assertEquals(money(300), money(100) + money(200))
+    }
+
+    @Test
+    fun `minus subtracts amounts of the same currency`() {
+        assertEquals(money(-50), money(100) - money(150))
+    }
+
+    @Test
+    fun `unaryMinus negates`() {
+        assertEquals(money(-100), -money(100))
+    }
+
+    @Test
+    fun `times multiplies by a scalar`() {
+        assertEquals(money(600), money(200) * 3)
+    }
+
+    @Test
+    fun `abs returns the magnitude`() {
+        assertEquals(money(100), money(-100).abs())
+        assertEquals(money(100), money(100).abs())
+    }
+
+    @Test
+    fun `sign predicates reflect the amount`() {
+        assertTrue(money(0).isZero)
+        assertTrue(money(1).isPositive)
+        assertTrue(money(-1).isNegative)
+        assertFalse(money(0).isPositive)
+        assertFalse(money(0).isNegative)
+    }
+
+    @Test
+    fun `compareTo orders by minor amount`() {
+        assertTrue(money(100) < money(200))
+        assertTrue(money(200) > money(100))
+        assertEquals(0, money(100).compareTo(money(100)))
+    }
+
+    @Test
+    fun `ofMajor converts major units to minor`() {
+        assertEquals(money(1234), Money.ofMajor(12.34, aed))
+        assertEquals(money(0), Money.ofMajor(0.0, aed))
+    }
+
+    @Test
+    fun `zero is a zero amount in the given currency`() {
+        assertEquals(money(0), Money.zero(aed))
+    }
+
+    @Test
+    fun `arithmetic across currencies is rejected`() {
+        val usd = Money(100, Currency.USD)
+        val aedMoney = money(100)
+        assertThrows(IllegalArgumentException::class.java) { aedMoney + usd }
+        assertThrows(IllegalArgumentException::class.java) { aedMoney - usd }
+        assertThrows(IllegalArgumentException::class.java) { aedMoney.compareTo(usd) }
+    }
+}

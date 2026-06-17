@@ -1,8 +1,22 @@
+import java.io.FileInputStream
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.ksp)
 }
+
+// Release signing is read from a gitignored keystore.properties (local) or env vars (CI).
+// When neither is present, release builds fall back to the debug key so local/CI builds
+// still work without any secrets.
+val keystorePropsFile = rootProject.file("keystore.properties")
+val keystoreProps = Properties().apply {
+    if (keystorePropsFile.exists()) FileInputStream(keystorePropsFile).use { load(it) }
+}
+fun signingProp(prop: String, env: String): String? =
+    keystoreProps.getProperty(prop) ?: System.getenv(env)
+val hasReleaseSigning = signingProp("storeFile", "RELEASE_KEYSTORE_PATH") != null
 
 android {
     namespace = "com.hisabak"
@@ -16,10 +30,38 @@ android {
         applicationId = "com.hisabak"
         minSdk = 29
         targetSdk = 36
-        versionCode = 2
-        versionName = "1.1.0"
+        versionCode = 3
+        versionName = "1.2.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    signingConfigs {
+        create("release") {
+            if (hasReleaseSigning) {
+                storeFile = file(signingProp("storeFile", "RELEASE_KEYSTORE_PATH")!!)
+                storePassword = signingProp("storePassword", "RELEASE_KEYSTORE_PASSWORD")
+                keyAlias = signingProp("keyAlias", "RELEASE_KEY_ALIAS")
+                keyPassword = signingProp("keyPassword", "RELEASE_KEY_PASSWORD")
+            }
+        }
+    }
+
+    flavorDimensions += "environment"
+    productFlavors {
+        create("prod") {
+            dimension = "environment"
+            // applicationId stays com.hisabak (from defaultConfig)
+            resValue("string", "app_name", "Hisabak")
+            buildConfigField("boolean", "SEED_DATA", "false")
+        }
+        create("staging") {
+            dimension = "environment"
+            applicationIdSuffix = ".staging"
+            versionNameSuffix = "-staging"
+            resValue("string", "app_name", "Hisabak STG")
+            buildConfigField("boolean", "SEED_DATA", "true")
+        }
     }
 
     buildTypes {
@@ -27,9 +69,13 @@ android {
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
-            // Signed with the debug keystore so the shared APK is directly installable for
-            // testing. Replace with a dedicated release keystore before publishing to Play.
-            signingConfig = signingConfigs.getByName("debug")
+            // Real release key when configured (keystore.properties / CI secrets); otherwise the
+            // debug key so the build still works locally and in CI without secrets.
+            signingConfig = if (hasReleaseSigning) {
+                signingConfigs.getByName("release")
+            } else {
+                signingConfigs.getByName("debug")
+            }
         }
     }
     compileOptions {
@@ -38,6 +84,8 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
+        resValues = true
     }
 }
 
@@ -68,6 +116,7 @@ dependencies {
     implementation(libs.androidx.lifecycle.viewmodel.navigation3)
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.turbine)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))

@@ -20,7 +20,8 @@ Domain model mirrors Hisabi so concepts transfer cleanly.
 - **Async:** Kotlin Coroutines + Flow
 - **State:** ViewModel + `collectAsStateWithLifecycle`
 - **Charts:** Vico
-- **Storage:** In-memory mock repositories (Room planned, not yet implemented)
+- **Storage:** Room (SQLite) — `Room*Repository` impls per feature's `data/`, entities/DAOs/
+  mappers in `data/local/`, and the database in `core/data/local/` (`HisabakDatabase`)
 - **Platform:** Android only, portrait, edge-to-edge
 
 ---
@@ -101,8 +102,11 @@ Pattern: `List` → tap row or FAB → push `Edit(id?)` destination → Save/Can
 
 This app uses the **Hisabak design system**. When building or editing UI, follow these rules.
 The full system (tokens, component specs, screen prototypes) lives in
-`.claude/skills/hisabak-design/`; the Compose translation is in that skill's `compose/` folder
-(copy it into the app module — see `compose/README.md`).
+`.claude/skills/hisabak-design/`. **The Compose app is the source of truth** — the tokens are
+already translated into `ui/theme/` (`Color.kt`, `Type.kt`, `Shape.kt`, `Motion.kt`,
+`HisabakTheme.kt`) and shared components in `ui/components/`. For production UI, use those
+directly; see the design skill's `compose-bridge.md` for the token/component → Kotlin map.
+Use the HTML/CSS kit only for throwaway visual mockups.
 
 ### Foundations
 
@@ -187,6 +191,51 @@ Each component has a `.prompt.md` (what/when + usage) and `.d.ts` (props) — re
 
 - No green backgrounds, no decorative gradients, no glassmorphism, no emoji,
   no colored left-border accent stripes
+
+---
+
+## Testing
+
+JVM unit tests guard the domain logic and ViewModels. Full guide: `docs/testing.md`.
+
+- Run `./gradlew testProdDebugUnitTest`. **Keep the suite green before finishing any change.**
+  A Stop hook (`.claude/settings.json` → `.claude/hooks/run-tests.sh`) runs this
+  automatically whenever Kotlin files changed and blocks on failure.
+- **New feature → new tests.** When you add or change a use case, repository, ViewModel,
+  or any business logic, add or update its test **in the same change**.
+- Tests live in `app/src/test/…` mirroring `main`. Reuse the harness in
+  `com.hisabak.testutil` (`TestClock`, `MainDispatcherRule`, `Fake*` repositories,
+  `TestData`) rather than a mocking framework; build the real use case around a fake repo.
+- Currently out of scope (no tests required): Compose UI, Room DAOs, navigation.
+
+---
+
+## Automated feature pipeline
+
+Use the **`/feature`** skill (`.claude/skills/feature/SKILL.md`) to take a high-level
+requirement to a reviewed PR: `/feature "<requirement>"`. It runs spec → design → branch →
+code+tests → QA → docs → PR autonomously, then **stops for one review gate** — it merges
+into `develop` only when the user says **"merge it"** (never auto-merge). Per-feature
+spec+design land in `docs/features/<slug>.md`; user-visible changes update `CHANGELOG.md`.
+
+**Workflow vocabulary — one phrase per action, never conflate them:**
+
+| Phrase | Action | Touches `main`? |
+|--------|--------|-----------------|
+| **merge it** | merge the reviewed PR into `develop` | no — routine |
+| **send to testers** | distribute a staging build (Firebase) | no |
+| **ship it** / **release** | cut a production release: bump version → `develop`→`main` → tag → Play | **yes — deliberate; confirm the version first** |
+
+### Pre-PR consistency check (every PR, not just `/feature`)
+
+After code review and **before opening any PR**, confirm the diff didn't leave docs/skills
+stale, and update whatever it touched **in the same PR**: `CLAUDE.md` (stack/architecture/
+commands), `README.md` (build/run/features/badges), `docs/` (`testing.md`, `cd.md`),
+`.claude/skills/` (`git-workflow`, `feature`, `hisabak-design/compose-bridge.md`),
+`.claude/hooks/run-tests.sh`, `.github/workflows/*.yml`, and `CHANGELOG.md`. Common triggers:
+renamed Gradle tasks/variants, changed `applicationId`/package, changed test/build/run
+commands, storage/architecture changes, design token/component changes, new dependencies,
+user-visible behavior. A `gh pr create` hook re-surfaces this checklist automatically.
 
 ---
 

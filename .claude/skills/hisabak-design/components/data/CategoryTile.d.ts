@@ -13,7 +13,7 @@ export interface CategoryTileProps {
   color?: string;
   /** @default "expense" */
   type?: 'income' | 'expense' | 'savings' | 'investment';
-  /** Preformatted monthly total, e.g. "SAR 1,240". */
+  /** Preformatted monthly total, e.g. "AED 1,240". */
   total?: string;
   onDelete?: () => void;
   onClick?: (e: React.MouseEvent) => void;

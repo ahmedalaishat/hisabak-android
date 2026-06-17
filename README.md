@@ -1,13 +1,23 @@
-# Hisabak
+<p align="center">
+  <img src="docs/app-icon.svg" width="96" height="96" alt="Hisabak app icon">
+</p>
 
-**Hisabak** (Arabic: *حسابك*, “your account”) is a personal finance tracker for Android that
-turns your bank SMS alerts into a clean, organized view of your money — categorize spending,
-set monthly budgets, and get notified before you overshoot.
+<h1 align="center">Hisabak</h1>
 
-![Platform](https://img.shields.io/badge/platform-Android-3DDC84)
-![Min SDK](https://img.shields.io/badge/minSdk-29-blue)
-![Kotlin](https://img.shields.io/badge/Kotlin-Jetpack%20Compose-7F52FF)
-![License](https://img.shields.io/badge/license-MIT-green)
+<p align="center">
+  A personal finance tracker for Android that turns your bank SMS alerts into a clean,
+  organized view of your money — categorize spending, set monthly budgets, and get notified
+  before you overshoot.
+</p>
+
+<p align="center">
+  <a href="../../actions/workflows/test.yml"><img src="../../actions/workflows/test.yml/badge.svg" alt="CI"></a>
+  <a href="../../releases"><img src="https://img.shields.io/github/v/release/ahmedalaishat/hisabak-android?color=0B7A5B&label=release" alt="Release"></a>
+  <img src="https://img.shields.io/badge/platform-Android-3DDC84" alt="Platform">
+  <img src="https://img.shields.io/badge/minSdk-29-blue" alt="Min SDK">
+  <img src="https://img.shields.io/badge/Kotlin-Jetpack%20Compose-7F52FF" alt="Kotlin">
+  <img src="https://img.shields.io/badge/license-MIT-green" alt="License">
+</p>
 
 ---
 
@@ -35,9 +45,9 @@ set monthly budgets, and get notified before you overshoot.
 Grab the signed APK from the [**Releases**](../../releases) page and install it on any
 Android 10+ (API 29) device:
 
-1. Download `hisabak-v1.1.0.apk` from the latest release.
+1. Download `hisabak-v1.2.0.apk` from the latest release.
 2. Open it on the device (allow “install unknown apps” if prompted), or run
-   `adb install hisabak-v1.1.0.apk`.
+   `adb install hisabak-v1.2.0.apk`.
 
 It's a small (~3 MB) R8-minified build signed with a debug key for easy testing — not a Play
 Store release.
@@ -97,18 +107,42 @@ and SMS-imported transactions are both covered through a single path.
 
 ---
 
+## Testing & quality
+
+The domain logic and ViewModels are covered by **77 JVM unit tests** (money math, the SMS
+template parser, budget/limit logic, and ViewModel state) that run on the plain JVM — no
+emulator needed:
+
+```bash
+./gradlew testProdDebugUnitTest
+```
+
+Quality is enforced, not just hoped for:
+
+- **CI** — every pull request and push to `develop`/`main` runs the suite via GitHub Actions.
+- **Branch protection** — a red suite can't be merged into the shared branches.
+- **Local guard** — a pre-finish hook runs the tests on any change that touches Kotlin.
+
+Tests use hand-written fakes over a small harness (`com.hisabak.testutil`) rather than a
+mocking framework. See [`docs/testing.md`](docs/testing.md) for the full strategy.
+
+---
+
 ## Build & run
 
 **Requirements:** Android Studio (latest stable), JDK 17, Android SDK. `minSdk 29`, `targetSdk 36`.
 
 ```bash
-git clone <your-repo-url>
-cd Hisabak
-./gradlew installDebug      # build and install on a connected device/emulator
-# or open the project in Android Studio and Run
+git clone https://github.com/ahmedalaishat/hisabak-android.git
+cd hisabak-android
+./gradlew installStagingDebug   # build & install the staging variant on a device/emulator
+# or open the project in Android Studio and Run (pick the "stagingDebug" variant)
 ```
 
-A fresh install seeds demo data so the dashboard, charts, and budgets are populated immediately.
+The app has two flavors with separate package names so they coexist on one device:
+**production** (`com.hisabak`) and **staging** (`com.hisabak.staging`, labeled "Hisabak STG").
+The **staging** build seeds demo data on first launch so the dashboard, charts, and budgets are
+populated immediately; the **production** build starts empty.
 
 ---
 
@@ -123,3 +157,9 @@ budgets, SMS ingestion, dashboard metrics) mirrors Hisabi's so concepts map clea
 ## License
 
 [MIT](LICENSE).
+
+---
+
+<p align="center">
+  Built by <strong>Ahmad Alaishat</strong> · <a href="https://github.com/ahmedalaishat">GitHub</a> · <a href="https://www.linkedin.com/in/ahmedalaishat">LinkedIn</a>
+</p>

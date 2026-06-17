@@ -13,13 +13,13 @@ try { (() => {
 function _extends() { return _extends = Object.assign ? Object.assign.bind() : function (n) { for (var e = 1; e < arguments.length; e++) { var t = arguments[e]; for (var r in t) ({}).hasOwnProperty.call(t, r) && (n[r] = t[r]); } return n; }, _extends.apply(null, arguments); }
 /**
  * Money display with tabular figures and signed coloring.
- * Renders "+SAR 8,200.00" green for income, "−SAR 342.75" coral for expense.
+ * Renders "+AED 8,200.00" green for income, "−AED 342.75" coral for expense.
  * Pass `value` as a number (major units) or a preformatted string via `text`.
  */
 function AmountText({
   value,
   text,
-  currency = 'SAR',
+  currency = 'AED',
   sign = 'auto',
   // 'auto' | 'always' | 'never'
   tone = 'auto',
@@ -603,7 +603,7 @@ function CategoryTile({
   type = 'expense',
   // income|expense|savings|investment
   total,
-  // formatted string e.g. "SAR 1,240"
+  // formatted string e.g. "AED 1,240"
   onDelete,
   onClick,
   addNew = false,
@@ -904,7 +904,7 @@ function _extends() { return _extends = Object.assign ? Object.assign.bind() : f
 function StatCard({
   label,
   value,
-  currency = 'SAR',
+  currency = 'AED',
   icon,
   tone = 'neutral',
   // colors the icon tile + value
@@ -1550,7 +1550,7 @@ function AddTransactionSheet({
       fontSize: 18,
       color: 'var(--text-tertiary)'
     }
-  }, "SAR"), /*#__PURE__*/React.createElement("span", {
+  }, "AED"), /*#__PURE__*/React.createElement("span", {
     style: {
       fontFamily: 'var(--font-mono)',
       fontWeight: 700,
@@ -2197,7 +2197,7 @@ function Dashboard() {
     segments: expenseCats,
     centerLabel: M.money(2546 + 388, {
       decimals: false
-    }).replace('SAR ', ''),
+    }).replace('AED ', ''),
     centerSub: "Total"
   }), /*#__PURE__*/React.createElement(LegendList, {
     items: expenseCats
@@ -2340,7 +2340,7 @@ function SmsInbox() {
   }, "Paste an SMS"), /*#__PURE__*/React.createElement(Input, {
     multiline: true,
     rows: 2,
-    value: "Purchase of SAR 89.00 at TALABAT on 31/05.",
+    value: "Purchase of AED 89.00 at TALABAT on 31/05.",
     placeholder: "Paste a bank message\u2026"
   }), /*#__PURE__*/React.createElement("div", {
     style: {
@@ -2531,7 +2531,7 @@ function Transactions({
       fontSize: 12,
       color: 'var(--text-tertiary)'
     }
-  }, /*#__PURE__*/React.createElement("span", null, "60% income ratio"), /*#__PURE__*/React.createElement("span", null, "SAR 9,420 in \xB7 SAR 6,180 out")), /*#__PURE__*/React.createElement(Button, {
+  }, /*#__PURE__*/React.createElement("span", null, "60% income ratio"), /*#__PURE__*/React.createElement("span", null, "AED 9,420 in \xB7 AED 6,180 out")), /*#__PURE__*/React.createElement(Button, {
     fullWidth: true,
     size: "lg",
     leadingIcon: "add",
@@ -3131,14 +3131,14 @@ try { (() => {
   }];
   const SMS = [{
     id: 's1',
-    body: 'Purchase of SAR 342.75 at CARREFOUR HYPERMARKET on 01/06. Available balance SAR 12,107.',
+    body: 'Purchase of AED 342.75 at CARREFOUR HYPERMARKET on 01/06. Available balance AED 12,107.',
     time: 'Today · 14:32',
     status: 'parsed',
     brand: 'Carrefour',
     amount: 342.75
   }, {
     id: 's2',
-    body: 'Salary of SAR 8,200.00 has been credited to your account ****4471 from ACME CORP.',
+    body: 'Salary of AED 8,200.00 has been credited to your account ****4471 from ACME CORP.',
     time: 'Today · 09:01',
     status: 'linked',
     brand: 'Acme Corp',
@@ -3150,14 +3150,14 @@ try { (() => {
     status: 'unparsed'
   }, {
     id: 's4',
-    body: 'Payment of SAR 56.00 to NETFLIX.COM was successful. Card ****4471.',
+    body: 'Payment of AED 56.00 to NETFLIX.COM was successful. Card ****4471.',
     time: 'Yesterday · 03:10',
     status: 'parsed',
     brand: 'Netflix',
     amount: 56.00
   }, {
     id: 's5',
-    body: 'Withdrawal of SAR 500.00 at ATM RIYADH-OLAYA. Balance SAR 11,607.',
+    body: 'Withdrawal of AED 500.00 at ATM RIYADH-OLAYA. Balance AED 11,607.',
     time: '30 May · 18:45',
     status: 'parsed',
     brand: 'Cash',
@@ -3169,7 +3169,7 @@ try { (() => {
       minimumFractionDigits: opts.decimals === false ? 0 : 2,
       maximumFractionDigits: opts.decimals === false ? 0 : 2
     });
-    return (opts.currency === false ? '' : 'SAR ') + abs;
+    return (opts.currency === false ? '' : 'AED ') + abs;
   }
   window.HisabakMock = {
     CATEGORIES,

@@ -14,3 +14,18 @@
 .cxx
 local.properties
 .idea/firebender/
+
+# Release signing & service-account secrets — never commit
+keystore.properties
+*.jks
+*.keystore
+play-service-account*.json
+firebase-service-account*.json
+
+# Firebase client config — kept local / supplied via CI secret, not committed to the public repo
+google-services.json
+google-services*.json
+
+# Build artifacts (may land outside app/build/)
+*.aab
+*.apk

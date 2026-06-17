@@ -19,7 +19,7 @@ function Transactions({ onAdd }) {
         <div style={{ marginTop: 4 }}><AmountText value={12450} tone="neutral" sign="never" size={34} weight={700} /></div>
         <div style={{ margin: '14px 0 6px' }}><ProgressBar value={60} tone="income" height={8} /></div>
         <div style={{ display: 'flex', justifyContent: 'space-between', fontFamily: 'var(--font-sans)', fontSize: 12, color: 'var(--text-tertiary)' }}>
-          <span>60% income ratio</span><span>SAR 9,420 in · SAR 6,180 out</span>
+          <span>60% income ratio</span><span>AED 9,420 in · AED 6,180 out</span>
         </div>
         <Button fullWidth size="lg" leadingIcon="add" onClick={onAdd} style={{ marginTop: 14 }}>Add Transaction</Button>
       </Card>

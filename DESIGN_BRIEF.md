@@ -56,7 +56,7 @@ clean analytics to understand where your money goes.
 **Layout (scrollable, top to bottom):**
 
 1. **Net Worth Hero Card**
-   - Large net worth number (e.g. "SAR 12,450")
+   - Large net worth number (e.g. "AED 12,450")
    - Subtitle: "Net Worth" + date range label
    - Area line chart (full card width, subtle gradient fill below line)
    - Period selector chips below chart: Week / Month / Year / All
@@ -300,7 +300,7 @@ clean analytics to understand where your money goes.
 | Budget | Name, Amount, Period, Categories |
 | SMS Message | Body, Date, Parsed brand, Parsed amount, Status |
 
-**Money:** Always displayed with currency symbol prefix. Stored as minor units (e.g. 1000 = SAR 10.00).
+**Money:** Always displayed with currency symbol prefix. Stored as minor units (e.g. 1000 = AED 10.00).
 
 ---
 

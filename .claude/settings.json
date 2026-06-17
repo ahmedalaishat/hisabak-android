@@ -1,0 +1,30 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/pre-pr-consistency.sh\"",
+            "if": "Bash(gh pr create*)"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/run-tests.sh\"",
+            "timeout": 300,
+            "asyncRewake": true,
+            "rewakeSummary": "Unit tests failed",
+            "rewakeMessage": "The unit suite failed after your last change — fix it:"
+          }
+        ]
+      }
+    ]
+  }
+}
