@@ -53,6 +53,8 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.lerp
+import androidx.compose.ui.text.TextStyle
+import com.hisabak.ui.components.DirhamGlyph
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
@@ -142,7 +144,33 @@ private fun appearProgress(active: Boolean, durationMillis: Int): Float {
     return p
 }
 
-private fun money(v: Double): String = "AED %,.2f".format(v)
+/** Compact major-unit format: thousands as K, millions as M, both to 2 decimals. */
+private fun compactMajor(v: Double): String {
+    val a = kotlin.math.abs(v)
+    return when {
+        a >= 1_000_000 -> "%,.2fM".format(v / 1_000_000)
+        a >= 1_000 -> "%,.2fK".format(v / 1_000)
+        else -> "%,.2f".format(v)
+    }
+}
+
+/** Dirham glyph + compact amount, matching the app's [com.hisabak.ui.components.AmountText] look. */
+@Composable
+private fun OnboardingAmount(
+    value: Double,
+    style: TextStyle,
+    color: Color,
+    modifier: Modifier = Modifier,
+    sign: String = "",
+    symbolScale: Float = 0.78f,
+) {
+    Row(modifier = modifier, verticalAlignment = Alignment.CenterVertically) {
+        if (sign.isNotEmpty()) Text(sign, style = style, color = color)
+        DirhamGlyph(size = style.fontSize * symbolScale, tint = color)
+        Spacer(Modifier.width(3.dp))
+        Text(compactMajor(value), style = style, color = color, maxLines = 1)
+    }
+}
 
 @Composable
 private fun PreviewCard(modifier: Modifier = Modifier, content: @Composable () -> Unit) {
@@ -193,7 +221,12 @@ fun WelcomePage(active: Boolean, parallax: Float) {
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                     Spacer(Modifier.height(Spacing.s3))
-                    Text(money(842500.0 * p), style = HisabakType.amountHero, color = MaterialTheme.colorScheme.onSurface)
+                    OnboardingAmount(
+                        value = 842500.0 * p,
+                        style = HisabakType.amountHero,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        symbolScale = 0.62f,
+                    )
                     Spacer(Modifier.height(Spacing.s4))
                     Row(
                         verticalAlignment = Alignment.Bottom,
@@ -271,7 +304,12 @@ fun SmsCapturePage(active: Boolean, parallax: Float) {
                         Text("Lulu", style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.onSurface)
                         Text("Groceries · SMS", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
-                    Text("−AED 1,250.00", style = HisabakType.amount, color = HisabakTheme.colors.expense)
+                    OnboardingAmount(
+                        value = 1250.0,
+                        style = HisabakType.amount,
+                        color = HisabakTheme.colors.expense,
+                        sign = "−",
+                    )
                 }
             }
         }
@@ -301,7 +339,15 @@ fun BudgetsPage(active: Boolean, parallax: Float) {
                         Text("Groceries", style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.onSurface)
                         Text("June budget", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
-                    Text("AED 4,800 / 6,000", style = HisabakType.amount, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        DirhamGlyph(size = HisabakType.amount.fontSize * 0.78f, tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Spacer(Modifier.width(3.dp))
+                        Text(
+                            "${compactMajor(4800.0)} / ${compactMajor(6000.0)}",
+                            style = HisabakType.amount,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
                 }
                 Spacer(Modifier.height(Spacing.s4))
                 Box(
@@ -325,7 +371,15 @@ fun BudgetsPage(active: Boolean, parallax: Float) {
                         Text("80% of budget", style = MaterialTheme.typography.labelMedium, color = HisabakTheme.colors.warning)
                     }
                     Spacer(Modifier.weight(1f))
-                    Text("AED 1,200 left", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        DirhamGlyph(size = MaterialTheme.typography.bodySmall.fontSize * 0.9f, tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Spacer(Modifier.width(3.dp))
+                        Text(
+                            "${compactMajor(1200.0)} left",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
                 }
             }
         }

@@ -35,9 +35,10 @@ roles via `MaterialTheme.colorScheme`. Never hardcode hex.
 | DM Sans UI scale (hero/display/title/section/body/label/caption/overline) | `MaterialTheme.typography.*` (`HisabakTypography`) |
 | **Amounts — Geist Mono, tabular** | `HisabakType.amount` / `HisabakType.amountLarge` / `HisabakType.amountHero` |
 
-Money is **AED**, tabular figures; income `+`, expense true-minus `−`, both colored; hero
-balances neutral/unsigned. Use `MoneyText` / `AmountText` / `TrailingAmount` (they apply the
-mono style + `DirhamGlyph`).
+Money renders the **dirham glyph** (never the literal text "AED"), tabular figures; income
+`+`, expense true-minus `−`, both colored; hero balances neutral/unsigned. Always use
+`MoneyText` / `AmountText` / `TrailingAmount` (they apply the mono style + `DirhamGlyph`) —
+never hardcode `"AED …"` in a `Text`.
 
 ## Spacing · radius · sizing
 
