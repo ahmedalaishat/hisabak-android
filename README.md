@@ -57,6 +57,8 @@ Three ways to get it (Android 10+ / API 29):
 
 ## Features
 
+- **Guided onboarding** — a premium, animated first-launch walkthrough of the app's features,
+  ending with an SMS-permission primer.
 - **SMS auto-capture** — parse bank SMS into transactions automatically (with permission), or
   paste a message to import it on the spot.
 - **Budgets with alerts** — set a monthly limit per category and get notified at **50% / 80% /
@@ -110,7 +112,7 @@ and SMS-imported transactions are both covered through a single path.
 
 ## Testing & quality
 
-The domain logic and ViewModels are covered by **77 JVM unit tests** (money math, the SMS
+The domain logic and ViewModels are covered by **78 JVM unit tests** (money math, the SMS
 template parser, budget/limit logic, and ViewModel state) that run on the plain JVM — no
 emulator needed:
 
