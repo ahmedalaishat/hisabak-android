@@ -15,11 +15,18 @@ All notable changes to Hisabak are documented here. Format based on
 - Disabled Android auto/cloud backup so financial data truly never leaves the device,
   matching the privacy promise. Trade-off: no automatic restore on reinstall or device
   transfer.
+- Release builds no longer wipe the database on an unexpected schema change — the Room
+  schema is now exported and migrations are required, protecting on-device history. (Debug
+  builds keep the destructive fallback for fast iteration.)
 
 ### Fixed
 - Amounts with certain cents (e.g. `19.99`) were stored a cent short due to floating-point
   truncation; they now round correctly. Affects manual entry, SMS-parsed amounts, and
   category limits.
+- Budget alerts now fire reliably for transactions captured from SMS while the app is closed,
+  instead of occasionally being skipped when the process was reclaimed in the background.
+- Deleting a brand that can't be removed now shows a message instead of doing nothing
+  silently.
 
 ## [1.2.0]
 

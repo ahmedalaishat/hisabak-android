@@ -86,6 +86,9 @@ class FakeBrandRepository(initial: List<Brand> = emptyList()) : BrandRepository 
 
     fun emit(brands: List<Brand>) { items.value = brands }
 
+    /** When set to a Failure, [delete] returns it without removing — mimics an FK RESTRICT. */
+    var deleteResult: DomainResult<Unit> = DomainResult.Success(Unit)
+
     override fun observeAll(search: String?, categoryId: CategoryId?): Flow<List<Brand>> = items.map { list ->
         list.filter { brand ->
             (search == null || brand.name.contains(search, ignoreCase = true)) &&
@@ -107,6 +110,7 @@ class FakeBrandRepository(initial: List<Brand> = emptyList()) : BrandRepository 
     }
 
     override suspend fun delete(id: BrandId): DomainResult<Unit> {
+        if (deleteResult is DomainResult.Failure) return deleteResult
         items.value = items.value.filterNot { it.id == id }
         return DomainResult.Success(Unit)
     }

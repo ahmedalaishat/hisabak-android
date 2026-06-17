@@ -6,6 +6,7 @@ import android.content.Intent
 import android.provider.Telephony
 import android.util.Log
 import com.hisabak.core.common.DomainResult
+import com.hisabak.feature.notification.domain.CategoryLimitMonitor
 import com.hisabak.feature.sms.domain.usecase.IngestSmsUseCase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -24,6 +25,7 @@ import java.time.Instant
 class IncomingSmsReceiver : BroadcastReceiver(), KoinComponent {
 
     private val ingestSms: IngestSmsUseCase by inject()
+    private val limitMonitor: CategoryLimitMonitor by inject()
 
     override fun onReceive(context: Context, intent: Intent) {
         Log.d(TAG, "onReceive action=${intent.action}")
@@ -45,15 +47,19 @@ class IncomingSmsReceiver : BroadcastReceiver(), KoinComponent {
         val pending = goAsync()
         scope.launch {
             try {
+                var ingestedAny = false
                 bodiesByAddress.values
                     .filter { it.isNotBlank() }
                     .forEach { body ->
                         when (val result = ingestSms(body, receivedAt)) {
                             is DomainResult.Failure ->
                                 Log.d(TAG, "SMS ingestion failed: ${result.error.message}")
-                            is DomainResult.Success -> Unit
+                            is DomainResult.Success -> ingestedAny = true
                         }
                     }
+                // Fire any budget alert now, while the process is guaranteed alive — the
+                // app-scoped monitor may not get a turn before the OS reclaims us.
+                if (ingestedAny) limitMonitor.evaluateNow()
             } finally {
                 pending.finish()
             }
