@@ -7,9 +7,9 @@ import org.junit.Test
 
 class RegexSmsTemplateDetectorTest {
 
-    // Note: the detector masks `{x}` as non-greedy `(.*?)`, so a placeholder must be followed by
-    // literal text to capture anything. A trailing `.` in a template is a regex wildcard, not a
-    // literal dot — which is why the last field (e.g. `{time}`) is dropped in some real templates.
+    // The detector masks `{x}` as non-greedy `(.*?)` and matches the surrounding text literally,
+    // so a placeholder needs literal text after it to capture anything, and template punctuation
+    // (e.g. a trailing `.`) is a real dot that bounds the final field.
 
     @Test
     fun `extracts placeholder fields bounded by literals`() {
@@ -67,7 +67,7 @@ class RegexSmsTemplateDetectorTest {
     }
 
     @Test
-    fun `real default debit template captures amount brand and date`() {
+    fun `real default debit template captures amount brand date and time`() {
         val detector = RegexSmsTemplateDetector(DefaultSmsTemplates.patterns)
 
         val template = detector.detect(
@@ -77,5 +77,15 @@ class RegexSmsTemplateDetectorTest {
         assertEquals("250.75", template?.fields?.get("amount"))
         assertEquals("Lulu", template?.fields?.get("brand"))
         assertEquals("17-06-2026", template?.fields?.get("date"))
+        // Time is bounded by the literal trailing dot, so it is no longer swallowed.
+        assertEquals("14:30", template?.fields?.get("time"))
+    }
+
+    @Test
+    fun `dots in templates match literally, not as wildcards`() {
+        val detector = RegexSmsTemplateDetector(listOf("Ref {id}.END"))
+
+        assertEquals("42", detector.detect("Ref 42.END")?.fields?.get("id"))
+        assertNull(detector.detect("Ref 42XEND"))
     }
 }
