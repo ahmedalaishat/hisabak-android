@@ -24,6 +24,12 @@ interface SmsDao {
     @Query("SELECT COUNT(*) FROM sms_messages WHERE deletedAtMillis IS NULL")
     suspend fun count(): Int
 
+    @Query(
+        "SELECT COUNT(*) FROM sms_messages " +
+            "WHERE body = :body AND receivedAtMillis = :receivedAtMillis AND deletedAtMillis IS NULL",
+    )
+    suspend fun countByContent(body: String, receivedAtMillis: Long): Int
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun upsert(entity: SmsMessageEntity)
 

@@ -20,6 +20,9 @@ All notable changes to Hisabak are documented here. Format based on
 - Amounts with certain cents (e.g. `19.99`) were stored a cent short due to floating-point
   truncation; they now round correctly. Affects manual entry, SMS-parsed amounts, and
   category limits.
+- An auto-captured SMS with no date in its text is now dated when the message arrived instead
+  of the moment it was processed.
+- A redelivered bank SMS (same text and time) is no longer imported twice.
 
 ## [1.2.0]
 
