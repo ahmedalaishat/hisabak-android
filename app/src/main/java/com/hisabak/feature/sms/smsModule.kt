@@ -8,6 +8,7 @@ import com.hisabak.feature.sms.domain.SmsParser
 import com.hisabak.feature.sms.domain.SmsRepository
 import com.hisabak.feature.sms.domain.SmsTemplateDetector
 import com.hisabak.feature.sms.domain.SmsTransactionProcessor
+import com.hisabak.feature.sms.domain.capture.CaptureTransactionUseCase
 import com.hisabak.feature.sms.domain.usecase.DeleteSmsUseCase
 import com.hisabak.feature.sms.domain.usecase.IngestSmsUseCase
 import com.hisabak.feature.sms.domain.usecase.ObserveSmsMessagesUseCase
@@ -34,12 +35,19 @@ val smsModule = module {
 
     factory { ObserveSmsMessagesUseCase(get()) }
     factory { IngestSmsUseCase(smsRepository = get(), processor = get(), clock = get()) }
+    factory {
+        CaptureTransactionUseCase(
+            ingest = get(),
+            recordedNotifier = get(),
+            limitMonitor = get(),
+        )
+    }
     factory { DeleteSmsUseCase(get()) }
 
     viewModel {
         SmsInboxViewModel(
             observeMessages = get(),
-            ingestSms = get(),
+            capture = get(),
             deleteSms = get(),
         )
     }
