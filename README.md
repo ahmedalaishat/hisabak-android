@@ -112,7 +112,7 @@ and SMS-imported transactions are both covered through a single path.
 
 ## Testing & quality
 
-The domain logic and ViewModels are covered by **79 JVM unit tests** (money math, the SMS
+The domain logic and ViewModels are covered by **81 JVM unit tests** (money math, the SMS
 template parser, budget/limit logic, and ViewModel state) that run on the plain JVM — no
 emulator needed:
 

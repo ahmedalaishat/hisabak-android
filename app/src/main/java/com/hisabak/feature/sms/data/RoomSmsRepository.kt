@@ -10,6 +10,7 @@ import com.hisabak.feature.sms.domain.SmsMessageId
 import com.hisabak.feature.sms.domain.SmsRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import java.time.Instant
 
 class RoomSmsRepository(
     private val dao: SmsDao,
@@ -34,4 +35,7 @@ class RoomSmsRepository(
         dao.deleteById(id.value)
         return DomainResult.Success(Unit)
     }
+
+    override suspend fun existsByContent(body: String, receivedAt: Instant): Boolean =
+        dao.countByContent(body, receivedAt.toEpochMilli()) > 0
 }

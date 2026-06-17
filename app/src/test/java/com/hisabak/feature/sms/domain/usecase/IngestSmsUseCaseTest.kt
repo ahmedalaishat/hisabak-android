@@ -15,6 +15,7 @@ import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import java.time.Instant
 import java.time.ZoneOffset
 
 class IngestSmsUseCaseTest {
@@ -53,5 +54,27 @@ class IngestSmsUseCaseTest {
         assertTrue(result is DomainResult.Failure)
         assertEquals(1, smsRepo.current.size)
         assertTrue(transactionRepo.current.isEmpty())
+    }
+
+    @Test
+    fun `a dateless sms is dated at the time it was received`() = runTest {
+        val receivedAt = Instant.parse("2026-03-04T09:30:00Z")
+
+        val result = useCase("Purchase of AED 42.00 at Lulu done", receivedAt)
+
+        assertTrue(result is DomainResult.Success)
+        assertEquals(receivedAt, (result as DomainResult.Success).value.occurredAt)
+    }
+
+    @Test
+    fun `a redelivered sms with the same body and time is ignored`() = runTest {
+        val receivedAt = Instant.parse("2026-03-04T09:30:00Z")
+        useCase("Purchase of AED 42.00 at Lulu done", receivedAt)
+
+        val second = useCase("Purchase of AED 42.00 at Lulu done", receivedAt)
+
+        assertTrue(second is DomainResult.Failure)
+        assertEquals(1, smsRepo.current.size)
+        assertEquals(1, transactionRepo.current.size)
     }
 }

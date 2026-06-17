@@ -33,6 +33,7 @@ import com.hisabak.feature.transaction.domain.TransactionRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.map
+import java.time.Instant
 import java.time.YearMonth
 
 class FakeTransactionRepository(initial: List<Transaction> = emptyList()) : TransactionRepository {
@@ -230,6 +231,9 @@ class FakeSmsRepository(initial: List<SmsMessage> = emptyList()) : SmsRepository
         items.value = items.value.filterNot { it.id == id }
         return DomainResult.Success(Unit)
     }
+
+    override suspend fun existsByContent(body: String, receivedAt: Instant): Boolean =
+        items.value.any { it.body == body && it.receivedAt == receivedAt }
 }
 
 /** Records every posted notification so tests can assert what fired (and how many times). */
