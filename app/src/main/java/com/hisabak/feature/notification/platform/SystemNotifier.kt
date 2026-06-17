@@ -14,10 +14,11 @@ import androidx.core.content.ContextCompat
 import com.hisabak.MainActivity
 import com.hisabak.R
 import com.hisabak.feature.notification.domain.Notification
+import com.hisabak.feature.notification.domain.Notifier
 
 /** Posts Android system notifications for budget alerts. A no-op (the in-app record still
  *  exists) when the runtime permission isn't granted. */
-class SystemNotifier(private val context: Context) {
+class SystemNotifier(private val context: Context) : Notifier {
 
     fun ensureChannel() {
         val channel = NotificationChannel(
@@ -28,7 +29,7 @@ class SystemNotifier(private val context: Context) {
         context.getSystemService(NotificationManager::class.java).createNotificationChannel(channel)
     }
 
-    fun post(notification: Notification) {
+    override fun post(notification: Notification) {
         if (!hasPermission()) return
 
         val intent = Intent(context, MainActivity::class.java).apply {
