@@ -60,6 +60,10 @@ GitHub Release here; **live** = Play.
 1. Create the app in the Play Console and enable **Play App Signing**.
 2. **Upload the first signed AAB manually** to the internal track — the API can't create the
    app or seed the first release. CI publishes every release after that.
+3. **Store listing** is automated: `scripts/play/push-listing.mjs` pushes copy + graphics from
+   `play/listing/en-US/` via the Android Publisher API. The Console-only items (Data safety,
+   content rating, app access, etc.) have pre-filled answers in `play/CONSOLE-CHECKLIST.md`.
+   Privacy policy is live at `https://ahmedalaishat.github.io/hisabak-android/privacy.html`.
 
 **Cutting a release** (the `git-workflow` skill's "ship it"): bump `versionName`/`versionCode`,
 merge `develop`→`main`, then tag `vX.Y.Z` and push — the tag triggers this workflow.
