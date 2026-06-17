@@ -7,6 +7,7 @@ import android.provider.Telephony
 import android.util.Log
 import com.hisabak.core.common.DomainResult
 import com.hisabak.feature.notification.domain.CategoryLimitMonitor
+import com.hisabak.feature.notification.domain.TransactionRecordedNotifier
 import com.hisabak.feature.sms.domain.usecase.IngestSmsUseCase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -26,6 +27,7 @@ class IncomingSmsReceiver : BroadcastReceiver(), KoinComponent {
 
     private val ingestSms: IngestSmsUseCase by inject()
     private val limitMonitor: CategoryLimitMonitor by inject()
+    private val recordedNotifier: TransactionRecordedNotifier by inject()
 
     override fun onReceive(context: Context, intent: Intent) {
         Log.d(TAG, "onReceive action=${intent.action}")
@@ -54,7 +56,10 @@ class IncomingSmsReceiver : BroadcastReceiver(), KoinComponent {
                         when (val result = ingestSms(body, receivedAt)) {
                             is DomainResult.Failure ->
                                 Log.d(TAG, "SMS ingestion failed: ${result.error.message}")
-                            is DomainResult.Success -> ingestedAny = true
+                            is DomainResult.Success -> {
+                                ingestedAny = true
+                                recordedNotifier.notify(result.value)
+                            }
                         }
                     }
                 // Fire any budget alert now, while the process is guaranteed alive — the

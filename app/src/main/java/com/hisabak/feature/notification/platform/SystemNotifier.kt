@@ -15,18 +15,28 @@ import com.hisabak.MainActivity
 import com.hisabak.R
 import com.hisabak.feature.notification.domain.Notification
 import com.hisabak.feature.notification.domain.Notifier
+import com.hisabak.feature.notification.domain.TransactionRecordedAlert
 
-/** Posts Android system notifications for budget alerts. A no-op (the in-app record still
- *  exists) when the runtime permission isn't granted. */
+/** Posts Android system notifications for budget alerts and SMS-import confirmations. A no-op
+ *  (the in-app record still exists) when the runtime permission isn't granted. */
 class SystemNotifier(private val context: Context) : Notifier {
 
     fun ensureChannel() {
-        val channel = NotificationChannel(
-            CHANNEL_ID,
-            "Budget alerts",
-            NotificationManager.IMPORTANCE_DEFAULT,
-        ).apply { description = "Alerts when a category nears or exceeds its monthly limit" }
-        context.getSystemService(NotificationManager::class.java).createNotificationChannel(channel)
+        val manager = context.getSystemService(NotificationManager::class.java)
+        manager.createNotificationChannel(
+            NotificationChannel(
+                CHANNEL_ID,
+                "Budget alerts",
+                NotificationManager.IMPORTANCE_DEFAULT,
+            ).apply { description = "Alerts when a category nears or exceeds its monthly limit" },
+        )
+        manager.createNotificationChannel(
+            NotificationChannel(
+                CHANNEL_TRANSACTIONS,
+                "Transaction updates",
+                NotificationManager.IMPORTANCE_DEFAULT,
+            ).apply { description = "Confirms transactions captured from your bank SMS" },
+        )
     }
 
     override fun post(notification: Notification) {
@@ -56,6 +66,38 @@ class SystemNotifier(private val context: Context) : Notifier {
         NotificationManagerCompat.from(context).notify(id, built)
     }
 
+    override fun postTransactionRecorded(alert: TransactionRecordedAlert) {
+        if (!hasPermission()) return
+
+        val intent = Intent(context, MainActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP
+            // Categorized → focus the category on the dashboard; uncategorized → open the brand editor.
+            if (alert.categoryId != null) {
+                putExtra(EXTRA_CATEGORY_ID, alert.categoryId)
+            } else {
+                putExtra(EXTRA_BRAND_ID, alert.brandId)
+            }
+        }
+        val id = alert.transactionId.hashCode()
+        val pendingIntent = PendingIntent.getActivity(
+            context,
+            id,
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+        )
+        val builder = NotificationCompat.Builder(context, CHANNEL_TRANSACTIONS)
+            .setSmallIcon(R.drawable.ic_notification)
+            .setContentTitle(alert.title)
+            .setContentText(alert.message)
+            .setStyle(NotificationCompat.BigTextStyle().bigText(alert.message))
+            .setContentIntent(pendingIntent)
+            .setAutoCancel(true)
+            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+        // Category glyph tile as the large icon; null (uncategorized) keeps just the app icon.
+        categoryGlyphBitmap(context, alert.iconKey, alert.colorKey)?.let(builder::setLargeIcon)
+        NotificationManagerCompat.from(context).notify(id, builder.build())
+    }
+
     private fun hasPermission(): Boolean =
         Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU ||
             ContextCompat.checkSelfPermission(
@@ -65,6 +107,8 @@ class SystemNotifier(private val context: Context) : Notifier {
 
     companion object {
         const val CHANNEL_ID = "budget_alerts"
+        const val CHANNEL_TRANSACTIONS = "transaction_updates"
         const val EXTRA_CATEGORY_ID = "category_id"
+        const val EXTRA_BRAND_ID = "brand_id"
     }
 }

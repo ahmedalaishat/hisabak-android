@@ -23,5 +23,6 @@ data class Notification(
 ) {
     companion object {
         const val TYPE_CATEGORY_LIMIT = "category_limit"
+        const val TYPE_TRANSACTION_RECORDED = "transaction_recorded"
     }
 }
