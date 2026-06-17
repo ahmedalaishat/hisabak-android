@@ -6,11 +6,18 @@ All notable changes to Hisabak are documented here. Format based on
 
 ## [Unreleased]
 
+## [1.2.0]
+
 ### Added
-- Automated `/feature` pipeline: turns a high-level requirement into a reviewed,
-  tested, documented PR against `develop` (spec → design → code+tests → QA → docs → PR).
-- JVM unit-test safeguard (77 tests) covering domain logic and ViewModels, with a
-  Stop hook and GitHub Actions CI enforcing it on every change.
+- Separate `staging` and `production` build flavors (`com.hisabak.staging` /
+  `com.hisabak`) so both can be installed side by side; staging is labelled "Hisabak STG".
+- CI/CD: GitHub Actions run the unit suite on every PR, distribute staging builds to
+  testers via Firebase App Distribution, and publish production releases to Google Play.
+- JVM unit-test safeguard (77 tests) covering domain logic and ViewModels.
+
+### Changed
+- Production installs no longer seed demo data — they start empty (demo data is
+  staging-only).
 
 ### Fixed
 - SMS template parsing treated a template's trailing `.` as a regex wildcard, which
