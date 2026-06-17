@@ -1,0 +1,13 @@
+{
+  "name": "hisabak-play-listing",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Pushes the Hisabak store listing to Google Play via the Android Publisher API.",
+  "scripts": {
+    "push": "node push-listing.mjs"
+  },
+  "dependencies": {
+    "googleapis": "^144.0.0"
+  }
+}

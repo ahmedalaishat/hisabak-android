@@ -21,6 +21,11 @@ keystore.properties
 *.keystore
 play-service-account*.json
 firebase-service-account*.json
+service-account*.json
+hisabak-finance-tracking-*.json
+
+# Play listing push tool deps
+scripts/play/node_modules/
 
 # Firebase client config — kept local / supplied via CI secret, not committed to the public repo
 google-services.json

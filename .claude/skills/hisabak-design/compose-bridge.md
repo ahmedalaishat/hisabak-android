@@ -35,9 +35,12 @@ roles via `MaterialTheme.colorScheme`. Never hardcode hex.
 | DM Sans UI scale (hero/display/title/section/body/label/caption/overline) | `MaterialTheme.typography.*` (`HisabakTypography`) |
 | **Amounts — Geist Mono, tabular** | `HisabakType.amount` / `HisabakType.amountLarge` / `HisabakType.amountHero` |
 
-Money is **AED**, tabular figures; income `+`, expense true-minus `−`, both colored; hero
-balances neutral/unsigned. Use `MoneyText` / `AmountText` / `TrailingAmount` (they apply the
-mono style + `DirhamGlyph`).
+Money renders the **dirham glyph** (never the literal text "AED"), tabular figures; income
+`+`, expense true-minus `−`, both colored; hero balances neutral/unsigned. Always use
+`MoneyText` / `AmountText` / `TrailingAmount` (they apply the mono style + `DirhamGlyph`) —
+never hardcode `"AED …"` in a `Text`. Amounts display **compactly** via `compactAmount` /
+`compactAmountMinor` (thousands `K`, millions `M`, 2 decimals; under 1,000 exact); only the
+transaction edit input stays exact.
 
 ## Spacing · radius · sizing
 
@@ -66,7 +69,8 @@ mono style + `DirhamGlyph`).
 | `EmptyState` | `EmptyStatePanel` |
 | `TopAppBar` | `HisabakTopBar`, `DetailTopBar` |
 | `BottomNav` | `HisabakBottomNav` |
-| banners ("most used" / promo) | `GradientBanner`, `DarkPromoBanner` |
+| banners (promo) | `GradientBanner`, `DarkPromoBanner` |
+| "most used" highlight card | `MostUsedCard` (tinted `SurfaceCard` + icon + trailing slot) |
 | charts (area / bars / donut / sparkline) | `AreaLineChart`, `BarSparkline`, `DonutChart` (Vico-backed) |
 | loading skeletons | `SkeletonBox`, `SkeletonRow`, `SkeletonCard`, `SkeletonRowList` |
 

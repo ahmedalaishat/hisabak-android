@@ -22,6 +22,7 @@ import com.hisabak.feature.notification.domain.Notification
 import com.hisabak.feature.notification.domain.NotificationId
 import com.hisabak.feature.notification.domain.NotificationRepository
 import com.hisabak.feature.notification.domain.Notifier
+import com.hisabak.feature.notification.domain.TransactionRecordedAlert
 import com.hisabak.feature.sms.domain.SmsMessage
 import com.hisabak.feature.sms.domain.SmsMessageId
 import com.hisabak.feature.sms.domain.SmsRepository
@@ -33,6 +34,7 @@ import com.hisabak.feature.transaction.domain.TransactionRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.map
+import java.time.Instant
 import java.time.YearMonth
 
 class FakeTransactionRepository(initial: List<Transaction> = emptyList()) : TransactionRepository {
@@ -86,6 +88,9 @@ class FakeBrandRepository(initial: List<Brand> = emptyList()) : BrandRepository 
 
     fun emit(brands: List<Brand>) { items.value = brands }
 
+    /** When set to a Failure, [delete] returns it without removing — mimics an FK RESTRICT. */
+    var deleteResult: DomainResult<Unit> = DomainResult.Success(Unit)
+
     override fun observeAll(search: String?, categoryId: CategoryId?): Flow<List<Brand>> = items.map { list ->
         list.filter { brand ->
             (search == null || brand.name.contains(search, ignoreCase = true)) &&
@@ -107,6 +112,7 @@ class FakeBrandRepository(initial: List<Brand> = emptyList()) : BrandRepository 
     }
 
     override suspend fun delete(id: BrandId): DomainResult<Unit> {
+        if (deleteResult is DomainResult.Failure) return deleteResult
         items.value = items.value.filterNot { it.id == id }
         return DomainResult.Success(Unit)
     }
@@ -230,12 +236,17 @@ class FakeSmsRepository(initial: List<SmsMessage> = emptyList()) : SmsRepository
         items.value = items.value.filterNot { it.id == id }
         return DomainResult.Success(Unit)
     }
+
+    override suspend fun existsByContent(body: String, receivedAt: Instant): Boolean =
+        items.value.any { it.body == body && it.receivedAt == receivedAt }
 }
 
 /** Records every posted notification so tests can assert what fired (and how many times). */
 class RecordingNotifier : Notifier {
     val posted = mutableListOf<Notification>()
+    val recorded = mutableListOf<TransactionRecordedAlert>()
     override fun post(notification: Notification) { posted += notification }
+    override fun postTransactionRecorded(alert: TransactionRecordedAlert) { recorded += alert }
 }
 
 /** In-memory stand-in for the Room DAO that tracks the highest alert level per category/month. */

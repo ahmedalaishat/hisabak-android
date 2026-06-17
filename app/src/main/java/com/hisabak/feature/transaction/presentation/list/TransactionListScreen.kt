@@ -49,6 +49,7 @@ import com.hisabak.feature.category.domain.CategoryType
 import com.hisabak.feature.category.presentation.CategoryStyle
 import com.hisabak.feature.transaction.domain.TransactionId
 import com.hisabak.ui.components.AmountText
+import com.hisabak.ui.components.compactAmountMinor
 import com.hisabak.ui.components.AmountTone
 import com.hisabak.ui.components.CircleIconTile
 import com.hisabak.ui.components.PeriodChipRow
@@ -406,8 +407,8 @@ internal fun formatMoneyMajor(amountMinor: Long, currency: String): String {
     return prefix + amountMinor.toMajor()
 }
 
-/** Grouped, 2-decimal amount with no currency code (the glyph is shown separately). */
-private fun formatAmountMajor(amountMinor: Long): String = "%,.2f".format(amountMinor / 100.0)
+/** Compact amount with no currency code (the glyph is shown separately). */
+private fun formatAmountMajor(amountMinor: Long): String = compactAmountMinor(amountMinor)
 
 internal fun formatSignedAmount(money: Money, positive: Boolean): String {
     val sign = if (positive) "+" else "-"

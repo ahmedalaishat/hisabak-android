@@ -21,7 +21,11 @@ Domain model mirrors Hisabi so concepts transfer cleanly.
 - **State:** ViewModel + `collectAsStateWithLifecycle`
 - **Charts:** Vico
 - **Storage:** Room (SQLite) — `Room*Repository` impls per feature's `data/`, entities/DAOs/
-  mappers in `data/local/`, and the database in `core/data/local/` (`HisabakDatabase`)
+  mappers in `data/local/`, and the database in `core/data/local/` (`HisabakDatabase`).
+  The Room schema is exported to `app/schemas/` (committed); bump the DB version and add a
+  real `Migration` for any entity change — **release builds don't destructively fall back**
+  (debug builds do, for fast iteration). Lightweight app prefs (e.g. the onboarding flag)
+  use DataStore (`core/data/preferences/`).
 - **Platform:** Android only, portrait, edge-to-edge
 
 ---
@@ -157,8 +161,15 @@ Category icons sit on a tinted rounded-square tile in the category color.
 
 - Address the user as **you**. **Sentence case** for buttons/labels; Title Case only for
   proper screen names ("SMS Inbox"). No emoji.
-- Money is always `AED 1,234.56` with tabular figures. Income shows `+`, expenses the true
-  minus `−` (U+2212), both colored. Hero balances drop the sign and use neutral text.
+- Money in the UI uses the **dirham glyph**, never the literal text "AED". Use the shared
+  components — `DirhamGlyph`, `AmountText`, `MoneyText` (`ui/components/HisabakComponents.kt`,
+  glyph = `res/drawable/ic_dirham`) — which render the glyph + Geist Mono tabular figures.
+  Never hardcode `"AED …"` in a `Text`. (The only exception is simulated bank-SMS sample
+  text, which genuinely contains "AED".) Amounts are shown **compactly** — thousands as `K`,
+  millions as `M`, both to 2 decimals, under 1,000 exact (the shared `compactAmount` /
+  `compactAmountMinor`, applied by `MoneyText`/`AmountText`); only the transaction edit input
+  stays exact. Income shows `+`, expenses the true minus `−` (U+2212), both colored. Hero
+  balances drop the sign and use neutral text.
 - Every list screen needs a real empty state: icon + "No … yet" + one-line guidance + a CTA.
 
 ---
@@ -171,7 +182,7 @@ Each component has a `.prompt.md` (what/when + usage) and `.d.ts` (props) — re
 
 `HisabakTopBar`, `HisabakBottomNav`, `CreateActionButton`, `PrimaryPillButton`,
 `SurfaceCard`, `IconTile`, `CircleIconTile`, `ListRow`, `StatCard`, `SearchField`,
-`SectionHeader`, `FilterChipRow`, `GradientBanner`, `DarkPromoBanner`,
+`SectionHeader`, `FilterChipRow`, `GradientBanner`, `DarkPromoBanner`, `MostUsedCard`,
 `EmptyStatePanel`, `ProgressBar`, `AreaLineChart`, `BarSparkline`, `DonutChart`
 
 ---

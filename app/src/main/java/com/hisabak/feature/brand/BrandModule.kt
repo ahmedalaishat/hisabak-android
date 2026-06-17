@@ -8,6 +8,7 @@ import com.hisabak.feature.brand.domain.usecase.DeleteBrandUseCase
 import com.hisabak.feature.brand.domain.usecase.FindOrCreateBrandUseCase
 import com.hisabak.feature.brand.domain.usecase.ObserveBrandsUseCase
 import com.hisabak.feature.brand.domain.usecase.UpdateBrandUseCase
+import com.hisabak.feature.brand.presentation.BrandEditBus
 import com.hisabak.feature.brand.presentation.edit.BrandEditViewModel
 import com.hisabak.feature.brand.presentation.list.BrandListViewModel
 import org.koin.core.module.dsl.viewModel
@@ -15,6 +16,7 @@ import org.koin.dsl.module
 
 val brandModule = module {
     single<BrandRepository> { RoomBrandRepository(dao = get(), transactionDao = get()) }
+    single { BrandEditBus() }
 
     factory { ObserveBrandsUseCase(get()) }
     factory { CreateBrandUseCase(get(), get()) }

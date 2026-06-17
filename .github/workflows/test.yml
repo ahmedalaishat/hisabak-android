@@ -1,8 +1,8 @@
 name: Unit tests
 
 on:
-  push:
-    branches: [develop, main]
+  # PRs only: branch protection routes every change through a PR, so the pull_request run is
+  # the single gate. (Running on push too would re-test the same commit after merge.)
   pull_request:
     branches: [develop, main]
 

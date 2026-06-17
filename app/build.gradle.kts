@@ -30,8 +30,8 @@ android {
         applicationId = "com.hisabak"
         minSdk = 29
         targetSdk = 36
-        versionCode = 3
-        versionName = "1.2.0"
+        versionCode = 4
+        versionName = "1.3.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -54,6 +54,9 @@ android {
             // applicationId stays com.hisabak (from defaultConfig)
             resValue("string", "app_name", "Hisabak")
             buildConfigField("boolean", "SEED_DATA", "false")
+            // Google Play disallows the SMS restricted permission for this use case, so the
+            // Play/prod build captures via share + select-text + manual paste only.
+            buildConfigField("boolean", "SMS_AUTO_CAPTURE", "false")
         }
         create("staging") {
             dimension = "environment"
@@ -61,6 +64,8 @@ android {
             versionNameSuffix = "-staging"
             resValue("string", "app_name", "Hisabak STG")
             buildConfigField("boolean", "SEED_DATA", "true")
+            // RECEIVE_SMS auto-capture lives in staging only (distributed off-Play via Firebase).
+            buildConfigField("boolean", "SMS_AUTO_CAPTURE", "true")
         }
     }
 
@@ -89,6 +94,12 @@ android {
     }
 }
 
+// Export the Room schema so migrations can be authored and validated against it. The generated
+// JSON under app/schemas/ is committed.
+ksp {
+    arg("room.schemaLocation", "$projectDir/schemas")
+}
+
 dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
@@ -109,6 +120,7 @@ dependencies {
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
     ksp(libs.androidx.room.compiler)
+    implementation(libs.androidx.datastore.preferences)
     implementation(libs.vico.compose.m3)
     implementation(libs.androidx.compose.ui.text.google.fonts)
     implementation(libs.androidx.navigation3.runtime)

@@ -38,6 +38,7 @@ import androidx.compose.ui.unit.sp
 import com.hisabak.core.common.Money
 import com.hisabak.feature.sms.domain.SmsMessageId
 import com.hisabak.ui.components.AmountText
+import com.hisabak.ui.components.compactAmount
 import com.hisabak.ui.components.AmountTone
 import com.hisabak.ui.components.Badge
 import com.hisabak.ui.components.SkeletonRowList
@@ -62,6 +63,7 @@ import kotlin.math.abs
 fun SmsInboxScreen(
     state: SmsInboxUiState,
     snackbarHostState: SnackbarHostState,
+    autoImportAvailable: Boolean,
     onSearchChange: (String) -> Unit,
     onDraftChange: (String) -> Unit,
     onIngest: () -> Unit,
@@ -75,7 +77,9 @@ fun SmsInboxScreen(
             contentPadding = PaddingValues(horizontal = Spacing.pageMargin, vertical = Spacing.s5),
             verticalArrangement = Arrangement.spacedBy(Spacing.cardGap),
         ) {
-            item { AutoImportBanner(granted = state.autoImportGranted, onEnable = onEnableAutoImport) }
+            if (autoImportAvailable) {
+                item { AutoImportBanner(granted = state.autoImportGranted, onEnable = onEnableAutoImport) }
+            }
             item { PasteParseCard(draft = state.draftBody, isProcessing = state.isProcessing, onDraftChange = onDraftChange, onIngest = onIngest) }
             item {
                 SearchField(
@@ -93,10 +97,11 @@ fun SmsInboxScreen(
                     EmptyStatePanel(
                         icon = Icons.Filled.Inbox,
                         title = "No SMS messages",
-                        subtitle = if (state.search.isBlank())
-                            "Enable auto-import to capture bank messages automatically."
-                        else
-                            "Nothing matches \"${state.search}\".",
+                        subtitle = when {
+                            state.search.isNotBlank() -> "Nothing matches \"${state.search}\"."
+                            autoImportAvailable -> "Enable auto-import to capture bank messages automatically."
+                            else -> "Share a bank SMS into Hisabak, select its text, or paste it below."
+                        },
                     )
                 }
             } else {
@@ -122,34 +127,51 @@ fun SmsInboxScreen(
 @Composable
 private fun AutoImportBanner(granted: Boolean, onEnable: () -> Unit) {
     SurfaceCard(modifier = Modifier.fillMaxWidth()) {
-        Row(
-            Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(Spacing.cardGap),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(Spacing.s2)) {
-                Text(
-                    if (granted) "Auto-import active" else "Auto-import is disabled",
-                    style = MaterialTheme.typography.titleSmall,
-                    color = MaterialTheme.colorScheme.onSurface,
-                )
-                Text(
-                    if (granted)
-                        "New bank SMS are parsed automatically."
-                    else
-                        "Turn it on to log transactions from SMS.",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-            }
-            if (granted) {
+        if (granted) {
+            // Compact: the "Active" badge is small and sits inline with the copy.
+            Row(
+                Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(Spacing.cardGap),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(Spacing.s2)) {
+                    Text(
+                        "Auto-import active",
+                        style = MaterialTheme.typography.titleSmall,
+                        color = MaterialTheme.colorScheme.onSurface,
+                    )
+                    Text(
+                        "New bank SMS are parsed automatically.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
                 Badge(label = "Active", tone = BadgeTone.Income)
-            } else {
+            }
+        } else {
+            // Stack vertically so the title isn't squeezed by the badge + Enable button.
+            Column(
+                Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(Spacing.s4),
+            ) {
+                Column(verticalArrangement = Arrangement.spacedBy(Spacing.s2)) {
+                    Text(
+                        "Auto-import is disabled",
+                        style = MaterialTheme.typography.titleSmall,
+                        color = MaterialTheme.colorScheme.onSurface,
+                    )
+                    Text(
+                        "Turn it on to log transactions from SMS.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
                 Row(
-                    horizontalArrangement = Arrangement.spacedBy(Spacing.s3),
+                    Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Badge(label = "Auto-import off", tone = BadgeTone.Warning, dot = true)
+                    Spacer(Modifier.weight(1f))
                     HisabakButton(
                         text = "Enable",
                         onClick = onEnable,
@@ -316,10 +338,8 @@ private fun SmsRowCard(
 }
 
 internal fun formatMoney(money: Money): String {
-    val major = money.amountMinor / 100
-    val minor = abs(money.amountMinor % 100)
     val sign = if (money.amountMinor < 0) "-" else ""
-    return "$sign${money.currency.code} $major.${minor.toString().padStart(2, '0')}"
+    return "$sign${money.currency.code} ${compactAmount(abs(money.amountMinor) / 100.0)}"
 }
 
 internal fun formatDate(instant: java.time.Instant): String =

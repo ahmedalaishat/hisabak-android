@@ -4,6 +4,7 @@ import com.hisabak.feature.notification.data.RoomNotificationRepository
 import com.hisabak.feature.notification.domain.CategoryLimitMonitor
 import com.hisabak.feature.notification.domain.NotificationRepository
 import com.hisabak.feature.notification.domain.Notifier
+import com.hisabak.feature.notification.domain.TransactionRecordedNotifier
 import com.hisabak.feature.notification.platform.SystemNotifier
 import com.hisabak.feature.notification.presentation.list.NotificationsViewModel
 import org.koin.android.ext.koin.androidContext
@@ -26,6 +27,15 @@ val notificationModule = module {
             systemNotifier = get(),
             currency = get(),
             clock = get(),
+        )
+    }
+
+    single {
+        TransactionRecordedNotifier(
+            brands = get(),
+            categories = get(),
+            notifier = get(),
+            currency = get(),
         )
     }
 

@@ -42,22 +42,25 @@
 
 ## Download
 
-Grab the signed APK from the [**Releases**](../../releases) page and install it on any
-Android 10+ (API 29) device:
+Three ways to get it (Android 10+ / API 29):
 
-1. Download `hisabak-v1.2.0.apk` from the latest release.
-2. Open it on the device (allow “install unknown apps” if prompted), or run
-   `adb install hisabak-v1.2.0.apk`.
-
-It's a small (~3 MB) R8-minified build signed with a debug key for easy testing — not a Play
-Store release.
+- **Try the demo** — a build pre-loaded with sample data, so the dashboard, charts, and budgets
+  are populated the moment you open it:
+  **[install the demo](https://appdistribution.firebase.dev/i/b817bdd33c687f05)** via Firebase
+  App Distribution (accept the invite, then install through the Firebase App Tester app).
+- **Direct APK** — the production build (starts empty, your data only): grab the latest
+  `hisabak-*.apk` from the [**Releases**](../../releases) page, then open it on-device (allow
+  "install unknown apps") or `adb install` it. A ~3 MB R8-minified, release-signed build.
+- **Google Play** — coming soon (currently in internal testing).
 
 ---
 
 ## Features
 
-- **SMS auto-capture** — parse bank SMS into transactions automatically (with permission), or
-  paste a message to import it on the spot.
+- **Guided onboarding** — a premium, animated first-launch walkthrough of the app's features,
+  ending with an SMS-permission primer.
+- **SMS capture** — parse bank SMS into transactions automatically (with permission), or
+  capture one on demand by sharing it into Hisabak, selecting its text → Hisabak, or pasting it.
 - **Budgets with alerts** — set a monthly limit per category and get notified at **50% / 80% /
   100%**. Alerts arrive as an Android notification *and* an in-app entry; tapping one opens the
   dashboard with that category expanded.
@@ -109,7 +112,7 @@ and SMS-imported transactions are both covered through a single path.
 
 ## Testing & quality
 
-The domain logic and ViewModels are covered by **77 JVM unit tests** (money math, the SMS
+The domain logic and ViewModels are covered by **90 JVM unit tests** (money math, the SMS
 template parser, budget/limit logic, and ViewModel state) that run on the plain JVM — no
 emulator needed:
 
@@ -119,7 +122,7 @@ emulator needed:
 
 Quality is enforced, not just hoped for:
 
-- **CI** — every pull request and push to `develop`/`main` runs the suite via GitHub Actions.
+- **CI** — every pull request targeting `develop`/`main` runs the suite via GitHub Actions.
 - **Branch protection** — a red suite can't be merged into the shared branches.
 - **Local guard** — a pre-finish hook runs the tests on any change that touches Kotlin.
 

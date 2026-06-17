@@ -17,8 +17,11 @@ import com.hisabak.feature.transaction.domain.Transaction
 import com.hisabak.feature.transaction.domain.TransactionRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import java.time.YearMonth
 import java.time.ZoneId
 
@@ -40,6 +43,8 @@ class CategoryLimitMonitor(
     private val currency: Currency,
     private val clock: Clock,
 ) {
+    private val evalMutex = Mutex()
+
     fun start(scope: CoroutineScope) {
         combine(
             transactions.observe(),
@@ -49,9 +54,29 @@ class CategoryLimitMonitor(
         ) { txs, brandList, categoryList, limitList ->
             Inputs(txs, brandList, categoryList, limitList)
         }
-            .onEach { evaluate(it) }
+            .onEach { runEvaluate(it) }
             .launchIn(scope)
     }
+
+    /**
+     * Evaluate once against the current data and return. Used by the SMS path so a transaction
+     * captured in the background (process may die right after the broadcast) still produces its
+     * budget alert without depending on the long-lived [start] collector running to completion.
+     * Idempotent: the per-month [alertDao] dedup means re-evaluating never double-alerts.
+     */
+    suspend fun evaluateNow() {
+        runEvaluate(
+            Inputs(
+                transactions = transactions.observe().first(),
+                brands = brands.observeAll().first(),
+                categories = categories.observeAll().first(),
+                limits = limits.observeAll().first(),
+            ),
+        )
+    }
+
+    /** Serialize the [start] collector and [evaluateNow] so they can't race the alert-level read-modify-write. */
+    private suspend fun runEvaluate(inputs: Inputs) = evalMutex.withLock { evaluate(inputs) }
 
     private suspend fun evaluate(inputs: Inputs) {
         val zone = ZoneId.systemDefault()

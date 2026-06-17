@@ -10,6 +10,8 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -41,11 +43,14 @@ import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.scene.SinglePaneSceneStrategy
 import androidx.navigation3.ui.NavDisplay
 import com.hisabak.feature.brand.domain.BrandId
+import com.hisabak.feature.brand.presentation.BrandEditBus
 import com.hisabak.feature.brand.presentation.edit.BrandEditRoute
 import com.hisabak.feature.category.domain.CategoryId
 import com.hisabak.feature.category.presentation.edit.CategoryEditRoute
+import com.hisabak.core.domain.AppPreferences
 import com.hisabak.feature.dashboard.presentation.CategoryFocusBus
 import com.hisabak.feature.dashboard.presentation.DashboardRoute
+import com.hisabak.feature.onboarding.presentation.OnboardingRoute
 import com.hisabak.feature.notification.domain.NotificationRepository
 import com.hisabak.feature.notification.platform.SystemNotifier
 import com.hisabak.feature.notification.presentation.list.NotificationsRoute
@@ -79,6 +84,7 @@ import org.koin.compose.koinInject
 class MainActivity : ComponentActivity() {
 
     private val categoryFocusBus: CategoryFocusBus by inject()
+    private val brandEditBus: BrandEditBus by inject()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -86,7 +92,19 @@ class MainActivity : ComponentActivity() {
         handleFocusIntent(intent)
         setContent {
             HisabakTheme {
-                HisabakNav()
+                val preferences = koinInject<AppPreferences>()
+                val onboardingCompleted by preferences.onboardingCompleted
+                    .collectAsStateWithLifecycle(initialValue = null)
+                when (onboardingCompleted) {
+                    false -> OnboardingRoute()
+                    true -> HisabakNav()
+                    // null = still loading the flag; show a blank themed canvas (no flash).
+                    null -> Box(
+                        Modifier
+                            .fillMaxSize()
+                            .background(MaterialTheme.colorScheme.background),
+                    )
+                }
             }
         }
     }
@@ -97,10 +115,11 @@ class MainActivity : ComponentActivity() {
         handleFocusIntent(intent)
     }
 
-    /** A notification tap carries the category to focus; publish it so the dashboard expands it. */
+    /** A notification tap carries either a category to focus (dashboard) or an uncategorized brand
+     *  to open in the editor; publish whichever is present so the nav layer can react. */
     private fun handleFocusIntent(intent: Intent?) {
-        val categoryId = intent?.getStringExtra(SystemNotifier.EXTRA_CATEGORY_ID) ?: return
-        categoryFocusBus.request(categoryId)
+        intent?.getStringExtra(SystemNotifier.EXTRA_CATEGORY_ID)?.let(categoryFocusBus::request)
+        intent?.getStringExtra(SystemNotifier.EXTRA_BRAND_ID)?.let(brandEditBus::request)
     }
 }
 
@@ -127,16 +146,28 @@ private fun HisabakNav() {
     val bottomSheetStrategy = remember { BottomSheetSceneStrategy<NavKey>() }
     val filterBus = koinInject<TransactionListFilterBus>()
     val categoryFocusBus = koinInject<CategoryFocusBus>()
+    val brandEditBus = koinInject<BrandEditBus>()
     val notificationRepository = koinInject<NotificationRepository>()
 
     val unreadCount by notificationRepository.observeUnreadCount().collectAsStateWithLifecycle(initialValue = 0)
     val pendingFocus by categoryFocusBus.pending.collectAsStateWithLifecycle()
+    val pendingBrandEdit by brandEditBus.pending.collectAsStateWithLifecycle()
 
     // A system-notification tap publishes a focus while we may be on another tab — switch to the
     // dashboard so it can consume and expand the category.
     LaunchedEffect(pendingFocus) {
         if (pendingFocus != null && navigationState.topLevelRoute != DashboardKey) {
             navigator.navigate(DashboardKey)
+        }
+    }
+
+    // A "transaction recorded" tap for an uncategorized brand asks to open that brand's editor:
+    // switch to Manage and push the brand edit screen, then clear the request.
+    LaunchedEffect(pendingBrandEdit) {
+        pendingBrandEdit?.let { brandId ->
+            navigator.navigate(ManageKey)
+            navigator.navigate(BrandEditKey(id = brandId))
+            brandEditBus.consume()
         }
     }
 

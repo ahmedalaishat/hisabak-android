@@ -6,7 +6,8 @@ import android.content.Intent
 import android.provider.Telephony
 import android.util.Log
 import com.hisabak.core.common.DomainResult
-import com.hisabak.feature.sms.domain.usecase.IngestSmsUseCase
+import com.hisabak.feature.sms.domain.capture.CaptureSource
+import com.hisabak.feature.sms.domain.capture.CaptureTransactionUseCase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -16,14 +17,16 @@ import org.koin.core.component.inject
 import java.time.Instant
 
 /**
- * Listens for incoming SMS broadcasts and hands the body to [IngestSmsUseCase].
+ * Listens for incoming SMS broadcasts and hands each body to [CaptureTransactionUseCase] as the
+ * [CaptureSource.SMS_BROADCAST] source. Auto-capture; present in the sideload build only (the Play
+ * build's manifest strips this receiver and its restricted permission).
  *
  * Multi-part messages are re-assembled by grouping PDUs that share the same originating address,
  * matching how the Android SMS app reconstructs long messages.
  */
 class IncomingSmsReceiver : BroadcastReceiver(), KoinComponent {
 
-    private val ingestSms: IngestSmsUseCase by inject()
+    private val capture: CaptureTransactionUseCase by inject()
 
     override fun onReceive(context: Context, intent: Intent) {
         Log.d(TAG, "onReceive action=${intent.action}")
@@ -48,10 +51,9 @@ class IncomingSmsReceiver : BroadcastReceiver(), KoinComponent {
                 bodiesByAddress.values
                     .filter { it.isNotBlank() }
                     .forEach { body ->
-                        when (val result = ingestSms(body, receivedAt)) {
-                            is DomainResult.Failure ->
-                                Log.d(TAG, "SMS ingestion failed: ${result.error.message}")
-                            is DomainResult.Success -> Unit
+                        val result = capture(body, CaptureSource.SMS_BROADCAST, receivedAt)
+                        if (result is DomainResult.Failure) {
+                            Log.d(TAG, "SMS ingestion failed: ${result.error.message}")
                         }
                     }
             } finally {
