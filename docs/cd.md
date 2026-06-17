@@ -32,9 +32,13 @@ for the Play (prod) path.
 ## Production → Google Play internal (live)
 
 `.github/workflows/release.yml` runs on a **`v*` release tag**. It decodes the release
-keystore, builds a **signed `bundleProdRelease`** AAB, and publishes it to the Play
-**internal** track via [r0adkll/upload-google-play](https://github.com/r0adkll/upload-google-play).
-Promotion **internal → production** stays a manual step in the Play Console.
+keystore, builds a **signed** AAB + APK, **publishes the AAB** to the Play **internal** track
+via [r0adkll/upload-google-play](https://github.com/r0adkll/upload-google-play), and **attaches
+the APK to a GitHub Release** (`hisabak-<tag>.apk`) for direct download. Promotion
+**internal → production** stays a manual step in the Play Console.
+
+Distribution channels: **demo** = staging via Firebase (sample data); **direct APK** = the
+GitHub Release here; **live** = Play.
 
 > Like Firebase, the Gradle Play Publisher **plugin** is not used (AGP 9 incompatibility). The
 > Action uploads the built AAB directly.
