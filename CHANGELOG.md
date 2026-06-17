@@ -27,6 +27,9 @@ All notable changes to Hisabak are documented here. Format based on
   instead of occasionally being skipped when the process was reclaimed in the background.
 - Deleting a brand that can't be removed now shows a message instead of doing nothing
   silently.
+- An auto-captured SMS with no date in its text is now dated when the message arrived instead
+  of the moment it was processed.
+- A redelivered bank SMS (same text and time) is no longer imported twice.
 
 ## [1.2.0]
 
