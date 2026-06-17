@@ -1,6 +1,6 @@
 ---
 name: feature
-description: Automated SDLC pipeline for Hisabak. Turn a high-level requirement into a reviewed, tested, documented PR against develop. Use when the user types /feature "<requirement>" or asks to build/ship a feature end-to-end. Runs spec → design → branch → code+tests → QA → docs → PR, then stops for one review gate ("ship it").
+description: Automated SDLC pipeline for Hisabak. Turn a high-level requirement into a reviewed, tested, documented PR against develop. Use when the user types /feature "<requirement>" or asks to build a feature end-to-end. Runs spec → design → branch → code+tests → QA → docs → PR, then stops for one review gate ("merge it").
 user-invocable: true
 ---
 
@@ -14,8 +14,8 @@ not background automation. Compose the existing tooling; don't reinvent it.
 If `$ARGUMENTS` is empty, ask the user what to build, then proceed.
 
 **Golden rule:** autonomous from intake through the open PR; then **stop and wait**. Never
-merge until the user says **"ship it"**. Never enable auto-merge. (See the
-`automate-the-dev-workflow` memory.)
+merge until the user says **"merge it"** (the PR→`develop` gate; *not* "ship it", which is the
+production release). Never enable auto-merge. (See the `automate-the-dev-workflow` memory.)
 
 ---
 
@@ -89,7 +89,23 @@ If the change is user-facing: update the relevant `README.md`/`docs/`, and add a
 `CHANGELOG.md` under an `## [Unreleased]` heading (Keep a Changelog: Added/Changed/Fixed).
 Skip for purely internal changes — say so in the PR instead.
 
-## 8. Open the PR
+## 8. Consistency check (after code review, before the PR)
+
+Before opening the PR, confirm the diff didn't leave any docs/skills stale, and update
+whatever it touched **in this same PR**:
+- **CLAUDE.md** — stack/architecture/storage facts, Gradle commands, conventions.
+- **README.md** — build/run commands, features, badges, tech stack.
+- **docs/** — `testing.md` (test command + coverage), `cd.md`.
+- **.claude/skills/** — `git-workflow` (Gradle task names, release steps), `feature` (pipeline
+  commands), `hisabak-design/compose-bridge.md` (tokens/components vs the app theme).
+- **.claude/hooks/run-tests.sh** + **.github/workflows/*.yml** — task names/triggers.
+- **CHANGELOG.md** — entry for user-visible changes.
+
+Common triggers: renamed Gradle tasks/variants, changed `applicationId`/package, changed
+test/build/run commands, storage/architecture changes, design token/component changes, new
+dependencies, user-visible behavior. (A `gh pr create` hook re-surfaces this checklist too.)
+
+## 9. Open the PR
 
 Commit on the branch (clear messages, Co-Authored-By trailer), push, then:
 ```bash
@@ -99,12 +115,12 @@ PR body must include: a one-paragraph summary, the spec + design (or a link to
 `docs/features/<slug>.md`), what tests prove it, and the changelog line. End the body with
 the `🤖 Generated with Claude Code` footer.
 
-## 9. Gate — stop for review
+## 10. Gate — stop for review
 
 Present to the user: the PR link, the acceptance criteria with how each is met, the test
 additions, CI status, and any assumptions made. Then **stop.**
 
-On **"ship it"** (and only then):
+On **"merge it"** (and only then):
 ```bash
 gh pr merge --merge          # merge commit, matches repo history
 git checkout develop && git pull --ff-only origin develop
@@ -122,5 +138,6 @@ tag) stay a separate, deliberate step via the `git-workflow` skill — never bun
 - [ ] Code **and** tests for every acceptance criterion
 - [ ] `./gradlew testProdDebugUnitTest` green + self code-review done
 - [ ] Docs/changelog updated (or explicitly noted N/A)
+- [ ] **Consistency check** — CLAUDE.md / README / docs / skills / hooks / workflows / CHANGELOG reviewed against the diff
 - [ ] PR to `develop` with structured body
-- [ ] Stopped for review — merged only on "ship it", never auto-merge
+- [ ] Stopped for review — merged only on "merge it", never auto-merge

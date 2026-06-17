@@ -215,8 +215,27 @@ JVM unit tests guard the domain logic and ViewModels. Full guide: `docs/testing.
 Use the **`/feature`** skill (`.claude/skills/feature/SKILL.md`) to take a high-level
 requirement to a reviewed PR: `/feature "<requirement>"`. It runs spec → design → branch →
 code+tests → QA → docs → PR autonomously, then **stops for one review gate** — it merges
-into `develop` only when the user says **"ship it"** (never auto-merge). Per-feature
+into `develop` only when the user says **"merge it"** (never auto-merge). Per-feature
 spec+design land in `docs/features/<slug>.md`; user-visible changes update `CHANGELOG.md`.
+
+**Workflow vocabulary — one phrase per action, never conflate them:**
+
+| Phrase | Action | Touches `main`? |
+|--------|--------|-----------------|
+| **merge it** | merge the reviewed PR into `develop` | no — routine |
+| **send to testers** | distribute a staging build (Firebase) | no |
+| **ship it** / **release** | cut a production release: bump version → `develop`→`main` → tag → Play | **yes — deliberate; confirm the version first** |
+
+### Pre-PR consistency check (every PR, not just `/feature`)
+
+After code review and **before opening any PR**, confirm the diff didn't leave docs/skills
+stale, and update whatever it touched **in the same PR**: `CLAUDE.md` (stack/architecture/
+commands), `README.md` (build/run/features/badges), `docs/` (`testing.md`, `cd.md`),
+`.claude/skills/` (`git-workflow`, `feature`, `hisabak-design/compose-bridge.md`),
+`.claude/hooks/run-tests.sh`, `.github/workflows/*.yml`, and `CHANGELOG.md`. Common triggers:
+renamed Gradle tasks/variants, changed `applicationId`/package, changed test/build/run
+commands, storage/architecture changes, design token/component changes, new dependencies,
+user-visible behavior. A `gh pr create` hook re-surfaces this checklist automatically.
 
 ---
 
