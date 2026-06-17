@@ -36,6 +36,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
+import com.hisabak.BuildConfig
 import com.hisabak.ui.components.hisabakClickable
 import com.hisabak.ui.theme.Motion
 import com.hisabak.ui.theme.PillShape
@@ -51,11 +52,16 @@ fun OnboardingScreen(onFinish: () -> Unit) {
     val context = LocalContext.current
 
     // The final CTA primes SMS auto-capture (the signature feature), then finishes regardless.
+    // In the SMS-free (Play) build there's no RECEIVE_SMS to request, so it just finishes.
     val smsLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission(),
     ) { onFinish() }
 
     fun finishWithSmsPrimer() {
+        if (!BuildConfig.SMS_AUTO_CAPTURE) {
+            onFinish()
+            return
+        }
         val granted = ContextCompat.checkSelfPermission(
             context, Manifest.permission.RECEIVE_SMS,
         ) == PackageManager.PERMISSION_GRANTED

@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.hisabak.BuildConfig
 import com.hisabak.core.presentation.LaunchedViewEffectHandler
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -25,7 +26,9 @@ fun SmsInboxRoute(
     val snackbarHostState = remember { SnackbarHostState() }
     val context = LocalContext.current
 
+    // Auto-import (RECEIVE_SMS) exists only in the staging build; the prod/Play build is SMS-free.
     LaunchedEffect(Unit) {
+        if (!BuildConfig.SMS_AUTO_CAPTURE) return@LaunchedEffect
         val granted = ContextCompat.checkSelfPermission(
             context,
             Manifest.permission.RECEIVE_SMS,
@@ -55,6 +58,7 @@ fun SmsInboxRoute(
     SmsInboxScreen(
         state = state,
         snackbarHostState = snackbarHostState,
+        autoImportAvailable = BuildConfig.SMS_AUTO_CAPTURE,
         onSearchChange = { viewModel.onIntent(SmsInboxIntent.SearchChanged(it)) },
         onDraftChange = { viewModel.onIntent(SmsInboxIntent.DraftChanged(it)) },
         onIngest = { viewModel.onIntent(SmsInboxIntent.IngestDraft) },

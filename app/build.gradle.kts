@@ -54,6 +54,9 @@ android {
             // applicationId stays com.hisabak (from defaultConfig)
             resValue("string", "app_name", "Hisabak")
             buildConfigField("boolean", "SEED_DATA", "false")
+            // Google Play disallows the SMS restricted permission for this use case, so the
+            // Play/prod build captures via share + select-text + manual paste only.
+            buildConfigField("boolean", "SMS_AUTO_CAPTURE", "false")
         }
         create("staging") {
             dimension = "environment"
@@ -61,6 +64,8 @@ android {
             versionNameSuffix = "-staging"
             resValue("string", "app_name", "Hisabak STG")
             buildConfigField("boolean", "SEED_DATA", "true")
+            // RECEIVE_SMS auto-capture lives in staging only (distributed off-Play via Firebase).
+            buildConfigField("boolean", "SMS_AUTO_CAPTURE", "true")
         }
     }
 
