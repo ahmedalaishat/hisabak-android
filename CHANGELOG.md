@@ -33,6 +33,8 @@ All notable changes to Hisabak are documented here. Format based on
 - An auto-captured SMS with no date in its text is now dated when the message arrived instead
   of the moment it was processed.
 - A redelivered bank SMS (same text and time) is no longer imported twice.
+- Removed a non-functional "See all" link from the brands list header (it did nothing; the
+  list already shows every brand).
 - The SMS "auto-import is disabled" card no longer cramps its title (it was breaking
   "Auto-import" mid-word); the badge and Enable button now sit on their own row.
 
