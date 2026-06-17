@@ -206,6 +206,16 @@ JVM unit tests guard the domain logic and ViewModels. Full guide: `docs/testing.
 
 ---
 
+## Automated feature pipeline
+
+Use the **`/feature`** skill (`.claude/skills/feature/SKILL.md`) to take a high-level
+requirement to a reviewed PR: `/feature "<requirement>"`. It runs spec → design → branch →
+code+tests → QA → docs → PR autonomously, then **stops for one review gate** — it merges
+into `develop` only when the user says **"ship it"** (never auto-merge). Per-feature
+spec+design land in `docs/features/<slug>.md`; user-visible changes update `CHANGELOG.md`.
+
+---
+
 ## Active Design Work
 
 A full redesign is in progress. See `DESIGN_BRIEF.md` for the complete product and
