@@ -182,7 +182,7 @@ Each component has a `.prompt.md` (what/when + usage) and `.d.ts` (props) — re
 
 `HisabakTopBar`, `HisabakBottomNav`, `CreateActionButton`, `PrimaryPillButton`,
 `SurfaceCard`, `IconTile`, `CircleIconTile`, `ListRow`, `StatCard`, `SearchField`,
-`SectionHeader`, `FilterChipRow`, `GradientBanner`, `DarkPromoBanner`,
+`SectionHeader`, `FilterChipRow`, `GradientBanner`, `DarkPromoBanner`, `MostUsedCard`,
 `EmptyStatePanel`, `ProgressBar`, `AreaLineChart`, `BarSparkline`, `DonutChart`
 
 ---
