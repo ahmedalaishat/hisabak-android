@@ -11,6 +11,16 @@ All notable changes to Hisabak are documented here. Format based on
   (SMS auto-capture, on-device privacy, budgets & alerts, insights) ending with an
   SMS-permission primer.
 
+### Changed
+- Disabled Android auto/cloud backup so financial data truly never leaves the device,
+  matching the privacy promise. Trade-off: no automatic restore on reinstall or device
+  transfer.
+
+### Fixed
+- Amounts with certain cents (e.g. `19.99`) were stored a cent short due to floating-point
+  truncation; they now round correctly. Affects manual entry, SMS-parsed amounts, and
+  category limits.
+
 ## [1.2.0]
 
 ### Added
