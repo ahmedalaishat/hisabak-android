@@ -114,7 +114,7 @@ template parser, budget/limit logic, and ViewModel state) that run on the plain 
 emulator needed:
 
 ```bash
-./gradlew testDebugUnitTest
+./gradlew testProdDebugUnitTest
 ```
 
 Quality is enforced, not just hoped for:
@@ -135,11 +135,14 @@ mocking framework. See [`docs/testing.md`](docs/testing.md) for the full strateg
 ```bash
 git clone https://github.com/ahmedalaishat/hisabak-android.git
 cd hisabak-android
-./gradlew installDebug      # build and install on a connected device/emulator
-# or open the project in Android Studio and Run
+./gradlew installStagingDebug   # build & install the staging variant on a device/emulator
+# or open the project in Android Studio and Run (pick the "stagingDebug" variant)
 ```
 
-A fresh install seeds demo data so the dashboard, charts, and budgets are populated immediately.
+The app has two flavors with separate package names so they coexist on one device:
+**production** (`com.hisabak`) and **staging** (`com.hisabak.staging`, labeled "Hisabak STG").
+The **staging** build seeds demo data on first launch so the dashboard, charts, and budgets are
+populated immediately; the **production** build starts empty.
 
 ---
 

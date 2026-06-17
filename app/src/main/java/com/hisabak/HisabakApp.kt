@@ -30,7 +30,8 @@ class HisabakApp : Application() {
             modules(appModules)
         }
         systemNotifier.ensureChannel()
-        appScope.launch { seeder.seedIfEmpty() }
+        // Demo seed data is for development/staging only — production installs start empty.
+        if (BuildConfig.SEED_DATA) appScope.launch { seeder.seedIfEmpty() }
         limitMonitor.start(appScope)
     }
 }

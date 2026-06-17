@@ -18,9 +18,9 @@ if ! git status --porcelain 2>/dev/null | grep -Eq '\.kts?"?$'; then
   exit 0
 fi
 
-output="$(./gradlew testDebugUnitTest --console=plain 2>&1)"
+output="$(./gradlew testProdDebugUnitTest --console=plain 2>&1)"
 if [ $? -ne 0 ]; then
-  echo "Unit tests failed — fix before finishing (./gradlew testDebugUnitTest):" >&2
+  echo "Unit tests failed — fix before finishing (./gradlew testProdDebugUnitTest):" >&2
   printf '%s\n' "$output" | tail -40 >&2
   exit 2
 fi
