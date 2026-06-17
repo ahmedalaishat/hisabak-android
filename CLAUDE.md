@@ -198,7 +198,7 @@ Each component has a `.prompt.md` (what/when + usage) and `.d.ts` (props) — re
 
 JVM unit tests guard the domain logic and ViewModels. Full guide: `docs/testing.md`.
 
-- Run `./gradlew testDebugUnitTest`. **Keep the suite green before finishing any change.**
+- Run `./gradlew testProdDebugUnitTest`. **Keep the suite green before finishing any change.**
   A Stop hook (`.claude/settings.json` → `.claude/hooks/run-tests.sh`) runs this
   automatically whenever Kotlin files changed and blocks on failure.
 - **New feature → new tests.** When you add or change a use case, repository, ViewModel,

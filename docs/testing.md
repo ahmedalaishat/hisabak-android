@@ -7,11 +7,11 @@ on the plain JVM (no emulator, no Robolectric).
 ## Running
 
 ```bash
-./gradlew testDebugUnitTest        # run the unit suite
-./gradlew testDebugUnitTest --tests "com.hisabak.feature.*"   # a subset
+./gradlew testProdDebugUnitTest        # run the unit suite
+./gradlew testProdDebugUnitTest --tests "com.hisabak.feature.*"   # a subset
 ```
 
-Report: `app/build/reports/tests/testDebugUnitTest/index.html`.
+Report: `app/build/reports/tests/testProdDebugUnitTest/index.html`.
 
 ## What's covered
 
