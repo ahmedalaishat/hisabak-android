@@ -1,6 +1,7 @@
 package com.hisabak.di
 
 import androidx.room.Room
+import com.hisabak.BuildConfig
 import com.hisabak.core.data.local.DatabaseSeeder
 import com.hisabak.core.data.local.HisabakDatabase
 import com.hisabak.core.data.local.MIGRATION_1_2
@@ -15,7 +16,10 @@ val databaseModule = module {
             name = HisabakDatabase.NAME,
         )
             .addMigrations(MIGRATION_1_2)
-            .fallbackToDestructiveMigration(dropAllTables = true)
+            // Destructive fallback only in debug builds, for fast schema iteration. Release
+            // builds must ship a real migration — a missing one fails loudly rather than
+            // silently wiping the user's on-device financial history.
+            .apply { if (BuildConfig.DEBUG) fallbackToDestructiveMigration(dropAllTables = true) }
             .build()
     }
     single { get<HisabakDatabase>().categoryDao() }
