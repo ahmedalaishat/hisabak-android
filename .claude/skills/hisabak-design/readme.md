@@ -21,7 +21,7 @@ This system was authored from a detailed product design brief (no external codeb
 - **Person:** Address the user as **you** ("Add your first transaction", "Turn it on to log transactions from SMS"). The app refers to itself only as "Hisabak" when needed.
 - **Casing:** **Sentence case** everywhere — buttons, headers, menu items ("Add transaction", not "Add Transaction" in product copy; screen *titles* use Title Case like "SMS Inbox" as proper nouns). Be consistent within a surface.
 - **Tone:** direct and short. Prefer verbs. "Parse & Import", "Enable", "Add Transaction". No exclamation marks except genuine success ("Imported").
-- **Numbers & money:** always currency-prefixed — **`SAR 1,234.56`**. Tabular figures so columns align. Income is shown `+SAR …`, expenses `−SAR …` (true minus `−`, not hyphen). Hero balances drop the sign and color (neutral).
+- **Numbers & money:** always currency-prefixed — **`AED 1,234.56`**. Tabular figures so columns align. Income is shown `+AED …`, expenses `−AED …` (true minus `−`, not hyphen). Hero balances drop the sign and color (neutral).
 - **Empty states:** name the gap, then guide. Title "No transactions yet" → subtitle "Add your first transaction or import one from an SMS." → CTA.
 - **Status language:** SMS states are one word each — **Linked**, **Parsed**, **Unparsed**. Banners are a short statement of fact + one action ("Auto-import is disabled" / "Enable").
 - **Emoji:** **none.** This is a finance app; restraint signals trust. Iconography carries meaning instead.
@@ -91,6 +91,6 @@ Each component dir has `<Name>.jsx` + `<Name>.d.ts` + `<Name>.prompt.md`, and on
 
 **Skill** — `SKILL.md` (Agent-Skills compatible).
 
-**Jetpack Compose handoff** (`compose/`) — Material 3 translation of the tokens for the Android app: `theme/Color.kt` (light+dark `ColorScheme` + finance/category colors), `theme/Type.kt` (DM Sans + Geist Mono), `theme/Shape.kt`, `theme/HisabakTheme.kt`, and `components/HisabakComponents.kt` (worked HTML→Compose examples). See `compose/README.md`. The repo-root `CLAUDE.md` carries the design rules for Claude Code working in the app codebase.
+**Jetpack Compose (source of truth)** — these tokens are already translated into the Android app and live there, not in this skill. See `app/src/main/java/com/hisabak/ui/theme/` (`Color.kt`, `Type.kt`, `Shape.kt`, `Motion.kt`, `HisabakTheme.kt`) and shared components in `ui/components/`. For production UI, use those directly; **`compose-bridge.md`** in this skill maps each token/component here to its Kotlin counterpart. The HTML/CSS kit is for throwaway visual mockups only. The repo-root `CLAUDE.md` carries the design rules for Claude Code working in the app codebase.
 
 > Namespace for `@dsCard` HTML and UI-kit screens: `window.HisabakDesignSystem_aa2548`.

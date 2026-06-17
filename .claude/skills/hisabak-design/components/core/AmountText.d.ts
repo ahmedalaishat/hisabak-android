@@ -6,7 +6,7 @@ export interface AmountTextProps {
   value?: number;
   /** Preformatted string; overrides `value`. */
   text?: string;
-  /** @default "SAR" */
+  /** @default "AED" */
   currency?: string;
   /** @default "auto" */
   sign?: 'auto' | 'always' | 'never';

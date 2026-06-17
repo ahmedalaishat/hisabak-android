@@ -101,8 +101,11 @@ Pattern: `List` → tap row or FAB → push `Edit(id?)` destination → Save/Can
 
 This app uses the **Hisabak design system**. When building or editing UI, follow these rules.
 The full system (tokens, component specs, screen prototypes) lives in
-`.claude/skills/hisabak-design/`; the Compose translation is in that skill's `compose/` folder
-(copy it into the app module — see `compose/README.md`).
+`.claude/skills/hisabak-design/`. **The Compose app is the source of truth** — the tokens are
+already translated into `ui/theme/` (`Color.kt`, `Type.kt`, `Shape.kt`, `Motion.kt`,
+`HisabakTheme.kt`) and shared components in `ui/components/`. For production UI, use those
+directly; see the design skill's `compose-bridge.md` for the token/component → Kotlin map.
+Use the HTML/CSS kit only for throwaway visual mockups.
 
 ### Foundations
 

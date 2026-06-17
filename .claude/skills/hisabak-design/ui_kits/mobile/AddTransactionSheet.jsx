@@ -27,7 +27,7 @@ function AddTransactionSheet({ open, onClose }) {
 
         {/* Amount display */}
         <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'center', gap: 6, padding: '12px 0 20px' }}>
-          <span style={{ fontFamily: 'var(--font-sans)', fontWeight: 600, fontSize: 18, color: 'var(--text-tertiary)' }}>SAR</span>
+          <span style={{ fontFamily: 'var(--font-sans)', fontWeight: 600, fontSize: 18, color: 'var(--text-tertiary)' }}>AED</span>
           <span style={{ fontFamily: 'var(--font-mono)', fontWeight: 700, fontSize: 44, letterSpacing: '-0.02em', color: typeColor, fontVariantNumeric: 'tabular-nums' }}>{amount || '0.00'}</span>
         </div>
 
