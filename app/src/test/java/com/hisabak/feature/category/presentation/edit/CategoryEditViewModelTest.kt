@@ -1,0 +1,98 @@
+package com.hisabak.feature.category.presentation.edit
+
+import com.hisabak.core.common.Currency
+import com.hisabak.feature.category.domain.CategoryId
+import com.hisabak.feature.category.domain.CategoryType
+import com.hisabak.feature.category.domain.effectiveFor
+import com.hisabak.feature.category.domain.usecase.CreateCategoryUseCase
+import com.hisabak.feature.category.domain.usecase.ObserveCategoryLimitsUseCase
+import com.hisabak.feature.category.domain.usecase.SetCategoryLimitUseCase
+import com.hisabak.feature.category.domain.usecase.UpdateCategoryUseCase
+import com.hisabak.testutil.FakeCategoryLimitRepository
+import com.hisabak.testutil.FakeCategoryRepository
+import com.hisabak.testutil.MainDispatcherRule
+import com.hisabak.testutil.TestClock
+import com.hisabak.testutil.aed
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.advanceUntilIdle
+import kotlinx.coroutines.test.runTest
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
+import org.junit.Rule
+import org.junit.Test
+import java.time.YearMonth
+
+@OptIn(ExperimentalCoroutinesApi::class)
+class CategoryEditViewModelTest {
+
+    @get:Rule
+    val mainDispatcherRule = MainDispatcherRule()
+
+    private val clock = TestClock() // 2026-06
+    private val catRepo = FakeCategoryRepository()
+    private val limitRepo = FakeCategoryLimitRepository()
+
+    private fun viewModel(categoryId: CategoryId? = null) = CategoryEditViewModel(
+        categoryId = categoryId,
+        categoryRepository = catRepo,
+        createCategory = CreateCategoryUseCase(catRepo, clock),
+        updateCategory = UpdateCategoryUseCase(catRepo, clock),
+        observeCategoryLimits = ObserveCategoryLimitsUseCase(limitRepo),
+        setCategoryLimit = SetCategoryLimitUseCase(limitRepo, clock),
+        currency = Currency.AED,
+        clock = clock,
+    )
+
+    @Test
+    fun `a blank name is rejected`() = runTest {
+        val vm = viewModel()
+        vm.onIntent(CategoryEditIntent.Save)
+        advanceUntilIdle()
+
+        assertTrue(vm.state.value.nameError != null)
+        assertTrue(catRepo.current.isEmpty())
+    }
+
+    @Test
+    fun `creating an expense category persists its monthly limit`() = runTest {
+        val vm = viewModel()
+        vm.onIntent(CategoryEditIntent.NameChanged("Groceries"))
+        vm.onIntent(CategoryEditIntent.TypeChanged(CategoryType.EXPENSES))
+        vm.onIntent(CategoryEditIntent.LimitChanged("500"))
+
+        vm.onIntent(CategoryEditIntent.Save)
+        advanceUntilIdle()
+
+        val category = catRepo.current.single()
+        assertEquals("Groceries", category.name)
+        assertEquals(CategoryEditEffect.Saved, vm.effect.value)
+        assertEquals(aed(500_00), limitRepo.current.effectiveFor(category.id, YearMonth.of(2026, 6)))
+    }
+
+    @Test
+    fun `non-expense categories do not record a limit`() = runTest {
+        val vm = viewModel()
+        vm.onIntent(CategoryEditIntent.NameChanged("Salary"))
+        vm.onIntent(CategoryEditIntent.TypeChanged(CategoryType.INCOME))
+        vm.onIntent(CategoryEditIntent.LimitChanged("500")) // ignored: limits are expense-only
+
+        vm.onIntent(CategoryEditIntent.Save)
+        advanceUntilIdle()
+
+        assertEquals(1, catRepo.current.size)
+        assertTrue(limitRepo.current.isEmpty())
+    }
+
+    @Test
+    fun `an invalid limit blocks saving`() = runTest {
+        val vm = viewModel()
+        vm.onIntent(CategoryEditIntent.NameChanged("Groceries"))
+        vm.onIntent(CategoryEditIntent.LimitChanged("0"))
+
+        vm.onIntent(CategoryEditIntent.Save)
+        advanceUntilIdle()
+
+        assertTrue(vm.state.value.limitError != null)
+        assertTrue(catRepo.current.isEmpty())
+    }
+}
