@@ -31,7 +31,11 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -69,11 +73,7 @@ private fun OnboardingPage(
     hero: @Composable () -> Unit,
 ) {
     val reduced = LocalReducedMotion.current
-    val enter by animateFloatAsState(
-        targetValue = if (active) 1f else 0f,
-        animationSpec = tween(motionDuration(420), easing = Motion.Easing.Standard),
-        label = "enter",
-    )
+    val enter = appearProgress(active, 420)
     val density = LocalDensity.current
     val shiftPx = with(density) { 36.dp.toPx() }
     val risePx = with(density) { 16.dp.toPx() }
@@ -120,12 +120,19 @@ private fun OnboardingPage(
     }
 }
 
+/**
+ * Animates 0→1 when the page is active, **including the first page on launch**: a one-shot
+ * [LaunchedEffect] flips [appeared] after the first frame so the initial target is 0 and the
+ * animation actually runs (otherwise an already-active first page would start at 1).
+ */
 @Composable
-private fun progressFor(active: Boolean): Float {
+private fun appearProgress(active: Boolean, durationMillis: Int): Float {
+    var appeared by remember { mutableStateOf(false) }
+    LaunchedEffect(Unit) { appeared = true }
     val p by animateFloatAsState(
-        targetValue = if (active) 1f else 0f,
-        animationSpec = tween(motionDuration(900), easing = Motion.Easing.Standard),
-        label = "viz",
+        targetValue = if (active && appeared) 1f else 0f,
+        animationSpec = tween(motionDuration(durationMillis), easing = Motion.Easing.Standard),
+        label = "appear",
     )
     return p
 }
@@ -155,7 +162,7 @@ private fun CatTile(icon: ImageVector, color: Color) {
 
 @Composable
 fun WelcomePage(active: Boolean, parallax: Float) {
-    val p = progressFor(active)
+    val p = appearProgress(active, 900)
     OnboardingPage(
         active, parallax,
         overline = "Welcome to Hisabak",
@@ -181,7 +188,7 @@ fun WelcomePage(active: Boolean, parallax: Float) {
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                     Spacer(Modifier.height(Spacing.s3))
-                    Text(money(12480.0 * p), style = HisabakType.amountHero, color = MaterialTheme.colorScheme.onSurface)
+                    Text(money(842500.0 * p), style = HisabakType.amountHero, color = MaterialTheme.colorScheme.onSurface)
                     Spacer(Modifier.height(Spacing.s4))
                     Row(
                         verticalAlignment = Alignment.Bottom,
@@ -208,7 +215,7 @@ fun WelcomePage(active: Boolean, parallax: Float) {
 
 @Composable
 fun SmsCapturePage(active: Boolean, parallax: Float) {
-    val p = progressFor(active)
+    val p = appearProgress(active, 900)
     val rowReveal = ((p - 0.45f) / 0.55f).coerceIn(0f, 1f)
     val density = LocalDensity.current
     OnboardingPage(
@@ -226,7 +233,7 @@ fun SmsCapturePage(active: Boolean, parallax: Float) {
                     .padding(horizontal = Spacing.s5, vertical = Spacing.s4),
             ) {
                 Text(
-                    "Purchase of AED 89.00 with card 1234 at Lulu, Abu Dhabi.",
+                    "Purchase of AED 1,250.00 with card 1234 at Lulu, Abu Dhabi.",
                     style = HisabakType.amount.copy(fontWeight = FontWeight.Normal, fontSize = MaterialTheme.typography.bodySmall.fontSize),
                     color = MaterialTheme.colorScheme.onSurface,
                 )
@@ -259,7 +266,7 @@ fun SmsCapturePage(active: Boolean, parallax: Float) {
                         Text("Lulu", style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.onSurface)
                         Text("Groceries · SMS", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
-                    Text("−AED 89.00", style = HisabakType.amount, color = HisabakTheme.colors.expense)
+                    Text("−AED 1,250.00", style = HisabakType.amount, color = HisabakTheme.colors.expense)
                 }
             }
         }
@@ -270,7 +277,7 @@ fun SmsCapturePage(active: Boolean, parallax: Float) {
 
 @Composable
 fun BudgetsPage(active: Boolean, parallax: Float) {
-    val p = progressFor(active)
+    val p = appearProgress(active, 900)
     val barFraction = 0.8f * p
     val warnT = ((p - 0.55f) / 0.45f).coerceIn(0f, 1f)
     val barColor = lerp(MaterialTheme.colorScheme.primary, HisabakTheme.colors.warning, warnT)
@@ -289,7 +296,7 @@ fun BudgetsPage(active: Boolean, parallax: Float) {
                         Text("Groceries", style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.onSurface)
                         Text("June budget", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
-                    Text("AED 960 / 1,200", style = HisabakType.amount, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text("AED 4,800 / 6,000", style = HisabakType.amount, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
                 Spacer(Modifier.height(Spacing.s4))
                 Box(
@@ -313,7 +320,7 @@ fun BudgetsPage(active: Boolean, parallax: Float) {
                         Text("80% of budget", style = MaterialTheme.typography.labelMedium, color = HisabakTheme.colors.warning)
                     }
                     Spacer(Modifier.weight(1f))
-                    Text("AED 240 left", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text("AED 1,200 left", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }
         }
@@ -324,7 +331,7 @@ fun BudgetsPage(active: Boolean, parallax: Float) {
 
 @Composable
 fun InsightsPage(active: Boolean, parallax: Float) {
-    val p = progressFor(active)
+    val p = appearProgress(active, 900)
     val c = HisabakTheme.colors
     val track = MaterialTheme.colorScheme.surfaceVariant
     val accent = MaterialTheme.colorScheme.primary
@@ -397,7 +404,7 @@ private fun LegendRow(color: Color, label: String, pct: String) {
 
 @Composable
 fun GetStartedPage(active: Boolean, parallax: Float) {
-    val p = progressFor(active)
+    val p = appearProgress(active, 900)
     val c = HisabakTheme.colors
     OnboardingPage(
         active, parallax,
