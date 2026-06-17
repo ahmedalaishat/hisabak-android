@@ -22,6 +22,7 @@ import com.hisabak.feature.notification.domain.Notification
 import com.hisabak.feature.notification.domain.NotificationId
 import com.hisabak.feature.notification.domain.NotificationRepository
 import com.hisabak.feature.notification.domain.Notifier
+import com.hisabak.feature.notification.domain.TransactionRecordedAlert
 import com.hisabak.feature.sms.domain.SmsMessage
 import com.hisabak.feature.sms.domain.SmsMessageId
 import com.hisabak.feature.sms.domain.SmsRepository
@@ -243,7 +244,9 @@ class FakeSmsRepository(initial: List<SmsMessage> = emptyList()) : SmsRepository
 /** Records every posted notification so tests can assert what fired (and how many times). */
 class RecordingNotifier : Notifier {
     val posted = mutableListOf<Notification>()
+    val recorded = mutableListOf<TransactionRecordedAlert>()
     override fun post(notification: Notification) { posted += notification }
+    override fun postTransactionRecorded(alert: TransactionRecordedAlert) { recorded += alert }
 }
 
 /** In-memory stand-in for the Room DAO that tracks the highest alert level per category/month. */

@@ -10,6 +10,10 @@ All notable changes to Hisabak are documented here. Format based on
 - First-launch onboarding: an animated, premium walkthrough of the app's features
   (SMS auto-capture, on-device privacy, budgets & alerts, insights) ending with an
   SMS-permission primer.
+- Transaction-recorded confirmation: when a bank SMS is captured and saved, a notification
+  confirms it with the amount and brand. A categorized brand shows its category name and
+  glyph and taps through to that category on the dashboard; an uncategorized brand says so
+  and taps through to its editor so you can categorize it.
 
 ### Changed
 - Disabled Android auto/cloud backup so financial data truly never leaves the device,
