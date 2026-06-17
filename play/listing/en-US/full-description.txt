@@ -1,0 +1,33 @@
+Hisabak is a calm, private personal finance tracker for Android. It turns your bank transaction messages into a clean, organized view of your money — and everything stays on your device.
+
+No accounts. No sign-up. No ads. No tracking. Hisabak has no internet access at all, so your financial data physically cannot leave your phone.
+
+ADD TRANSACTIONS IN SECONDS
+• Share a bank SMS into Hisabak, or select its text and tap Hisabak — it reads the amount and merchant for you.
+• Or paste a message, or add a transaction by hand.
+• Hisabak recognizes the merchant and keeps your categories tidy.
+
+BUDGETS THAT ACTUALLY WARN YOU
+• Set a monthly limit per category.
+• Get a notification at 50%, 80%, and 100% — before you overshoot, not after.
+
+SEE WHERE YOUR MONEY GOES
+• A dashboard with your balance, income vs. expenses, and spending trends.
+• Break spending down by category and by merchant.
+• Clear charts designed to be read at a glance.
+
+ORGANIZE YOUR WAY
+• Create categories with colors and icons.
+• Group merchants into the categories that make sense to you.
+• Review and tidy everything from one place.
+
+PRIVATE BY DESIGN
+• All data is stored only on your device.
+• No analytics, no advertising, no third-party data sharing.
+• Automatic cloud backup is disabled so nothing is copied off your phone.
+
+Hisabak is built for people who want to understand their spending without handing their financial life to the cloud. Simple, fast, and yours.
+
+Amounts are shown in your currency with the dirham glyph; income and expenses are clearly distinguished.
+
+Questions or feedback? Email ahmedalaishat@gmail.com.
