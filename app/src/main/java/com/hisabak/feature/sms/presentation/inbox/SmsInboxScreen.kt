@@ -122,34 +122,51 @@ fun SmsInboxScreen(
 @Composable
 private fun AutoImportBanner(granted: Boolean, onEnable: () -> Unit) {
     SurfaceCard(modifier = Modifier.fillMaxWidth()) {
-        Row(
-            Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(Spacing.cardGap),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(Spacing.s2)) {
-                Text(
-                    if (granted) "Auto-import active" else "Auto-import is disabled",
-                    style = MaterialTheme.typography.titleSmall,
-                    color = MaterialTheme.colorScheme.onSurface,
-                )
-                Text(
-                    if (granted)
-                        "New bank SMS are parsed automatically."
-                    else
-                        "Turn it on to log transactions from SMS.",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-            }
-            if (granted) {
+        if (granted) {
+            // Compact: the "Active" badge is small and sits inline with the copy.
+            Row(
+                Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(Spacing.cardGap),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(Spacing.s2)) {
+                    Text(
+                        "Auto-import active",
+                        style = MaterialTheme.typography.titleSmall,
+                        color = MaterialTheme.colorScheme.onSurface,
+                    )
+                    Text(
+                        "New bank SMS are parsed automatically.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
                 Badge(label = "Active", tone = BadgeTone.Income)
-            } else {
+            }
+        } else {
+            // Stack vertically so the title isn't squeezed by the badge + Enable button.
+            Column(
+                Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(Spacing.s4),
+            ) {
+                Column(verticalArrangement = Arrangement.spacedBy(Spacing.s2)) {
+                    Text(
+                        "Auto-import is disabled",
+                        style = MaterialTheme.typography.titleSmall,
+                        color = MaterialTheme.colorScheme.onSurface,
+                    )
+                    Text(
+                        "Turn it on to log transactions from SMS.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
                 Row(
-                    horizontalArrangement = Arrangement.spacedBy(Spacing.s3),
+                    Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Badge(label = "Auto-import off", tone = BadgeTone.Warning, dot = true)
+                    Spacer(Modifier.weight(1f))
                     HisabakButton(
                         text = "Enable",
                         onClick = onEnable,
