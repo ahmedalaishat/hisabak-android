@@ -27,8 +27,6 @@ import com.hisabak.ui.theme.HisabakTheme
 import com.hisabak.ui.theme.HisabakType
 import com.hisabak.ui.theme.PillShape
 import com.hisabak.ui.theme.Spacing
-import java.text.NumberFormat
-import java.util.Locale
 import kotlin.math.abs
 
 /*
@@ -93,16 +91,13 @@ fun AmountText(
         AmountTone.Investment -> c.investment
         else -> MaterialTheme.colorScheme.onSurface
     }
-    val nf = NumberFormat.getNumberInstance(Locale.US).apply {
-        minimumFractionDigits = 2; maximumFractionDigits = 2
-    }
     val sign = if (showSign && tone != AmountTone.Neutral) (if (value < 0) "−" else "+") else ""
     val numberStyle = HisabakType.amount.copy(fontSize = size, fontWeight = weight)
     Row(modifier = modifier, verticalAlignment = Alignment.CenterVertically) {
         if (sign.isNotEmpty()) Text(sign, color = color, style = numberStyle)
         DirhamGlyph(size = size * 0.82f, tint = color)
         Spacer(Modifier.width(3.dp))
-        Text(nf.format(abs(value)), color = color, style = numberStyle)
+        Text(compactAmount(abs(value)), color = color, style = numberStyle)
     }
 }
 
@@ -121,15 +116,24 @@ fun MoneyText(
     Row(modifier = modifier, verticalAlignment = Alignment.CenterVertically) {
         DirhamGlyph(size = style.fontSize * symbolScale, tint = color)
         Spacer(Modifier.width(3.dp))
-        Text(formatGroupedMajor(amountMinor), style = style, color = color, maxLines = 1)
+        Text(compactAmountMinor(amountMinor), style = style, color = color, maxLines = 1)
     }
 }
 
-private fun formatGroupedMajor(amountMinor: Long): String {
-    val major = amountMinor / 100.0
-    return if (abs(major) >= 1_000_000) "%.2fM".format(major / 1_000_000.0)
-    else "%,.0f".format(major)
+/**
+ * Compact money: thousands as `K`, millions as `M` (both to 2 decimals); under 1,000 exact to
+ * 2 decimals. Used app-wide via [MoneyText] / [AmountText] and the per-screen formatters.
+ */
+internal fun compactAmount(major: Double): String {
+    val a = abs(major)
+    return when {
+        a >= 1_000_000 -> "%,.2fM".format(major / 1_000_000.0)
+        a >= 1_000 -> "%,.2fK".format(major / 1_000.0)
+        else -> "%,.2f".format(major)
+    }
 }
+
+internal fun compactAmountMinor(amountMinor: Long): String = compactAmount(amountMinor / 100.0)
 
 /**
  * StatusChip — SMS parse state. Mirrors components/core/StatusChip.
