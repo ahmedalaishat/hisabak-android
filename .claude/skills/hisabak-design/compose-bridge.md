@@ -69,7 +69,8 @@ transaction edit input stays exact.
 | `EmptyState` | `EmptyStatePanel` |
 | `TopAppBar` | `HisabakTopBar`, `DetailTopBar` |
 | `BottomNav` | `HisabakBottomNav` |
-| banners ("most used" / promo) | `GradientBanner`, `DarkPromoBanner` |
+| banners (promo) | `GradientBanner`, `DarkPromoBanner` |
+| "most used" highlight card | `MostUsedCard` (tinted `SurfaceCard` + icon + trailing slot) |
 | charts (area / bars / donut / sparkline) | `AreaLineChart`, `BarSparkline`, `DonutChart` (Vico-backed) |
 | loading skeletons | `SkeletonBox`, `SkeletonRow`, `SkeletonCard`, `SkeletonRowList` |
 

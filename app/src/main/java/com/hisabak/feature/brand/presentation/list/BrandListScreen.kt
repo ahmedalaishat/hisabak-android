@@ -19,7 +19,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DeleteOutline
 import androidx.compose.material.icons.filled.ExpandMore
-import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.Storefront
 import androidx.compose.material3.AlertDialog
 import com.hisabak.ui.components.SkeletonRowList
@@ -117,7 +116,7 @@ fun BrandListScreen(
             }
         }
 
-        // Most-used card hidden for now (see MostUsedCard / BrandRow.transactionCount).
+        // Most-used card hidden for now (see the shared MostUsedCard / BrandRow.transactionCount).
 
         item {
             SectionHeader(
@@ -264,63 +263,6 @@ private fun HeaderRow(onCreate: () -> Unit) {
             color = MaterialTheme.colorScheme.onSurface,
         )
         CreateActionButton(text = "New brand", onClick = onCreate)
-    }
-}
-
-
-@Composable
-private fun MostUsedCard(row: BrandRow) {
-    val (tileBg, tileFg) = tintPairForColor(row.categoryColor)
-    SurfaceCard(
-        modifier = Modifier.fillMaxWidth(),
-        backgroundColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.4f),
-        borderColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.2f),
-    ) {
-        Row(
-            Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(Spacing.s4),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            IconTile(
-                icon = iconForKey(row.categoryIcon),
-                size = Sizing.controlHeight,
-                iconSize = Sizing.icon,
-                background = tileBg,
-                foreground = tileFg,
-            )
-            Column(modifier = Modifier.weight(1f)) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(Spacing.s2),
-                ) {
-                    Icon(
-                        Icons.Filled.Star,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.size(14.dp),
-                    )
-                    Text(
-                        "MOST USED",
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.primary,
-                    )
-                }
-                Spacer(Modifier.height(Spacing.s1))
-                Text(
-                    text = row.name,
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.onSurface,
-                )
-            }
-            if (row.categoryName != null) {
-                ColoredFilterChip(
-                    label = row.categoryName,
-                    colorKey = row.categoryColor,
-                    selected = false,
-                    onClick = {},
-                )
-            }
-        }
     }
 }
 
