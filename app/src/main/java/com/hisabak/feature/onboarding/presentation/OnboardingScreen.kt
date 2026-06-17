@@ -22,6 +22,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -108,22 +110,21 @@ fun OnboardingScreen(onFinish: () -> Unit) {
         ) {
             PageDots(current = pagerState.currentPage, count = PAGE_COUNT)
             Spacer(Modifier.height(Spacing.s5))
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(52.dp)
-                    .clip(PillShape)
-                    .background(MaterialTheme.colorScheme.primary)
-                    .hisabakClickable {
-                        if (isLast) finishWithSmsPrimer()
-                        else scope.launch { pagerState.animateScrollToPage(pagerState.currentPage + 1) }
-                    },
-                contentAlignment = Alignment.Center,
+            Button(
+                onClick = {
+                    if (isLast) finishWithSmsPrimer()
+                    else scope.launch { pagerState.animateScrollToPage(pagerState.currentPage + 1) }
+                },
+                modifier = Modifier.fillMaxWidth().height(52.dp),
+                shape = PillShape,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary,
+                ),
             ) {
                 Text(
                     text = if (isLast) "Get started" else "Next",
                     style = MaterialTheme.typography.titleSmall,
-                    color = MaterialTheme.colorScheme.onPrimary,
                 )
             }
         }
