@@ -42,7 +42,7 @@ import com.hisabak.ui.theme.PillShape
 import com.hisabak.ui.theme.Spacing
 import kotlinx.coroutines.launch
 
-private const val PAGE_COUNT = 5
+private const val PAGE_COUNT = 6
 
 @Composable
 fun OnboardingScreen(onFinish: () -> Unit) {
@@ -95,8 +95,9 @@ fun OnboardingScreen(onFinish: () -> Unit) {
             when (page) {
                 0 -> WelcomePage(active, offset)
                 1 -> SmsCapturePage(active, offset)
-                2 -> BudgetsPage(active, offset)
-                3 -> InsightsPage(active, offset)
+                2 -> PrivacyPage(active, offset)
+                3 -> BudgetsPage(active, offset)
+                4 -> InsightsPage(active, offset)
                 else -> GetStartedPage(active, offset)
             }
         }

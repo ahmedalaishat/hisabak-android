@@ -22,11 +22,16 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.TrendingUp
 import androidx.compose.material.icons.filled.ArrowDownward
 import androidx.compose.material.icons.filled.Bolt
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.CloudOff
 import androidx.compose.material.icons.filled.Insights
+import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.NotificationsActive
+import androidx.compose.material.icons.filled.PhoneAndroid
 import androidx.compose.material.icons.filled.Savings
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material.icons.filled.Sms
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -463,5 +468,51 @@ private fun RecapRow(p: Float, delay: Float, icon: ImageVector, fg: Color, bg: C
             Text(title, style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.onSurface)
             Text(sub, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
+    }
+}
+
+/* ------------------------------- page (privacy) ---------------------------------- */
+
+@Composable
+fun PrivacyPage(active: Boolean, parallax: Float) {
+    val p = appearProgress(active, 900)
+    OnboardingPage(
+        active, parallax,
+        overline = "Private by design",
+        title = "Your data never leaves your device.",
+        subtitle = "Everything is stored locally — no account, no cloud, no sync. Your finances are yours alone.",
+    ) {
+        Column(Modifier.width(320.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+            Box(
+                Modifier.size(96.dp).clip(RoundedCornerShape(26.dp))
+                    .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)),
+                contentAlignment = Alignment.Center,
+            ) { Icon(Icons.Filled.Lock, null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(46.dp)) }
+            Spacer(Modifier.height(Spacing.s7))
+            PreviewCard(Modifier.fillMaxWidth()) {
+                Column(verticalArrangement = Arrangement.spacedBy(Spacing.s5)) {
+                    GuaranteeRow(p, 0f, Icons.Filled.PhoneAndroid, "Stored on this device")
+                    GuaranteeRow(p, 0.12f, Icons.Filled.CloudOff, "Never synced to a server")
+                    GuaranteeRow(p, 0.24f, Icons.Filled.VisibilityOff, "No account, no tracking")
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun GuaranteeRow(p: Float, delay: Float, icon: ImageVector, text: String) {
+    val a = ((p - delay) / (1f - delay)).coerceIn(0f, 1f)
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier.fillMaxWidth().graphicsLayer { alpha = a },
+    ) {
+        Icon(icon, null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(22.dp))
+        Spacer(Modifier.width(Spacing.s4))
+        Text(
+            text, style = MaterialTheme.typography.titleSmall,
+            color = MaterialTheme.colorScheme.onSurface, modifier = Modifier.weight(1f),
+        )
+        Icon(Icons.Filled.Check, null, tint = HisabakTheme.colors.income, modifier = Modifier.size(20.dp))
     }
 }
