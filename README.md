@@ -45,9 +45,9 @@
 Grab the signed APK from the [**Releases**](../../releases) page and install it on any
 Android 10+ (API 29) device:
 
-1. Download `hisabak-v1.1.0.apk` from the latest release.
+1. Download `hisabak-v1.2.0.apk` from the latest release.
 2. Open it on the device (allow “install unknown apps” if prompted), or run
-   `adb install hisabak-v1.1.0.apk`.
+   `adb install hisabak-v1.2.0.apk`.
 
 It's a small (~3 MB) R8-minified build signed with a debug key for easy testing — not a Play
 Store release.
