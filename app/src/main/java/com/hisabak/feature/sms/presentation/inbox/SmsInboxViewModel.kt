@@ -5,8 +5,9 @@ import com.hisabak.core.common.DomainError
 import com.hisabak.core.common.DomainResult
 import com.hisabak.core.presentation.BaseViewModel
 import com.hisabak.feature.sms.domain.SmsMessage
+import com.hisabak.feature.sms.domain.capture.CaptureSource
+import com.hisabak.feature.sms.domain.capture.CaptureTransactionUseCase
 import com.hisabak.feature.sms.domain.usecase.DeleteSmsUseCase
-import com.hisabak.feature.sms.domain.usecase.IngestSmsUseCase
 import com.hisabak.feature.sms.domain.usecase.ObserveSmsMessagesUseCase
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -18,7 +19,7 @@ import kotlinx.coroutines.launch
 
 class SmsInboxViewModel(
     private val observeMessages: ObserveSmsMessagesUseCase,
-    private val ingestSms: IngestSmsUseCase,
+    private val capture: CaptureTransactionUseCase,
     private val deleteSms: DeleteSmsUseCase,
 ) : BaseViewModel<SmsInboxIntent, SmsInboxUiState, SmsInboxEffect>() {
 
@@ -48,7 +49,7 @@ class SmsInboxViewModel(
         if (body.isEmpty() || state.value.isProcessing) return
         setState { copy(isProcessing = true) }
         viewModelScope.launch {
-            when (val result = ingestSms(body)) {
+            when (val result = capture(body, CaptureSource.MANUAL_PASTE)) {
                 is DomainResult.Success -> {
                     sendEffect(SmsInboxEffect.TransactionCreated(amount = result.value.amount))
                     setState { copy(draftBody = "", isProcessing = false) }

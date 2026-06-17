@@ -14,6 +14,9 @@ All notable changes to Hisabak are documented here. Format based on
   confirms it with the amount and brand. A categorized brand shows its category name and
   glyph and taps through to that category on the dashboard; an uncategorized brand says so
   and taps through to its editor so you can categorize it.
+- Add a transaction by **sharing** a bank SMS into Hisabak, or by **selecting its text** and
+  tapping Hisabak in the selection menu — both run the same parser as auto-capture. These need
+  no permissions and work alongside the existing manual paste.
 
 ### Changed
 - Disabled Android auto/cloud backup so financial data truly never leaves the device,
