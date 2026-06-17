@@ -7,7 +7,9 @@
             "type": "command",
             "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/run-tests.sh\"",
             "timeout": 300,
-            "statusMessage": "Running unit tests…"
+            "asyncRewake": true,
+            "rewakeSummary": "Unit tests failed",
+            "rewakeMessage": "The unit suite failed after your last change — fix it:"
           }
         ]
       }
