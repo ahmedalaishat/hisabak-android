@@ -2,13 +2,13 @@ import React from 'react';
 
 /**
  * Money display with tabular figures and signed coloring.
- * Renders "+SAR 8,200.00" green for income, "−SAR 342.75" coral for expense.
+ * Renders "+AED 8,200.00" green for income, "−AED 342.75" coral for expense.
  * Pass `value` as a number (major units) or a preformatted string via `text`.
  */
 export function AmountText({
   value,
   text,
-  currency = 'SAR',
+  currency = 'AED',
   sign = 'auto',          // 'auto' | 'always' | 'never'
   tone = 'auto',          // 'auto' | 'income' | 'expense' | 'savings' | 'investment' | 'neutral'
   size = 16,
