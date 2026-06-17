@@ -42,15 +42,16 @@
 
 ## Download
 
-Grab the signed APK from the [**Releases**](../../releases) page and install it on any
-Android 10+ (API 29) device:
+Three ways to get it (Android 10+ / API 29):
 
-1. Download `hisabak-v1.2.0.apk` from the latest release.
-2. Open it on the device (allow “install unknown apps” if prompted), or run
-   `adb install hisabak-v1.2.0.apk`.
-
-It's a small (~3 MB) R8-minified build signed with a debug key for easy testing — not a Play
-Store release.
+- **Try the demo** — a build pre-loaded with sample data, so the dashboard, charts, and budgets
+  are populated the moment you open it:
+  **[install the demo](https://appdistribution.firebase.dev/i/b817bdd33c687f05)** via Firebase
+  App Distribution (accept the invite, then install through the Firebase App Tester app).
+- **Direct APK** — the production build (starts empty, your data only): grab the latest
+  `hisabak-*.apk` from the [**Releases**](../../releases) page, then open it on-device (allow
+  "install unknown apps") or `adb install` it. A ~3 MB R8-minified, release-signed build.
+- **Google Play** — coming soon (currently in internal testing).
 
 ---
 
