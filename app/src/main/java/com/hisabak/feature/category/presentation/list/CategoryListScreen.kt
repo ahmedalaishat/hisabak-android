@@ -19,7 +19,6 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.DeleteOutline
-import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.AlertDialog
 import com.hisabak.ui.components.SkeletonCard
 import androidx.compose.material3.Icon
@@ -138,7 +137,7 @@ fun CategoryListScreen(
             )
         }
 
-        // Most-used card hidden for now (see MostUsedCard / CategoryRow.transactionCount).
+        // Most-used card hidden for now (see the shared MostUsedCard / CategoryRow.transactionCount).
 
         if (state.rows.isEmpty()) {
             item(span = { GridItemSpan(maxLineSpan) }) {
@@ -195,58 +194,6 @@ fun CategoryListScreen(
                 TextButton(onClick = { pendingDelete = null }) { Text("Cancel") }
             },
         )
-    }
-}
-
-@Composable
-private fun MostUsedCard(row: CategoryRow) {
-    val (bg, fg) = tintPairForColor(row.color)
-    SurfaceCard(
-        modifier = Modifier.fillMaxWidth(),
-        backgroundColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.4f),
-        borderColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.2f),
-    ) {
-        Row(
-            Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(Spacing.s4),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            IconTile(
-                icon = iconForKey(row.icon),
-                size = Sizing.controlHeight,
-                iconSize = Sizing.icon,
-                background = bg,
-                foreground = fg,
-            )
-            Column(modifier = Modifier.weight(1f)) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(Spacing.s2),
-                ) {
-                    Icon(
-                        Icons.Filled.Star,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.size(14.dp),
-                    )
-                    Text(
-                        "MOST USED",
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.primary,
-                    )
-                }
-                Spacer(Modifier.height(Spacing.s1))
-                Text(
-                    row.name,
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.onSurface,
-                )
-            }
-            Badge(
-                label = row.type.displayName(),
-                tone = row.type.badgeTone(),
-            )
-        }
     }
 }
 
