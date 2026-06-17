@@ -63,6 +63,7 @@ import kotlin.math.abs
 fun SmsInboxScreen(
     state: SmsInboxUiState,
     snackbarHostState: SnackbarHostState,
+    autoImportAvailable: Boolean,
     onSearchChange: (String) -> Unit,
     onDraftChange: (String) -> Unit,
     onIngest: () -> Unit,
@@ -76,7 +77,9 @@ fun SmsInboxScreen(
             contentPadding = PaddingValues(horizontal = Spacing.pageMargin, vertical = Spacing.s5),
             verticalArrangement = Arrangement.spacedBy(Spacing.cardGap),
         ) {
-            item { AutoImportBanner(granted = state.autoImportGranted, onEnable = onEnableAutoImport) }
+            if (autoImportAvailable) {
+                item { AutoImportBanner(granted = state.autoImportGranted, onEnable = onEnableAutoImport) }
+            }
             item { PasteParseCard(draft = state.draftBody, isProcessing = state.isProcessing, onDraftChange = onDraftChange, onIngest = onIngest) }
             item {
                 SearchField(
@@ -94,10 +97,11 @@ fun SmsInboxScreen(
                     EmptyStatePanel(
                         icon = Icons.Filled.Inbox,
                         title = "No SMS messages",
-                        subtitle = if (state.search.isBlank())
-                            "Enable auto-import to capture bank messages automatically."
-                        else
-                            "Nothing matches \"${state.search}\".",
+                        subtitle = when {
+                            state.search.isNotBlank() -> "Nothing matches \"${state.search}\"."
+                            autoImportAvailable -> "Enable auto-import to capture bank messages automatically."
+                            else -> "Share a bank SMS into Hisabak, select its text, or paste it below."
+                        },
                     )
                 }
             } else {

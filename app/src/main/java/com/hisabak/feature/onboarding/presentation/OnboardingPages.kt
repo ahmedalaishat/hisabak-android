@@ -1,5 +1,6 @@
 package com.hisabak.feature.onboarding.presentation
 
+import com.hisabak.BuildConfig
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
@@ -251,9 +252,12 @@ fun SmsCapturePage(active: Boolean, parallax: Float) {
     val density = LocalDensity.current
     OnboardingPage(
         active, parallax,
-        overline = "SMS auto-capture",
+        overline = if (BuildConfig.SMS_AUTO_CAPTURE) "SMS auto-capture" else "Quick capture",
         title = "Your bank texts become transactions.",
-        subtitle = "Hisabak reads the alert, pulls out the amount and merchant, and files it — automatically.",
+        subtitle = if (BuildConfig.SMS_AUTO_CAPTURE)
+            "Hisabak reads the alert, pulls out the amount and merchant, and files it — automatically."
+        else
+            "Share a bank alert to Hisabak — or select its text — and it pulls out the amount and merchant for you.",
     ) {
         Column(Modifier.width(320.dp), horizontalAlignment = Alignment.Start) {
             // SMS bubble
@@ -462,10 +466,17 @@ fun GetStartedPage(active: Boolean, parallax: Float) {
         active, parallax,
         overline = "You're all set",
         title = "Ready when you are.",
-        subtitle = "Turn on SMS auto-capture to log transactions the moment they happen — or add them by hand anytime.",
+        subtitle = if (BuildConfig.SMS_AUTO_CAPTURE)
+            "Turn on SMS auto-capture to log transactions the moment they happen — or add them by hand anytime."
+        else
+            "Add transactions in a tap — share a bank SMS, select its text, or paste it. Add them by hand anytime too.",
     ) {
         Column(Modifier.width(320.dp), verticalArrangement = Arrangement.spacedBy(Spacing.s3)) {
-            RecapRow(p, 0f, Icons.Filled.Bolt, c.income, c.incomeSoft, "Automatic capture", "from your bank SMS")
+            if (BuildConfig.SMS_AUTO_CAPTURE) {
+                RecapRow(p, 0f, Icons.Filled.Bolt, c.income, c.incomeSoft, "Automatic capture", "from your bank SMS")
+            } else {
+                RecapRow(p, 0f, Icons.Filled.Bolt, c.income, c.incomeSoft, "Quick capture", "share or paste a bank SMS")
+            }
             RecapRow(p, 0.12f, Icons.Filled.Lock, MaterialTheme.colorScheme.primary, MaterialTheme.colorScheme.primary.copy(alpha = 0.12f), "Private by design", "your data stays on this device")
             RecapRow(p, 0.24f, Icons.Filled.Savings, c.warning, c.warningSoft, "Smart budgets", "alerts before you overshoot")
             RecapRow(p, 0.36f, Icons.Filled.Insights, c.savings, c.savings.copy(alpha = 0.15f), "Clear insights", "trends, categories, brands")
@@ -484,9 +495,16 @@ fun GetStartedPage(active: Boolean, parallax: Float) {
                 ) { Icon(Icons.Filled.Sms, null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(22.dp)) }
                 Spacer(Modifier.width(Spacing.s4))
                 Column(Modifier.weight(1f)) {
-                    Text("Turn on SMS auto-capture", style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.onSurface)
                     Text(
-                        "We only read bank transaction alerts. Nothing leaves your device.",
+                        if (BuildConfig.SMS_AUTO_CAPTURE) "Turn on SMS auto-capture" else "Capture from your bank SMS",
+                        style = MaterialTheme.typography.titleSmall,
+                        color = MaterialTheme.colorScheme.onSurface,
+                    )
+                    Text(
+                        if (BuildConfig.SMS_AUTO_CAPTURE)
+                            "We only read bank transaction alerts. Nothing leaves your device."
+                        else
+                            "Share a bank alert or select its text. Nothing leaves your device.",
                         style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }

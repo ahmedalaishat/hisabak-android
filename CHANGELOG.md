@@ -19,6 +19,10 @@ All notable changes to Hisabak are documented here. Format based on
   no permissions and work alongside the existing manual paste.
 
 ### Changed
+- SMS **auto-capture** (reading bank texts in the background) now ships in the staging build
+  only; the Play build is SMS-free to comply with Google Play's restricted-permission policy and
+  captures transactions by sharing a bank SMS, selecting its text, or pasting it. Onboarding and
+  the SMS tab adapt their copy and drop the SMS-permission prompt accordingly.
 - Disabled Android auto/cloud backup so financial data truly never leaves the device,
   matching the privacy promise. Trade-off: no automatic restore on reinstall or device
   transfer.
