@@ -1,6 +1,6 @@
 ---
 name: feature
-description: Automated SDLC pipeline for Hisabak. Turn a high-level requirement into a reviewed, tested, documented PR against develop. Use when the user types /feature "<requirement>" or asks to build/ship a feature end-to-end. Runs spec → design → branch → code+tests → QA → docs → PR, then stops for one review gate ("ship it").
+description: Automated SDLC pipeline for Hisabak. Turn a high-level requirement into a reviewed, tested, documented PR against develop. Use when the user types /feature "<requirement>" or asks to build a feature end-to-end. Runs spec → design → branch → code+tests → QA → docs → PR, then stops for one review gate ("merge it").
 user-invocable: true
 ---
 
@@ -14,8 +14,8 @@ not background automation. Compose the existing tooling; don't reinvent it.
 If `$ARGUMENTS` is empty, ask the user what to build, then proceed.
 
 **Golden rule:** autonomous from intake through the open PR; then **stop and wait**. Never
-merge until the user says **"ship it"**. Never enable auto-merge. (See the
-`automate-the-dev-workflow` memory.)
+merge until the user says **"merge it"** (the PR→`develop` gate; *not* "ship it", which is the
+production release). Never enable auto-merge. (See the `automate-the-dev-workflow` memory.)
 
 ---
 
@@ -120,7 +120,7 @@ the `🤖 Generated with Claude Code` footer.
 Present to the user: the PR link, the acceptance criteria with how each is met, the test
 additions, CI status, and any assumptions made. Then **stop.**
 
-On **"ship it"** (and only then):
+On **"merge it"** (and only then):
 ```bash
 gh pr merge --merge          # merge commit, matches repo history
 git checkout develop && git pull --ff-only origin develop
@@ -140,4 +140,4 @@ tag) stay a separate, deliberate step via the `git-workflow` skill — never bun
 - [ ] Docs/changelog updated (or explicitly noted N/A)
 - [ ] **Consistency check** — CLAUDE.md / README / docs / skills / hooks / workflows / CHANGELOG reviewed against the diff
 - [ ] PR to `develop` with structured body
-- [ ] Stopped for review — merged only on "ship it", never auto-merge
+- [ ] Stopped for review — merged only on "merge it", never auto-merge
