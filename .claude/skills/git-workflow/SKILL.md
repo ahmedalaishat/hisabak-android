@@ -15,8 +15,10 @@ each change gets a `feat/*` branch. **No `release/*` or `hotfix/*` branches.**
 | `develop` | Integration line. Features merge here. The default working branch. |
 | `feat/<name>` | One per enhancement, branched from `develop`. Short-lived. |
 
-The repo is currently **local-only (no remote)**. Where steps mention pushing,
-do it only if a remote (e.g. `origin`) exists.
+The repo has a GitHub remote (`origin`) with CI (`.github/workflows/test.yml`) and
+branch protection on `develop`/`main`. Features ship via **pull request**, not local
+merges: push the branch, open a PR into `develop`, let CI pass, and merge **only when
+the user says "ship it"** (never auto-merge). See the `automate-the-dev-workflow` memory.
 
 When invoked, figure out which of the three operations the user wants (start /
 finish / release) and run the matching steps. Ask only if it's ambiguous.
@@ -27,7 +29,7 @@ finish / release) and run the matching steps. Ask only if it's ambiguous.
 
 ```bash
 git checkout develop
-# git pull --ff-only            # only if a remote exists
+git pull --ff-only origin develop
 git checkout -b feat/<short-kebab-name>
 ```
 Pick a concise `feat/<name>` (e.g. `feat/budget-rollover`). Then implement;
@@ -35,12 +37,14 @@ commit on the feat branch as you go.
 
 ## 2. Finish a feature
 
-Merge back into `develop`, keeping the feature as one grouped unit, then delete
-the branch:
+Ship it through a PR into `develop` so CI and branch protection apply. Push, open the
+PR, wait for CI green, then merge **only on the user's "ship it"** and sync:
 ```bash
-git checkout develop
-git merge --no-ff feat/<name>
-git branch -d feat/<name>
+git push -u origin feat/<name>
+gh pr create --base develop --fill          # then wait for CI + user approval
+gh pr merge --merge --delete-branch         # only after "ship it"
+git checkout develop && git pull --ff-only origin develop
+git branch -d feat/<name>                   # delete the local branch too
 ```
 Don't tag or touch `main` here — features accumulate on `develop` until a release.
 
@@ -70,7 +74,7 @@ Do this from `develop` once it holds everything for the version.
    git merge --no-ff develop -m "Release vX.Y.Z"
    git tag -a vX.Y.Z -m "Hisabak vX.Y.Z"
    git checkout develop          # go back to integration line
-   # git push origin main develop --follow-tags   # only if a remote exists
+   git push origin main develop --follow-tags
    ```
 
 5. **Verify**: `git tag` shows the new tag; `git log --oneline main -1` is the

@@ -20,7 +20,8 @@ Domain model mirrors Hisabi so concepts transfer cleanly.
 - **Async:** Kotlin Coroutines + Flow
 - **State:** ViewModel + `collectAsStateWithLifecycle`
 - **Charts:** Vico
-- **Storage:** In-memory mock repositories (Room planned, not yet implemented)
+- **Storage:** Room (SQLite) — `Room*Repository` impls per feature's `data/`, entities/DAOs/
+  mappers in `data/local/`, and the database in `core/data/local/` (`HisabakDatabase`)
 - **Platform:** Android only, portrait, edge-to-edge
 
 ---
