@@ -43,11 +43,19 @@ class BrandListViewModel(
             is BrandListIntent.CategoryFilterChanged ->
                 setState { copy(categoryFilter = intent.categoryId) }
             is BrandListIntent.Delete ->
-                viewModelScope.launch { deleteBrand(intent.id) }
+                viewModelScope.launch {
+                    if (deleteBrand(intent.id) is DomainResult.Failure) {
+                        sendEffect(BrandListEffect.Message("Couldn't delete this brand — it may now have transactions. Merge it instead."))
+                    }
+                }
             is BrandListIntent.MergeAndDelete ->
                 viewModelScope.launch {
                     if (reassignBrandTransactions(intent.sourceId, intent.targetId) is DomainResult.Success) {
-                        deleteBrand(intent.sourceId)
+                        if (deleteBrand(intent.sourceId) is DomainResult.Failure) {
+                            sendEffect(BrandListEffect.Message("Moved the transactions, but couldn't delete the brand."))
+                        }
+                    } else {
+                        sendEffect(BrandListEffect.Message("Couldn't move the transactions. Nothing was deleted."))
                     }
                 }
             BrandListIntent.ConsumeEffect -> clearEffect()

@@ -22,7 +22,10 @@ Domain model mirrors Hisabi so concepts transfer cleanly.
 - **Charts:** Vico
 - **Storage:** Room (SQLite) — `Room*Repository` impls per feature's `data/`, entities/DAOs/
   mappers in `data/local/`, and the database in `core/data/local/` (`HisabakDatabase`).
-  Lightweight app prefs (e.g. the onboarding flag) use DataStore (`core/data/preferences/`).
+  The Room schema is exported to `app/schemas/` (committed); bump the DB version and add a
+  real `Migration` for any entity change — **release builds don't destructively fall back**
+  (debug builds do, for fast iteration). Lightweight app prefs (e.g. the onboarding flag)
+  use DataStore (`core/data/preferences/`).
 - **Platform:** Android only, portrait, edge-to-edge
 
 ---

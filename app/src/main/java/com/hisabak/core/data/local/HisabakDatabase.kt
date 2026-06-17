@@ -27,8 +27,8 @@ import com.hisabak.feature.transaction.data.local.TransactionEntity
         NotificationEntity::class,
         CategoryLimitAlertEntity::class,
     ],
-    version = 2, // v2: notifications + category_limit_alerts (destructive fallback)
-    exportSchema = false,
+    version = 2, // v2: notifications + category_limit_alerts
+    exportSchema = true,
 )
 abstract class HisabakDatabase : RoomDatabase() {
     abstract fun categoryDao(): CategoryDao
