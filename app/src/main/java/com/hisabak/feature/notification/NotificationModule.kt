@@ -3,15 +3,17 @@ package com.hisabak.feature.notification
 import com.hisabak.feature.notification.data.RoomNotificationRepository
 import com.hisabak.feature.notification.domain.CategoryLimitMonitor
 import com.hisabak.feature.notification.domain.NotificationRepository
+import com.hisabak.feature.notification.domain.Notifier
 import com.hisabak.feature.notification.platform.SystemNotifier
 import com.hisabak.feature.notification.presentation.list.NotificationsViewModel
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.dsl.viewModel
+import org.koin.dsl.bind
 import org.koin.dsl.module
 
 val notificationModule = module {
     single<NotificationRepository> { RoomNotificationRepository(dao = get()) }
-    single { SystemNotifier(androidContext()) }
+    single { SystemNotifier(androidContext()) } bind Notifier::class
 
     single {
         CategoryLimitMonitor(

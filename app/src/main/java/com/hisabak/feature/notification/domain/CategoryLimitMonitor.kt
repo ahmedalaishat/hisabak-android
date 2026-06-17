@@ -13,7 +13,6 @@ import com.hisabak.feature.category.domain.CategoryType
 import com.hisabak.feature.category.domain.effectiveFor
 import com.hisabak.feature.notification.data.local.CategoryLimitAlertDao
 import com.hisabak.feature.notification.data.local.CategoryLimitAlertEntity
-import com.hisabak.feature.notification.platform.SystemNotifier
 import com.hisabak.feature.transaction.domain.Transaction
 import com.hisabak.feature.transaction.domain.TransactionRepository
 import kotlinx.coroutines.CoroutineScope
@@ -37,7 +36,7 @@ class CategoryLimitMonitor(
     private val limits: CategoryLimitRepository,
     private val notifications: NotificationRepository,
     private val alertDao: CategoryLimitAlertDao,
-    private val systemNotifier: SystemNotifier,
+    private val systemNotifier: Notifier,
     private val currency: Currency,
     private val clock: Clock,
 ) {
