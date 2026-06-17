@@ -5,9 +5,9 @@
 <h1 align="center">Hisabak</h1>
 
 <p align="center">
-  <em>حسابك — “your account.”</em> A personal finance tracker for Android that turns your bank
-  SMS alerts into a clean, organized view of your money — categorize spending, set monthly
-  budgets, and get notified before you overshoot.
+  A personal finance tracker for Android that turns your bank SMS alerts into a clean,
+  organized view of your money — categorize spending, set monthly budgets, and get notified
+  before you overshoot.
 </p>
 
 <p align="center">
