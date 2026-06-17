@@ -38,7 +38,9 @@ roles via `MaterialTheme.colorScheme`. Never hardcode hex.
 Money renders the **dirham glyph** (never the literal text "AED"), tabular figures; income
 `+`, expense true-minus `−`, both colored; hero balances neutral/unsigned. Always use
 `MoneyText` / `AmountText` / `TrailingAmount` (they apply the mono style + `DirhamGlyph`) —
-never hardcode `"AED …"` in a `Text`.
+never hardcode `"AED …"` in a `Text`. Amounts display **compactly** via `compactAmount` /
+`compactAmountMinor` (thousands `K`, millions `M`, 2 decimals; under 1,000 exact); only the
+transaction edit input stays exact.
 
 ## Spacing · radius · sizing
 

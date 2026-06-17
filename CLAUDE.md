@@ -165,8 +165,11 @@ Category icons sit on a tinted rounded-square tile in the category color.
   components — `DirhamGlyph`, `AmountText`, `MoneyText` (`ui/components/HisabakComponents.kt`,
   glyph = `res/drawable/ic_dirham`) — which render the glyph + Geist Mono tabular figures.
   Never hardcode `"AED …"` in a `Text`. (The only exception is simulated bank-SMS sample
-  text, which genuinely contains "AED".) Income shows `+`, expenses the true minus `−`
-  (U+2212), both colored. Hero balances drop the sign and use neutral text.
+  text, which genuinely contains "AED".) Amounts are shown **compactly** — thousands as `K`,
+  millions as `M`, both to 2 decimals, under 1,000 exact (the shared `compactAmount` /
+  `compactAmountMinor`, applied by `MoneyText`/`AmountText`); only the transaction edit input
+  stays exact. Income shows `+`, expenses the true minus `−` (U+2212), both colored. Hero
+  balances drop the sign and use neutral text.
 - Every list screen needs a real empty state: icon + "No … yet" + one-line guidance + a CTA.
 
 ---

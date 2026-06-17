@@ -18,6 +18,9 @@ All notable changes to Hisabak are documented here. Format based on
 - Release builds no longer wipe the database on an unexpected schema change — the Room
   schema is now exported and migrations are required, protecting on-device history. (Debug
   builds keep the destructive fallback for fast iteration.)
+- Amounts are now shown compactly everywhere: thousands as `K`, millions as `M` (both to
+  two decimals) — e.g. `AED 990,853` reads as `990.85K`. Applies to the dashboard, stat
+  cards, transactions, charts, and budgets. The amount you type when editing stays exact.
 
 ### Fixed
 - Amounts with certain cents (e.g. `19.99`) were stored a cent short due to floating-point
