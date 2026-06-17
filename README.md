@@ -158,5 +158,5 @@ budgets, SMS ingestion, dashboard metrics) mirrors Hisabi's so concepts map clea
 ---
 
 <p align="center">
-  Built by <strong>Ahmad Alaishat</strong> · <a href="https://github.com/ahmedalaishat">GitHub</a>
+  Built by <strong>Ahmad Alaishat</strong> · <a href="https://github.com/ahmedalaishat">GitHub</a> · <a href="https://www.linkedin.com/in/ahmedalaishat">LinkedIn</a>
 </p>
