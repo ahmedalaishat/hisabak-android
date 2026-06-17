@@ -60,6 +60,16 @@ class MoneyTest {
     }
 
     @Test
+    fun `ofMajor rounds instead of truncating floating-point error`() {
+        // (value * 100).toLong() would truncate these to 1998 / 6 / 434.
+        assertEquals(money(1999), Money.ofMajor(19.99, aed))
+        assertEquals(money(7), Money.ofMajor(0.07, aed))
+        assertEquals(money(435), Money.ofMajor(4.35, aed))
+        assertEquals(money(-1999), Money.ofMajor(-19.99, aed))
+        assertEquals(money(100000000), Money.ofMajor(1_000_000.0, aed))
+    }
+
+    @Test
     fun `zero is a zero amount in the given currency`() {
         assertEquals(money(0), Money.zero(aed))
     }
