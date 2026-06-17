@@ -1,3 +1,4 @@
 <resources>
-    <string name="app_name">Hisabak</string>
+    <!-- app_name is provided per build flavor via resValue (see app/build.gradle.kts):
+         "Hisabak" for prod, "Hisabak STG" for staging. -->
 </resources>
