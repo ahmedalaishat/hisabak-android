@@ -119,7 +119,7 @@ emulator needed:
 
 Quality is enforced, not just hoped for:
 
-- **CI** — every pull request and push to `develop`/`main` runs the suite via GitHub Actions.
+- **CI** — every pull request targeting `develop`/`main` runs the suite via GitHub Actions.
 - **Branch protection** — a red suite can't be merged into the shared branches.
 - **Local guard** — a pre-finish hook runs the tests on any change that touches Kotlin.
 
