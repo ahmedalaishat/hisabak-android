@@ -78,7 +78,8 @@ Do this from `develop` once it holds everything for the version.
    ```
 
 5. **Verify**: `git tag` shows the new tag; `git log --oneline main -1` is the
-   release; `./gradlew :app:assembleDebug` builds; optionally install and smoke-test.
+   release; `./gradlew :app:assembleProdRelease` builds (the shipped prod artifact);
+   optionally install and smoke-test.
 
 ---
 
