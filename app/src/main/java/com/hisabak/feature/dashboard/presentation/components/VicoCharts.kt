@@ -11,6 +11,7 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.hisabak.ui.components.compactAmount
 import com.patrykandpatrick.vico.compose.cartesian.CartesianChartHost
 import com.patrykandpatrick.vico.compose.cartesian.axis.rememberAxisLabelComponent
 import com.patrykandpatrick.vico.compose.cartesian.axis.rememberBottom
@@ -110,7 +111,7 @@ fun AreaLineChart(
                 val date = xLabels.getOrNull(i).orEmpty()
                 val amount = (target as? LineCartesianLayerMarkerTarget)
                     ?.points?.firstOrNull()?.entry?.y
-                if (amount != null) "$date   ${"%,.0f".format(amount)}" else date
+                if (amount != null) "$date   ${compactAmount(amount)}" else date
             },
         )
     } else null

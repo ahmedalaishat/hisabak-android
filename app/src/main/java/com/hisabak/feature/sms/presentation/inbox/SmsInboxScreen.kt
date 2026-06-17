@@ -38,6 +38,7 @@ import androidx.compose.ui.unit.sp
 import com.hisabak.core.common.Money
 import com.hisabak.feature.sms.domain.SmsMessageId
 import com.hisabak.ui.components.AmountText
+import com.hisabak.ui.components.compactAmount
 import com.hisabak.ui.components.AmountTone
 import com.hisabak.ui.components.Badge
 import com.hisabak.ui.components.SkeletonRowList
@@ -333,10 +334,8 @@ private fun SmsRowCard(
 }
 
 internal fun formatMoney(money: Money): String {
-    val major = money.amountMinor / 100
-    val minor = abs(money.amountMinor % 100)
     val sign = if (money.amountMinor < 0) "-" else ""
-    return "$sign${money.currency.code} $major.${minor.toString().padStart(2, '0')}"
+    return "$sign${money.currency.code} ${compactAmount(abs(money.amountMinor) / 100.0)}"
 }
 
 internal fun formatDate(instant: java.time.Instant): String =

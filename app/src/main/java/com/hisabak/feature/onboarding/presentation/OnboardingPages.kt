@@ -55,6 +55,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.text.TextStyle
 import com.hisabak.ui.components.DirhamGlyph
+import com.hisabak.ui.components.compactAmount
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
@@ -144,15 +145,7 @@ private fun appearProgress(active: Boolean, durationMillis: Int): Float {
     return p
 }
 
-/** Compact major-unit format: thousands as K, millions as M, both to 2 decimals. */
-private fun compactMajor(v: Double): String {
-    val a = kotlin.math.abs(v)
-    return when {
-        a >= 1_000_000 -> "%,.2fM".format(v / 1_000_000)
-        a >= 1_000 -> "%,.2fK".format(v / 1_000)
-        else -> "%,.2f".format(v)
-    }
-}
+private fun compactMajor(v: Double): String = compactAmount(v)
 
 /** Dirham glyph + compact amount, matching the app's [com.hisabak.ui.components.AmountText] look. */
 @Composable
