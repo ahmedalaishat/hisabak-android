@@ -6,6 +6,11 @@ All notable changes to Hisabak are documented here. Format based on
 
 ## [Unreleased]
 
+### Added
+- First-launch onboarding: an animated, premium walkthrough of the app's features
+  (SMS auto-capture, on-device privacy, budgets & alerts, insights) ending with an
+  SMS-permission primer.
+
 ## [1.2.0]
 
 ### Added

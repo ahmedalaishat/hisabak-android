@@ -10,6 +10,8 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -44,8 +46,10 @@ import com.hisabak.feature.brand.domain.BrandId
 import com.hisabak.feature.brand.presentation.edit.BrandEditRoute
 import com.hisabak.feature.category.domain.CategoryId
 import com.hisabak.feature.category.presentation.edit.CategoryEditRoute
+import com.hisabak.core.domain.AppPreferences
 import com.hisabak.feature.dashboard.presentation.CategoryFocusBus
 import com.hisabak.feature.dashboard.presentation.DashboardRoute
+import com.hisabak.feature.onboarding.presentation.OnboardingRoute
 import com.hisabak.feature.notification.domain.NotificationRepository
 import com.hisabak.feature.notification.platform.SystemNotifier
 import com.hisabak.feature.notification.presentation.list.NotificationsRoute
@@ -86,7 +90,19 @@ class MainActivity : ComponentActivity() {
         handleFocusIntent(intent)
         setContent {
             HisabakTheme {
-                HisabakNav()
+                val preferences = koinInject<AppPreferences>()
+                val onboardingCompleted by preferences.onboardingCompleted
+                    .collectAsStateWithLifecycle(initialValue = null)
+                when (onboardingCompleted) {
+                    false -> OnboardingRoute()
+                    true -> HisabakNav()
+                    // null = still loading the flag; show a blank themed canvas (no flash).
+                    null -> Box(
+                        Modifier
+                            .fillMaxSize()
+                            .background(MaterialTheme.colorScheme.background),
+                    )
+                }
             }
         }
     }
