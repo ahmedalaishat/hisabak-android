@@ -39,4 +39,6 @@ sealed interface BrandListIntent : ViewIntent {
     data object ConsumeEffect : BrandListIntent
 }
 
-sealed interface BrandListEffect : ViewEffect
+sealed interface BrandListEffect : ViewEffect {
+    data class Message(val text: String) : BrandListEffect
+}
