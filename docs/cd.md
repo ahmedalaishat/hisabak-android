@@ -29,8 +29,26 @@ secret and lives inline in the workflow.
 debug when no keystore is configured) — fine for tester installs. Real release signing is set up
 for the Play (prod) path.
 
-## Production → Google Play (planned)
+## Production → Google Play internal (live)
 
-Not wired yet. Will publish a signed **AAB** of the `prod` variant to the Play **internal**
-track on a `v*` release tag, gated to production manually. Needs a release keystore (Play App
-Signing) and a Play service-account secret.
+`.github/workflows/release.yml` runs on a **`v*` release tag**. It decodes the release
+keystore, builds a **signed `bundleProdRelease`** AAB, and publishes it to the Play
+**internal** track via [r0adkll/upload-google-play](https://github.com/r0adkll/upload-google-play).
+Promotion **internal → production** stays a manual step in the Play Console.
+
+> Like Firebase, the Gradle Play Publisher **plugin** is not used (AGP 9 incompatibility). The
+> Action uploads the built AAB directly.
+
+**Required GitHub secrets**
+- `RELEASE_KEYSTORE_BASE64` — base64 of the upload keystore (`base64 -i hisabak-keystore.jks`).
+- `RELEASE_KEYSTORE_PASSWORD`, `RELEASE_KEY_ALIAS`, `RELEASE_KEY_PASSWORD` — keystore credentials.
+- `PLAY_SERVICE_ACCOUNT_JSON` — a Google Cloud service account JSON with Play access (granted in
+  the Play Console under *Users & permissions*).
+
+**One-time Play Console setup**
+1. Create the app in the Play Console and enable **Play App Signing**.
+2. **Upload the first signed AAB manually** to the internal track — the API can't create the
+   app or seed the first release. CI publishes every release after that.
+
+**Cutting a release** (the `git-workflow` skill's "ship it"): bump `versionName`/`versionCode`,
+merge `develop`→`main`, then tag `vX.Y.Z` and push — the tag triggers this workflow.
