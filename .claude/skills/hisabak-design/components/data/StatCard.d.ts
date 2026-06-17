@@ -8,7 +8,7 @@ import * as React from 'react';
 export interface StatCardProps {
   label: string;
   value: number;
-  /** @default "SAR" */
+  /** @default "AED" */
   currency?: string;
   /** Material Symbols ligature for the tile. */
   icon?: string;

@@ -28,7 +28,7 @@ function SmsInbox() {
       {/* Paste & parse */}
       <Card padding={16} style={{ marginTop: 12 }}>
         <div style={{ fontFamily: 'var(--font-sans)', fontWeight: 600, fontSize: 15, color: 'var(--text-primary)', marginBottom: 10 }}>Paste an SMS</div>
-        <Input multiline rows={2} value="Purchase of SAR 89.00 at TALABAT on 31/05." placeholder="Paste a bank message…" />
+        <Input multiline rows={2} value="Purchase of AED 89.00 at TALABAT on 31/05." placeholder="Paste a bank message…" />
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 12 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <Badge tone="info" dot>Talabat</Badge>

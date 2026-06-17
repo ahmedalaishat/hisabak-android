@@ -8,7 +8,7 @@ import { AmountText } from '../core/AmountText.jsx';
 export function StatCard({
   label,
   value,
-  currency = 'SAR',
+  currency = 'AED',
   icon,
   tone = 'neutral',          // colors the icon tile + value
   delta,                     // e.g. +12.4  (percent vs last period)

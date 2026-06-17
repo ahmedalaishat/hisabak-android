@@ -96,7 +96,7 @@ function Dashboard() {
       <Section title="Expenses by category">
         <Card padding={16}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 18 }}>
-            <DonutChart segments={expenseCats} centerLabel={M.money(2546 + 388, { decimals: false }).replace('SAR ', '')} centerSub="Total" />
+            <DonutChart segments={expenseCats} centerLabel={M.money(2546 + 388, { decimals: false }).replace('AED ', '')} centerSub="Total" />
             <LegendList items={expenseCats} />
           </div>
         </Card>
