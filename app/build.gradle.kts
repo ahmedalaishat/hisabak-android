@@ -89,6 +89,12 @@ android {
     }
 }
 
+// Export the Room schema so migrations can be authored and validated against it. The generated
+// JSON under app/schemas/ is committed.
+ksp {
+    arg("room.schemaLocation", "$projectDir/schemas")
+}
+
 dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)

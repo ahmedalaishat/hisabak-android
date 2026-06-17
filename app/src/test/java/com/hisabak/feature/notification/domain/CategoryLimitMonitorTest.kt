@@ -110,6 +110,32 @@ class CategoryLimitMonitorTest {
     }
 
     @Test
+    fun `evaluateNow fires an alert without the live collector`() = runTest {
+        categories.emit(listOf(expenses))
+        limits.emit(listOf(categoryLimit("c1", 100_00)))
+        transactions.emit(listOf(txOf(100_00))) // 100% -> level 100
+
+        monitor().evaluateNow()
+
+        assertEquals(1, notifier.posted.size)
+        assertTrue(notifier.posted.single().title.contains("reached"))
+    }
+
+    @Test
+    fun `evaluateNow does not re-alert a threshold already recorded this month`() = runTest {
+        categories.emit(listOf(expenses))
+        limits.emit(listOf(categoryLimit("c1", 100_00)))
+        transactions.emit(listOf(txOf(60_00))) // level 50
+
+        monitor().evaluateNow()
+        assertEquals(1, notifier.posted.size)
+
+        // A second capture that stays at level 50 must not produce another alert.
+        monitor().evaluateNow()
+        assertEquals(1, notifier.posted.size)
+    }
+
+    @Test
     fun `non-expense categories are ignored`() = runTest {
         categories.emit(listOf(category(id = "c1", type = CategoryType.INCOME)))
         limits.emit(listOf(categoryLimit("c1", 100_00)))
