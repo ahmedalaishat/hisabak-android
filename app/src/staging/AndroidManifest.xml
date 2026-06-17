@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Staging-only SMS auto-capture. RECEIVE_SMS is a Google Play restricted permission that the
+  prod/Play build must not declare, so the broadcast receiver and its permission live here in the
+  staging flavor (distributed off-Play via Firebase). The prod build captures via the
+  permission-free share / select-text / manual-paste paths declared in src/main.
+-->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <uses-permission android:name="android.permission.RECEIVE_SMS" />
+
+    <application>
+        <receiver
+            android:name=".feature.sms.platform.IncomingSmsReceiver"
+            android:exported="true">
+            <intent-filter android:priority="999">
+                <action android:name="android.provider.Telephony.SMS_RECEIVED" />
+            </intent-filter>
+        </receiver>
+    </application>
+
+</manifest>
