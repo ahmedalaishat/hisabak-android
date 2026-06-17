@@ -1,0 +1,40 @@
+name: Distribute staging
+
+# Builds the staging variant and pushes it to Firebase App Distribution (the "qa" testers
+# group). Runs on every push to develop, and on demand. Production goes to Play separately.
+on:
+  push:
+    branches: [develop]
+  workflow_dispatch:
+
+jobs:
+  distribute:
+    name: Staging → Firebase
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Build staging release APK
+        run: ./gradlew assembleStagingRelease --no-daemon
+
+      - name: Upload to Firebase App Distribution
+        uses: wzieba/Firebase-Distribution-Github-Action@v1
+        with:
+          # Staging Firebase app id (com.hisabak.staging) — not a secret; it ships in the APK.
+          appId: 1:469916556187:android:bb6a22afa66dde1b80df3e
+          serviceCredentialsFileContent: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_JSON }}
+          groups: qa
+          file: app/build/outputs/apk/staging/release/app-staging-release.apk
+          releaseNotes: ${{ github.event.head_commit.message || format('Manual staging build {0}', github.sha) }}
