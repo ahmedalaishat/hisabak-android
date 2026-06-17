@@ -1,6 +1,7 @@
 package com.hisabak.core.common
 
 import kotlin.math.abs
+import kotlin.math.roundToLong
 
 data class Money(
     val amountMinor: Long,
@@ -42,6 +43,6 @@ data class Money(
         fun zero(currency: Currency): Money = Money(0L, currency)
 
         fun ofMajor(amount: Double, currency: Currency): Money =
-            Money((amount * 100).toLong(), currency)
+            Money((amount * 100).roundToLong(), currency)
     }
 }

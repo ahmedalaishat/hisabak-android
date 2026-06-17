@@ -18,6 +18,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import kotlin.math.roundToLong
 import kotlinx.coroutines.launch
 
 class TransactionEditViewModel(
@@ -163,7 +164,7 @@ private fun parseAmountMinor(input: String): Long? {
     val trimmed = input.trim().replace(",", "")
     if (trimmed.isEmpty()) return null
     val value = trimmed.toDoubleOrNull() ?: return null
-    return (value * 100).toLong()
+    return (value * 100).roundToLong()
 }
 
 private fun formatAmountInput(money: Money): String {
