@@ -22,6 +22,7 @@ Report: `app/build/reports/tests/testProdDebugUnitTest/index.html`.
 | SMS field parsing (amount/date/time normalization) | `sms/data/parser/TemplateSmsParserTest` |
 | Budget window + progress math | `budget/domain/usecase/*Test` |
 | SMS → transaction orchestration | `sms/domain/SmsTransactionProcessorTest`, `usecase/IngestSmsUseCaseTest` |
+| Capture funnel (per-source side-effect policy) | `sms/domain/capture/CaptureTransactionUseCaseTest` |
 | Category-limit alert monitor (thresholds, once-per-month, dips) | `notification/domain/CategoryLimitMonitorTest` |
 | Dashboard metric computation | `dashboard/domain/usecase/GetDashboardMetricsUseCaseTest` |
 | Misc use cases (find-or-create brand, reassign, set limit) | `*/domain/usecase/*Test` |

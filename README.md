@@ -59,8 +59,8 @@ Three ways to get it (Android 10+ / API 29):
 
 - **Guided onboarding** — a premium, animated first-launch walkthrough of the app's features,
   ending with an SMS-permission primer.
-- **SMS auto-capture** — parse bank SMS into transactions automatically (with permission), or
-  paste a message to import it on the spot.
+- **SMS capture** — parse bank SMS into transactions automatically (with permission), or
+  capture one on demand by sharing it into Hisabak, selecting its text → Hisabak, or pasting it.
 - **Budgets with alerts** — set a monthly limit per category and get notified at **50% / 80% /
   100%**. Alerts arrive as an Android notification *and* an in-app entry; tapping one opens the
   dashboard with that category expanded.
