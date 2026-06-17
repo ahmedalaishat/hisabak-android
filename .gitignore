@@ -22,6 +22,7 @@ keystore.properties
 play-service-account*.json
 firebase-service-account*.json
 service-account*.json
+hisabak-finance-tracking-*.json
 
 # Play listing push tool deps
 scripts/play/node_modules/
