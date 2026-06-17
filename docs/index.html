@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Hisabak</title>
+  <style>
+    :root { --green:#0B7A5B; --bg:#F7F8F8; --surface:#FFFFFF; --text:#111827; --muted:#4B5563; --border:#E5E7EB; }
+    @media (prefers-color-scheme: dark) { :root { --bg:#0B0F0E; --surface:#151A19; --text:#ECEFEE; --muted:#9BA5A2; --border:#232A28; } }
+    * { box-sizing:border-box; }
+    body { margin:0; font-family:"DM Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; background:var(--bg); color:var(--text); }
+    .wrap { max-width:640px; margin:0 auto; padding:64px 20px; text-align:center; }
+    .mark { width:64px; height:64px; border-radius:18px; background:var(--green); color:#fff; display:grid; place-items:center; font-weight:700; font-size:32px; margin:0 auto 20px; }
+    h1 { font-size:32px; margin:0 0 8px; }
+    p { color:var(--muted); font-size:18px; line-height:1.6; }
+    .links { margin-top:28px; display:flex; gap:12px; justify-content:center; flex-wrap:wrap; }
+    a.btn { text-decoration:none; border:1px solid var(--border); background:var(--surface); color:var(--text); padding:10px 18px; border-radius:999px; font-weight:600; }
+    a.btn.primary { background:var(--green); color:#fff; border-color:var(--green); }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="mark">H</div>
+    <h1>Hisabak</h1>
+    <p>A personal finance tracker for Android — turn your bank SMS alerts into a clean, organized
+       view of your money. Categorize spending, set budgets, and get notified before you overshoot.
+       Everything stays on your device.</p>
+    <div class="links">
+      <a class="btn primary" href="./privacy.html">Privacy policy</a>
+      <a class="btn" href="https://github.com/ahmedalaishat/hisabak-android">Source on GitHub</a>
+    </div>
+  </div>
+</body>
+</html>

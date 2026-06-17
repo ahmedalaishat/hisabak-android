@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Hisabak — Privacy Policy</title>
+  <style>
+    :root {
+      --green: #0B7A5B;
+      --bg: #F7F8F8;
+      --surface: #FFFFFF;
+      --text: #111827;
+      --muted: #4B5563;
+      --border: #E5E7EB;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #0B0F0E;
+        --surface: #151A19;
+        --text: #ECEFEE;
+        --muted: #9BA5A2;
+        --border: #232A28;
+      }
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "DM Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+    .wrap { max-width: 720px; margin: 0 auto; padding: 40px 20px 80px; }
+    header { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
+    .mark {
+      width: 36px; height: 36px; border-radius: 10px;
+      background: var(--green); color: #fff; display: grid; place-items: center;
+      font-weight: 700; font-size: 18px;
+    }
+    h1 { font-size: 28px; margin: 24px 0 4px; }
+    h2 { font-size: 18px; margin: 32px 0 8px; }
+    .meta { color: var(--muted); font-size: 14px; }
+    p, li { color: var(--text); }
+    .lead { color: var(--muted); font-size: 17px; }
+    .card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 14px; padding: 16px 20px; margin: 20px 0;
+    }
+    a { color: var(--green); }
+    ul { padding-left: 20px; }
+    footer { margin-top: 48px; color: var(--muted); font-size: 13px; border-top: 1px solid var(--border); padding-top: 16px; }
+    strong { color: var(--text); }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="mark">H</div>
+      <strong>Hisabak</strong>
+    </header>
+
+    <h1>Privacy Policy</h1>
+    <p class="meta">Last updated: 18 June 2026</p>
+
+    <p class="lead">
+      Hisabak is a personal finance tracker for Android. It is built to keep your financial data
+      entirely on your device. We do not collect, transmit, sell, or share any of your data.
+    </p>
+
+    <div class="card">
+      <strong>The short version:</strong> Hisabak works fully offline. It has no internet access,
+      no accounts, no analytics, no advertising, and no third-party SDKs that receive your data.
+      Everything you record stays on your phone.
+    </div>
+
+    <h2>Data we collect</h2>
+    <p>
+      <strong>None.</strong> Hisabak does not collect or transmit any personal or financial
+      information. The released app does not request the Internet permission, so it is technically
+      unable to send your data anywhere.
+    </p>
+
+    <h2>Where your data is stored</h2>
+    <p>
+      Your transactions, brands, categories, and budgets are stored only in a private database on
+      your device. Automatic cloud backup is disabled, so this data is not copied off the device by
+      the system. Uninstalling the app removes it.
+    </p>
+
+    <h2>Bank SMS</h2>
+    <p>
+      Some distributions of Hisabak (outside the Google Play version) can read incoming bank
+      transaction SMS to automatically create a transaction. When this feature is present:
+    </p>
+    <ul>
+      <li>SMS messages are read and parsed <strong>locally on your device only</strong>, to extract
+        the amount and merchant.</li>
+      <li>Message content is <strong>never transmitted off your device</strong> and is not shared
+        with us or any third party.</li>
+      <li>The feature requires your explicit Android permission and can be left disabled.</li>
+    </ul>
+    <p>
+      The <strong>Google Play version of Hisabak does not access SMS at all.</strong> In that
+      version you add transactions by sharing a bank SMS to the app, selecting its text, or pasting
+      it — all handled on-device.
+    </p>
+
+    <h2>Permissions we use</h2>
+    <ul>
+      <li><strong>Notifications</strong> — to show you transaction confirmations and budget alerts.</li>
+      <li><strong>Receive SMS</strong> <em>(non-Play builds only)</em> — to auto-capture bank
+        transaction alerts locally, as described above.</li>
+    </ul>
+
+    <h2>Children</h2>
+    <p>Hisabak is intended for adults and is not directed at children.</p>
+
+    <h2>Changes to this policy</h2>
+    <p>
+      If this policy changes, the updated version will be posted on this page with a new “last
+      updated” date.
+    </p>
+
+    <h2>Contact</h2>
+    <p>
+      Questions about this policy? Email
+      <a href="mailto:ahmedalaishat@gmail.com">ahmedalaishat@gmail.com</a>.
+    </p>
+
+    <footer>
+      © 2026 Hisabak. This policy describes the Hisabak Android app.
+    </footer>
+  </div>
+</body>
+</html>
