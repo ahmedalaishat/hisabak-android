@@ -7,6 +7,9 @@ import com.hisabak.feature.sms.domain.SmsTemplateDetector
  * Mirrors `App\BusinessLogic\SmsTemplateDetector`.
  * Picks the first configured template whose masked regex matches the SMS body,
  * then extracts placeholder values into a key→value map the parser can consume.
+ *
+ * The text around placeholders is matched literally (escaped), so template punctuation
+ * such as a trailing `.` is a real dot — which also bounds the final placeholder.
  */
 class RegexSmsTemplateDetector(
     patterns: List<String>,
@@ -20,7 +23,15 @@ class RegexSmsTemplateDetector(
 
     private val compiled: List<CompiledTemplate> = patterns.map { pattern ->
         val keys = PLACEHOLDER.findAll(pattern).map { it.groupValues[1] }.toList()
-        val masked = PLACEHOLDER.replace(pattern, "(.*?)")
+        val masked = buildString {
+            var last = 0
+            for (match in PLACEHOLDER.findAll(pattern)) {
+                append(Regex.escape(pattern.substring(last, match.range.first)))
+                append("(.*?)")
+                last = match.range.last + 1
+            }
+            append(Regex.escape(pattern.substring(last)))
+        }
         CompiledTemplate(
             source = pattern,
             keys = keys,
