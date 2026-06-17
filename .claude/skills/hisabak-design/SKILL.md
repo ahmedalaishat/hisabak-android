@@ -11,11 +11,14 @@ If the user invokes this skill without any other guidance, ask them what they wa
 ## Quick reference
 
 - **Hisabak** = Android personal-finance tracker. SMS-automated expense capture + calm analytics. English-first, dark mode required, phones only.
-- **Voice:** plain, calm, "you", sentence case, no emoji. Money is always `SAR 1,234.56` with tabular figures; income `+` green, expense `−` coral.
+- **Voice:** plain, calm, "you", sentence case, no emoji. Money is always `AED 1,234.56` with tabular figures; income `+` green, expense `−` coral.
 - **Green is meaningful, never decorative** — income, the one primary action, the active nav tab. Backgrounds are neutral gray, never green.
 - **Fonts:** DM Sans (UI) + Geist Mono (amounts). **Icons:** Material Symbols Rounded.
 
 ## Files
+- `compose-bridge.md` — **for production Android UI:** maps every token/component here to its
+  real Kotlin counterpart in the app (`ui/theme/`, `ui/components/`). The Compose app is the
+  source of truth; the HTML/CSS below is the spec + mockup kit.
 - `styles.css` — link this; it `@import`s all tokens + fonts.
 - `tokens/` — colors (light+dark), typography, spacing, elevation.
 - `components/` — React primitives (`core/`, `forms/`, `data/`, `navigation/`). Each has a `.d.ts` contract and `.prompt.md` usage note.

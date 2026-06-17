@@ -12,7 +12,7 @@ export function CategoryTile({
   icon = 'category',
   color = 'var(--cat-gray)',
   type = 'expense',          // income|expense|savings|investment
-  total,                     // formatted string e.g. "SAR 1,240"
+  total,                     // formatted string e.g. "AED 1,240"
   onDelete,
   onClick,
   addNew = false,

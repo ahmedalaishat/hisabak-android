@@ -34,11 +34,11 @@
   ];
 
   const SMS = [
-    { id: 's1', body: 'Purchase of SAR 342.75 at CARREFOUR HYPERMARKET on 01/06. Available balance SAR 12,107.', time: 'Today · 14:32', status: 'parsed', brand: 'Carrefour', amount: 342.75 },
-    { id: 's2', body: 'Salary of SAR 8,200.00 has been credited to your account ****4471 from ACME CORP.', time: 'Today · 09:01', status: 'linked', brand: 'Acme Corp', amount: 8200 },
+    { id: 's1', body: 'Purchase of AED 342.75 at CARREFOUR HYPERMARKET on 01/06. Available balance AED 12,107.', time: 'Today · 14:32', status: 'parsed', brand: 'Carrefour', amount: 342.75 },
+    { id: 's2', body: 'Salary of AED 8,200.00 has been credited to your account ****4471 from ACME CORP.', time: 'Today · 09:01', status: 'linked', brand: 'Acme Corp', amount: 8200 },
     { id: 's3', body: 'Your verification code is 449201. Do not share this code with anyone.', time: 'Yesterday · 20:14', status: 'unparsed' },
-    { id: 's4', body: 'Payment of SAR 56.00 to NETFLIX.COM was successful. Card ****4471.', time: 'Yesterday · 03:10', status: 'parsed', brand: 'Netflix', amount: 56.00 },
-    { id: 's5', body: 'Withdrawal of SAR 500.00 at ATM RIYADH-OLAYA. Balance SAR 11,607.', time: '30 May · 18:45', status: 'parsed', brand: 'Cash', amount: 500.00 },
+    { id: 's4', body: 'Payment of AED 56.00 to NETFLIX.COM was successful. Card ****4471.', time: 'Yesterday · 03:10', status: 'parsed', brand: 'Netflix', amount: 56.00 },
+    { id: 's5', body: 'Withdrawal of AED 500.00 at ATM RIYADH-OLAYA. Balance AED 11,607.', time: '30 May · 18:45', status: 'parsed', brand: 'Cash', amount: 500.00 },
   ];
 
   function money(n, opts) {
@@ -47,7 +47,7 @@
       minimumFractionDigits: opts.decimals === false ? 0 : 2,
       maximumFractionDigits: opts.decimals === false ? 0 : 2,
     });
-    return (opts.currency === false ? '' : 'SAR ') + abs;
+    return (opts.currency === false ? '' : 'AED ') + abs;
   }
 
   window.HisabakMock = { CATEGORIES, BRANDS, TX, SMS, money };
