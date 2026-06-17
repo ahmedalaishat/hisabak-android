@@ -4,6 +4,7 @@ import com.hisabak.feature.brand.brandModule
 import com.hisabak.feature.category.categoryModule
 import com.hisabak.feature.dashboard.dashboardModule
 import com.hisabak.feature.notification.notificationModule
+import com.hisabak.feature.onboarding.onboardingModule
 import com.hisabak.feature.sms.smsModule
 import com.hisabak.feature.transaction.transactionModule
 import org.koin.core.module.Module
@@ -18,4 +19,5 @@ val appModules: List<Module> = listOf(
     smsModule,
     notificationModule,
     manageModule,
+    onboardingModule,
 )
