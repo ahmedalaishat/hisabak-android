@@ -16,9 +16,16 @@ each change gets a `feat/*` branch. **No `release/*` or `hotfix/*` branches.**
 | `feat/<name>` | One per enhancement, branched from `develop`. Short-lived. |
 
 The repo has a GitHub remote (`origin`) with CI (`.github/workflows/test.yml`) and
-branch protection on `develop`/`main`. Features ship via **pull request**, not local
+branch protection on `develop`/`main`. Features go in via **pull request**, not local
 merges: push the branch, open a PR into `develop`, let CI pass, and merge **only when
-the user says "ship it"** (never auto-merge). See the `automate-the-dev-workflow` memory.
+the user says "merge it"** (never auto-merge). See the `automate-the-dev-workflow` memory.
+
+**Workflow vocabulary — one phrase per action (don't conflate them):**
+- **"merge it"** — merge the reviewed PR into `develop`. Never touches `main`. Routine.
+- **"send to testers"** — distribute a staging build via Firebase (mostly automatic on `develop`).
+- **"ship it" / "release"** — cut a production release (§3): bump version → merge `develop`→`main`
+  → tag `vX.Y.Z` → push (the tag triggers the Play upload). Touches `main`; deliberate —
+  confirm the version and that `develop` is release-ready first.
 
 When invoked, figure out which of the three operations the user wants (start /
 finish / release) and run the matching steps. Ask only if it's ambiguous.
@@ -37,12 +44,12 @@ commit on the feat branch as you go.
 
 ## 2. Finish a feature
 
-Ship it through a PR into `develop` so CI and branch protection apply. Push, open the
-PR, wait for CI green, then merge **only on the user's "ship it"** and sync:
+Land it through a PR into `develop` so CI and branch protection apply. Push, open the
+PR, wait for CI green, then merge **only on the user's "merge it"** and sync:
 ```bash
 git push -u origin feat/<name>
 gh pr create --base develop --fill          # then wait for CI + user approval
-gh pr merge --merge --delete-branch         # only after "ship it"
+gh pr merge --merge --delete-branch         # only after "merge it"
 git checkout develop && git pull --ff-only origin develop
 git branch -d feat/<name>                   # delete the local branch too
 ```
@@ -50,7 +57,9 @@ Don't tag or touch `main` here — features accumulate on `develop` until a rele
 
 ## 3. Cut a release
 
-Do this from `develop` once it holds everything for the version.
+This is what **"ship it" / "release"** means. It touches `main` and produces a public
+release, so treat it as deliberate: confirm the version bump and that `develop` is
+release-ready before starting. Do this from `develop` once it holds everything for the version.
 
 1. **Decide the version** (semver `MAJOR.MINOR.PATCH`):
    - PATCH — bug fixes only.

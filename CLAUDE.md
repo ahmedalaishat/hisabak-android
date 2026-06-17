@@ -215,8 +215,16 @@ JVM unit tests guard the domain logic and ViewModels. Full guide: `docs/testing.
 Use the **`/feature`** skill (`.claude/skills/feature/SKILL.md`) to take a high-level
 requirement to a reviewed PR: `/feature "<requirement>"`. It runs spec → design → branch →
 code+tests → QA → docs → PR autonomously, then **stops for one review gate** — it merges
-into `develop` only when the user says **"ship it"** (never auto-merge). Per-feature
+into `develop` only when the user says **"merge it"** (never auto-merge). Per-feature
 spec+design land in `docs/features/<slug>.md`; user-visible changes update `CHANGELOG.md`.
+
+**Workflow vocabulary — one phrase per action, never conflate them:**
+
+| Phrase | Action | Touches `main`? |
+|--------|--------|-----------------|
+| **merge it** | merge the reviewed PR into `develop` | no — routine |
+| **send to testers** | distribute a staging build (Firebase) | no |
+| **ship it** / **release** | cut a production release: bump version → `develop`→`main` → tag → Play | **yes — deliberate; confirm the version first** |
 
 ### Pre-PR consistency check (every PR, not just `/feature`)
 
