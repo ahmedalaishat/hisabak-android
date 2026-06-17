@@ -77,6 +77,24 @@ Three ways to get it (Android 10+ / API 29):
 
 ---
 
+## Roadmap
+
+Planned, not yet available — roughly in order:
+
+1. **Notification capture** — read bank transaction notifications to capture spending without the
+   SMS permission (works in the Play build).
+2. **Backup & restore** — export and import your data (encrypted), so you can move between devices.
+3. **Multi-currency** — track transactions and balances across more than one currency.
+4. **App lock** — biometric / PIN lock to keep your finances private on a shared device.
+5. **Database encryption** — encrypt the on-device database at rest.
+6. **AI capture & auto-categorization** — smarter SMS parsing and automatic brand → category
+   detection.
+7. **AI insights assistant** — ask questions about your spending and get clear, on-point answers.
+
+> Privacy stays first: AI features will be designed to keep your data under your control.
+
+---
+
 ## Tech stack
 
 - **Language:** Kotlin
