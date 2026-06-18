@@ -43,6 +43,9 @@ jobs:
           ./gradlew bundleProdRelease assembleProdRelease --no-daemon -PrequireReleaseSigning
           cp app/build/outputs/apk/prod/release/app-prod-release.apk "hisabak-${{ github.ref_name }}.apk"
 
+      - name: Generate Play release notes from CHANGELOG
+        run: ./scripts/changelog-to-whatsnew.sh
+
       - name: Publish to Play internal track
         uses: r0adkll/upload-google-play@v1
         with:
@@ -51,6 +54,7 @@ jobs:
           releaseFiles: app/build/outputs/bundle/prodRelease/app-prod-release.aab
           track: internal
           status: completed
+          whatsNewDirectory: distribution/whatsnew
 
       - name: Create GitHub Release with the prod APK
         uses: softprops/action-gh-release@v2

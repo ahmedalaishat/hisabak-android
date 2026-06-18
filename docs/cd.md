@@ -45,6 +45,12 @@ via [r0adkll/upload-google-play](https://github.com/r0adkll/upload-google-play),
 the APK to a GitHub Release** (`hisabak-<tag>.apk`) for direct download. Promotion
 **internal → production** stays a manual step in the Play Console.
 
+**Play "What's new":** generated at release time from the latest `CHANGELOG.md` version
+section by `scripts/changelog-to-whatsnew.sh` (flattened to plain bullets, capped at Play's
+500-char limit) into `distribution/whatsnew/whatsnew-en-US`, which the upload step pushes via
+`whatsNewDirectory`. So the storefront notes always track the CHANGELOG — keep that section
+user-facing and concise. (The generated file is git-ignored.)
+
 Distribution channels: **demo** = staging via Firebase (sample data); **direct APK** = the
 GitHub Release here; **live** = Play.
 
