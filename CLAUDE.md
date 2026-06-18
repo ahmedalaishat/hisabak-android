@@ -40,7 +40,10 @@ Domain model mirrors Hisabi so concepts transfer cleanly.
   real `Migration` for any entity change — **release builds don't destructively fall back**
   (debug builds do, for fast iteration). Lightweight app prefs (e.g. the onboarding flag)
   use DataStore (`core/data/preferences/`).
-- **Platform:** Android only, portrait, edge-to-edge
+- **Platform:** Android only, portrait, edge-to-edge. `minSdk 29`. **Core-library desugaring is
+  enabled** (`isCoreLibraryDesugaringEnabled` + `desugar_jdk_libs`), so `java.time` is safe to use
+  freely down to API 29 — without it, API-34+ additions like `LocalDate.ofInstant` throw
+  `NoSuchMethodError` on older devices at runtime (this caused the v1.5.0 launch crash).
 
 ---
 
