@@ -21,10 +21,10 @@
 </p>
 
 <p align="center">
-  <b>Built entirely in plain English.</b><br>
-  Every line of code — from idea, requirements, and architecture through implementation,
-  tests, CI/CD, and the Google Play listing — was written by <b>Claude Opus 4.8</b> via
-  Claude Code. I directed and reviewed; the agent wrote the code.
+  <b>🤖 Built entirely in plain English.</b><br>
+  From idea and architecture to the Kotlin code, tests, CI/CD automation, the app icon and
+  store graphics, the demo video, and the Play Store listing — the entire project was produced
+  by <b>Claude Opus 4.8</b> via Claude Code. I directed and reviewed; Claude built it.
 </p>
 
 <p align="center">
@@ -203,7 +203,7 @@ budgets, SMS ingestion, dashboard metrics) mirrors Hisabi's so concepts map clea
 
 ## 📄 License
 
-[MIT](LICENSE).
+**Hisabak** is licensed under the **MIT License** — see [`LICENSE`](LICENSE) for details.
 
 ---
 
