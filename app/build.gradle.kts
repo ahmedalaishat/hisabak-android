@@ -9,14 +9,31 @@ plugins {
 
 // Release signing is read from a gitignored keystore.properties (local) or env vars (CI).
 // When neither is present, release builds fall back to the debug key so local/CI builds
-// still work without any secrets.
+// still work without any secrets. The prod → Play pipeline opts into strict signing
+// (-PrequireReleaseSigning) so a publishable build can never silently use the debug key.
 val keystorePropsFile = rootProject.file("keystore.properties")
 val keystoreProps = Properties().apply {
     if (keystorePropsFile.exists()) FileInputStream(keystorePropsFile).use { load(it) }
 }
 fun signingProp(prop: String, env: String): String? =
     keystoreProps.getProperty(prop) ?: System.getenv(env)
-val hasReleaseSigning = signingProp("storeFile", "RELEASE_KEYSTORE_PATH") != null
+// Real release signing requires a keystore path that actually resolves to a file — a bare env var
+// pointing at a missing/empty keystore must not count as "signed".
+val hasReleaseSigning = signingProp("storeFile", "RELEASE_KEYSTORE_PATH")
+    ?.let { rootProject.file(it).exists() } == true
+
+// When the prod → Play pipeline passes -PrequireReleaseSigning, a missing release keystore is a
+// hard error rather than a silent fall back to the debug key: a debug-signed AAB must never reach
+// Play. Local builds and the staging (Firebase) build omit the flag and keep the debug-key
+// fallback, so they still work without any secrets.
+val requireReleaseSigning = providers.gradleProperty("requireReleaseSigning").isPresent
+if (requireReleaseSigning && !hasReleaseSigning) {
+    throw GradleException(
+        "Release signing is required (-PrequireReleaseSigning) but no usable keystore was found. " +
+            "Set keystore.properties or the RELEASE_KEYSTORE_* env vars (and verify the keystore " +
+            "file exists) before building a publishable release.",
+    )
+}
 
 android {
     namespace = "com.hisabak"
@@ -30,8 +47,8 @@ android {
         applicationId = "com.hisabak"
         minSdk = 29
         targetSdk = 36
-        versionCode = 4
-        versionName = "1.3.0"
+        versionCode = 5
+        versionName = "1.4.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }

@@ -38,6 +38,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.hisabak.core.common.sanitizeAmountInput
 import com.hisabak.feature.brand.domain.BrandId
 import com.hisabak.feature.category.domain.CategoryType
 import com.hisabak.ui.components.BadgeTone
@@ -247,7 +248,7 @@ private fun AmountHeroField(
                 }
                 BasicTextField(
                     value = amountInput,
-                    onValueChange = { onAmountChange(sanitizeAmount(it)) },
+                    onValueChange = { onAmountChange(sanitizeAmountInput(it)) },
                     textStyle = heroStyle,
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
@@ -265,19 +266,6 @@ private fun AmountHeroField(
             )
         }
     }
-}
-
-/** Keeps digits and a single decimal point; drops anything else the keyboard sends. */
-private fun sanitizeAmount(input: String): String {
-    val sb = StringBuilder()
-    var hasDot = false
-    for (ch in input) {
-        when {
-            ch.isDigit() -> sb.append(ch)
-            ch == '.' && !hasDot -> { sb.append(ch); hasDot = true }
-        }
-    }
-    return sb.toString()
 }
 
 private val dateFormatter: DateTimeFormatter =

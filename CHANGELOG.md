@@ -6,6 +6,23 @@ All notable changes to Hisabak are documented here. Format based on
 
 ## [Unreleased]
 
+## [1.4.0] — 2026-06-18
+
+### Added
+- A fresh install now starts with a small set of starter categories (Salary, Groceries,
+  Dining, Transport, Shopping, Savings, Investments) so you can record a transaction right
+  away. They're ordinary categories you can rename or delete.
+
+### Fixed
+- Capturing a transaction by sharing or selecting bank-SMS text now completes reliably even
+  if the brief capture screen closes before the save finishes.
+- Amount fields now accept a comma as the decimal separator, so entering cents works on
+  keyboards that use `,` (e.g. many non-English locales).
+- Uncategorized transactions (e.g. just captured from SMS) now show as neutral instead of
+  appearing as green income, so they no longer look like money you received.
+- Opening an uncategorized transaction to edit it now shows its brand and is titled "Edit
+  transaction"; the transaction and brand edit screens no longer mislabel an edit as a new entry.
+
 ## [1.3.0] — 2026-06-18
 
 ### Added

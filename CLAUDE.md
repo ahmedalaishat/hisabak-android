@@ -242,7 +242,7 @@ spec+design land in `docs/features/<slug>.md`; user-visible changes update `CHAN
 After code review and **before opening any PR**, confirm the diff didn't leave docs/skills
 stale, and update whatever it touched **in the same PR**: `CLAUDE.md` (stack/architecture/
 commands), `README.md` (build/run/features/badges), `docs/` (`testing.md`, `cd.md`),
-`.claude/skills/` (`git-workflow`, `feature`, `hisabak-design/compose-bridge.md`),
+`.claude/skills/` (`git-workflow`, `feature`, `hisabak-design/compose-bridge.md`, `verifier-android`),
 `.claude/hooks/run-tests.sh`, `.github/workflows/*.yml`, and `CHANGELOG.md`. Common triggers:
 renamed Gradle tasks/variants, changed `applicationId`/package, changed test/build/run
 commands, storage/architecture changes, design token/component changes, new dependencies,

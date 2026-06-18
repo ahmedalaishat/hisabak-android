@@ -18,7 +18,6 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
-import kotlin.math.roundToLong
 import kotlinx.coroutines.launch
 
 class TransactionEditViewModel(
@@ -38,11 +37,20 @@ class TransactionEditViewModel(
         if (transactionId == null) setState { copy(occurredAt = clock.now()) }
         viewModelScope.launch {
             val selectedTypeFlow = state.map { it.selectedType }.distinctUntilChanged()
-            combine(observeBrands(), observeCategories(), selectedTypeFlow) { brands, categories, type ->
+            val selectedBrandIdFlow = state.map { it.selectedBrandId }.distinctUntilChanged()
+            combine(
+                observeBrands(),
+                observeCategories(),
+                selectedTypeFlow,
+                selectedBrandIdFlow,
+            ) { brands, categories, type, selectedBrandId ->
                 val colorById = categories.associate { it.id to it.color }
                 val typeById = categories.associate { it.id to it.type }
                 brands
-                    .filter { brand -> brand.categoryId?.let(typeById::get) == type }
+                    // Brands of the chosen type, plus the transaction's current brand even if it
+                    // doesn't match — e.g. an uncategorized brand captured from SMS — so editing
+                    // an existing transaction always shows and keeps its brand.
+                    .filter { brand -> brand.categoryId?.let(typeById::get) == type || brand.id == selectedBrandId }
                     .map { brand ->
                         TransactionEditUiState.BrandOption(
                             id = brand.id,
@@ -111,8 +119,8 @@ class TransactionEditViewModel(
 
     private fun save() {
         val s = state.value
-        val minor = parseAmountMinor(s.amountInput)
-        if (minor == null || minor <= 0) {
+        val money = Money.parseMajor(s.amountInput, currency)
+        if (money == null || !money.isPositive) {
             setState { copy(amountError = "Enter a positive amount") }
             return
         }
@@ -123,7 +131,6 @@ class TransactionEditViewModel(
         }
         setState { copy(isSaving = true, generalError = null) }
         viewModelScope.launch {
-            val money = Money(minor, currency)
             val note = s.noteInput.trim().ifEmpty { null }
 
             val result: DomainResult<Unit> = if (transactionId == null) {
@@ -158,13 +165,6 @@ class TransactionEditViewModel(
             }
         }
     }
-}
-
-private fun parseAmountMinor(input: String): Long? {
-    val trimmed = input.trim().replace(",", "")
-    if (trimmed.isEmpty()) return null
-    val value = trimmed.toDoubleOrNull() ?: return null
-    return (value * 100).roundToLong()
 }
 
 private fun formatAmountInput(money: Money): String {
