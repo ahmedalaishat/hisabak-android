@@ -6,6 +6,13 @@ All notable changes to Hisabak are documented here. Format based on
 
 ## [Unreleased]
 
+## [1.5.1] — 2026-06-19
+
+### Fixed
+- Fixed a crash on launch on Android 13 and older (API < 34). The app used a newer date API
+  (`LocalDate.ofInstant`) that doesn't exist on those versions; enabling core-library desugaring
+  backports it, so the app now starts reliably across all supported devices.
+
 ## [1.5.0] — 2026-06-18
 
 ### Added
