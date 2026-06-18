@@ -36,7 +36,7 @@
 
 ---
 
-## Screenshots
+## 📸 Screenshots
 
 <table>
   <tr>
@@ -55,7 +55,7 @@
 
 ---
 
-## Download
+## 📥 Download
 
 Three ways to get it (Android 10+ / API 29):
 
@@ -70,49 +70,53 @@ Three ways to get it (Android 10+ / API 29):
 
 ---
 
-## Features
+## ✨ Features
 
-- **Guided onboarding** — a premium, animated first-launch walkthrough of the app's features,
-  ending with an SMS-permission primer.
-- **SMS capture** — parse bank SMS into transactions automatically (with permission), or
+Everything below is built and shipping today:
+
+- [x] 🚀 **Guided onboarding** — a premium, animated first-launch walkthrough of the app's
+  features, ending with an SMS-permission primer.
+- [x] 💬 **SMS capture** — parse bank SMS into transactions automatically (with permission), or
   capture one on demand by sharing it into Hisabak, selecting its text → Hisabak, or pasting it.
-- **Budgets with alerts** — set a monthly limit per category and get notified at **50% / 80% /
-  100%**. Alerts arrive as an Android notification *and* an in-app entry; tapping one opens the
-  dashboard with that category expanded.
-- **Dashboard** — net worth with cash / savings / investment breakdown, income & expense trends,
-  category and brand breakdowns, and period filters (this/last month, this/last year, all time)
-  across Summary, Trends, and Categories tabs.
-- **Transactions** — searchable, filterable list (by brand, category, date range), with
+- [x] 🔔 **Budgets with alerts** — set a monthly limit per category and get notified at **50% /
+  80% / 100%**. Alerts arrive as an Android notification *and* an in-app entry; tapping one opens
+  the dashboard with that category expanded.
+- [x] 📊 **Dashboard** — net worth with cash / savings / investment breakdown, income & expense
+  trends, category and brand breakdowns, and period filters (this/last month, this/last year, all
+  time) across Summary, Trends, and Categories tabs.
+- [x] 🧾 **Transactions** — searchable, filterable list (by brand, category, date range), with
   uncategorized spending surfaced for quick cleanup.
-- **Organize** — categories (income / expense / savings / investment) with colors and icons, and
-  brands mapped to categories. Safe deletion with brand-merge and confirmation.
-- **Notifications center** — unread badge on the bell, swipe-to-dismiss, and mark-all-read.
-- **Offline-first** — all data is stored locally on-device (Room). Light & dark themes, polished
-  motion, edge-to-edge.
+- [x] 🗂️ **Organize** — categories (income / expense / savings / investment) with colors and
+  icons, and brands mapped to categories. Safe deletion with brand-merge and confirmation.
+- [x] 🛎️ **Notifications center** — unread badge on the bell, swipe-to-dismiss, and mark-all-read.
+- [x] 📴 **Offline-first** — all data is stored locally on-device (Room). Light & dark themes,
+  polished motion, edge-to-edge.
 
 ---
 
-## Roadmap
+## 🗺️ Roadmap
 
-Planned, not yet available — roughly in order:
+What's next, roughly in order:
 
-1. **Notification capture** — read bank transaction notifications to capture spending without the
-   SMS permission (works in the Play build).
-2. **Backup & restore** — export and import your data (encrypted), so you can move between devices.
-3. **Multi-currency** — track transactions and balances across more than one currency.
-4. **App lock** — biometric / PIN lock to keep your finances private on a shared device.
-5. **Database encryption** — encrypt the on-device database at rest.
-6. **AI capture & auto-categorization** — smarter SMS parsing and automatic brand → category
-   detection.
-7. **AI insights assistant** — ask questions about your spending and get clear, on-point answers.
-8. **Refunds** — record a refund against a transaction so returned money is reflected in balances
-   and category spend.
+- [ ] 🛎️ **Notification capture** — read bank transaction notifications to capture spending without
+  the SMS permission (works in the Play build).
+- [ ] 💾 **Backup & restore** — export and import your data (encrypted), so you can move between
+  devices.
+- [ ] 💱 **Multi-currency** — track transactions and balances across more than one currency.
+- [ ] 🔒 **App lock** — biometric / PIN lock to keep your finances private on a shared device.
+- [ ] 🛡️ **Database encryption** — encrypt the on-device database at rest.
+- [ ] 🤖 **AI capture & auto-categorization** — smarter SMS parsing and automatic brand → category
+  detection.
+- [ ] 💡 **AI insights assistant** — ask questions about your spending and get clear, on-point
+  answers.
+- [ ] ↩️ **Refunds** — record a refund against a transaction so returned money is reflected in
+  balances and category spend.
 
 > Privacy stays first: AI features will be designed to keep your data under your control.
 
 ---
 
-## Tech stack
+## 🧰 Tech stack
 
 - **Language:** Kotlin
 - **UI:** Jetpack Compose + Material 3
@@ -127,7 +131,7 @@ Planned, not yet available — roughly in order:
 
 ---
 
-## Architecture
+## 🏗️ Architecture
 
 Feature-by-layer, with clean architecture inside each feature:
 
@@ -147,7 +151,7 @@ and SMS-imported transactions are both covered through a single path.
 
 ---
 
-## Testing & quality
+## 🧪 Testing & quality
 
 The domain logic and ViewModels are covered by **90 JVM unit tests** (money math, the SMS
 template parser, budget/limit logic, and ViewModel state) that run on the plain JVM — no
@@ -170,7 +174,7 @@ mocking framework. See [`docs/testing.md`](docs/testing.md) for the full strateg
 
 ---
 
-## Build & run
+## 🚀 Build & run
 
 **Requirements:** Android Studio (latest stable), JDK 17, Android SDK. `minSdk 29`, `targetSdk 36`.
 
@@ -189,7 +193,7 @@ populated immediately; the **production** build seeds only a small set of starte
 
 ---
 
-## Inspiration
+## 💡 Inspiration
 
 Hisabak is inspired by [**Hisabi**](https://github.com/hisabi-app/hisabi) — a self-hosted Laravel
 personal-finance web app by Saleem Hadad. The domain model (transactions, brands, categories,
@@ -197,7 +201,7 @@ budgets, SMS ingestion, dashboard metrics) mirrors Hisabi's so concepts map clea
 
 ---
 
-## License
+## 📄 License
 
 [MIT](LICENSE).
 
