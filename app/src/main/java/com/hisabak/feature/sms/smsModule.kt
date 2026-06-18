@@ -40,6 +40,7 @@ val smsModule = module {
             ingest = get(),
             recordedNotifier = get(),
             limitMonitor = get(),
+            analytics = get(),
         )
     }
     factory { DeleteSmsUseCase(get()) }

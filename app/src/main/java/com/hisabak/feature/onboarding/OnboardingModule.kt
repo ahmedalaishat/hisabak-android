@@ -10,5 +10,5 @@ import org.koin.dsl.module
 
 val onboardingModule = module {
     single { AppPreferencesDataStore(androidContext()) } bind AppPreferences::class
-    viewModel { OnboardingViewModel(preferences = get()) }
+    viewModel { OnboardingViewModel(preferences = get(), analytics = get()) }
 }

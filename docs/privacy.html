@@ -66,22 +66,23 @@
       Hisabak is a personal finance tracker for Android. It is built to keep your financial data
       entirely on your device. We never collect, transmit, sell, or share your transactions, brands,
       categories, or budgets. The only data that ever leaves your device is anonymous crash
-      diagnostics, described below — never your financial information.
+      diagnostics and anonymous usage analytics, described below — never your financial information.
     </p>
 
     <div class="card">
-      <strong>The short version:</strong> Hisabak has no accounts, no advertising, and no tracking.
-      Everything you record stays on your phone. To help us fix bugs, the app sends anonymous crash
-      reports (a stack trace plus basic device info) through Google Firebase Crashlytics — and
-      nothing else.
+      <strong>The short version:</strong> Hisabak has no accounts and no advertising. Everything you
+      record stays on your phone. To help us fix bugs and understand which features are used, the app
+      sends anonymous crash reports and anonymous usage analytics (which screens you open and which
+      actions you take, in aggregate) through Google Firebase — and nothing else. These never include
+      your transactions or any personal or financial data.
     </div>
 
     <h2>Data we collect</h2>
     <p>
       <strong>None of your financial data.</strong> Hisabak does not collect or transmit your
       transactions, brands, categories, budgets, or any personal information — those stay on your
-      device. The one exception is anonymous, technical crash diagnostics; see
-      <strong>Crash reporting</strong> below.
+      device. The only exceptions are anonymous, technical crash diagnostics and anonymous usage
+      analytics; see <strong>Crash reporting</strong> and <strong>Usage analytics</strong> below.
     </p>
 
     <h2>Crash reporting</h2>
@@ -101,6 +102,22 @@
       <a href="https://firebase.google.com/support/privacy">Firebase Privacy and Security</a>
       documentation. Crash reporting is active in the released app and is disabled in development
       builds.
+    </p>
+
+    <h2>Usage analytics</h2>
+    <p>
+      To understand which features people use and improve the app, Hisabak uses
+      <strong>Google Firebase Analytics</strong>. It records anonymous, aggregate interaction
+      events such as which screens you open and which actions you take (for example, that a
+      transaction was added, or that onboarding finished).
+    </p>
+    <p>
+      These events <strong>never include your transactions, brands, categories, budgets, SMS
+      content, note text, exact amounts, or any personal or financial information</strong>. Amounts,
+      when relevant, are recorded only as coarse, non-identifying size ranges. Google processes this
+      data on our behalf as described in the
+      <a href="https://firebase.google.com/support/privacy">Firebase Privacy and Security</a>
+      documentation. Analytics is active in the released app and is disabled in development builds.
     </p>
 
     <h2>Where your data is stored</h2>

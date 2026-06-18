@@ -8,6 +8,8 @@ import com.hisabak.feature.category.domain.usecase.CreateCategoryUseCase
 import com.hisabak.feature.category.domain.usecase.ObserveCategoryLimitsUseCase
 import com.hisabak.feature.category.domain.usecase.SetCategoryLimitUseCase
 import com.hisabak.feature.category.domain.usecase.UpdateCategoryUseCase
+import com.hisabak.core.domain.analytics.AnalyticsEvent
+import com.hisabak.testutil.FakeAnalytics
 import com.hisabak.testutil.FakeCategoryLimitRepository
 import com.hisabak.testutil.FakeCategoryRepository
 import com.hisabak.testutil.MainDispatcherRule
@@ -31,6 +33,7 @@ class CategoryEditViewModelTest {
     private val clock = TestClock() // 2026-06
     private val catRepo = FakeCategoryRepository()
     private val limitRepo = FakeCategoryLimitRepository()
+    private val analytics = FakeAnalytics()
 
     private fun viewModel(categoryId: CategoryId? = null) = CategoryEditViewModel(
         categoryId = categoryId,
@@ -41,6 +44,7 @@ class CategoryEditViewModelTest {
         setCategoryLimit = SetCategoryLimitUseCase(limitRepo, clock),
         currency = Currency.AED,
         clock = clock,
+        analytics = analytics,
     )
 
     @Test
@@ -76,6 +80,12 @@ class CategoryEditViewModelTest {
         assertEquals("Groceries", category.name)
         assertEquals(CategoryEditEffect.Saved, vm.effect.value)
         assertEquals(aed(500_00), limitRepo.current.effectiveFor(category.id, YearMonth.of(2026, 6)))
+
+        val event = analytics.logged.single() as AnalyticsEvent.CategoryCreated
+        assertEquals("expenses", event.params["type"])
+        assertEquals(true, event.params["has_limit"])
+        // PII guard: the category name never reaches analytics.
+        assertTrue(event.params.values.none { it == "Groceries" })
     }
 
     @Test

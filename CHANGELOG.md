@@ -11,6 +11,11 @@ All notable changes to Hisabak are documented here. Format based on
   faster. Reports contain only technical crash details (stack trace, app version, basic device
   info) — never your transactions or any personal or financial data — and collection is disabled
   in development builds. See the updated privacy policy for details.
+- Anonymous usage analytics via Firebase Analytics in release builds, so we can see which features
+  are used and improve the app. Events are strictly anonymous and aggregate (which screens you open,
+  which actions you take) — never your transactions, names, notes, SMS content, or exact amounts;
+  amounts appear only as coarse size ranges. Collection is disabled in development builds. See the
+  updated privacy policy for details.
 
 ## [1.4.1] — 2026-06-18
 
