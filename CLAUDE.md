@@ -20,6 +20,11 @@ Domain model mirrors Hisabi so concepts transfer cleanly.
 - **Async:** Kotlin Coroutines + Flow
 - **State:** ViewModel + `collectAsStateWithLifecycle`
 - **Charts:** Vico
+- **Crash reporting:** Firebase Crashlytics. Wired via the `google-services` + `firebase-crashlytics`
+  Gradle plugins (config in `app/google-services.json`, project `hisabak-finance-tracking`).
+  Collection is gated on `!BuildConfig.DEBUG` in `HisabakApp` — **on in release, off in debug** —
+  so local runs never reach the dashboard. Reports carry no financial/personal data; the
+  privacy policy (`docs/privacy.html`) discloses it.
 - **Storage:** Room (SQLite) — `Room*Repository` impls per feature's `data/`, entities/DAOs/
   mappers in `data/local/`, and the database in `core/data/local/` (`HisabakDatabase`).
   The Room schema is exported to `app/schemas/` (committed); bump the DB version and add a

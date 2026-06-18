@@ -54,6 +54,16 @@ user-facing and concise. (The generated file is git-ignored.)
 Distribution channels: **demo** = staging via Firebase (sample data); **direct APK** = the
 GitHub Release here; **live** = Play.
 
+## Crash reporting (Firebase Crashlytics)
+
+Release builds of **both** flavors (`assembleStagingRelease`, `bundleProdRelease`/`assembleProdRelease`)
+are minified, so the Crashlytics Gradle plugin uploads the R8 **mapping file** to Firebase during
+the build for deobfuscated stack traces. This needs no extra GitHub secret — it authenticates from
+the committed `app/google-services.json` (project `hisabak-finance-tracking`), not the
+service-account keys above. Runtime collection is gated on `!BuildConfig.DEBUG` in `HisabakApp`, so
+only release builds report. Because the app now sends crash diagnostics, the Play **Data safety**
+form must declare it (see `play/CONSOLE-CHECKLIST.md`) and the privacy policy discloses it.
+
 > Like Firebase, the Gradle Play Publisher **plugin** is not used (AGP 9 incompatibility). The
 > Action uploads the built AAB directly.
 
