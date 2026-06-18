@@ -16,12 +16,15 @@ each change gets a `feat/*` branch. **No `release/*` or `hotfix/*` branches.**
 | `feat/<name>` | One per enhancement, branched from `develop`. Short-lived. |
 
 The repo has a GitHub remote (`origin`) with CI (`.github/workflows/test.yml`) and
-branch protection on `develop`/`main`. Features go in via **pull request**, not local
-merges: push the branch, open a PR into `develop`, let CI pass, and merge **only when
-the user says "merge it"** (never auto-merge). See the `automate-the-dev-workflow` memory.
+branch protection on `develop`/`main` (PRs required; the **"JVM unit tests"** check must
+pass; no approvals). Features go in via **pull request**, not local merges. **Routine PRs
+into `develop` auto-merge on green CI** (`gh pr merge --auto`) — no manual step. Only
+**`develop`→`main` release PRs stay manually gated** (the user's "ship it" / "merge it"),
+since unit tests don't exercise the release/Play path. See the `automate-the-dev-workflow` memory.
 
 **Workflow vocabulary — one phrase per action (don't conflate them):**
-- **"merge it"** — merge the reviewed PR into `develop`. Never touches `main`. Routine.
+- **"merge it"** — merge a PR now; mainly the `develop`→`main` release PR, since routine
+  `develop` PRs already auto-merge on green CI.
 - **"send to testers"** — distribute a staging build via Firebase (mostly automatic on `develop`).
 - **"ship it" / "release"** — cut a production release (§3): bump version → merge `develop`→`main`
   → tag `vX.Y.Z` → push (the tag triggers the Play upload). Touches `main`; deliberate —
@@ -45,13 +48,13 @@ commit on the feat branch as you go.
 ## 2. Finish a feature
 
 Land it through a PR into `develop` so CI and branch protection apply. Push, open the
-PR, wait for CI green, then merge **only on the user's "merge it"** and sync:
+PR, and enable **auto-merge** — it merges itself once the "JVM unit tests" check is green:
 ```bash
 git push -u origin feat/<name>
-gh pr create --base develop --fill          # then wait for CI + user approval
-gh pr merge --merge --delete-branch         # only after "merge it"
-git checkout develop && git pull --ff-only origin develop
-git branch -d feat/<name>                   # delete the local branch too
+gh pr create --base develop --fill
+gh pr merge <n> --auto --merge --delete-branch   # merges on green CI; deletes the remote branch
+git checkout develop && git pull --ff-only origin develop  # once it has merged
+git branch -d feat/<name>                         # delete the local branch too
 ```
 Don't tag or touch `main` here — features accumulate on `develop` until a release.
 
