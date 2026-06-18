@@ -49,8 +49,8 @@ android {
         applicationId = "com.hisabak"
         minSdk = 29
         targetSdk = 36
-        versionCode = 6
-        versionName = "1.4.1"
+        versionCode = 7
+        versionName = "1.5.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
