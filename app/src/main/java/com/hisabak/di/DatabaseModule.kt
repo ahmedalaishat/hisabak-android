@@ -29,5 +29,5 @@ val databaseModule = module {
     single { get<HisabakDatabase>().smsDao() }
     single { get<HisabakDatabase>().notificationDao() }
     single { get<HisabakDatabase>().categoryLimitAlertDao() }
-    single { DatabaseSeeder(db = get(), seed = get(), currency = get()) }
+    single { DatabaseSeeder(db = get(), seed = get(), starters = get(), currency = get()) }
 }
