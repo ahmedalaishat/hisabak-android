@@ -31,12 +31,9 @@ class TransactionEditViewModel(
     private val updateTransaction: UpdateTransactionUseCase,
 ) : BaseViewModel<TransactionEditIntent, TransactionEditUiState, TransactionEditEffect>() {
 
-    // transactionId isn't assigned yet when BaseViewModel builds the initial state, so seed
-    // isNew from init{} instead of initialState() (otherwise edits read as "New transaction").
-    override fun initialState() = TransactionEditUiState()
+    override fun initialState() = TransactionEditUiState(isNew = transactionId == null)
 
     init {
-        setState { copy(isNew = transactionId == null) }
         if (transactionId == null) setState { copy(occurredAt = clock.now()) }
         viewModelScope.launch {
             val selectedTypeFlow = state.map { it.selectedType }.distinctUntilChanged()

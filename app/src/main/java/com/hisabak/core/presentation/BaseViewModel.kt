@@ -10,8 +10,11 @@ interface ViewEffect
 
 abstract class BaseViewModel<INTENT : ViewIntent, STATE : ViewState, EFFECT : ViewEffect> : ViewModel() {
 
-    private val _state = MutableStateFlow(initialState())
-    val state: StateFlow<STATE> = _state
+    // Built lazily so initialState() runs on first access — after the subclass constructor has
+    // assigned its properties — not during this base constructor. Otherwise initialState() would
+    // read still-null constructor params (e.g. `isNew = id == null` would always be true).
+    private val _state: MutableStateFlow<STATE> by lazy { MutableStateFlow(initialState()) }
+    val state: StateFlow<STATE> get() = _state
 
     private val _effect = MutableStateFlow<EFFECT?>(null)
     val effect = _effect

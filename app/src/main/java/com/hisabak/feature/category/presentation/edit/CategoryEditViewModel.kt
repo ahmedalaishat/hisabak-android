@@ -30,12 +30,9 @@ class CategoryEditViewModel(
     private val clock: Clock,
 ) : BaseViewModel<CategoryEditIntent, CategoryEditUiState, CategoryEditEffect>() {
 
-    // categoryId isn't assigned yet when BaseViewModel builds the initial state, so seed
-    // isNew from init{} instead of initialState().
-    override fun initialState() = CategoryEditUiState()
+    override fun initialState() = CategoryEditUiState(isNew = categoryId == null)
 
     init {
-        setState { copy(isNew = categoryId == null) }
         if (categoryId != null) loadExisting(categoryId)
     }
 
