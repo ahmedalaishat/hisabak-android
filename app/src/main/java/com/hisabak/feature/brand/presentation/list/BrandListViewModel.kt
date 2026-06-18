@@ -12,6 +12,8 @@ import com.hisabak.feature.transaction.domain.Transaction
 import com.hisabak.feature.transaction.domain.usecase.ObserveTransactionsUseCase
 import com.hisabak.feature.transaction.domain.usecase.ReassignBrandTransactionsUseCase
 import com.hisabak.core.common.DomainResult
+import com.hisabak.core.domain.analytics.Analytics
+import com.hisabak.core.domain.analytics.AnalyticsEvent
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -27,6 +29,7 @@ class BrandListViewModel(
     private val observeTransactions: ObserveTransactionsUseCase,
     private val deleteBrand: DeleteBrandUseCase,
     private val reassignBrandTransactions: ReassignBrandTransactionsUseCase,
+    private val analytics: Analytics,
 ) : BaseViewModel<BrandListIntent, BrandListUiState, BrandListEffect>() {
 
     override fun initialState() = BrandListUiState()
@@ -51,6 +54,7 @@ class BrandListViewModel(
             is BrandListIntent.MergeAndDelete ->
                 viewModelScope.launch {
                     if (reassignBrandTransactions(intent.sourceId, intent.targetId) is DomainResult.Success) {
+                        analytics.log(AnalyticsEvent.BrandMerged)
                         if (deleteBrand(intent.sourceId) is DomainResult.Failure) {
                             sendEffect(BrandListEffect.Message("Moved the transactions, but couldn't delete the brand."))
                         }

@@ -9,6 +9,8 @@ import com.hisabak.feature.sms.data.parser.RegexSmsTemplateDetector
 import com.hisabak.feature.sms.data.parser.TemplateSmsParser
 import com.hisabak.feature.sms.domain.SmsTransactionProcessor
 import com.hisabak.feature.sms.domain.usecase.IngestSmsUseCase
+import com.hisabak.core.domain.analytics.AnalyticsEvent
+import com.hisabak.testutil.FakeAnalytics
 import com.hisabak.testutil.FakeBrandRepository
 import com.hisabak.testutil.FakeCategoryLimitAlertDao
 import com.hisabak.testutil.FakeCategoryLimitRepository
@@ -64,7 +66,9 @@ class CaptureTransactionUseCaseTest {
         clock = clock,
     )
 
-    private val capture = CaptureTransactionUseCase(ingest, recordedNotifier, limitMonitor)
+    private val analytics = FakeAnalytics()
+
+    private val capture = CaptureTransactionUseCase(ingest, recordedNotifier, limitMonitor, analytics)
 
     @Test
     fun `external source posts the recorded confirmation`() = runTest {
@@ -73,6 +77,12 @@ class CaptureTransactionUseCaseTest {
         assertTrue(result is DomainResult.Success)
         assertEquals(1, transactionRepo.current.size)
         assertEquals(1, notifier.recorded.size)
+
+        val event = analytics.logged.single() as AnalyticsEvent.SmsCaptured
+        assertEquals("sms_captured", event.name)
+        assertEquals("share", event.params["source"])
+        // PII guard: no raw amount or brand name in the event.
+        assertTrue(event.params.values.none { it == "Lulu" || it == 4_200L || it == "42.00" })
     }
 
     @Test
@@ -91,5 +101,6 @@ class CaptureTransactionUseCaseTest {
         assertTrue(result is DomainResult.Failure)
         assertTrue(transactionRepo.current.isEmpty())
         assertTrue(notifier.recorded.isEmpty())
+        assertEquals(listOf("sms_parse_failed"), analytics.names())
     }
 }

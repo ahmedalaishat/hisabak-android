@@ -1,6 +1,8 @@
 package com.hisabak.feature.sms.domain.capture
 
 import com.hisabak.core.common.DomainResult
+import com.hisabak.core.domain.analytics.Analytics
+import com.hisabak.core.domain.analytics.AnalyticsEvent
 import com.hisabak.feature.notification.domain.CategoryLimitMonitor
 import com.hisabak.feature.notification.domain.TransactionRecordedNotifier
 import com.hisabak.feature.sms.domain.usecase.IngestSmsUseCase
@@ -22,6 +24,7 @@ class CaptureTransactionUseCase(
     private val ingest: IngestSmsUseCase,
     private val recordedNotifier: TransactionRecordedNotifier,
     private val limitMonitor: CategoryLimitMonitor,
+    private val analytics: Analytics,
 ) {
     suspend operator fun invoke(
         rawText: String,
@@ -29,11 +32,17 @@ class CaptureTransactionUseCase(
         receivedAt: Instant? = null,
     ): DomainResult<Transaction> {
         val result = ingest(rawText, receivedAt)
-        if (result is DomainResult.Success) {
-            if (source.notifiesOnRecord) recordedNotifier.notify(result.value)
-            // Re-check budgets now, while we hold the captured transaction — covers background
-            // captures (SMS broadcast / share) where the app-scoped monitor may not run. Idempotent.
-            limitMonitor.evaluateNow()
+        when (result) {
+            is DomainResult.Success -> {
+                analytics.log(AnalyticsEvent.SmsCaptured(source = source.name.lowercase(), amount = result.value.amount))
+                if (source.notifiesOnRecord) recordedNotifier.notify(result.value)
+                // Re-check budgets now, while we hold the captured transaction — covers background
+                // captures (SMS broadcast / share) where the app-scoped monitor may not run. Idempotent.
+                limitMonitor.evaluateNow()
+            }
+            is DomainResult.Failure ->
+                // The error *type* only — never the raw message text, to keep analytics PII-free.
+                analytics.log(AnalyticsEvent.SmsParseFailed(reason = result.error::class.simpleName?.lowercase() ?: "unknown"))
         }
         return result
     }

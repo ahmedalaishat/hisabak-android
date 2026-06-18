@@ -6,6 +6,8 @@ import com.hisabak.core.common.Currency
 import com.hisabak.core.common.DomainResult
 import com.hisabak.core.common.Money
 import com.hisabak.core.common.sanitizeAmountInput
+import com.hisabak.core.domain.analytics.Analytics
+import com.hisabak.core.domain.analytics.AnalyticsEvent
 import com.hisabak.core.presentation.BaseViewModel
 import com.hisabak.feature.category.domain.CategoryId
 import com.hisabak.feature.category.domain.CategoryRepository
@@ -28,6 +30,7 @@ class CategoryEditViewModel(
     private val setCategoryLimit: SetCategoryLimitUseCase,
     private val currency: Currency,
     private val clock: Clock,
+    private val analytics: Analytics,
 ) : BaseViewModel<CategoryEditIntent, CategoryEditUiState, CategoryEditEffect>() {
 
     override fun initialState() = CategoryEditUiState(isNew = categoryId == null)
@@ -116,6 +119,11 @@ class CategoryEditViewModel(
                 is DomainResult.Success -> {
                     // Persist the limit only for expense categories; clears (null) when blank.
                     if (s.showLimit) setCategoryLimit(saved.value, limit)
+                    if (categoryId == null) {
+                        analytics.log(
+                            AnalyticsEvent.CategoryCreated(type = s.type.name.lowercase(), hasLimit = limit != null),
+                        )
+                    }
                     setState { copy(isSaving = false) }
                     sendEffect(CategoryEditEffect.Saved)
                 }

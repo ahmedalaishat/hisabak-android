@@ -46,6 +46,7 @@ val categoryModule = module {
             setCategoryLimit = get(),
             currency = get(),
             clock = get(),
+            analytics = get(),
         )
     }
 }

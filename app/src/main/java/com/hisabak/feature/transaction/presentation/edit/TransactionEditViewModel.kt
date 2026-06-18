@@ -5,6 +5,8 @@ import com.hisabak.core.common.Clock
 import com.hisabak.core.common.Currency
 import com.hisabak.core.common.DomainResult
 import com.hisabak.core.common.Money
+import com.hisabak.core.domain.analytics.Analytics
+import com.hisabak.core.domain.analytics.AnalyticsEvent
 import com.hisabak.core.presentation.BaseViewModel
 import com.hisabak.feature.brand.domain.BrandId
 import com.hisabak.feature.brand.domain.usecase.ObserveBrandsUseCase
@@ -29,6 +31,7 @@ class TransactionEditViewModel(
     private val observeCategories: ObserveCategoriesUseCase,
     private val createTransaction: CreateTransactionUseCase,
     private val updateTransaction: UpdateTransactionUseCase,
+    private val analytics: Analytics,
 ) : BaseViewModel<TransactionEditIntent, TransactionEditUiState, TransactionEditEffect>() {
 
     override fun initialState() = TransactionEditUiState(isNew = transactionId == null)
@@ -156,6 +159,13 @@ class TransactionEditViewModel(
 
             when (result) {
                 is DomainResult.Success -> {
+                    analytics.log(
+                        if (transactionId == null) {
+                            AnalyticsEvent.TransactionCreated(amount = money, hasNote = note != null)
+                        } else {
+                            AnalyticsEvent.TransactionEdited(amount = money)
+                        },
+                    )
                     setState { copy(isSaving = false) }
                     sendEffect(TransactionEditEffect.Saved)
                 }
