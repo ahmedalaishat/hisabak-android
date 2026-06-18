@@ -6,6 +6,11 @@ All notable changes to Hisabak are documented here. Format based on
 
 ## [Unreleased]
 
+### Fixed
+- The home-screen app icon now matches the icon shown in the README and on the Play
+  Store — an upward trend line ending in a mint data-point dot — instead of the older
+  arrow variant.
+
 ## [1.4.0] — 2026-06-18
 
 ### Added
