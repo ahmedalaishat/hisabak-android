@@ -18,7 +18,6 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
-import kotlin.math.roundToLong
 import kotlinx.coroutines.launch
 
 class TransactionEditViewModel(
@@ -111,8 +110,8 @@ class TransactionEditViewModel(
 
     private fun save() {
         val s = state.value
-        val minor = parseAmountMinor(s.amountInput)
-        if (minor == null || minor <= 0) {
+        val money = Money.parseMajor(s.amountInput, currency)
+        if (money == null || !money.isPositive) {
             setState { copy(amountError = "Enter a positive amount") }
             return
         }
@@ -123,7 +122,6 @@ class TransactionEditViewModel(
         }
         setState { copy(isSaving = true, generalError = null) }
         viewModelScope.launch {
-            val money = Money(minor, currency)
             val note = s.noteInput.trim().ifEmpty { null }
 
             val result: DomainResult<Unit> = if (transactionId == null) {
@@ -158,13 +156,6 @@ class TransactionEditViewModel(
             }
         }
     }
-}
-
-private fun parseAmountMinor(input: String): Long? {
-    val trimmed = input.trim().replace(",", "")
-    if (trimmed.isEmpty()) return null
-    val value = trimmed.toDoubleOrNull() ?: return null
-    return (value * 100).roundToLong()
 }
 
 private fun formatAmountInput(money: Money): String {

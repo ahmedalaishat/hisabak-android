@@ -5,6 +5,7 @@ import com.hisabak.core.common.Clock
 import com.hisabak.core.common.Currency
 import com.hisabak.core.common.DomainResult
 import com.hisabak.core.common.Money
+import com.hisabak.core.common.sanitizeAmountInput
 import com.hisabak.core.presentation.BaseViewModel
 import com.hisabak.feature.category.domain.CategoryId
 import com.hisabak.feature.category.domain.CategoryRepository
@@ -49,7 +50,7 @@ class CategoryEditViewModel(
             is CategoryEditIntent.IconChanged ->
                 setState { copy(icon = intent.value) }
             is CategoryEditIntent.LimitChanged ->
-                setState { copy(limitInput = intent.value.filter { it.isDigit() || it == '.' }, limitError = null) }
+                setState { copy(limitInput = sanitizeAmountInput(intent.value), limitError = null) }
             CategoryEditIntent.Save -> save()
             CategoryEditIntent.ConsumeEffect -> clearEffect()
         }
@@ -91,12 +92,12 @@ class CategoryEditViewModel(
 
         val limit: Money?
         if (s.showLimit && s.limitInput.isNotBlank()) {
-            val major = s.limitInput.toDoubleOrNull()
-            if (major == null || major <= 0.0) {
+            val parsed = Money.parseMajor(s.limitInput, currency)
+            if (parsed == null || !parsed.isPositive) {
                 setState { copy(limitError = "Enter a valid amount") }
                 return
             }
-            limit = Money.ofMajor(major, currency)
+            limit = parsed
         } else {
             limit = null
         }

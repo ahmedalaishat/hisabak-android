@@ -87,8 +87,11 @@ release-ready before starting. Do this from `develop` once it holds everything f
    ```
 
 5. **Verify**: `git tag` shows the new tag; `git log --oneline main -1` is the
-   release; `./gradlew :app:assembleProdRelease` builds (the shipped prod artifact);
-   optionally install and smoke-test.
+   release. Pushing the tag triggers `release.yml`, which builds the **publishable**
+   prod artifact with `-PrequireReleaseSigning` (release-signed; the flag makes a missing
+   keystore a hard failure). A local `./gradlew :app:assembleProdRelease` is only a
+   smoke build — it's debug-signed unless a release keystore is configured, so don't
+   ship it. Optionally install and smoke-test that local build.
 
 ---
 
