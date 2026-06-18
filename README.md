@@ -142,6 +142,8 @@ Quality is enforced, not just hoped for:
 
 - **CI** — every pull request targeting `develop`/`main` runs the suite via GitHub Actions.
 - **Branch protection** — a red suite can't be merged into the shared branches.
+- **Auto-merge** — routine PRs into `develop` merge automatically once the suite passes;
+  release PRs (`develop`→`main`) are merged deliberately by hand.
 - **Local guard** — a pre-finish hook runs the tests on any change that touches Kotlin.
 
 Tests use hand-written fakes over a small harness (`com.hisabak.testutil`) rather than a
