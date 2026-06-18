@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Adaptive-icon background: a subtle diagonal gradient in the Hisabak brand green. -->
+<!-- Adaptive-icon background: a vertical gradient in the Hisabak brand green,
+     matching the README / Play Store icon (docs/app-icon.svg). -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:aapt="http://schemas.android.com/aapt"
     android:width="108dp"
@@ -12,10 +13,10 @@
                 android:type="linear"
                 android:startX="0"
                 android:startY="0"
-                android:endX="108"
+                android:endX="0"
                 android:endY="108"
-                android:startColor="#0E8E6A"
-                android:endColor="#0A6E51" />
+                android:startColor="#0E8A66"
+                android:endColor="#0B7A5B" />
         </aapt:attr>
     </path>
 </vector>

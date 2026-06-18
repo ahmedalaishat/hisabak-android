@@ -34,3 +34,6 @@ google-services*.json
 # Build artifacts (may land outside app/build/)
 *.aab
 *.apk
+
+# Generated Play "What's new" notes (built from CHANGELOG by scripts/changelog-to-whatsnew.sh)
+/distribution/whatsnew/

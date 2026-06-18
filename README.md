@@ -90,6 +90,10 @@ Planned, not yet available — roughly in order:
 6. **AI capture & auto-categorization** — smarter SMS parsing and automatic brand → category
    detection.
 7. **AI insights assistant** — ask questions about your spending and get clear, on-point answers.
+8. **Analytics & crash reporting** — Firebase Analytics and Crashlytics for product insight and
+   crash diagnostics (opt-in and privacy-respecting, in keeping with the on-device-first stance).
+9. **Refunds** — record a refund against a transaction so returned money is reflected in balances
+   and category spend.
 
 > Privacy stays first: AI features will be designed to keep your data under your control.
 
@@ -142,6 +146,8 @@ Quality is enforced, not just hoped for:
 
 - **CI** — every pull request targeting `develop`/`main` runs the suite via GitHub Actions.
 - **Branch protection** — a red suite can't be merged into the shared branches.
+- **Auto-merge** — routine PRs into `develop` merge automatically once the suite passes;
+  release PRs (`develop`→`main`) are merged deliberately by hand.
 - **Local guard** — a pre-finish hook runs the tests on any change that touches Kotlin.
 
 Tests use hand-written fakes over a small harness (`com.hisabak.testutil`) rather than a

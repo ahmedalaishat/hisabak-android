@@ -14,19 +14,19 @@ jobs:
     permissions:
       contents: write   # create the GitHub Release
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Set up JDK 17
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '17'
 
       - name: Set up Gradle
-        uses: gradle/actions/setup-gradle@v4
+        uses: gradle/actions/setup-gradle@v5
 
       - name: Set up Android SDK
-        uses: android-actions/setup-android@v3
+        uses: android-actions/setup-android@v4
 
       - name: Decode release keystore
         env:
@@ -43,17 +43,21 @@ jobs:
           ./gradlew bundleProdRelease assembleProdRelease --no-daemon -PrequireReleaseSigning
           cp app/build/outputs/apk/prod/release/app-prod-release.apk "hisabak-${{ github.ref_name }}.apk"
 
+      - name: Generate Play release notes from CHANGELOG
+        run: ./scripts/changelog-to-whatsnew.sh
+
       - name: Publish to Play internal track
         uses: r0adkll/upload-google-play@v1
         with:
           serviceAccountJsonPlainText: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
           packageName: com.hisabak
           releaseFiles: app/build/outputs/bundle/prodRelease/app-prod-release.aab
-          track: internal
+          tracks: internal
           status: completed
+          whatsNewDirectory: distribution/whatsnew
 
       - name: Create GitHub Release with the prod APK
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           files: hisabak-${{ github.ref_name }}.apk
           generate_release_notes: true
