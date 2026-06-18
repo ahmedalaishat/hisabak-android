@@ -40,7 +40,7 @@ jobs:
           RELEASE_KEY_ALIAS: ${{ secrets.RELEASE_KEY_ALIAS }}
           RELEASE_KEY_PASSWORD: ${{ secrets.RELEASE_KEY_PASSWORD }}
         run: |
-          ./gradlew bundleProdRelease assembleProdRelease --no-daemon
+          ./gradlew bundleProdRelease assembleProdRelease --no-daemon -PrequireReleaseSigning
           cp app/build/outputs/apk/prod/release/app-prod-release.apk "hisabak-${{ github.ref_name }}.apk"
 
       - name: Publish to Play internal track

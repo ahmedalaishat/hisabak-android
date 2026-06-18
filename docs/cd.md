@@ -33,8 +33,9 @@ The staging Firebase **App ID** (`1:469916556187:android:bb6a22afa66dde1b80df3e`
 secret and lives inline in the workflow.
 
 **Signing:** staging release builds use the debug key (the release signing config falls back to
-debug when no keystore is configured) — fine for tester installs. Real release signing is set up
-for the Play (prod) path.
+debug when no keystore is configured) — fine for tester installs. The Play (prod) build passes
+`-PrequireReleaseSigning`, which turns a missing/unusable release keystore into a hard build
+failure instead of a silent debug-key fall back — a debug-signed AAB can never reach Play.
 
 ## Production → Google Play internal (live)
 

@@ -48,7 +48,7 @@ Three ways to get it (Android 10+ / API 29):
   are populated the moment you open it:
   **[install the demo](https://appdistribution.firebase.dev/i/b817bdd33c687f05)** via Firebase
   App Distribution (accept the invite, then install through the Firebase App Tester app).
-- **Direct APK** — the production build (starts empty, your data only): grab the latest
+- **Direct APK** — the production build (starter categories only, your data only): grab the latest
   `hisabak-*.apk` from the [**Releases**](../../releases) page, then open it on-device (allow
   "install unknown apps") or `adb install` it. A ~3 MB R8-minified, release-signed build.
 - **Google Play** — coming soon (currently in internal testing).
@@ -74,6 +74,24 @@ Three ways to get it (Android 10+ / API 29):
 - **Notifications center** — unread badge on the bell, swipe-to-dismiss, and mark-all-read.
 - **Offline-first** — all data is stored locally on-device (Room). Light & dark themes, polished
   motion, edge-to-edge.
+
+---
+
+## Roadmap
+
+Planned, not yet available — roughly in order:
+
+1. **Notification capture** — read bank transaction notifications to capture spending without the
+   SMS permission (works in the Play build).
+2. **Backup & restore** — export and import your data (encrypted), so you can move between devices.
+3. **Multi-currency** — track transactions and balances across more than one currency.
+4. **App lock** — biometric / PIN lock to keep your finances private on a shared device.
+5. **Database encryption** — encrypt the on-device database at rest.
+6. **AI capture & auto-categorization** — smarter SMS parsing and automatic brand → category
+   detection.
+7. **AI insights assistant** — ask questions about your spending and get clear, on-point answers.
+
+> Privacy stays first: AI features will be designed to keep your data under your control.
 
 ---
 
@@ -145,7 +163,8 @@ cd hisabak-android
 The app has two flavors with separate package names so they coexist on one device:
 **production** (`com.hisabak`) and **staging** (`com.hisabak.staging`, labeled "Hisabak STG").
 The **staging** build seeds demo data on first launch so the dashboard, charts, and budgets are
-populated immediately; the **production** build starts empty.
+populated immediately; the **production** build seeds only a small set of starter categories
+(no brands or transactions) so it's usable right away with your data only.
 
 ---
 

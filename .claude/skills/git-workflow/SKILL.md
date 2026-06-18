@@ -76,19 +76,38 @@ release-ready before starting. Do this from `develop` once it holds everything f
    for released versions (it wipes user data). A fresh schema reset is only OK
    pre-1.0.
 
-4. **Commit on `develop`**, then merge to `main` and tag:
+4. **Land the bump on `develop` via PR.** Both `main` and `develop` are protected — no
+   direct pushes; every change needs a PR with the green **"JVM unit tests"** check.
    ```bash
-   git commit -am "Cut vX.Y.Z: <one-line summary>"
-   git checkout main
-   git merge --no-ff develop -m "Release vX.Y.Z"
-   git tag -a vX.Y.Z -m "Hisabak vX.Y.Z"
-   git checkout develop          # go back to integration line
-   git push origin main develop --follow-tags
+   git switch -c chore/release-vX.Y.Z
+   git commit -am "Cut vX.Y.Z: <one-line summary>"   # version bump + CHANGELOG date
+   git push -u origin chore/release-vX.Y.Z
+   gh pr create --base develop --fill                # merge once CI is green
    ```
 
-5. **Verify**: `git tag` shows the new tag; `git log --oneline main -1` is the
-   release; `./gradlew :app:assembleProdRelease` builds (the shipped prod artifact);
-   optionally install and smoke-test.
+5. **Open a `develop` → `main` PR and merge it once green** — this updates the release line
+   (don't delete `develop`):
+   ```bash
+   gh pr create --base main --head develop --title "Release vX.Y.Z" --fill
+   gh pr merge --merge                               # after the check passes
+   ```
+
+6. **Tag the merged `main` commit and push the tag** — pushing the tag (not a branch) is
+   what triggers `release.yml`:
+   ```bash
+   git fetch origin
+   git tag -a vX.Y.Z origin/main -m "Hisabak vX.Y.Z"
+   git push origin vX.Y.Z
+   ```
+   ⚠️ Tag **after** `main` is merged — never pre-tag a local merge. The tag must sit on
+   `main`'s history, and re-tagging to fix placement would re-trigger `release.yml` and
+   fail on a duplicate `versionCode`.
+
+7. **Verify**: `git tag` shows the new tag on `main`. Pushing the tag triggers `release.yml`,
+   which builds the **publishable** prod artifact with `-PrequireReleaseSigning` (release-signed;
+   the flag makes a missing keystore a hard failure). A local `./gradlew :app:assembleProdRelease`
+   is only a smoke build — it's debug-signed unless a release keystore is configured, so don't
+   ship it. Optionally install and smoke-test that local build.
 
 ---
 

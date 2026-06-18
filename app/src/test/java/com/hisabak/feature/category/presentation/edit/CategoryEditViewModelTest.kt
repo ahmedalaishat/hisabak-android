@@ -44,6 +44,15 @@ class CategoryEditViewModelTest {
     )
 
     @Test
+    fun `editing an existing category is not flagged as new`() = runTest {
+        // Guards the BaseViewModel init-order fix: initialState() must see the constructor's
+        // categoryId, so an edit is titled "Edit category", not "New category".
+        val vm = viewModel(CategoryId("c1"))
+        advanceUntilIdle()
+        assertEquals(false, vm.state.value.isNew)
+    }
+
+    @Test
     fun `a blank name is rejected`() = runTest {
         val vm = viewModel()
         vm.onIntent(CategoryEditIntent.Save)
