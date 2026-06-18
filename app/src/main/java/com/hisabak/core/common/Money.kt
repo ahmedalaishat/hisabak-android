@@ -1,7 +1,8 @@
 package com.hisabak.core.common
 
+import java.math.BigDecimal
+import java.math.RoundingMode
 import kotlin.math.abs
-import kotlin.math.roundToLong
 
 data class Money(
     val amountMinor: Long,
@@ -42,7 +43,20 @@ data class Money(
     companion object {
         fun zero(currency: Currency): Money = Money(0L, currency)
 
+        /** Exact major → minor conversion. Money never round-trips through [Double], so cents are
+         *  preserved at any magnitude; half-up rounding handles sub-cent inputs. */
+        fun ofMajor(amount: BigDecimal, currency: Currency): Money =
+            Money(amount.movePointRight(2).setScale(0, RoundingMode.HALF_UP).longValueExact(), currency)
+
         fun ofMajor(amount: Double, currency: Currency): Money =
-            Money((amount * 100).roundToLong(), currency)
+            ofMajor(BigDecimal.valueOf(amount), currency)
+
+        /** Parses a normalized major-unit amount string (digits + a single `.`) into [Money], or
+         *  null if it isn't a finite, in-range number. Callers normalize separators first
+         *  (see `sanitizeAmountInput` for user input; the SMS parser strips bank-format grouping). */
+        fun parseMajor(raw: String, currency: Currency): Money? {
+            val amount = raw.trim().trimEnd('.').toBigDecimalOrNull() ?: return null
+            return runCatching { ofMajor(amount, currency) }.getOrNull()
+        }
     }
 }

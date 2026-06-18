@@ -48,7 +48,7 @@ Three ways to get it (Android 10+ / API 29):
   are populated the moment you open it:
   **[install the demo](https://appdistribution.firebase.dev/i/b817bdd33c687f05)** via Firebase
   App Distribution (accept the invite, then install through the Firebase App Tester app).
-- **Direct APK** — the production build (starts empty, your data only): grab the latest
+- **Direct APK** — the production build (starter categories only, your data only): grab the latest
   `hisabak-*.apk` from the [**Releases**](../../releases) page, then open it on-device (allow
   "install unknown apps") or `adb install` it. A ~3 MB R8-minified, release-signed build.
 - **Google Play** — coming soon (currently in internal testing).
@@ -163,7 +163,8 @@ cd hisabak-android
 The app has two flavors with separate package names so they coexist on one device:
 **production** (`com.hisabak`) and **staging** (`com.hisabak.staging`, labeled "Hisabak STG").
 The **staging** build seeds demo data on first launch so the dashboard, charts, and budgets are
-populated immediately; the **production** build starts empty.
+populated immediately; the **production** build seeds only a small set of starter categories
+(no brands or transactions) so it's usable right away with your data only.
 
 ---
 

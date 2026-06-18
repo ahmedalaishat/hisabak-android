@@ -33,15 +33,14 @@ class TemplateSmsParser(
 
         return ParsedSmsData(
             brandName = brand,
-            amount = amount?.let { Money.ofMajor(it, defaultCurrency) },
+            amount = amount,
             occurredAt = occurredAt,
         )
     }
 
-    private fun parseAmount(raw: String): Double? {
-        val cleaned = raw.replace(",", "").trim()
-        return cleaned.toDoubleOrNull()
-    }
+    // Bank SMS uses a fixed format: ',' is always a thousands separator, '.' the decimal point.
+    private fun parseAmount(raw: String): Money? =
+        Money.parseMajor(raw.replace(",", ""), defaultCurrency)
 
     private fun parseDateTime(date: String?, time: String?): java.time.Instant? {
         if (date.isNullOrBlank()) return null
