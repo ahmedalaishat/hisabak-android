@@ -19,6 +19,13 @@
   <img src="https://img.shields.io/badge/license-MIT-green" alt="License">
 </p>
 
+<p align="center">
+  <img src="docs/demo.gif" width="300"
+       alt="Hisabak demo — onboarding, dashboard, budgets, transactions, and SMS capture">
+</p>
+
+<p align="center"><sub><i>A quick tour — dark theme.</i></sub></p>
+
 ---
 
 ## Screenshots
