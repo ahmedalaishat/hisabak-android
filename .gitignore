@@ -27,9 +27,8 @@ hisabak-finance-tracking-*.json
 # Play listing push tool deps
 scripts/play/node_modules/
 
-# Firebase client config — kept local / supplied via CI secret, not committed to the public repo
-google-services.json
-google-services*.json
+# Note: app/google-services.json IS committed. It is not a secret — it ships inside the APK
+# and the google-services/Crashlytics Gradle plugins need it for every build (incl. CI).
 
 # Build artifacts (may land outside app/build/)
 *.aab
