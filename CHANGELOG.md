@@ -6,6 +6,8 @@ All notable changes to Hisabak are documented here. Format based on
 
 ## [Unreleased]
 
+## [1.4.0] — 2026-06-18
+
 ### Added
 - A fresh install now starts with a small set of starter categories (Salary, Groceries,
   Dining, Transport, Shopping, Savings, Investments) so you can record a transaction right
