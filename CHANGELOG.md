@@ -6,16 +6,15 @@ All notable changes to Hisabak are documented here. Format based on
 
 ## [Unreleased]
 
+## [1.5.0] — 2026-06-18
+
 ### Added
-- Crash reporting via Firebase Crashlytics in release builds, so crashes are diagnosed and fixed
-  faster. Reports contain only technical crash details (stack trace, app version, basic device
-  info) — never your transactions or any personal or financial data — and collection is disabled
-  in development builds. See the updated privacy policy for details.
-- Anonymous usage analytics via Firebase Analytics in release builds, so we can see which features
-  are used and improve the app. Events are strictly anonymous and aggregate (which screens you open,
-  which actions you take) — never your transactions, names, notes, SMS content, or exact amounts;
-  amounts appear only as coarse size ranges. Collection is disabled in development builds. See the
-  updated privacy policy for details.
+- Anonymous crash reporting so crashes get found and fixed faster. It captures only technical crash
+  details — never your transactions or any personal or financial data — and is off in development
+  builds. See the privacy policy for details.
+- Anonymous, aggregate usage analytics to learn which features help most and keep improving the app.
+  It never includes your transactions, names, notes, SMS content, or exact amounts. See the privacy
+  policy for details.
 
 ## [1.4.1] — 2026-06-18
 
