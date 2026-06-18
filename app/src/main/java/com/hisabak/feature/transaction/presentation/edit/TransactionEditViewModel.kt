@@ -31,17 +31,29 @@ class TransactionEditViewModel(
     private val updateTransaction: UpdateTransactionUseCase,
 ) : BaseViewModel<TransactionEditIntent, TransactionEditUiState, TransactionEditEffect>() {
 
-    override fun initialState() = TransactionEditUiState(isNew = transactionId == null)
+    // transactionId isn't assigned yet when BaseViewModel builds the initial state, so seed
+    // isNew from init{} instead of initialState() (otherwise edits read as "New transaction").
+    override fun initialState() = TransactionEditUiState()
 
     init {
+        setState { copy(isNew = transactionId == null) }
         if (transactionId == null) setState { copy(occurredAt = clock.now()) }
         viewModelScope.launch {
             val selectedTypeFlow = state.map { it.selectedType }.distinctUntilChanged()
-            combine(observeBrands(), observeCategories(), selectedTypeFlow) { brands, categories, type ->
+            val selectedBrandIdFlow = state.map { it.selectedBrandId }.distinctUntilChanged()
+            combine(
+                observeBrands(),
+                observeCategories(),
+                selectedTypeFlow,
+                selectedBrandIdFlow,
+            ) { brands, categories, type, selectedBrandId ->
                 val colorById = categories.associate { it.id to it.color }
                 val typeById = categories.associate { it.id to it.type }
                 brands
-                    .filter { brand -> brand.categoryId?.let(typeById::get) == type }
+                    // Brands of the chosen type, plus the transaction's current brand even if it
+                    // doesn't match — e.g. an uncategorized brand captured from SMS — so editing
+                    // an existing transaction always shows and keeps its brand.
+                    .filter { brand -> brand.categoryId?.let(typeById::get) == type || brand.id == selectedBrandId }
                     .map { brand ->
                         TransactionEditUiState.BrandOption(
                             id = brand.id,

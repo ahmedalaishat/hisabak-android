@@ -83,6 +83,7 @@ class BrandEditViewModelTest {
         advanceUntilIdle()
 
         assertEquals("Old", vm.state.value.nameInput)
+        assertEquals(false, vm.state.value.isNew) // titled "Edit brand", not "New brand"
 
         vm.onIntent(BrandEditIntent.NameChanged("New"))
         vm.onIntent(BrandEditIntent.CategoryChanged(CategoryId("c1")))

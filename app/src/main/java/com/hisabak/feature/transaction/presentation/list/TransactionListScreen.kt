@@ -357,6 +357,9 @@ private fun TransactionRowItem(
     val tone = when (row.categoryType) {
         CategoryType.INCOME -> AmountTone.Income
         CategoryType.EXPENSES -> AmountTone.Expense
+        // Uncategorized (e.g. just captured from SMS) has no income/expense meaning yet —
+        // show it neutral and unsigned rather than masquerading as green income.
+        null -> AmountTone.Neutral
         else -> if (row.amount.amountMinor >= 0) AmountTone.Income else AmountTone.Expense
     }
     val (bg, fg) = tintPairForColor(row.categoryColor)
