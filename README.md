@@ -17,6 +17,14 @@
   <img src="https://img.shields.io/badge/minSdk-29-blue" alt="Min SDK">
   <img src="https://img.shields.io/badge/Kotlin-Jetpack%20Compose-7F52FF" alt="Kotlin">
   <img src="https://img.shields.io/badge/license-MIT-green" alt="License">
+  <img src="https://img.shields.io/badge/code-100%25%20AI--written-7F52FF" alt="100% AI-written code">
+</p>
+
+<p align="center">
+  <b>Built entirely in plain English.</b><br>
+  Every line of code — from idea, requirements, and architecture through implementation,
+  tests, CI/CD, and the Google Play listing — was written by <b>Claude Opus 4.8</b> via
+  Claude Code. I directed and reviewed; the agent wrote the code.
 </p>
 
 <p align="center">
