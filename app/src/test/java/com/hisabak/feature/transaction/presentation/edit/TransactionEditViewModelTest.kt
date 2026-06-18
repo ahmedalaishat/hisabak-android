@@ -38,6 +38,7 @@ class TransactionEditViewModelTest {
         listOf(
             brand(id = "b-exp", name = "Carrefour", categoryId = CategoryId("c-exp")),
             brand(id = "b-inc", name = "Salary", categoryId = CategoryId("c-inc")),
+            brand(id = "b-uncat", name = "Starbucks", categoryId = null),
         ),
     )
     private val catRepo = FakeCategoryRepository(
@@ -158,6 +159,28 @@ class TransactionEditViewModelTest {
 
         val updated = txRepo.current.single()
         assertEquals("t1", updated.id.value)
+        assertEquals(2_500L, updated.amount.amountMinor)
+        assertEquals(TransactionEditEffect.Saved, vm.effect.value)
+    }
+
+    @Test
+    fun `editing an uncategorized transaction shows and keeps its brand`() = runTest {
+        // Captured-from-SMS transactions have an uncategorized brand that matches no type filter.
+        txRepo.emit(listOf(transaction(id = "t-uncat", amountMinor = 1_000L, brandId = "b-uncat")))
+        val vm = viewModel(TransactionId("t-uncat"))
+        advanceUntilIdle()
+
+        assertEquals(false, vm.state.value.isNew) // titled "Edit transaction", not "New transaction"
+        assertEquals(BrandId("b-uncat"), vm.state.value.selectedBrandId)
+        // The uncategorized brand is offered even though the default type filter is EXPENSES.
+        assertTrue(vm.state.value.brandOptions.any { it.id == BrandId("b-uncat") })
+
+        vm.onIntent(TransactionEditIntent.AmountChanged("25.00"))
+        vm.onIntent(TransactionEditIntent.Save)
+        advanceUntilIdle()
+
+        val updated = txRepo.current.single()
+        assertEquals(BrandId("b-uncat"), updated.brandId) // brand preserved, still uncategorized
         assertEquals(2_500L, updated.amount.amountMinor)
         assertEquals(TransactionEditEffect.Saved, vm.effect.value)
     }

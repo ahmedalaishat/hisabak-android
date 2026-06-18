@@ -18,9 +18,12 @@ class BrandEditViewModel(
     private val updateBrand: UpdateBrandUseCase,
 ) : BaseViewModel<BrandEditIntent, BrandEditUiState, BrandEditEffect>() {
 
-    override fun initialState() = BrandEditUiState(isNew = brandId == null)
+    // brandId isn't assigned yet when BaseViewModel builds the initial state, so seed isNew
+    // from init{} instead of initialState() (otherwise edits read as "New brand").
+    override fun initialState() = BrandEditUiState()
 
     init {
+        setState { copy(isNew = brandId == null) }
         viewModelScope.launch {
             observeCategories().collect { categories ->
                 val options = categories.map {
