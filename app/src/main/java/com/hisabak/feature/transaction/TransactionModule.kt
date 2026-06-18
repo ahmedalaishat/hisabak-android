@@ -34,6 +34,7 @@ val transactionModule = module {
             deleteTransaction = get(),
             clock = get(),
             filterBus = get(),
+            analytics = get(),
         )
     }
 
@@ -47,6 +48,7 @@ val transactionModule = module {
             observeCategories = get(),
             createTransaction = get(),
             updateTransaction = get(),
+            analytics = get(),
         )
     }
 }

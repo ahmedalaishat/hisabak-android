@@ -3,6 +3,8 @@ package com.hisabak.feature.transaction.presentation.list
 import androidx.lifecycle.viewModelScope
 import com.hisabak.core.common.Clock
 import com.hisabak.core.common.SummaryPeriod
+import com.hisabak.core.domain.analytics.Analytics
+import com.hisabak.core.domain.analytics.AnalyticsEvent
 import com.hisabak.core.presentation.BaseViewModel
 import com.hisabak.feature.brand.domain.Brand
 import com.hisabak.feature.brand.domain.BrandId
@@ -34,6 +36,7 @@ class TransactionListViewModel(
     private val deleteTransaction: DeleteTransactionUseCase,
     private val clock: Clock,
     private val filterBus: TransactionListFilterBus,
+    private val analytics: Analytics,
 ) : BaseViewModel<TransactionListIntent, TransactionListUiState, TransactionListEffect>() {
 
     override fun initialState() = TransactionListUiState()
@@ -78,7 +81,10 @@ class TransactionListViewModel(
             TransactionListIntent.ClearFilters ->
                 setState { copy(brandFilter = null, categoryFilter = null, dateRange = DateRangeFilter.ALL) }
             is TransactionListIntent.Delete ->
-                viewModelScope.launch { deleteTransaction(intent.id) }
+                viewModelScope.launch {
+                    deleteTransaction(intent.id)
+                    analytics.log(AnalyticsEvent.TransactionDeleted)
+                }
             TransactionListIntent.ConsumeEffect -> clearEffect()
         }
     }

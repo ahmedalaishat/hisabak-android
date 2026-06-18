@@ -2,6 +2,8 @@ package com.hisabak.feature.brand.presentation.edit
 
 import androidx.lifecycle.viewModelScope
 import com.hisabak.core.common.DomainResult
+import com.hisabak.core.domain.analytics.Analytics
+import com.hisabak.core.domain.analytics.AnalyticsEvent
 import com.hisabak.core.presentation.BaseViewModel
 import com.hisabak.feature.brand.domain.BrandId
 import com.hisabak.feature.brand.domain.BrandRepository
@@ -16,6 +18,7 @@ class BrandEditViewModel(
     private val observeCategories: ObserveCategoriesUseCase,
     private val createBrand: CreateBrandUseCase,
     private val updateBrand: UpdateBrandUseCase,
+    private val analytics: Analytics,
 ) : BaseViewModel<BrandEditIntent, BrandEditUiState, BrandEditEffect>() {
 
     override fun initialState() = BrandEditUiState(isNew = brandId == null)
@@ -86,6 +89,9 @@ class BrandEditViewModel(
 
             when (result) {
                 is DomainResult.Success -> {
+                    if (brandId == null) {
+                        analytics.log(AnalyticsEvent.BrandCreated(hasCategory = s.selectedCategoryId != null))
+                    }
                     setState { copy(isSaving = false) }
                     sendEffect(BrandEditEffect.Saved)
                 }

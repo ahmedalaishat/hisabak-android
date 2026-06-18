@@ -20,6 +20,20 @@ Domain model mirrors Hisabi so concepts transfer cleanly.
 - **Async:** Kotlin Coroutines + Flow
 - **State:** ViewModel + `collectAsStateWithLifecycle`
 - **Charts:** Vico
+- **Crash reporting:** Firebase Crashlytics. Wired via the `google-services` + `firebase-crashlytics`
+  Gradle plugins (config in `app/google-services.json`, project `hisabak-finance-tracking`).
+  Collection is gated on `!BuildConfig.DEBUG` in `HisabakApp` — **on in release, off in debug** —
+  so local runs never reach the dashboard. Reports carry no financial/personal data; the
+  privacy policy (`docs/privacy.html`) discloses it.
+- **Analytics:** Firebase Analytics (no extra plugin — uses the same `google-services` setup),
+  collection gated the same way (`!BuildConfig.DEBUG`, on in release). Behind a small domain
+  abstraction: the `Analytics` interface + the `AnalyticsEvent` catalogue in
+  `core/domain/analytics/` (the single place event names/params live), with
+  `FirebaseAnalyticsClient` in `core/data/analytics/`, registered via `di/AnalyticsModule.kt`.
+  Inject `Analytics` into a ViewModel/use case and log on the success path; tests use
+  `testutil/FakeAnalytics`. **Strict no-PII:** events only carry booleans, enums, and coarse amount
+  buckets — never raw amounts, names, notes, or SMS text. Screen views are reported manually from
+  `MainActivity` (single-Activity Compose app, so Firebase's auto screen tracking doesn't fire).
 - **Storage:** Room (SQLite) — `Room*Repository` impls per feature's `data/`, entities/DAOs/
   mappers in `data/local/`, and the database in `core/data/local/` (`HisabakDatabase`).
   The Room schema is exported to `app/schemas/` (committed); bump the DB version and add a
