@@ -5,6 +5,8 @@ import com.hisabak.feature.brand.domain.usecase.CreateBrandUseCase
 import com.hisabak.feature.brand.domain.usecase.UpdateBrandUseCase
 import com.hisabak.feature.category.domain.CategoryId
 import com.hisabak.feature.category.domain.usecase.ObserveCategoriesUseCase
+import com.hisabak.core.domain.analytics.AnalyticsEvent
+import com.hisabak.testutil.FakeAnalytics
 import com.hisabak.testutil.FakeBrandRepository
 import com.hisabak.testutil.FakeCategoryRepository
 import com.hisabak.testutil.MainDispatcherRule
@@ -29,6 +31,7 @@ class BrandEditViewModelTest {
     private val clock = TestClock()
     private val brandRepo = FakeBrandRepository()
     private val catRepo = FakeCategoryRepository(listOf(category(id = "c1", name = "Food")))
+    private val analytics = FakeAnalytics()
 
     private fun viewModel(brandId: BrandId? = null) = BrandEditViewModel(
         brandId = brandId,
@@ -36,6 +39,7 @@ class BrandEditViewModelTest {
         observeCategories = ObserveCategoriesUseCase(catRepo),
         createBrand = CreateBrandUseCase(brandRepo, clock),
         updateBrand = UpdateBrandUseCase(brandRepo, clock),
+        analytics = analytics,
     )
 
     @Test
@@ -74,6 +78,11 @@ class BrandEditViewModelTest {
         assertEquals("Carrefour", saved.name)
         assertEquals(CategoryId("c1"), saved.categoryId)
         assertEquals(BrandEditEffect.Saved, vm.effect.value)
+
+        val event = analytics.logged.single() as AnalyticsEvent.BrandCreated
+        assertEquals(true, event.params["has_category"])
+        // PII guard: the brand name never reaches analytics.
+        assertTrue(event.params.values.none { it == "Carrefour" })
     }
 
     @Test

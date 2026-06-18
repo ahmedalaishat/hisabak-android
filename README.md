@@ -90,9 +90,7 @@ Planned, not yet available — roughly in order:
 6. **AI capture & auto-categorization** — smarter SMS parsing and automatic brand → category
    detection.
 7. **AI insights assistant** — ask questions about your spending and get clear, on-point answers.
-8. **Product analytics** — Firebase Analytics for product insight (crash reporting via Firebase
-   Crashlytics already ships in release builds; see the [privacy policy](docs/privacy.html)).
-9. **Refunds** — record a refund against a transaction so returned money is reflected in balances
+8. **Refunds** — record a refund against a transaction so returned money is reflected in balances
    and category spend.
 
 > Privacy stays first: AI features will be designed to keep your data under your control.
@@ -109,7 +107,8 @@ Planned, not yet available — roughly in order:
 - **Async:** Coroutines + Flow
 - **State:** ViewModel + `collectAsStateWithLifecycle`
 - **Charts:** Vico
-- **Crash reporting:** Firebase Crashlytics (release builds only; disabled in debug)
+- **Crash reporting & analytics:** Firebase Crashlytics + Analytics (release builds only;
+  disabled in debug; analytics events carry no personal or financial data)
 
 ---
 
