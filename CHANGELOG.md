@@ -6,6 +6,12 @@ All notable changes to Hisabak are documented here. Format based on
 
 ## [Unreleased]
 
+### Added
+- Crash reporting via Firebase Crashlytics in release builds, so crashes are diagnosed and fixed
+  faster. Reports contain only technical crash details (stack trace, app version, basic device
+  info) — never your transactions or any personal or financial data — and collection is disabled
+  in development builds. See the updated privacy policy for details.
+
 ## [1.4.1] — 2026-06-18
 
 ### Fixed
