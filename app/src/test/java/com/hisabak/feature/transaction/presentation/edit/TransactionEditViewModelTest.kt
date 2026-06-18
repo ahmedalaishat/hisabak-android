@@ -9,6 +9,8 @@ import com.hisabak.feature.category.domain.usecase.ObserveCategoriesUseCase
 import com.hisabak.feature.transaction.domain.TransactionId
 import com.hisabak.feature.transaction.domain.usecase.CreateTransactionUseCase
 import com.hisabak.feature.transaction.domain.usecase.UpdateTransactionUseCase
+import com.hisabak.core.domain.analytics.AnalyticsEvent
+import com.hisabak.testutil.FakeAnalytics
 import com.hisabak.testutil.FakeBrandRepository
 import com.hisabak.testutil.FakeCategoryRepository
 import com.hisabak.testutil.FakeTransactionRepository
@@ -48,6 +50,8 @@ class TransactionEditViewModelTest {
         ),
     )
 
+    private val analytics = FakeAnalytics()
+
     private fun viewModel(transactionId: TransactionId? = null) = TransactionEditViewModel(
         transactionId = transactionId,
         currency = Currency.AED,
@@ -57,6 +61,7 @@ class TransactionEditViewModelTest {
         observeCategories = ObserveCategoriesUseCase(catRepo),
         createTransaction = CreateTransactionUseCase(txRepo, clock),
         updateTransaction = UpdateTransactionUseCase(txRepo, clock),
+        analytics = analytics,
     )
 
     @Test
@@ -96,6 +101,7 @@ class TransactionEditViewModelTest {
         assertTrue(vm.state.value.amountError != null)
         assertTrue(txRepo.current.isEmpty())
         assertNull(vm.effect.value)
+        assertTrue("validation failure must not log analytics", analytics.logged.isEmpty())
     }
 
     @Test
@@ -141,6 +147,14 @@ class TransactionEditViewModelTest {
         assertEquals(BrandId("b-exp"), saved.brandId)
         assertEquals("Groceries", saved.note)
         assertEquals(TransactionEditEffect.Saved, vm.effect.value)
+
+        val event = analytics.logged.single() as AnalyticsEvent.TransactionCreated
+        assertEquals("transaction_created", event.name)
+        assertEquals("manual", event.params["source"])
+        assertEquals("50_200", event.params["amount_bucket"])
+        assertEquals(true, event.params["has_note"])
+        // PII guard: the raw amount and note text must never reach analytics.
+        assertTrue(event.params.values.none { it == "Groceries" || it == 5_000L || it == "50.00" })
     }
 
     @Test
@@ -161,6 +175,7 @@ class TransactionEditViewModelTest {
         assertEquals("t1", updated.id.value)
         assertEquals(2_500L, updated.amount.amountMinor)
         assertEquals(TransactionEditEffect.Saved, vm.effect.value)
+        assertEquals(listOf("transaction_edited"), analytics.names())
     }
 
     @Test

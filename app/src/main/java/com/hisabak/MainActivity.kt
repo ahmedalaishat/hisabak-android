@@ -48,6 +48,7 @@ import com.hisabak.feature.brand.presentation.edit.BrandEditRoute
 import com.hisabak.feature.category.domain.CategoryId
 import com.hisabak.feature.category.presentation.edit.CategoryEditRoute
 import com.hisabak.core.domain.AppPreferences
+import com.hisabak.core.domain.analytics.Analytics
 import com.hisabak.feature.dashboard.presentation.CategoryFocusBus
 import com.hisabak.feature.dashboard.presentation.DashboardRoute
 import com.hisabak.feature.onboarding.presentation.OnboardingRoute
@@ -96,7 +97,11 @@ class MainActivity : ComponentActivity() {
                 val onboardingCompleted by preferences.onboardingCompleted
                     .collectAsStateWithLifecycle(initialValue = null)
                 when (onboardingCompleted) {
-                    false -> OnboardingRoute()
+                    false -> {
+                        val analytics = koinInject<Analytics>()
+                        LaunchedEffect(Unit) { analytics.setCurrentScreen("onboarding") }
+                        OnboardingRoute()
+                    }
                     true -> HisabakNav()
                     // null = still loading the flag; show a blank themed canvas (no flash).
                     null -> Box(
@@ -198,6 +203,21 @@ private fun HisabakNav() {
     // Brand/Category edits and the notifications screen are full-screen pages with a back arrow.
     val leaf = navigationState.backStacks[navigationState.topLevelRoute]?.lastOrNull()
     val fullScreen = leaf is BrandEditKey || leaf is CategoryEditKey || leaf == NotificationsKey
+
+    val analytics = koinInject<Analytics>()
+    val screenName = when (leaf) {
+        is TransactionEditKey -> "transaction_edit"
+        is BrandEditKey -> "brand_edit"
+        is CategoryEditKey -> "category_edit"
+        NotificationsKey -> "notifications"
+        else -> when (currentTab) {
+            RootTab.Dashboard -> "dashboard"
+            RootTab.Transactions -> "transactions"
+            RootTab.Sms -> "sms_inbox"
+            RootTab.Manage -> "manage"
+        }
+    }
+    LaunchedEffect(screenName) { analytics.setCurrentScreen(screenName) }
 
     Scaffold(
         topBar = {

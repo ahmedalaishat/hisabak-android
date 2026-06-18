@@ -1,6 +1,7 @@
 package com.hisabak
 
 import android.app.Application
+import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.hisabak.core.data.local.DatabaseSeeder
 import com.hisabak.di.APPLICATION_SCOPE
@@ -24,9 +25,10 @@ class HisabakApp : Application() {
 
     override fun onCreate() {
         super.onCreate()
-        // Crash reporting is on for release builds and off for debug, so local development never
-        // pollutes the Firebase Crashlytics dashboard.
+        // Crash reporting and analytics are on for release builds and off for debug, so local
+        // development never pollutes the Firebase dashboards.
         FirebaseCrashlytics.getInstance().isCrashlyticsCollectionEnabled = !BuildConfig.DEBUG
+        FirebaseAnalytics.getInstance(this).setAnalyticsCollectionEnabled(!BuildConfig.DEBUG)
         startKoin {
             androidLogger(Level.ERROR)
             androidContext(this@HisabakApp)

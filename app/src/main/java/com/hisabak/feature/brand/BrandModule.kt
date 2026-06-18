@@ -31,6 +31,7 @@ val brandModule = module {
             observeTransactions = get(),
             deleteBrand = get(),
             reassignBrandTransactions = get(),
+            analytics = get(),
         )
     }
 
@@ -41,6 +42,7 @@ val brandModule = module {
             observeCategories = get(),
             createBrand = get(),
             updateBrand = get(),
+            analytics = get(),
         )
     }
 }

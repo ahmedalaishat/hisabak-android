@@ -13,10 +13,14 @@ Target: **internal testing first** → promote to production later.
 **Privacy policy**
 - URL: `https://ahmedalaishat.github.io/hisabak-android/privacy.html`
 
-**Data safety** → the released app collects **crash diagnostics only** (Firebase Crashlytics):
-- Does your app collect or share any required user data? **Yes — diagnostics only.**
-- Data type: **App info & performance → Crash logs** (and **Diagnostics**). Nothing else — no
-  financial data, no SMS, no personal info; all of that stays on-device.
+**Data safety** → the released app collects **crash diagnostics and anonymous usage analytics only**
+(Firebase Crashlytics + Analytics):
+- Does your app collect or share any required user data? **Yes — diagnostics and app activity only.**
+- Data types:
+  - **App info & performance → Crash logs** and **Diagnostics** (Crashlytics).
+  - **App activity → App interactions** (Analytics: screen views and in-app actions, in aggregate).
+  Nothing else — no financial data, no SMS, no personal info; all of that stays on-device. Analytics
+  carries no raw amounts/names/notes — only coarse, non-identifying buckets.
 - Collected? **Yes.** Shared? **Yes** — processed by Google (Firebase) on our behalf.
 - Processing: not optional for the user (always on in release), **not** used for tracking/ads,
   **encrypted in transit**. Data deletion: handled per Firebase's retention.
