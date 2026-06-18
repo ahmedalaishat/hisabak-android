@@ -1,21 +1,22 @@
 ---
 name: feature
-description: Automated SDLC pipeline for Hisabak. Turn a high-level requirement into a reviewed, tested, documented PR against develop. Use when the user types /feature "<requirement>" or asks to build a feature end-to-end. Runs spec → design → branch → code+tests → QA → docs → PR, then stops for one review gate ("merge it").
+description: Automated SDLC pipeline for Hisabak. Turn a high-level requirement into a tested, documented PR against develop that auto-merges on green CI. Use when the user types /feature "<requirement>" or asks to build a feature end-to-end. Runs spec → design → branch → code+tests → QA → docs → PR → enable auto-merge.
 user-invocable: true
 ---
 
 # Hisabak feature pipeline
 
-Turn one high-level requirement into a reviewed, tested, documented PR with a **single
-human gate at the end**. This is a playbook you (Claude) execute in the current session —
-not background automation. Compose the existing tooling; don't reinvent it.
+Turn one high-level requirement into a tested, documented PR that **auto-merges on green
+CI**. This is a playbook you (Claude) execute in the current session — not background
+automation. Compose the existing tooling; don't reinvent it.
 
 **Input:** the requirement in `$ARGUMENTS` (e.g. `/feature "let users archive a category"`).
 If `$ARGUMENTS` is empty, ask the user what to build, then proceed.
 
-**Golden rule:** autonomous from intake through the open PR; then **stop and wait**. Never
-merge until the user says **"merge it"** (the PR→`develop` gate; *not* "ship it", which is the
-production release). Never enable auto-merge. (See the `automate-the-dev-workflow` memory.)
+**Golden rule:** autonomous from intake through the open PR, then **enable auto-merge** —
+the PR lands on `develop` itself once CI is green. Don't wait for a "merge it"; that phrase
+is now only for the manually-gated `develop`→`main` release PR (via `git-workflow`), *not*
+this pipeline. (See the `automate-the-dev-workflow` memory.)
 
 ---
 
@@ -115,19 +116,18 @@ PR body must include: a one-paragraph summary, the spec + design (or a link to
 `docs/features/<slug>.md`), what tests prove it, and the changelog line. End the body with
 the `🤖 Generated with Claude Code` footer.
 
-## 10. Gate — stop for review
+## 10. Enable auto-merge
 
-Present to the user: the PR link, the acceptance criteria with how each is met, the test
-additions, CI status, and any assumptions made. Then **stop.**
-
-On **"merge it"** (and only then):
+Enable auto-merge so the PR lands on `develop` itself once CI is green:
 ```bash
-gh pr merge --merge          # merge commit, matches repo history
-git checkout develop && git pull --ff-only origin develop
-git branch -d feat/<slug>
+gh pr merge --auto --merge --delete-branch   # merges on green CI; deletes the remote branch
 ```
-Report the merge and that local `develop` is synced. Releases (`develop → main` + version
-tag) stay a separate, deliberate step via the `git-workflow` skill — never bundle them here.
+Then present to the user: the PR link, the acceptance criteria with how each is met, the
+test additions, CI status, and any assumptions made — noting that it will auto-merge on
+green CI. Once it has merged, sync local `develop` (`git checkout develop &&
+git pull --ff-only origin develop && git branch -d feat/<slug>`). Releases (`develop → main`
++ version tag) stay a separate, deliberate step via the `git-workflow` skill — never bundle
+them here.
 
 ---
 
@@ -140,4 +140,4 @@ tag) stay a separate, deliberate step via the `git-workflow` skill — never bun
 - [ ] Docs/changelog updated (or explicitly noted N/A)
 - [ ] **Consistency check** — CLAUDE.md / README / docs / skills / hooks / workflows / CHANGELOG reviewed against the diff
 - [ ] PR to `develop` with structured body
-- [ ] Stopped for review — merged only on "merge it", never auto-merge
+- [ ] **Auto-merge enabled** (`gh pr merge --auto`) — lands on green CI, no manual gate
