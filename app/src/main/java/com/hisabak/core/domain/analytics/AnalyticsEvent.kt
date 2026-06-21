@@ -58,6 +58,18 @@ sealed class AnalyticsEvent(
         name = "dashboard_period_changed",
         params = mapOf("period" to period),
     )
+
+    /** [mode] is a [com.hisabak.core.domain.ThemeMode] name, lowercased. */
+    class SettingsThemeChanged(mode: String) : AnalyticsEvent(
+        name = "settings_theme_changed",
+        params = mapOf("mode" to mode),
+    )
+
+    /** [language] is a BCP-47 tag (e.g. "en", "ar"). */
+    class SettingsLanguageChanged(language: String) : AnalyticsEvent(
+        name = "settings_language_changed",
+        params = mapOf("language" to language),
+    )
 }
 
 /** Coarse, non-reversible magnitude bucket of a money value — never the raw amount. */

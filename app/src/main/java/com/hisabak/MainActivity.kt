@@ -5,12 +5,13 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
-import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -21,8 +22,10 @@ import androidx.compose.material.icons.automirrored.outlined.List
 import androidx.compose.material.icons.automirrored.outlined.Message
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Layers
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.SpaceDashboard
 import androidx.compose.material.icons.outlined.Layers
+import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.icons.outlined.SpaceDashboard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
@@ -36,6 +39,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation3.runtime.NavKey
@@ -48,10 +52,12 @@ import com.hisabak.feature.brand.presentation.edit.BrandEditRoute
 import com.hisabak.feature.category.domain.CategoryId
 import com.hisabak.feature.category.presentation.edit.CategoryEditRoute
 import com.hisabak.core.domain.AppPreferences
+import com.hisabak.core.domain.ThemeMode
 import com.hisabak.core.domain.analytics.Analytics
 import com.hisabak.feature.dashboard.presentation.CategoryFocusBus
 import com.hisabak.feature.dashboard.presentation.DashboardRoute
 import com.hisabak.feature.onboarding.presentation.OnboardingRoute
+import com.hisabak.feature.settings.presentation.SettingsRoute
 import com.hisabak.feature.notification.domain.NotificationRepository
 import com.hisabak.feature.notification.platform.SystemNotifier
 import com.hisabak.feature.notification.presentation.list.NotificationsRoute
@@ -68,6 +74,7 @@ import com.hisabak.nav.DashboardKey
 import com.hisabak.nav.ManageKey
 import com.hisabak.nav.Navigator
 import com.hisabak.nav.NotificationsKey
+import com.hisabak.nav.SettingsKey
 import com.hisabak.nav.SmsKey
 import com.hisabak.nav.TransactionEditKey
 import com.hisabak.nav.TransactionsKey
@@ -82,7 +89,7 @@ import com.hisabak.ui.theme.HisabakTheme
 import org.koin.android.ext.android.inject
 import org.koin.compose.koinInject
 
-class MainActivity : ComponentActivity() {
+class MainActivity : AppCompatActivity() {
 
     private val categoryFocusBus: CategoryFocusBus by inject()
     private val brandEditBus: BrandEditBus by inject()
@@ -92,8 +99,14 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         handleFocusIntent(intent)
         setContent {
-            HisabakTheme {
-                val preferences = koinInject<AppPreferences>()
+            val preferences = koinInject<AppPreferences>()
+            val themeMode by preferences.themeMode.collectAsStateWithLifecycle(initialValue = ThemeMode.SYSTEM)
+            val darkTheme = when (themeMode) {
+                ThemeMode.LIGHT -> false
+                ThemeMode.DARK -> true
+                ThemeMode.SYSTEM -> isSystemInDarkTheme()
+            }
+            HisabakTheme(darkTheme = darkTheme) {
                 val onboardingCompleted by preferences.onboardingCompleted
                     .collectAsStateWithLifecycle(initialValue = null)
                 when (onboardingCompleted) {
@@ -130,14 +143,15 @@ class MainActivity : ComponentActivity() {
 
 private enum class RootTab(
     val key: NavKey,
-    val label: String,
+    val labelRes: Int,
     val icon: ImageVector,
     val iconOutlined: ImageVector,
 ) {
-    Dashboard(DashboardKey, "Dashboard", Icons.Filled.SpaceDashboard, Icons.Outlined.SpaceDashboard),
-    Transactions(TransactionsKey, "Transactions", Icons.AutoMirrored.Filled.List, Icons.AutoMirrored.Outlined.List),
-    Sms(SmsKey, "SMS", Icons.AutoMirrored.Filled.Message, Icons.AutoMirrored.Outlined.Message),
-    Manage(ManageKey, "Manage", Icons.Filled.Layers, Icons.Outlined.Layers),
+    Dashboard(DashboardKey, R.string.nav_dashboard, Icons.Filled.SpaceDashboard, Icons.Outlined.SpaceDashboard),
+    Transactions(TransactionsKey, R.string.nav_transactions, Icons.AutoMirrored.Filled.List, Icons.AutoMirrored.Outlined.List),
+    Sms(SmsKey, R.string.nav_sms, Icons.AutoMirrored.Filled.Message, Icons.AutoMirrored.Outlined.Message),
+    Manage(ManageKey, R.string.nav_manage, Icons.Filled.Layers, Icons.Outlined.Layers),
+    Settings(SettingsKey, R.string.nav_settings, Icons.Filled.Settings, Icons.Outlined.Settings),
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -192,10 +206,13 @@ private fun HisabakNav() {
         }
     }
 
-    val tabs = remember {
-        RootTab.entries.map {
-            BottomNavTab(key = it.name, label = it.label, icon = it.icon, iconOutlined = it.iconOutlined)
-        }
+    val tabs = RootTab.entries.map {
+        BottomNavTab(
+            key = it.name,
+            label = stringResource(it.labelRes),
+            icon = it.icon,
+            iconOutlined = it.iconOutlined,
+        )
     }
 
     val currentTab = RootTab.entries.first { it.key == navigationState.topLevelRoute }
@@ -215,6 +232,7 @@ private fun HisabakNav() {
             RootTab.Transactions -> "transactions"
             RootTab.Sms -> "sms_inbox"
             RootTab.Manage -> "manage"
+            RootTab.Settings -> "settings"
         }
     }
     LaunchedEffect(screenName) { analytics.setCurrentScreen(screenName) }
@@ -223,23 +241,24 @@ private fun HisabakNav() {
         topBar = {
             when (leaf) {
                 is CategoryEditKey -> DetailTopBar(
-                    title = if (leaf.id == null) "New category" else "Edit category",
+                    title = stringResource(if (leaf.id == null) R.string.category_new_title else R.string.category_edit_title),
                     onBack = { navigator.goBack() },
                 )
                 is BrandEditKey -> DetailTopBar(
-                    title = if (leaf.id == null) "New brand" else "Edit brand",
+                    title = stringResource(if (leaf.id == null) R.string.brand_new_title else R.string.brand_edit_title),
                     onBack = { navigator.goBack() },
                 )
                 NotificationsKey -> DetailTopBar(
-                    title = "Notifications",
+                    title = stringResource(R.string.notifications_title),
                     onBack = { navigator.goBack() },
                 )
                 else -> HisabakTopBar(
                     title = when (currentTab) {
-                        RootTab.Dashboard -> "Hisabak"
-                        RootTab.Transactions -> "Transactions"
-                        RootTab.Sms -> "SMS Inbox"
-                        RootTab.Manage -> "Manage"
+                        RootTab.Dashboard -> stringResource(R.string.app_brand_name)
+                        RootTab.Transactions -> stringResource(R.string.nav_transactions)
+                        RootTab.Sms -> stringResource(R.string.sms_inbox_title)
+                        RootTab.Manage -> stringResource(R.string.nav_manage)
+                        RootTab.Settings -> stringResource(R.string.nav_settings)
                     },
                     onNotificationsClick = { navigator.navigate(NotificationsKey) },
                     unreadCount = unreadCount,
@@ -262,7 +281,7 @@ private fun HisabakNav() {
                     containerColor = MaterialTheme.colorScheme.primary,
                     contentColor = MaterialTheme.colorScheme.onPrimary,
                 ) {
-                    Icon(Icons.Filled.Add, contentDescription = "Add transaction")
+                    Icon(Icons.Filled.Add, contentDescription = stringResource(R.string.transaction_add))
                 }
             }
         },
@@ -286,6 +305,9 @@ private fun HisabakNav() {
             }
             entry<SmsKey> {
                 SmsInboxRoute(modifier = Modifier.fillMaxSize())
+            }
+            entry<SettingsKey> {
+                SettingsRoute(modifier = Modifier.fillMaxSize())
             }
             entry<ManageKey> {
                 ManageRoute(

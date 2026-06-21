@@ -33,8 +33,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.hisabak.R
 import com.hisabak.ui.theme.HisabakTheme
 import com.hisabak.ui.theme.Sizing
 import com.hisabak.ui.theme.Spacing
@@ -64,7 +66,7 @@ fun DetailTopBar(
             ) {
                 Icon(
                     Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = "Back",
+                    contentDescription = stringResource(R.string.action_back),
                     tint = MaterialTheme.colorScheme.onSurface,
                 )
             }
@@ -140,7 +142,7 @@ fun HisabakTopBar(
                 ) {
                     Icon(
                         Icons.Filled.Notifications,
-                        contentDescription = "Notifications",
+                        contentDescription = stringResource(R.string.notifications_title),
                         tint = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }

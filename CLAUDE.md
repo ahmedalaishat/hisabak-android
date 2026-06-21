@@ -38,8 +38,17 @@ Domain model mirrors Hisabi so concepts transfer cleanly.
   mappers in `data/local/`, and the database in `core/data/local/` (`HisabakDatabase`).
   The Room schema is exported to `app/schemas/` (committed); bump the DB version and add a
   real `Migration` for any entity change — **release builds don't destructively fall back**
-  (debug builds do, for fast iteration). Lightweight app prefs (e.g. the onboarding flag)
-  use DataStore (`core/data/preferences/`).
+  (debug builds do, for fast iteration). Lightweight app prefs (the onboarding flag and the
+  theme mode) use DataStore (`core/data/preferences/`) behind the `AppPreferences` interface
+  (`core/domain/`); `MainActivity` reads `themeMode` and feeds the resolved boolean to
+  `HisabakTheme(darkTheme=…)`.
+- **Localization:** English + Arabic (RTL). User-facing strings live in `res/values/strings.xml`
+  (+ `res/values-ar/`) and are read via `stringResource`/`pluralStringResource` — **don't hardcode
+  UI text**. The in-app language switch uses **per-app locales**: `MainActivity` is an
+  `AppCompatActivity`, the XML theme parents `Theme.AppCompat.DayNight.NoActionBar`, and the
+  Settings screen calls `AppCompatDelegate.setApplicationLocales(...)` (persisted via the
+  `AppLocalesMetadataHolderService` + `res/xml/locales_config.xml`). Money keeps Western digits +
+  the dirham glyph in both languages. (Background system-notification text is not yet localized.)
 - **Platform:** Android only, portrait, edge-to-edge. `minSdk 29`. **Core-library desugaring is
   enabled** (`isCoreLibraryDesugaringEnabled` + `desugar_jdk_libs`), so `java.time` is safe to use
   freely down to API 29 — without it, API-34+ additions like `LocalDate.ofInstant` throw
@@ -65,12 +74,12 @@ com.hisabak
 
 ## Navigation
 
-**Jetpack Navigation 3** (`com.hisabak.nav`). 4-tab bottom navigation, each tab a
+**Jetpack Navigation 3** (`com.hisabak.nav`). 5-tab bottom navigation, each tab a
 top-level destination with its own back stack. State is retained per tab when
 switching; the user always exits the app through the **Dashboard** (home) tab.
 
 - `NavKeys.kt` — destination keys: `DashboardKey`, `TransactionsKey`, `SmsKey`,
-  `ManageKey` (top-level) + `TransactionEditKey/BrandEditKey/CategoryEditKey(id)` (children).
+  `ManageKey`, `SettingsKey` (top-level) + `TransactionEditKey/BrandEditKey/CategoryEditKey(id)` (children).
 - `NavigationState.kt` — `NavigationState` (one back stack per tab), `Navigator`
   (`navigate`/`goBack`: back from a tab → home; back from home → exit), and `toEntries()`
   which wires the saveable-state + **ViewModel-store** entry decorators. The ViewModel
@@ -87,6 +96,7 @@ switching; the user always exits the app through the **Dashboard** (home) tab.
 | Transactions | TransactionsKey | List → Edit (bottom sheet) |
 | SMS | SmsKey | Single screen |
 | Manage | ManageKey | Brands/Categories list → Edit (full screen) |
+| Settings | SettingsKey | Single screen (theme + language) |
 
 Pattern: `List` → tap row or FAB → push `Edit(id?)` destination → Save/Cancel calls
 `navigator.goBack()` → back to `List`.
@@ -132,8 +142,10 @@ Use the HTML/CSS kit only for throwaway visual mockups.
 ### Foundations
 
 - **Theme:** wrap content in `HisabakTheme { }`. Light **and** dark are first-class — every
-  screen must look right in both. Never hardcode hex; use `MaterialTheme.colorScheme.*`,
-  `HisabakTheme.colors.*`, `HisabakType.*`, `Spacing.*`, `Sizing.*`.
+  screen must look right in both. The active mode follows the user's Settings choice
+  (Light/Dark/System, persisted in DataStore), not just `isSystemInDarkTheme()`. Never hardcode
+  hex; use `MaterialTheme.colorScheme.*`, `HisabakTheme.colors.*`, `HisabakType.*`, `Spacing.*`,
+  `Sizing.*`.
 - **Type:** DM Sans for UI; **Geist Mono with tabular figures for every amount**
   (`HisabakType.amount` / `amountLarge` / `amountHero`). Amounts align in columns —
   don't use the sans font for money.

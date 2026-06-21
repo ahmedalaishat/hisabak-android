@@ -6,6 +6,13 @@ All notable changes to Hisabak are documented here. Format based on
 
 ## [Unreleased]
 
+### Added
+- A **Settings** tab with two controls to start:
+  - **Theme** — choose Light, Dark, or System (follows your device). Your choice is saved and
+    applies across the whole app instantly.
+  - **Language** — switch the app between **English** and **العربية**. The app is fully
+    localized and lays out right-to-left in Arabic; your choice is saved and survives restarts.
+
 ## [1.5.1] — 2026-06-19
 
 ### Fixed

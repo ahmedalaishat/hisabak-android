@@ -89,6 +89,8 @@ Everything below is built and shipping today:
 - [x] 🗂️ **Organize** — categories (income / expense / savings / investment) with colors and
   icons, and brands mapped to categories. Safe deletion with brand-merge and confirmation.
 - [x] 🛎️ **Notifications center** — unread badge on the bell, swipe-to-dismiss, and mark-all-read.
+- [x] ⚙️ **Settings** — pick your **theme** (light / dark / system) and **language**
+  (**English / العربية**, fully localized and right-to-left). Both are saved across launches.
 - [x] 📴 **Offline-first** — all data is stored locally on-device (Room). Light & dark themes,
   polished motion, edge-to-edge.
 
@@ -153,7 +155,7 @@ and SMS-imported transactions are both covered through a single path.
 
 ## 🧪 Testing & quality
 
-The domain logic and ViewModels are covered by **90 JVM unit tests** (money math, the SMS
+The domain logic and ViewModels are covered by **116 JVM unit tests** (money math, the SMS
 template parser, budget/limit logic, and ViewModel state) that run on the plain JVM — no
 emulator needed:
 

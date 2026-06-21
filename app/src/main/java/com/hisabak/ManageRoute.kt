@@ -24,6 +24,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.hisabak.feature.brand.domain.BrandId
@@ -60,7 +61,7 @@ fun ManageRoute(
                 horizontalArrangement = Arrangement.spacedBy(Spacing.cardGap),
             ) {
                 ManageSwitchCard(
-                    label = "Brands",
+                    label = stringResource(R.string.common_brands),
                     count = counts.brands,
                     icon = Icons.Filled.Storefront,
                     selected = tab == ManageTab.Brands,
@@ -68,7 +69,7 @@ fun ManageRoute(
                     modifier = Modifier.weight(1f),
                 )
                 ManageSwitchCard(
-                    label = "Categories",
+                    label = stringResource(R.string.common_categories),
                     count = counts.categories,
                     icon = Icons.Filled.Category,
                     selected = tab == ManageTab.Categories,
@@ -106,7 +107,7 @@ fun ManageRoute(
         ) {
             Icon(
                 Icons.Filled.Add,
-                contentDescription = if (tab == ManageTab.Brands) "New brand" else "New category",
+                contentDescription = stringResource(if (tab == ManageTab.Brands) R.string.brand_new_title else R.string.category_new_title),
             )
         }
     }

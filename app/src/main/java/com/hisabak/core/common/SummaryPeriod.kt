@@ -1,16 +1,17 @@
 package com.hisabak.core.common
 
+import com.hisabak.R
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
 
 /** A selectable reporting window shared by the dashboard summary cards. */
-enum class SummaryPeriod(val label: String) {
-    CURRENT_MONTH("This month"),
-    LAST_MONTH("Last month"),
-    CURRENT_YEAR("This year"),
-    LAST_YEAR("Last year"),
-    ALL("All time");
+enum class SummaryPeriod(val labelRes: Int) {
+    CURRENT_MONTH(R.string.period_this_month),
+    LAST_MONTH(R.string.period_last_month),
+    CURRENT_YEAR(R.string.period_this_year),
+    LAST_YEAR(R.string.period_last_year),
+    ALL(R.string.period_all_time);
 
     /** [start, end) dates for this period relative to [today], or null for [ALL]. */
     fun dateRange(today: LocalDate): Pair<LocalDate, LocalDate>? = when (this) {

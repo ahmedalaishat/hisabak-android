@@ -24,8 +24,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.hisabak.R
 import com.hisabak.ui.components.CircleIconTile
 import com.hisabak.ui.components.EmptyStatePanel
 import com.hisabak.ui.components.SkeletonRowList
@@ -60,8 +62,8 @@ fun NotificationsScreen(
         EmptyStatePanel(
             modifier = modifier.fillMaxSize(),
             icon = Icons.Filled.NotificationsNone,
-            title = "No notifications yet",
-            subtitle = "Budget alerts and updates will show up here.",
+            title = stringResource(R.string.notifications_empty_title),
+            subtitle = stringResource(R.string.notifications_empty_subtitle),
         )
         return
     }
@@ -83,7 +85,7 @@ fun NotificationsScreen(
                     horizontalArrangement = Arrangement.End,
                 ) {
                     Text(
-                        text = "Mark all read",
+                        text = stringResource(R.string.notifications_mark_all_read),
                         style = MaterialTheme.typography.labelLarge,
                         color = MaterialTheme.colorScheme.primary,
                         modifier = Modifier
@@ -148,6 +150,7 @@ private fun NotificationCard(row: NotificationRow, onClick: () -> Unit) {
                     text = relativeTime(row.createdAt),
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    // relativeTime resolves localized strings.
                 )
             }
             if (!row.isRead) {
@@ -174,20 +177,21 @@ private fun DismissBackground() {
         contentAlignment = Alignment.CenterEnd,
     ) {
         Text(
-            text = "Dismiss",
+            text = stringResource(R.string.notifications_dismiss),
             style = MaterialTheme.typography.labelLarge,
             color = c.expense,
         )
     }
 }
 
+@Composable
 private fun relativeTime(instant: Instant): String {
     val minutes = Duration.between(instant, Instant.now()).toMinutes()
     return when {
-        minutes < 1 -> "Just now"
-        minutes < 60 -> "${minutes}m ago"
-        minutes < 60 * 24 -> "${minutes / 60}h ago"
-        minutes < 60 * 24 * 7 -> "${minutes / (60 * 24)}d ago"
+        minutes < 1 -> stringResource(R.string.time_just_now)
+        minutes < 60 -> stringResource(R.string.time_minutes_ago, minutes.toInt())
+        minutes < 60 * 24 -> stringResource(R.string.time_hours_ago, (minutes / 60).toInt())
+        minutes < 60 * 24 * 7 -> stringResource(R.string.time_days_ago, (minutes / (60 * 24)).toInt())
         else -> DateTimeFormatter.ofPattern("d MMM")
             .withZone(ZoneId.systemDefault())
             .format(instant)
