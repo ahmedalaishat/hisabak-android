@@ -6,6 +6,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.googlefonts.Font
 import androidx.compose.ui.text.googlefonts.GoogleFont
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
 import com.hisabak.R
@@ -73,6 +74,22 @@ val HisabakTypography = Typography(
     labelMedium    = TextStyle(fontFamily = DMSans, fontWeight = FontWeight.Medium, fontSize = 12.sp, lineHeight = 16.sp),
     // Overline (11/600, tracked, uppercase applied at call site)
     labelSmall     = TextStyle(fontFamily = DMSans, fontWeight = FontWeight.SemiBold, fontSize = 11.sp, lineHeight = 14.sp, letterSpacing = 0.04.em),
+)
+
+/*
+ * Arabic is a connected, cursive script: the Latin "tight" negative tracking (and the overline's
+ * positive tracking) breaks its glyph shaping and inflates the measured text width, which makes
+ * short title/headline words wrap onto a second line. Clear the tracking on those slots for Arabic
+ * — HisabakTheme selects this variant when the locale is Arabic. Latin keeps its tighter design.
+ */
+val HisabakTypographyArabic: Typography = HisabakTypography.copy(
+    displayMedium  = HisabakTypography.displayMedium.copy(letterSpacing = TextUnit.Unspecified),
+    displaySmall   = HisabakTypography.displaySmall.copy(letterSpacing = TextUnit.Unspecified),
+    headlineLarge  = HisabakTypography.headlineLarge.copy(letterSpacing = TextUnit.Unspecified),
+    headlineMedium = HisabakTypography.headlineMedium.copy(letterSpacing = TextUnit.Unspecified),
+    headlineSmall  = HisabakTypography.headlineSmall.copy(letterSpacing = TextUnit.Unspecified),
+    titleLarge     = HisabakTypography.titleLarge.copy(letterSpacing = TextUnit.Unspecified),
+    labelSmall     = HisabakTypography.labelSmall.copy(letterSpacing = TextUnit.Unspecified),
 )
 
 /*

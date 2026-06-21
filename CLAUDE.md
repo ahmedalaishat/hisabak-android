@@ -44,11 +44,12 @@ Domain model mirrors Hisabi so concepts transfer cleanly.
   `HisabakTheme(darkTheme=…)`.
 - **Localization:** English + Arabic (RTL). User-facing strings live in `res/values/strings.xml`
   (+ `res/values-ar/`) and are read via `stringResource`/`pluralStringResource` — **don't hardcode
-  UI text**. The in-app language switch uses **per-app locales**: `MainActivity` is an
-  `AppCompatActivity`, the XML theme parents `Theme.AppCompat.DayNight.NoActionBar`, and the
-  Settings screen calls `AppCompatDelegate.setApplicationLocales(...)` (persisted via the
-  `AppLocalesMetadataHolderService` + `res/xml/locales_config.xml`). Money keeps Western digits +
-  the dirham glyph in both languages. (Background system-notification text is not yet localized.)
+  UI text**. The in-app language switch is framework-only (no appcompat, so Navigation 3's
+  `NavDisplay` keeps its `ComponentActivity` dispatcher owner): the chosen tag is stored by
+  `AppLocale` (`core/data/preferences/`) in a synchronous SharedPreferences, `MainActivity`
+  overrides `attachBaseContext` to wrap the Context in that locale + layout direction, and the
+  Settings screen saves the tag then calls `recreate()`. Money keeps Western digits + the dirham
+  glyph in both languages. (Background system-notification text is not yet localized.)
 - **Platform:** Android only, portrait, edge-to-edge. `minSdk 29`. **Core-library desugaring is
   enabled** (`isCoreLibraryDesugaringEnabled` + `desugar_jdk_libs`), so `java.time` is safe to use
   freely down to API 29 — without it, API-34+ additions like `LocalDate.ofInstant` throw

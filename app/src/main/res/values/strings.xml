@@ -2,8 +2,8 @@
     <!-- app_name is provided per build flavor via resValue (see app/build.gradle.kts):
          "Hisabak" for prod, "Hisabak STG" for staging. -->
 
-    <!-- Brand name shown in the dashboard top bar (not translated). -->
-    <string name="app_brand_name" translatable="false">Hisabak</string>
+    <!-- Brand name shown in the dashboard top bar. -->
+    <string name="app_brand_name">Hisabak</string>
 
     <!-- Actions / shared -->
     <string name="action_back">Back</string>
