@@ -6,6 +6,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.compose.ui.platform.LocalConfiguration
 
 /*
  * HisabakTheme — wraps MaterialTheme with the Hisabak color scheme, typography, and
@@ -31,13 +32,17 @@ fun HisabakTheme(
     val colorScheme = if (darkTheme) HisabakDarkColorScheme else HisabakLightColorScheme
     val semantic = if (darkTheme) HisabakDarkSemantic else HisabakLightSemantic
 
+    // Arabic needs the tracking-cleared typography so connected glyphs don't mis-measure and wrap.
+    val isArabic = LocalConfiguration.current.locales[0].language == "ar"
+    val typography = if (isArabic) HisabakTypographyArabic else HisabakTypography
+
     CompositionLocalProvider(
         LocalHisabakColors provides semantic,
         LocalReducedMotion provides rememberReducedMotion(),
     ) {
         MaterialTheme(
             colorScheme = colorScheme,
-            typography = HisabakTypography,
+            typography = typography,
             shapes = HisabakShapes,
             content = content,
         )

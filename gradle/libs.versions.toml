@@ -1,6 +1,5 @@
 [versions]
 agp = "9.1.1"
-appcompat = "1.7.0"
 coreKtx = "1.10.1"
 junit = "4.13.2"
 junitVersion = "1.1.5"
@@ -25,7 +24,6 @@ firebaseBom = "34.15.0"
 desugarJdkLibs = "2.1.5"
 
 [libraries]
-androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
