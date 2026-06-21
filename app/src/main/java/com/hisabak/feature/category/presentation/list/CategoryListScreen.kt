@@ -36,8 +36,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.Canvas
+import com.hisabak.R
 import com.hisabak.feature.category.domain.CategoryId
 import com.hisabak.feature.category.domain.CategoryType
 import com.hisabak.ui.components.Badge
@@ -85,11 +88,11 @@ fun CategoryListScreen(
     var pendingDelete by remember { mutableStateOf<CategoryRow?>(null) }
 
     val typeOptions: List<Pair<String, CategoryType?>> = listOf(
-        "All" to null,
-        "Expenses" to CategoryType.EXPENSES,
-        "Income" to CategoryType.INCOME,
-        "Savings" to CategoryType.SAVINGS,
-        "Investment" to CategoryType.INVESTMENT,
+        stringResource(R.string.common_all) to null,
+        stringResource(R.string.category_type_expenses) to CategoryType.EXPENSES,
+        stringResource(R.string.category_type_income) to CategoryType.INCOME,
+        stringResource(R.string.category_type_savings) to CategoryType.SAVINGS,
+        stringResource(R.string.category_type_investment) to CategoryType.INVESTMENT,
     )
 
     LazyVerticalGrid(
@@ -111,11 +114,11 @@ fun CategoryListScreen(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
-                    "Categories",
+                    stringResource(R.string.common_categories),
                     style = MaterialTheme.typography.titleLarge,
                     color = MaterialTheme.colorScheme.onSurface,
                 )
-                CreateActionButton(text = "New category", onClick = onAdd)
+                CreateActionButton(text = stringResource(R.string.category_new_title), onClick = onAdd)
             }
         }
 
@@ -123,7 +126,7 @@ fun CategoryListScreen(
             SearchField(
                 value = state.search,
                 onValueChange = onSearchChange,
-                placeholder = "Search categories",
+                placeholder = stringResource(R.string.category_search_placeholder),
                 modifier = Modifier.fillMaxWidth(),
             )
         }
@@ -143,14 +146,14 @@ fun CategoryListScreen(
             item(span = { GridItemSpan(maxLineSpan) }) {
                 EmptyStatePanel(
                     title = when {
-                        state.search.isNotBlank() -> "No matches"
-                        state.typeFilter != null -> "No categories of this type"
-                        else -> "No categories yet"
+                        state.search.isNotBlank() -> stringResource(R.string.common_no_matches)
+                        state.typeFilter != null -> stringResource(R.string.category_empty_in_type)
+                        else -> stringResource(R.string.category_empty_title)
                     },
                     subtitle = if (state.search.isBlank())
-                        "Tap \"New category\" to get started."
+                        stringResource(R.string.category_empty_subtitle)
                     else
-                        "Nothing matches \"${state.search}\".",
+                        stringResource(R.string.common_no_matches_subtitle, state.search),
                 )
             }
         } else {
@@ -176,22 +179,20 @@ fun CategoryListScreen(
         val count = row.transactionCount
         AlertDialog(
             onDismissRequest = { pendingDelete = null },
-            title = { Text("Delete ${row.name}?") },
+            title = { Text(stringResource(R.string.common_delete_title, row.name)) },
             text = {
                 Text(
                     if (count > 0)
-                        "Its brands become uncategorized and $count " +
-                            "${if (count == 1) "transaction" else "transactions"} will no longer be " +
-                            "categorized. Nothing is deleted."
+                        pluralStringResource(R.plurals.category_delete_body_count, count, count)
                     else
-                        "Its brands become uncategorized. No transactions are affected.",
+                        stringResource(R.string.category_delete_body_empty),
                 )
             },
             confirmButton = {
-                TextButton(onClick = { onDelete(row.id); pendingDelete = null }) { Text("Delete") }
+                TextButton(onClick = { onDelete(row.id); pendingDelete = null }) { Text(stringResource(R.string.action_delete)) }
             },
             dismissButton = {
-                TextButton(onClick = { pendingDelete = null }) { Text("Cancel") }
+                TextButton(onClick = { pendingDelete = null }) { Text(stringResource(R.string.action_cancel)) }
             },
         )
     }
@@ -225,7 +226,7 @@ private fun CategoryTile(
             ) {
                 Icon(
                     Icons.Filled.DeleteOutline,
-                    contentDescription = "Delete ${row.name}",
+                    contentDescription = stringResource(R.string.common_delete_named, row.name),
                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.size(18.dp),
                 )
@@ -281,7 +282,7 @@ private fun AddNewTile(onClick: () -> Unit) {
                 foreground = MaterialTheme.colorScheme.primary,
             )
             Text(
-                "Add new",
+                stringResource(R.string.category_add_new),
                 style = MaterialTheme.typography.labelMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
@@ -289,12 +290,15 @@ private fun AddNewTile(onClick: () -> Unit) {
     }
 }
 
-private fun CategoryType.displayName(): String = when (this) {
-    CategoryType.INCOME -> "Income"
-    CategoryType.EXPENSES -> "Expense"
-    CategoryType.SAVINGS -> "Savings"
-    CategoryType.INVESTMENT -> "Investment"
-}
+@Composable
+private fun CategoryType.displayName(): String = stringResource(
+    when (this) {
+        CategoryType.INCOME -> R.string.category_type_income
+        CategoryType.EXPENSES -> R.string.category_type_expense
+        CategoryType.SAVINGS -> R.string.category_type_savings
+        CategoryType.INVESTMENT -> R.string.category_type_investment
+    },
+)
 
 private fun CategoryType.badgeTone(): BadgeTone = when (this) {
     CategoryType.INCOME -> BadgeTone.Income

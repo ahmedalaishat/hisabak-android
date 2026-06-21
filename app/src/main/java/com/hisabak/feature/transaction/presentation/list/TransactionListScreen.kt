@@ -39,8 +39,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.hisabak.R
 import com.hisabak.core.common.Money
 import com.hisabak.core.common.SummaryPeriod
 import com.hisabak.feature.brand.domain.BrandId
@@ -114,7 +116,7 @@ fun TransactionListScreen(
         item {
             Column(verticalArrangement = Arrangement.spacedBy(Spacing.s3)) {
                 Text(
-                    text = "Summary",
+                    text = stringResource(R.string.transaction_summary),
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.onSurface,
                 )
@@ -144,7 +146,7 @@ fun TransactionListScreen(
             SearchField(
                 value = state.search,
                 onValueChange = onSearchChange,
-                placeholder = "Search transactions...",
+                placeholder = stringResource(R.string.transaction_search_placeholder),
                 modifier = Modifier.fillMaxWidth(),
             )
         }
@@ -156,23 +158,23 @@ fun TransactionListScreen(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 FilterPill(
-                    label = state.selectedCategoryName ?: "Category",
+                    label = state.selectedCategoryName ?: stringResource(R.string.common_category),
                     active = state.categoryFilter != null,
                     onClick = { openFilter = FilterTarget.CATEGORY },
                 )
                 FilterPill(
-                    label = state.selectedBrandName ?: "Brand",
+                    label = state.selectedBrandName ?: stringResource(R.string.common_brand),
                     active = state.brandFilter != null,
                     onClick = { openFilter = FilterTarget.BRAND },
                 )
                 FilterPill(
-                    label = if (state.dateRange == DateRangeFilter.ALL) "Date" else state.dateRange.label,
+                    label = if (state.dateRange == DateRangeFilter.ALL) stringResource(R.string.common_date) else stringResource(state.dateRange.labelRes),
                     active = state.dateRange != DateRangeFilter.ALL,
                     onClick = { openFilter = FilterTarget.DATE },
                 )
                 if (state.hasActiveFilters) {
                     Text(
-                        text = "Clear",
+                        text = stringResource(R.string.action_clear),
                         style = MaterialTheme.typography.labelLarge,
                         color = MaterialTheme.colorScheme.primary,
                         modifier = Modifier
@@ -188,18 +190,18 @@ fun TransactionListScreen(
             item {
                 if (filtered) {
                     EmptyStatePanel(
-                        title = "No matching transactions",
-                        subtitle = "Try a different period, brand or category",
+                        title = stringResource(R.string.transaction_empty_filtered_title),
+                        subtitle = stringResource(R.string.transaction_empty_filtered_subtitle),
                         icon = Icons.Filled.ReceiptLong,
-                        actionLabel = if (state.hasActiveFilters) "Clear filters" else "Add transaction",
+                        actionLabel = stringResource(if (state.hasActiveFilters) R.string.action_clear_filters else R.string.transaction_add),
                         onAction = if (state.hasActiveFilters) onClearFilters else onAdd,
                     )
                 } else {
                     EmptyStatePanel(
-                        title = "No transactions yet",
-                        subtitle = "Add your first or import from SMS",
+                        title = stringResource(R.string.transaction_empty_title),
+                        subtitle = stringResource(R.string.transaction_empty_subtitle),
                         icon = Icons.Filled.ReceiptLong,
-                        actionLabel = "Add transaction",
+                        actionLabel = stringResource(R.string.transaction_add),
                         onAction = onAdd,
                     )
                 }
@@ -218,31 +220,31 @@ fun TransactionListScreen(
 
     when (openFilter) {
         FilterTarget.CATEGORY -> FilterSelectSheet(
-            title = "Filter by category",
+            title = stringResource(R.string.transaction_filter_category),
             entries = state.categoryOptions.map { FilterEntry(it.id.value, it.name, it.color) },
             selectedId = state.categoryFilter?.value,
             onSelect = { id -> onCategoryFilterChange(id?.let(::CategoryId)); openFilter = null },
             onDismiss = { openFilter = null },
         )
         FilterTarget.BRAND -> FilterSelectSheet(
-            title = "Filter by brand",
+            title = stringResource(R.string.transaction_filter_brand),
             entries = state.brandOptions.map { FilterEntry(it.id.value, it.name, null) },
             selectedId = state.brandFilter?.value,
             onSelect = { id -> onBrandFilterChange(id?.let(::BrandId)); openFilter = null },
             onDismiss = { openFilter = null },
         )
         FilterTarget.DATE -> FilterSelectSheet(
-            title = "Filter by date",
+            title = stringResource(R.string.transaction_filter_date),
             entries = DateRangeFilter.entries
                 .filter { it != DateRangeFilter.ALL }
-                .map { FilterEntry(it.name, it.label, null) },
+                .map { FilterEntry(it.name, stringResource(it.labelRes), null) },
             selectedId = state.dateRange.takeIf { it != DateRangeFilter.ALL }?.name,
             onSelect = { id ->
                 onDateRangeChange(id?.let { DateRangeFilter.valueOf(it) } ?: DateRangeFilter.ALL)
                 openFilter = null
             },
             onDismiss = { openFilter = null },
-            allLabel = DateRangeFilter.ALL.label,
+            allLabel = stringResource(DateRangeFilter.ALL.labelRes),
         )
         null -> Unit
     }
@@ -283,7 +285,7 @@ private fun FilterSelectSheet(
     selectedId: String?,
     onSelect: (String?) -> Unit,
     onDismiss: () -> Unit,
-    allLabel: String = "All",
+    allLabel: String = stringResource(R.string.common_all),
 ) {
     ModalBottomSheet(onDismissRequest = onDismiss) {
         Column(
@@ -337,7 +339,7 @@ private fun FilterSheetRow(
         if (selected) {
             Icon(
                 Icons.Filled.Check,
-                contentDescription = "Selected",
+                contentDescription = stringResource(R.string.common_selected),
                 tint = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.size(Sizing.icon),
             )
@@ -430,15 +432,16 @@ internal fun formatDate(instant: Instant): String =
         .withZone(ZoneId.systemDefault())
         .format(instant)
 
+@Composable
 private fun formatRelative(instant: Instant): String {
     val now = Instant.now()
     val diff = Duration.between(instant, now)
     return when {
         diff.isNegative -> formatDate(instant)
-        diff.toHours() < 1 -> "${diff.toMinutes().coerceAtLeast(1)}m ago"
-        diff.toHours() < 24 -> "${diff.toHours()}h ago"
-        diff.toDays() == 1L -> "Yesterday"
-        diff.toDays() < 7 -> "${diff.toDays()}d ago"
+        diff.toHours() < 1 -> stringResource(R.string.time_minutes_ago, diff.toMinutes().coerceAtLeast(1).toInt())
+        diff.toHours() < 24 -> stringResource(R.string.time_hours_ago, diff.toHours().toInt())
+        diff.toDays() == 1L -> stringResource(R.string.time_yesterday)
+        diff.toDays() < 7 -> stringResource(R.string.time_days_ago, diff.toDays().toInt())
         else -> formatDate(instant)
     }
 }

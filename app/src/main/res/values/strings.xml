@@ -1,4 +1,235 @@
 <resources>
     <!-- app_name is provided per build flavor via resValue (see app/build.gradle.kts):
          "Hisabak" for prod, "Hisabak STG" for staging. -->
+
+    <!-- Brand name shown in the dashboard top bar (not translated). -->
+    <string name="app_brand_name" translatable="false">Hisabak</string>
+
+    <!-- Actions / shared -->
+    <string name="action_back">Back</string>
+    <string name="action_cancel">Cancel</string>
+    <string name="action_clear">Clear</string>
+    <string name="action_clear_filters">Clear filters</string>
+    <string name="action_delete">Delete</string>
+    <string name="action_ok">OK</string>
+    <string name="action_save">Save</string>
+    <string name="action_saving">Saving…</string>
+
+    <string name="common_all">All</string>
+    <string name="common_brand">Brand</string>
+    <string name="common_brands">Brands</string>
+    <string name="common_categories">Categories</string>
+    <string name="common_category">Category</string>
+    <string name="common_date">Date</string>
+    <string name="common_name">Name</string>
+    <string name="common_none">None</string>
+    <string name="common_selected">Selected</string>
+    <string name="common_no_matches">No matches</string>
+    <string name="common_no_matches_subtitle">Nothing matches \"%1$s\".</string>
+    <string name="common_delete_title">Delete %1$s?</string>
+    <string name="common_delete_named">Delete %1$s</string>
+
+    <!-- Bottom navigation -->
+    <string name="nav_dashboard">Dashboard</string>
+    <string name="nav_transactions">Transactions</string>
+    <string name="nav_sms">SMS</string>
+    <string name="nav_manage">Manage</string>
+    <string name="nav_settings">Settings</string>
+
+    <!-- Top-bar / screen titles -->
+    <string name="sms_inbox_title">SMS Inbox</string>
+    <string name="notifications_title">Notifications</string>
+    <string name="category_new_title">New category</string>
+    <string name="category_edit_title">Edit category</string>
+    <string name="brand_new_title">New brand</string>
+    <string name="brand_edit_title">Edit brand</string>
+    <string name="transaction_new_title">New transaction</string>
+    <string name="transaction_edit_title">Edit transaction</string>
+
+    <!-- Settings -->
+    <string name="settings_appearance">Appearance</string>
+    <string name="settings_appearance_hint">Choose how Hisabak looks. System follows your device theme.</string>
+    <string name="settings_theme_system">System</string>
+    <string name="settings_theme_light">Light</string>
+    <string name="settings_theme_dark">Dark</string>
+    <string name="settings_language">Language</string>
+    <string name="settings_language_hint">Choose the app language. Hisabak will restart to apply it.</string>
+    <string name="settings_language_english">English</string>
+    <string name="settings_language_arabic">العربية</string>
+
+    <!-- Category types -->
+    <string name="category_type_label">Type</string>
+    <string name="category_type_income">Income</string>
+    <string name="category_type_expense">Expense</string>
+    <string name="category_type_expenses">Expenses</string>
+    <string name="category_type_savings">Savings</string>
+    <string name="category_type_investment">Investment</string>
+    <string name="category_type_invest_short">Invest</string>
+
+    <!-- Category screens -->
+    <string name="category_color_label">Color</string>
+    <string name="category_icon_label">Icon</string>
+    <string name="category_preview_label">Preview</string>
+    <string name="category_name_placeholder">Category name</string>
+    <string name="category_limit_label">Monthly limit (optional)</string>
+    <string name="category_limit_hint">Applies to this month and onward</string>
+    <string name="category_search_placeholder">Search categories</string>
+    <string name="category_empty_title">No categories yet</string>
+    <string name="category_empty_in_type">No categories of this type</string>
+    <string name="category_empty_subtitle">Tap \"New category\" to get started.</string>
+    <string name="category_add_new">Add new</string>
+    <string name="category_delete_body_empty">Its brands become uncategorized. No transactions are affected.</string>
+
+    <!-- Brand screens -->
+    <string name="brand_name_label">Brand name</string>
+    <string name="brand_search_placeholder">Search brands</string>
+    <string name="brand_all_section">All brands</string>
+    <string name="brand_empty_title">No brands yet</string>
+    <string name="brand_empty_in_category">No brands in this category</string>
+    <string name="brand_empty_subtitle">Tap New brand to add one.</string>
+    <string name="brand_delete_empty_body">This brand has no transactions and will be removed.</string>
+    <string name="brand_delete_no_target">No other brand to move them to — create one first.</string>
+    <string name="brand_delete_choose">Choose a brand</string>
+    <string name="brand_delete_and_move">Delete &amp; move</string>
+
+    <!-- Transactions -->
+    <string name="transaction_add">Add transaction</string>
+    <string name="transaction_summary">Summary</string>
+    <string name="transaction_search_placeholder">Search transactions...</string>
+    <string name="transaction_no_brands">No brands for this type. Add one from the Manage tab first.</string>
+    <string name="transaction_note_label">Note (optional)</string>
+    <string name="transaction_empty_filtered_title">No matching transactions</string>
+    <string name="transaction_empty_filtered_subtitle">Try a different period, brand or category</string>
+    <string name="transaction_empty_title">No transactions yet</string>
+    <string name="transaction_empty_subtitle">Add your first or import from SMS</string>
+    <string name="transaction_filter_category">Filter by category</string>
+    <string name="transaction_filter_brand">Filter by brand</string>
+    <string name="transaction_filter_date">Filter by date</string>
+
+    <!-- Date range filters -->
+    <string name="date_all">All dates</string>
+    <string name="date_last_7">Last 7 days</string>
+    <string name="date_last_30">Last 30 days</string>
+    <string name="date_last_90">Last 90 days</string>
+
+    <!-- Summary periods -->
+    <string name="period_this_month">This month</string>
+    <string name="period_last_month">Last month</string>
+    <string name="period_this_year">This year</string>
+    <string name="period_last_year">Last year</string>
+    <string name="period_all_time">All time</string>
+
+    <!-- Relative time -->
+    <string name="time_just_now">Just now</string>
+    <string name="time_minutes_ago">%1$dm ago</string>
+    <string name="time_hours_ago">%1$dh ago</string>
+    <string name="time_days_ago">%1$dd ago</string>
+    <string name="time_yesterday">Yesterday</string>
+
+    <!-- Dashboard -->
+    <string name="dashboard_tab_summary">Summary</string>
+    <string name="dashboard_tab_trends">Trends</string>
+    <string name="dashboard_tab_categories">Categories</string>
+    <string name="dashboard_net_worth">Net worth</string>
+    <string name="dashboard_cash">Cash</string>
+    <string name="dashboard_income_over_time">Income over time</string>
+    <string name="dashboard_expense_over_time">Expense over time</string>
+    <string name="dashboard_income_spending">Income &amp; spending</string>
+    <string name="dashboard_expenses_by_category">Expenses by category</string>
+    <string name="dashboard_top_brands">Top brands</string>
+    <string name="dashboard_income_sources">Income sources</string>
+    <string name="dashboard_no_data">No data yet</string>
+    <string name="dashboard_no_category_activity">No category activity in this period</string>
+    <string name="dashboard_no_activity">No activity in this period</string>
+    <string name="dashboard_uncategorized">Uncategorized</string>
+    <string name="dashboard_uncategorized_hint">Set their brand\'s category so they count in your totals</string>
+
+    <!-- SMS inbox -->
+    <string name="sms_search_placeholder">Search messages</string>
+    <string name="sms_recent_section">Recent SMS</string>
+    <string name="sms_empty_title">No SMS messages</string>
+    <string name="sms_empty_auto">Enable auto-import to capture bank messages automatically.</string>
+    <string name="sms_empty_manual">Share a bank SMS into Hisabak, select its text, or paste it below.</string>
+    <string name="sms_auto_active_title">Auto-import active</string>
+    <string name="sms_auto_active_body">New bank SMS are parsed automatically.</string>
+    <string name="sms_auto_active_badge">Active</string>
+    <string name="sms_auto_disabled_title">Auto-import is disabled</string>
+    <string name="sms_auto_disabled_body">Turn it on to log transactions from SMS.</string>
+    <string name="sms_auto_off_badge">Auto-import off</string>
+    <string name="sms_enable">Enable</string>
+    <string name="sms_paste_title">Paste an SMS</string>
+    <string name="sms_paste_placeholder">Paste a bank message…</string>
+    <string name="sms_parsing">Parsing…</string>
+    <string name="sms_parse_import">Parse &amp; import</string>
+    <string name="sms_import">Import</string>
+
+    <!-- Notifications -->
+    <string name="notifications_empty_title">No notifications yet</string>
+    <string name="notifications_empty_subtitle">Budget alerts and updates will show up here.</string>
+    <string name="notifications_mark_all_read">Mark all read</string>
+    <string name="notifications_dismiss">Dismiss</string>
+
+    <!-- Currency -->
+    <string name="currency_dirham_description">AED</string>
+
+    <!-- Onboarding -->
+    <string name="onboarding_skip">Skip</string>
+    <string name="onboarding_next">Next</string>
+    <string name="onboarding_get_started">Get started</string>
+    <string name="onboarding_welcome_overline">Welcome to Hisabak</string>
+    <string name="onboarding_welcome_title">All your money, in one calm place.</string>
+    <string name="onboarding_welcome_subtitle">Track spending, set budgets, and see where every dirham goes — without the busywork.</string>
+    <string name="onboarding_sms_overline_auto">SMS auto-capture</string>
+    <string name="onboarding_sms_overline_quick">Quick capture</string>
+    <string name="onboarding_sms_title">Your bank texts become transactions.</string>
+    <string name="onboarding_sms_subtitle_auto">Hisabak reads the alert, pulls out the amount and merchant, and files it — automatically.</string>
+    <string name="onboarding_sms_subtitle_quick">Share a bank alert to Hisabak — or select its text — and it pulls out the amount and merchant for you.</string>
+    <string name="onboarding_budgets_overline">Budgets &amp; alerts</string>
+    <string name="onboarding_budgets_title">Know before you overspend.</string>
+    <string name="onboarding_budgets_subtitle">Set a monthly limit per category. We nudge you at 50%%, 80%%, and 100%% — in-app and on your phone.</string>
+    <string name="onboarding_insights_overline">Insights</string>
+    <string name="onboarding_insights_title">See exactly where it goes.</string>
+    <string name="onboarding_insights_subtitle">Net-worth trends, income vs spending, and a clean breakdown by category and brand.</string>
+    <string name="onboarding_ready_overline">You\'re all set</string>
+    <string name="onboarding_ready_title">Ready when you are.</string>
+    <string name="onboarding_ready_subtitle_auto">Turn on SMS auto-capture to log transactions the moment they happen — or add them by hand anytime.</string>
+    <string name="onboarding_ready_subtitle_quick">Add transactions in a tap — share a bank SMS, select its text, or paste it. Add them by hand anytime too.</string>
+    <string name="onboarding_recap_capture_auto_title">Automatic capture</string>
+    <string name="onboarding_recap_capture_auto_sub">from your bank SMS</string>
+    <string name="onboarding_recap_capture_quick_title">Quick capture</string>
+    <string name="onboarding_recap_capture_quick_sub">share or paste a bank SMS</string>
+    <string name="onboarding_recap_private_title">Private by design</string>
+    <string name="onboarding_recap_private_sub">your data stays on this device</string>
+    <string name="onboarding_recap_budgets_title">Smart budgets</string>
+    <string name="onboarding_recap_budgets_sub">alerts before you overshoot</string>
+    <string name="onboarding_recap_insights_title">Clear insights</string>
+    <string name="onboarding_recap_insights_sub">trends, categories, brands</string>
+    <string name="onboarding_cta_card_title_auto">Turn on SMS auto-capture</string>
+    <string name="onboarding_cta_card_title_quick">Capture from your bank SMS</string>
+    <string name="onboarding_cta_card_body_auto">We only read bank transaction alerts. Nothing leaves your device.</string>
+    <string name="onboarding_cta_card_body_quick">Share a bank alert or select its text. Nothing leaves your device.</string>
+    <string name="onboarding_privacy_overline">Private by design</string>
+    <string name="onboarding_privacy_title">Your data never leaves your device.</string>
+    <string name="onboarding_privacy_subtitle">Everything is stored locally — no account, no cloud, no sync. Your finances are yours alone.</string>
+    <string name="onboarding_guarantee_device">Stored on this device</string>
+    <string name="onboarding_guarantee_no_sync">Never synced to a server</string>
+    <string name="onboarding_guarantee_no_account">No account, no tracking</string>
+
+    <!-- Plurals -->
+    <plurals name="common_transaction_count">
+        <item quantity="one">%1$d transaction</item>
+        <item quantity="other">%1$d transactions</item>
+    </plurals>
+    <plurals name="dashboard_uncategorized_count">
+        <item quantity="one">%1$d transaction needs a category</item>
+        <item quantity="other">%1$d transactions need a category</item>
+    </plurals>
+    <plurals name="brand_delete_move_body">
+        <item quantity="one">It has %1$d transaction. Move it to another brand, then delete it.</item>
+        <item quantity="other">It has %1$d transactions. Move them to another brand, then delete it.</item>
+    </plurals>
+    <plurals name="category_delete_body_count">
+        <item quantity="one">Its brands become uncategorized and %1$d transaction will no longer be categorized. Nothing is deleted.</item>
+        <item quantity="other">Its brands become uncategorized and %1$d transactions will no longer be categorized. Nothing is deleted.</item>
+    </plurals>
 </resources>

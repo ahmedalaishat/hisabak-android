@@ -23,7 +23,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.hisabak.R
 import com.hisabak.ui.theme.HisabakTheme
 import com.hisabak.ui.theme.Motion
 import com.hisabak.ui.theme.PillShape
@@ -137,7 +139,7 @@ fun IncomeStatCard(
     modifier: Modifier = Modifier,
     currencySymbol: Boolean = false,
 ) = StatCard(
-    label = "Income",
+    label = stringResource(R.string.category_type_income),
     value = value,
     icon = Icons.Filled.TrendingUp,
     accent = StatAccent.Positive,
@@ -153,7 +155,7 @@ fun ExpensesStatCard(
     modifier: Modifier = Modifier,
     currencySymbol: Boolean = false,
 ) = StatCard(
-    label = "Expenses",
+    label = stringResource(R.string.category_type_expenses),
     value = value,
     icon = Icons.Filled.TrendingDown,
     accent = StatAccent.Negative,

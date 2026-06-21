@@ -34,10 +34,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.hisabak.R
 import com.hisabak.core.common.sanitizeAmountInput
 import com.hisabak.feature.brand.domain.BrandId
 import com.hisabak.feature.category.domain.CategoryType
@@ -90,7 +92,7 @@ fun TransactionEditScreen(
         verticalArrangement = Arrangement.spacedBy(Spacing.s5),
     ) {
         Text(
-            text = if (state.isNew) "New transaction" else "Edit transaction",
+            text = stringResource(if (state.isNew) R.string.transaction_new_title else R.string.transaction_edit_title),
             style = MaterialTheme.typography.titleLarge,
             color = MaterialTheme.colorScheme.onSurface,
         )
@@ -104,10 +106,10 @@ fun TransactionEditScreen(
 
         SegmentedControl(
             options = listOf(
-                SegmentOption(CategoryType.EXPENSES,   "Expense",  BadgeTone.Expense),
-                SegmentOption(CategoryType.INCOME,     "Income",   BadgeTone.Income),
-                SegmentOption(CategoryType.SAVINGS,    "Savings",  BadgeTone.Savings),
-                SegmentOption(CategoryType.INVESTMENT, "Invest",   BadgeTone.Investment),
+                SegmentOption(CategoryType.EXPENSES,   stringResource(R.string.category_type_expense),       BadgeTone.Expense),
+                SegmentOption(CategoryType.INCOME,     stringResource(R.string.category_type_income),         BadgeTone.Income),
+                SegmentOption(CategoryType.SAVINGS,    stringResource(R.string.category_type_savings),        BadgeTone.Savings),
+                SegmentOption(CategoryType.INVESTMENT, stringResource(R.string.category_type_invest_short),   BadgeTone.Investment),
             ),
             selected = state.selectedType,
             onSelect = onTypeSelected,
@@ -116,13 +118,13 @@ fun TransactionEditScreen(
 
         Column(verticalArrangement = Arrangement.spacedBy(Spacing.sectionTitleGap)) {
             Text(
-                text = "Brand",
+                text = stringResource(R.string.common_brand),
                 style = MaterialTheme.typography.labelLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
             if (state.brandOptions.isEmpty()) {
                 Text(
-                    text = "No brands for this type. Add one from the Manage tab first.",
+                    text = stringResource(R.string.transaction_no_brands),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -148,7 +150,7 @@ fun TransactionEditScreen(
 
         Column(verticalArrangement = Arrangement.spacedBy(Spacing.sectionTitleGap)) {
             Text(
-                text = "Date",
+                text = stringResource(R.string.common_date),
                 style = MaterialTheme.typography.labelLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
@@ -164,7 +166,7 @@ fun TransactionEditScreen(
         OutlinedTextField(
             value = state.noteInput,
             onValueChange = onNoteChange,
-            label = { Text("Note (optional)") },
+            label = { Text(stringResource(R.string.transaction_note_label)) },
             modifier = Modifier.fillMaxWidth(),
         )
 
@@ -173,14 +175,14 @@ fun TransactionEditScreen(
         }
 
         HisabakButton(
-            text = if (state.isSaving) "Saving…" else "Save",
+            text = stringResource(if (state.isSaving) R.string.action_saving else R.string.action_save),
             onClick = onSave,
             variant = ButtonVariant.Primary,
             enabled = state.canSave,
             fullWidth = true,
         )
         HisabakButton(
-            text = "Cancel",
+            text = stringResource(R.string.action_cancel),
             onClick = onCancel,
             variant = ButtonVariant.Ghost,
             fullWidth = true,
@@ -197,9 +199,9 @@ fun TransactionEditScreen(
                 TextButton(onClick = {
                     pickerState.selectedDateMillis?.let { onDateSelected(Instant.ofEpochMilli(it)) }
                         ?: onDateDismiss()
-                }) { Text("OK") }
+                }) { Text(stringResource(R.string.action_ok)) }
             },
-            dismissButton = { TextButton(onClick = onDateDismiss) { Text("Cancel") } },
+            dismissButton = { TextButton(onClick = onDateDismiss) { Text(stringResource(R.string.action_cancel)) } },
         ) {
             DatePicker(state = pickerState)
         }
