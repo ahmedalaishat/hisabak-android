@@ -1,5 +1,6 @@
 package com.hisabak.ui.components
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -10,6 +11,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -20,7 +22,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Notifications
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -33,9 +34,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.hisabak.ui.theme.HisabakTheme
+import com.hisabak.R
 import com.hisabak.ui.theme.Sizing
 import com.hisabak.ui.theme.Spacing
 
@@ -104,15 +107,18 @@ fun HisabakTopBar(
             Box(
                 Modifier
                     .size(Sizing.avatar)
-                    .background(HisabakTheme.colors.incomeSoft, CircleShape)
+                    .clip(CircleShape)
                     .border(1.dp, MaterialTheme.colorScheme.outlineVariant, CircleShape),
-                contentAlignment = Alignment.Center,
             ) {
-                Icon(
-                    Icons.Filled.Person,
+                Image(
+                    painter = painterResource(R.drawable.ic_launcher_background),
                     contentDescription = null,
-                    tint = HisabakTheme.colors.income,
-                    modifier = Modifier.size(Sizing.iconSm),
+                    modifier = Modifier.fillMaxSize(),
+                )
+                Image(
+                    painter = painterResource(R.drawable.ic_launcher_foreground),
+                    contentDescription = "Hisabak",
+                    modifier = Modifier.fillMaxSize(),
                 )
             }
             Text(

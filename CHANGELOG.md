@@ -6,6 +6,10 @@ All notable changes to Hisabak are documented here. Format based on
 
 ## [Unreleased]
 
+### Changed
+- The top bar on the main screens now shows the Hisabak app logo instead of a generic
+  profile icon, which had implied a user account the app doesn't have.
+
 ## [1.5.1] — 2026-06-19
 
 ### Fixed
