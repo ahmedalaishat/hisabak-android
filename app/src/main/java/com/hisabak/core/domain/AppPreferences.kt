@@ -8,4 +8,9 @@ interface AppPreferences {
     val onboardingCompleted: Flow<Boolean>
 
     suspend fun setOnboardingCompleted(value: Boolean)
+
+    /** The chosen appearance; defaults to [ThemeMode.SYSTEM]. */
+    val themeMode: Flow<ThemeMode>
+
+    suspend fun setThemeMode(value: ThemeMode)
 }

@@ -22,7 +22,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.hisabak.R
 import com.hisabak.feature.category.domain.CategoryId
 import com.hisabak.ui.components.ButtonVariant
 import com.hisabak.ui.components.ColoredFilterChip
@@ -79,7 +81,7 @@ fun BrandEditScreen(
             Spacer(Modifier.height(Spacing.s2))
 
             HisabakButton(
-                text = if (state.isSaving) "Saving…" else "Save",
+                text = stringResource(if (state.isSaving) R.string.action_saving else R.string.action_save),
                 onClick = onSave,
                 variant = ButtonVariant.Primary,
                 enabled = state.canSave,
@@ -98,7 +100,7 @@ private fun NameField(
         OutlinedTextField(
             value = value,
             onValueChange = onValueChange,
-            label = { Text("Brand name") },
+            label = { Text(stringResource(R.string.brand_name_label)) },
             isError = error != null,
             singleLine = true,
             modifier = Modifier.fillMaxWidth(),
@@ -122,7 +124,7 @@ private fun CategorySection(
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
         Text(
-            text = "Category",
+            text = stringResource(R.string.common_category),
             style = MaterialTheme.typography.labelLarge,
             color = MaterialTheme.colorScheme.onSurface,
         )
@@ -132,7 +134,7 @@ private fun CategorySection(
         ) {
             item {
                 ColoredFilterChip(
-                    label = "None",
+                    label = stringResource(R.string.common_none),
                     colorKey = null,
                     selected = selected == null,
                     onClick = { onSelect(null) },
