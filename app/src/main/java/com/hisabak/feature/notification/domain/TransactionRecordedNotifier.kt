@@ -18,6 +18,7 @@ class TransactionRecordedNotifier(
     private val categories: CategoryRepository,
     private val notifier: Notifier,
     private val currency: Currency,
+    private val strings: NotificationStrings,
 ) {
     suspend fun notify(transaction: Transaction) {
         val brand = brands.getById(transaction.brandId).getOrNull() ?: return
@@ -25,15 +26,15 @@ class TransactionRecordedNotifier(
 
         val amount = format(transaction.amount.amountMinor)
         val message = if (category != null) {
-            "$amount at ${brand.name} · ${category.name}"
+            strings.transactionRecorded(amount, brand.name, category.name)
         } else {
-            "$amount at ${brand.name} · Uncategorized — tap to add a category"
+            strings.transactionRecordedUncategorized(amount, brand.name)
         }
 
         notifier.postTransactionRecorded(
             TransactionRecordedAlert(
                 transactionId = transaction.id.value,
-                title = "Transaction recorded",
+                title = strings.transactionRecordedTitle(),
                 message = message,
                 categoryId = category?.id?.value,
                 brandId = transaction.brandId.value,

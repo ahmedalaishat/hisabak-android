@@ -52,6 +52,7 @@ class CaptureTransactionUseCaseTest {
         categories = FakeCategoryRepository(),
         notifier = notifier,
         currency = Currency.AED,
+        strings = com.hisabak.testutil.FakeNotificationStrings(),
     )
 
     private val limitMonitor = CategoryLimitMonitor(
@@ -64,6 +65,7 @@ class CaptureTransactionUseCaseTest {
         systemNotifier = notifier,
         currency = Currency.AED,
         clock = clock,
+        strings = com.hisabak.testutil.FakeNotificationStrings(),
     )
 
     private val analytics = FakeAnalytics()

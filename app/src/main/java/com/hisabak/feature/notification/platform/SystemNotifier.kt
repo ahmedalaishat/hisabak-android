@@ -22,21 +22,30 @@ import com.hisabak.feature.notification.domain.TransactionRecordedAlert
 class SystemNotifier(private val context: Context) : Notifier {
 
     fun ensureChannel() {
+        val res = localizedResources()
         val manager = context.getSystemService(NotificationManager::class.java)
         manager.createNotificationChannel(
             NotificationChannel(
                 CHANNEL_ID,
-                "Budget alerts",
+                res.getString(R.string.notification_channel_budget_name),
                 NotificationManager.IMPORTANCE_DEFAULT,
-            ).apply { description = "Alerts when a category nears or exceeds its monthly limit" },
+            ).apply { description = res.getString(R.string.notification_channel_budget_desc) },
         )
         manager.createNotificationChannel(
             NotificationChannel(
                 CHANNEL_TRANSACTIONS,
-                "Transaction updates",
+                res.getString(R.string.notification_channel_tx_name),
                 NotificationManager.IMPORTANCE_DEFAULT,
-            ).apply { description = "Confirms transactions captured from your bank SMS" },
+            ).apply { description = res.getString(R.string.notification_channel_tx_desc) },
         )
+    }
+
+    private fun localizedResources(): android.content.res.Resources {
+        val tag = com.hisabak.core.data.preferences.AppLocale.getLanguageTag(context)
+        if (tag.isEmpty()) return context.resources
+        val config = android.content.res.Configuration(context.resources.configuration)
+        config.setLocale(com.hisabak.core.data.preferences.AppLocale.localeFor(tag))
+        return context.createConfigurationContext(config).resources
     }
 
     override fun post(notification: Notification) {

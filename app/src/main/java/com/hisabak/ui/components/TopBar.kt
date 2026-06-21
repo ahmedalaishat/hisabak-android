@@ -143,7 +143,7 @@ fun HisabakTopBar(
                     badge = {
                         if (unreadCount > 0) {
                             androidx.compose.material3.Badge {
-                                Text(if (unreadCount > 9) "9+" else unreadCount.toString())
+                                Text(localizeDigits(if (unreadCount > 9) "9+" else unreadCount.toString(), rememberIsArabic()))
                             }
                         }
                     },

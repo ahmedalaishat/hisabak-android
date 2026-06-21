@@ -26,6 +26,7 @@ class TransactionRecordedNotifierTest {
         categories = categories,
         notifier = notifier,
         currency = Currency.AED,
+        strings = com.hisabak.testutil.FakeNotificationStrings(),
     )
 
     @Test

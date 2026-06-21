@@ -12,6 +12,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.hisabak.ui.components.compactAmount
+import com.hisabak.ui.components.rememberIsArabic
 import com.patrykandpatrick.vico.compose.cartesian.CartesianChartHost
 import com.patrykandpatrick.vico.compose.cartesian.axis.rememberAxisLabelComponent
 import com.patrykandpatrick.vico.compose.cartesian.axis.rememberBottom
@@ -95,6 +96,7 @@ fun AreaLineChart(
         )
     } else null
 
+    val arabic = rememberIsArabic()
     val marker = if (hasLabels) {
         rememberDefaultCartesianMarker(
             label = rememberTextComponent(
@@ -111,7 +113,7 @@ fun AreaLineChart(
                 val date = xLabels.getOrNull(i).orEmpty()
                 val amount = (target as? LineCartesianLayerMarkerTarget)
                     ?.points?.firstOrNull()?.entry?.y
-                if (amount != null) "$date   ${compactAmount(amount)}" else date
+                if (amount != null) "$date   ${compactAmount(amount, arabic)}" else date
             },
         )
     } else null

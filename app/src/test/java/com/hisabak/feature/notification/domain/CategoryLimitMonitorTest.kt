@@ -48,6 +48,7 @@ class CategoryLimitMonitorTest {
         systemNotifier = notifier,
         currency = Currency.AED,
         clock = clock,
+        strings = com.hisabak.testutil.FakeNotificationStrings(),
     )
 
     /** Runs [block] with the monitor live on an eager dispatcher, then tears the collector down. */
