@@ -1,5 +1,8 @@
 <resources>
 
+    <!-- Brand name shown in the dashboard top bar -->
+    <string name="app_brand_name">حسابك</string>
+
     <!-- Actions / shared -->
     <string name="action_back">رجوع</string>
     <string name="action_cancel">إلغاء</string>

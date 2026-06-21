@@ -3,13 +3,14 @@ package com.hisabak
 import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.content.Context
 import android.os.Build
 import android.os.Bundle
+import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
@@ -51,6 +52,7 @@ import com.hisabak.feature.brand.presentation.BrandEditBus
 import com.hisabak.feature.brand.presentation.edit.BrandEditRoute
 import com.hisabak.feature.category.domain.CategoryId
 import com.hisabak.feature.category.presentation.edit.CategoryEditRoute
+import com.hisabak.core.data.preferences.AppLocale
 import com.hisabak.core.domain.AppPreferences
 import com.hisabak.core.domain.ThemeMode
 import com.hisabak.core.domain.analytics.Analytics
@@ -89,10 +91,15 @@ import com.hisabak.ui.theme.HisabakTheme
 import org.koin.android.ext.android.inject
 import org.koin.compose.koinInject
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : ComponentActivity() {
 
     private val categoryFocusBus: CategoryFocusBus by inject()
     private val brandEditBus: BrandEditBus by inject()
+
+    // Apply the saved app language before any resources are resolved.
+    override fun attachBaseContext(newBase: Context) {
+        super.attachBaseContext(AppLocale.wrap(newBase))
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
