@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="Theme.Hisabak" parent="android:Theme.Material.Light.NoActionBar" />
+    <!-- AppCompat DayNight parent is required by AppCompatActivity and by AppCompat's per-app
+         locale switching. This only sets the window shell; every visible surface is drawn by the
+         Compose HisabakTheme (whose light/dark comes from the in-app theme preference). -->
+    <style name="Theme.Hisabak" parent="Theme.AppCompat.DayNight.NoActionBar" />
 </resources>

@@ -17,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.TextUnit
@@ -51,7 +52,7 @@ fun DirhamGlyph(
     val heightDp = with(LocalDensity.current) { size.toDp() }
     Icon(
         painter = painterResource(R.drawable.ic_dirham),
-        contentDescription = "AED",
+        contentDescription = stringResource(R.string.currency_dirham_description),
         tint = tint,
         modifier = modifier
             .height(heightDp)

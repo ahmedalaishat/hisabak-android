@@ -1,5 +1,6 @@
 package com.hisabak.feature.transaction.presentation.list
 
+import com.hisabak.R
 import com.hisabak.core.common.Money
 import com.hisabak.core.common.SummaryPeriod
 import com.hisabak.core.presentation.ViewEffect
@@ -31,11 +32,11 @@ data class CategoryFilterOption(val id: CategoryId, val name: String, val color:
 val UncategorizedCategoryId = CategoryId("__uncategorized__")
 
 /** Quick rolling date windows for the transaction list (separate from the summary period). */
-enum class DateRangeFilter(val label: String, val days: Long?) {
-    ALL("All dates", null),
-    LAST_7("Last 7 days", 7),
-    LAST_30("Last 30 days", 30),
-    LAST_90("Last 90 days", 90),
+enum class DateRangeFilter(val labelRes: Int, val days: Long?) {
+    ALL(R.string.date_all, null),
+    LAST_7(R.string.date_last_7, 7),
+    LAST_30(R.string.date_last_30, 30),
+    LAST_90(R.string.date_last_90, 90),
 }
 
 data class TransactionListUiState(
