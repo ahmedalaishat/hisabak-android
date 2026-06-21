@@ -143,6 +143,8 @@
     <string name="dashboard_no_activity">No activity in this period</string>
     <string name="dashboard_uncategorized">Uncategorized</string>
     <string name="dashboard_uncategorized_hint">Set their brand\'s category so they count in your totals</string>
+    <string name="dashboard_limit_pct_of">%1$d%% of</string>
+    <string name="dashboard_over_limit">· over limit</string>
 
     <!-- SMS inbox -->
     <string name="sms_search_placeholder">Search messages</string>
@@ -172,6 +174,18 @@
     <!-- Currency -->
     <string name="currency_dirham_description">AED</string>
 
+    <!-- System notifications -->
+    <string name="notification_tx_recorded_title">Transaction recorded</string>
+    <string name="notification_tx_recorded">%1$s at %2$s · %3$s</string>
+    <string name="notification_tx_recorded_uncategorized">%1$s at %2$s · Uncategorized — tap to add a category</string>
+    <string name="notification_budget_reached_title">%1$s budget reached</string>
+    <string name="notification_budget_level_title">%1$s at %2$d%% of budget</string>
+    <string name="notification_budget_message">Spent %1$s of %2$s this month.</string>
+    <string name="notification_channel_budget_name">Budget alerts</string>
+    <string name="notification_channel_budget_desc">Alerts when a category nears or exceeds its monthly limit</string>
+    <string name="notification_channel_tx_name">Transaction updates</string>
+    <string name="notification_channel_tx_desc">Confirms transactions captured from your bank SMS</string>
+
     <!-- Onboarding -->
     <string name="onboarding_skip">Skip</string>
     <string name="onboarding_next">Next</string>
@@ -186,7 +200,13 @@
     <string name="onboarding_sms_subtitle_quick">Share a bank alert to Hisabak — or select its text — and it pulls out the amount and merchant for you.</string>
     <string name="onboarding_budgets_overline">Budgets &amp; alerts</string>
     <string name="onboarding_budgets_title">Know before you overspend.</string>
-    <string name="onboarding_budgets_subtitle">Set a monthly limit per category. We nudge you at 50%%, 80%%, and 100%% — in-app and on your phone.</string>
+    <string name="onboarding_budgets_subtitle">Set a monthly limit per category. We nudge you at %1$d%%, %2$d%%, and %3$d%% — in-app and on your phone.</string>
+    <string name="onboarding_demo_net_worth">NET WORTH</string>
+    <string name="onboarding_demo_parsed">parsed automatically</string>
+    <string name="onboarding_demo_june_budget">June budget</string>
+    <string name="onboarding_demo_budget_warning">%1$d%% of budget</string>
+    <string name="onboarding_demo_left">%1$s left</string>
+    <string name="onboarding_demo_net_worth_6m">Net worth · 6 months</string>
     <string name="onboarding_insights_overline">Insights</string>
     <string name="onboarding_insights_title">See exactly where it goes.</string>
     <string name="onboarding_insights_subtitle">Net-worth trends, income vs spending, and a clean breakdown by category and brand.</string>

@@ -81,6 +81,8 @@ import com.hisabak.feature.dashboard.presentation.components.GroupedBarChart
 import com.hisabak.ui.components.MoneyText
 import com.hisabak.ui.components.PeriodChipRow
 import com.hisabak.ui.components.animatedAmountMinor
+import com.hisabak.ui.components.localizeDigits
+import com.hisabak.ui.components.rememberIsArabic
 import com.hisabak.ui.components.SectionHeader
 import com.hisabak.ui.components.SkeletonCard
 import com.hisabak.ui.components.SurfaceCard
@@ -578,7 +580,7 @@ private fun TrendBadge(pct: Double, positiveIsGood: Boolean) {
     ) {
         Icon(icon, contentDescription = null, tint = color, modifier = Modifier.size(13.dp))
         Text(
-            "%.0f%%".format(abs(pct)),
+            localizeDigits("%.0f%%".format(abs(pct)), rememberIsArabic()),
             style = MaterialTheme.typography.labelMedium,
             color = color,
         )
@@ -682,7 +684,7 @@ private fun DonutLegendRow(color: Color, label: String, amount: Money, pct: Doub
         )
         Spacer(Modifier.width(Spacing.s2))
         Text(
-            "%.0f%%".format(pct * 100),
+            localizeDigits("%.0f%%".format(pct * 100), rememberIsArabic()),
             style = MaterialTheme.typography.labelSmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.width(30.dp),
@@ -993,7 +995,7 @@ private fun LimitProgressRow(spent: Long, limit: Long) {
         }
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(Spacing.s1)) {
             Text(
-                "$pct% of",
+                stringResource(R.string.dashboard_limit_pct_of, pct),
                 style = MaterialTheme.typography.labelSmall,
                 color = if (over) c.expense else MaterialTheme.colorScheme.onSurfaceVariant,
             )
@@ -1004,7 +1006,7 @@ private fun LimitProgressRow(spent: Long, limit: Long) {
             )
             if (over) {
                 Text(
-                    "· over limit",
+                    stringResource(R.string.dashboard_over_limit),
                     style = MaterialTheme.typography.labelSmall,
                     color = c.expense,
                 )

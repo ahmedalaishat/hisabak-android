@@ -57,6 +57,9 @@ import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.text.TextStyle
 import com.hisabak.ui.components.DirhamGlyph
 import com.hisabak.ui.components.compactAmount
+import com.hisabak.ui.components.compactAmountParts
+import com.hisabak.ui.components.localizeDigits
+import com.hisabak.ui.components.rememberIsArabic
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
@@ -148,7 +151,7 @@ private fun appearProgress(active: Boolean, durationMillis: Int): Float {
     return p
 }
 
-private fun compactMajor(v: Double): String = compactAmount(v)
+private fun compactMajor(v: Double, arabic: Boolean): String = compactAmount(v, arabic)
 
 /** Dirham glyph + compact amount, matching the app's [com.hisabak.ui.components.AmountText] look. */
 @Composable
@@ -160,11 +163,17 @@ private fun OnboardingAmount(
     sign: String = "",
     symbolScale: Float = 0.78f,
 ) {
+    val arabic = rememberIsArabic()
+    val parts = compactAmountParts(value, arabic)
     Row(modifier = modifier, verticalAlignment = Alignment.CenterVertically) {
         if (sign.isNotEmpty()) Text(sign, style = style, color = color)
         DirhamGlyph(size = style.fontSize * symbolScale, tint = color)
         Spacer(Modifier.width(3.dp))
-        Text(compactMajor(value), style = style, color = color, maxLines = 1)
+        Text(parts.number, style = style, color = color, maxLines = 1)
+        if (parts.suffix.isNotEmpty()) {
+            if (arabic) Spacer(Modifier.width(2.dp))
+            Text(parts.suffix, style = style, color = color, maxLines = 1)
+        }
     }
 }
 
@@ -212,7 +221,7 @@ fun WelcomePage(active: Boolean, parallax: Float) {
             PreviewCard(Modifier.width(300.dp)) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth()) {
                     Text(
-                        "NET WORTH",
+                        stringResource(R.string.onboarding_demo_net_worth),
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
@@ -279,7 +288,7 @@ fun SmsCapturePage(active: Boolean, parallax: Float) {
                     tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(18.dp),
                 )
                 Text(
-                    "parsed automatically",
+                    stringResource(R.string.onboarding_demo_parsed),
                     style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -324,22 +333,23 @@ fun BudgetsPage(active: Boolean, parallax: Float) {
         active, parallax,
         overline = stringResource(R.string.onboarding_budgets_overline),
         title = stringResource(R.string.onboarding_budgets_title),
-        subtitle = stringResource(R.string.onboarding_budgets_subtitle),
+        subtitle = stringResource(R.string.onboarding_budgets_subtitle, 50, 80, 100),
     ) {
         PreviewCard(Modifier.width(320.dp)) {
+            val arabic = rememberIsArabic()
             Column(Modifier.fillMaxWidth()) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     CatTile(Icons.Filled.ShoppingCart, HisabakTheme.colors.catOrange)
                     Spacer(Modifier.width(Spacing.s4))
                     Column(Modifier.weight(1f)) {
                         Text("Groceries", style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.onSurface)
-                        Text("June budget", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text(stringResource(R.string.onboarding_demo_june_budget), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         DirhamGlyph(size = HisabakType.amount.fontSize * 0.78f, tint = MaterialTheme.colorScheme.onSurfaceVariant)
                         Spacer(Modifier.width(3.dp))
                         Text(
-                            "${compactMajor(4800.0)} / ${compactMajor(6000.0)}",
+                            "${compactMajor(4800.0, arabic)} / ${compactMajor(6000.0, arabic)}",
                             style = HisabakType.amount,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
@@ -364,14 +374,14 @@ fun BudgetsPage(active: Boolean, parallax: Float) {
                             .padding(horizontal = Spacing.s4, vertical = Spacing.s2),
                     ) {
                         Icon(Icons.Filled.NotificationsActive, null, tint = HisabakTheme.colors.warning, modifier = Modifier.size(16.dp))
-                        Text("80% of budget", style = MaterialTheme.typography.labelMedium, color = HisabakTheme.colors.warning)
+                        Text(stringResource(R.string.onboarding_demo_budget_warning, 80), style = MaterialTheme.typography.labelMedium, color = HisabakTheme.colors.warning)
                     }
                     Spacer(Modifier.weight(1f))
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         DirhamGlyph(size = MaterialTheme.typography.bodySmall.fontSize * 0.9f, tint = MaterialTheme.colorScheme.onSurfaceVariant)
                         Spacer(Modifier.width(3.dp))
                         Text(
-                            "${compactMajor(1200.0)} left",
+                            stringResource(R.string.onboarding_demo_left, compactMajor(1200.0, arabic)),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
@@ -422,7 +432,7 @@ fun InsightsPage(active: Boolean, parallax: Float) {
             }
             PreviewCard(Modifier.fillMaxWidth()) {
                 Column {
-                    Text("Net worth · 6 months", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text(stringResource(R.string.onboarding_demo_net_worth_6m), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     Spacer(Modifier.height(Spacing.s3))
                     Canvas(Modifier.fillMaxWidth().height(64.dp)) {
                         val pts = listOf(0.74f, 0.62f, 0.68f, 0.42f, 0.48f, 0.26f, 0.16f)
@@ -451,7 +461,7 @@ private fun LegendRow(color: Color, label: String, pct: String) {
         Spacer(Modifier.width(Spacing.s3))
         Text(label, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurface)
         Spacer(Modifier.weight(1f))
-        Text(pct, style = HisabakType.amount.copy(fontSize = MaterialTheme.typography.bodyMedium.fontSize), color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Text(localizeDigits(pct, rememberIsArabic()), style = HisabakType.amount.copy(fontSize = MaterialTheme.typography.bodyMedium.fontSize), color = MaterialTheme.colorScheme.onSurfaceVariant)
     }
 }
 

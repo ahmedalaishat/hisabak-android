@@ -33,6 +33,8 @@ import com.hisabak.feature.category.domain.CategoryId
 import com.hisabak.feature.category.presentation.list.CategoryListRoute
 import com.hisabak.ui.components.IconTile
 import com.hisabak.ui.components.SurfaceCard
+import com.hisabak.ui.components.localizeDigits
+import com.hisabak.ui.components.rememberIsArabic
 import com.hisabak.ui.theme.HisabakTheme
 import com.hisabak.ui.theme.Spacing
 import org.koin.compose.viewmodel.koinViewModel
@@ -149,7 +151,7 @@ private fun ManageSwitchCard(
             )
             Column {
                 Text(
-                    text = count.toString(),
+                    text = localizeDigits(count.toString(), rememberIsArabic()),
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.onSurface,
                 )

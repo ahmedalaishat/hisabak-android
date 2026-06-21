@@ -48,8 +48,14 @@ Domain model mirrors Hisabi so concepts transfer cleanly.
   `NavDisplay` keeps its `ComponentActivity` dispatcher owner): the chosen tag is stored by
   `AppLocale` (`core/data/preferences/`) in a synchronous SharedPreferences, `MainActivity`
   overrides `attachBaseContext` to wrap the Context in that locale + layout direction, and the
-  Settings screen saves the tag then calls `recreate()`. Money keeps Western digits + the dirham
-  glyph in both languages. (Background system-notification text is not yet localized.)
+  Settings screen saves the tag then calls `recreate()`. **Numbers follow the language:** English
+  uses Western digits (pinned to `Locale.US`), Arabic uses **Arabic-Indic** digits — the wrapped
+  locale carries `nu-arab` so resource-formatted numbers (percentages, dates, counts via `%d`)
+  render Arabic-Indic config-driven, amounts pin `ar-u-nu-arab` in `compactAmountParts`, and the
+  few fixed-format numbers use `localizeDigits(text, arabic)`. Amounts always read LTR
+  (glyph · number · K/M-or-أ/م suffix) via a forced `LayoutDirection.Ltr`, with the number and
+  suffix as separate `Text`s so Arabic-Indic digits don't bidi-reorder. Amounts keep the dirham
+  glyph in both languages.
 - **Platform:** Android only, portrait, edge-to-edge. `minSdk 29`. **Core-library desugaring is
   enabled** (`isCoreLibraryDesugaringEnabled` + `desugar_jdk_libs`), so `java.time` is safe to use
   freely down to API 29 — without it, API-34+ additions like `LocalDate.ofInstant` throw

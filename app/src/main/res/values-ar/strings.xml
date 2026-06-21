@@ -141,6 +141,8 @@
     <string name="dashboard_no_activity">لا يوجد نشاط في هذه الفترة</string>
     <string name="dashboard_uncategorized">غير مُصنَّف</string>
     <string name="dashboard_uncategorized_hint">عيّن فئة علامتها لتُحتسب ضمن إجمالياتك</string>
+    <string name="dashboard_limit_pct_of">%1$d%% من</string>
+    <string name="dashboard_over_limit">· تجاوز الحد</string>
 
     <!-- SMS inbox -->
     <string name="sms_search_placeholder">ابحث في الرسائل</string>
@@ -170,6 +172,18 @@
     <!-- Currency -->
     <string name="currency_dirham_description">درهم</string>
 
+    <!-- System notifications -->
+    <string name="notification_tx_recorded_title">تم تسجيل المعاملة</string>
+    <string name="notification_tx_recorded">%1$s لدى %2$s · %3$s</string>
+    <string name="notification_tx_recorded_uncategorized">%1$s لدى %2$s · غير مُصنَّف — اضغط لإضافة فئة</string>
+    <string name="notification_budget_reached_title">تم بلوغ ميزانية %1$s</string>
+    <string name="notification_budget_level_title">%1$s عند %2$d%% من الميزانية</string>
+    <string name="notification_budget_message">أُنفق %1$s من %2$s هذا الشهر.</string>
+    <string name="notification_channel_budget_name">تنبيهات الميزانية</string>
+    <string name="notification_channel_budget_desc">تنبيهات عندما تقترب فئة من حدها الشهري أو تتجاوزه</string>
+    <string name="notification_channel_tx_name">تحديثات المعاملات</string>
+    <string name="notification_channel_tx_desc">يؤكّد المعاملات المُلتقطة من رسائل بنكك</string>
+
     <!-- Onboarding -->
     <string name="onboarding_skip">تخطّي</string>
     <string name="onboarding_next">التالي</string>
@@ -184,7 +198,13 @@
     <string name="onboarding_sms_subtitle_quick">شارك تنبيهًا بنكيًا مع حسابك — أو حدّد نصه — وسيستخرج لك المبلغ والتاجر.</string>
     <string name="onboarding_budgets_overline">الميزانيات والتنبيهات</string>
     <string name="onboarding_budgets_title">اعرف قبل أن تتجاوز إنفاقك.</string>
-    <string name="onboarding_budgets_subtitle">حدّد حدًّا شهريًا لكل فئة. ننبّهك عند 50%% و80%% و100%% — داخل التطبيق وعلى هاتفك.</string>
+    <string name="onboarding_budgets_subtitle">حدّد حدًّا شهريًا لكل فئة. ننبّهك عند %1$d%% و%2$d%% و%3$d%% — داخل التطبيق وعلى هاتفك.</string>
+    <string name="onboarding_demo_net_worth">صافي الثروة</string>
+    <string name="onboarding_demo_parsed">حُلِّل تلقائيًا</string>
+    <string name="onboarding_demo_june_budget">ميزانية يونيو</string>
+    <string name="onboarding_demo_budget_warning">%1$d%% من الميزانية</string>
+    <string name="onboarding_demo_left">%1$s متبقٍّ</string>
+    <string name="onboarding_demo_net_worth_6m">صافي الثروة · ٦ أشهر</string>
     <string name="onboarding_insights_overline">رؤى</string>
     <string name="onboarding_insights_title">اعرف بالضبط أين يذهب المال.</string>
     <string name="onboarding_insights_subtitle">اتجاهات صافي الثروة، والدخل مقابل الإنفاق، وتفصيل واضح حسب الفئة والعلامة.</string>

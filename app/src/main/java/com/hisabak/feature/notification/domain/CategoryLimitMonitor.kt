@@ -42,6 +42,7 @@ class CategoryLimitMonitor(
     private val systemNotifier: Notifier,
     private val currency: Currency,
     private val clock: Clock,
+    private val strings: NotificationStrings,
 ) {
     private val evalMutex = Mutex()
 
@@ -110,11 +111,11 @@ class CategoryLimitMonitor(
 
     private suspend fun fire(category: Category, spent: Long, limit: Long, level: Int) {
         val title = if (level >= 100) {
-            "${category.name} budget reached"
+            strings.budgetReachedTitle(category.name)
         } else {
-            "${category.name} at $level% of budget"
+            strings.budgetLevelTitle(category.name, level)
         }
-        val message = "Spent ${format(spent)} of ${format(limit)} this month."
+        val message = strings.budgetMessage(format(spent), format(limit))
         val notification = Notification(
             id = NotificationId.new(),
             title = title,
