@@ -19,18 +19,21 @@ In the [Google Cloud Console](https://console.cloud.google.com/) for the project
   appdata scope does **not** require the restricted-scope CASA assessment.
 
 ## 3. Android OAuth client(s)
-**APIs & Services → Credentials → Create credentials → OAuth client ID → Android** for each variant:
-- **prod:** package `com.hisabak` + the release signing SHA-1 (and the debug SHA-1 for local runs).
-- **staging:** package `com.hisabak.staging` + its signing SHA-1.
+**APIs & Services → Credentials → Create credentials → OAuth client ID → Android** for each package:
+- **prod:** package `com.hisabak` + the signing SHA-1.
+- **staging:** package `com.hisabak.staging` + the signing SHA-1 (only if testing Drive there).
 
-Get SHA-1s with:
+Get the SHA-1 with:
 ```bash
-./gradlew :app:signingReport     # lists debug + release SHA-1 per variant
+./gradlew :app:signingReport     # SHA1 per variant
 ```
-Add both debug and release SHA-1s so debug builds and released builds both authorize.
+**Debug builds are signed with the release keystore** when one is configured (`keystore.properties`),
+so `prodDebug` and `prodRelease` share the **same SHA-1** — register that one fingerprint and both
+debug and release builds authorize. (On a checkout with no keystore, debug falls back to the default
+debug keystore; register that SHA-1 instead.)
 
 ## 4. (If using google-services.json) refresh it
-Adding OAuth clients doesn't require app code changes, but if you regenerate
+Adding OAuth clients  doesn't require app code changes, but if you regenerate
 `app/google-services.json` from Firebase, keep the existing Firebase config intact.
 
 ## Verify
