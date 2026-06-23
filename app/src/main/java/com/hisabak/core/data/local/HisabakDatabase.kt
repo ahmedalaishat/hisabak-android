@@ -27,7 +27,7 @@ import com.hisabak.feature.transaction.data.local.TransactionEntity
         NotificationEntity::class,
         CategoryLimitAlertEntity::class,
     ],
-    version = 2, // v2: notifications + category_limit_alerts
+    version = HisabakDatabase.SCHEMA_VERSION, // v2: notifications + category_limit_alerts
     exportSchema = true,
 )
 abstract class HisabakDatabase : RoomDatabase() {
@@ -41,5 +41,8 @@ abstract class HisabakDatabase : RoomDatabase() {
 
     companion object {
         const val NAME = "hisabak.db"
+
+        /** Single source of truth for the Room schema version; also stamped into backup files. */
+        const val SCHEMA_VERSION = 2
     }
 }

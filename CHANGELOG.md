@@ -7,6 +7,11 @@ All notable changes to Hisabak are documented here. Format based on
 ## [Unreleased]
 
 ### Added
+- **Backup & restore** (Settings → Data) — export an encrypted copy of all your data to a file you
+  choose, protected by a passphrase (PBKDF2 + AES-256-GCM), and restore it on another device.
+  Restoring replaces all current data. The passphrase is the only key and can't be recovered, so
+  keep it safe. Designed so cloud destinations (e.g. Google Drive) can be added later without
+  changing the format.
 - **App lock** (Settings → Security) — require a fingerprint/face unlock, falling back to your
   device PIN/pattern/password, to open Hisabak. It locks on launch and when you return after
   leaving the app, with a short grace period so quick app-switches don't prompt you every time.

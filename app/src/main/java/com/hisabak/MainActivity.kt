@@ -69,6 +69,8 @@ import com.hisabak.feature.transaction.presentation.edit.TransactionEditRoute
 import com.hisabak.feature.transaction.presentation.list.TransactionListFilterBus
 import com.hisabak.feature.transaction.presentation.list.TransactionListFilterRequest
 import com.hisabak.feature.transaction.presentation.list.TransactionListRoute
+import com.hisabak.feature.backup.presentation.BackupRoute
+import com.hisabak.nav.BackupKey
 import com.hisabak.nav.BottomSheetSceneStrategy
 import com.hisabak.nav.BrandEditKey
 import com.hisabak.nav.CategoryEditKey
@@ -230,7 +232,8 @@ private fun HisabakNav() {
     // The transaction add/edit screen is an overlay bottom sheet (tab chrome stays behind it).
     // Brand/Category edits and the notifications screen are full-screen pages with a back arrow.
     val leaf = navigationState.backStacks[navigationState.topLevelRoute]?.lastOrNull()
-    val fullScreen = leaf is BrandEditKey || leaf is CategoryEditKey || leaf == NotificationsKey
+    val fullScreen = leaf is BrandEditKey || leaf is CategoryEditKey ||
+        leaf == NotificationsKey || leaf == BackupKey
 
     val analytics = koinInject<Analytics>()
     val screenName = when (leaf) {
@@ -238,6 +241,7 @@ private fun HisabakNav() {
         is BrandEditKey -> "brand_edit"
         is CategoryEditKey -> "category_edit"
         NotificationsKey -> "notifications"
+        BackupKey -> "backup"
         else -> when (currentTab) {
             RootTab.Dashboard -> "dashboard"
             RootTab.Transactions -> "transactions"
@@ -261,6 +265,10 @@ private fun HisabakNav() {
                 )
                 NotificationsKey -> DetailTopBar(
                     title = stringResource(R.string.notifications_title),
+                    onBack = { navigator.goBack() },
+                )
+                BackupKey -> DetailTopBar(
+                    title = stringResource(R.string.backup_title),
                     onBack = { navigator.goBack() },
                 )
                 else -> HisabakTopBar(
@@ -318,7 +326,13 @@ private fun HisabakNav() {
                 SmsInboxRoute(modifier = Modifier.fillMaxSize())
             }
             entry<SettingsKey> {
-                SettingsRoute(modifier = Modifier.fillMaxSize())
+                SettingsRoute(
+                    onOpenBackup = { navigator.navigate(BackupKey) },
+                    modifier = Modifier.fillMaxSize(),
+                )
+            }
+            entry<BackupKey> {
+                BackupRoute(modifier = Modifier.fillMaxSize())
             }
             entry<ManageKey> {
                 ManageRoute(

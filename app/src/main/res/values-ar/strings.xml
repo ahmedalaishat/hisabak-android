@@ -65,6 +65,34 @@
     <string name="app_lock_locked_hint">افتح القفل لعرض أموالك.</string>
     <string name="app_lock_unlock">فتح القفل</string>
 
+    <!-- Backup &amp; restore -->
+    <string name="settings_data">البيانات</string>
+    <string name="settings_backup_restore">النسخ الاحتياطي والاستعادة</string>
+    <string name="settings_backup_restore_hint">صدّر نسخة مشفّرة، أو استعد من نسخة سابقة.</string>
+    <string name="backup_title">النسخ الاحتياطي والاستعادة</string>
+    <string name="backup_export_title">تصدير</string>
+    <string name="backup_export_desc">احفظ نسخة مشفّرة من كل بياناتك في ملف تختاره.</string>
+    <string name="backup_passphrase">عبارة المرور</string>
+    <string name="backup_passphrase_confirm">تأكيد عبارة المرور</string>
+    <string name="backup_passphrase_warning">احتفظ بعبارة المرور في مكان آمن. بدونها لا يمكن فتح نسختك الاحتياطية — ولا يمكننا استعادتها لك.</string>
+    <string name="backup_passphrase_too_short">استخدم 8 أحرف على الأقل.</string>
+    <string name="backup_passphrase_mismatch">عبارتا المرور غير متطابقتين.</string>
+    <string name="backup_export_action">تصدير</string>
+    <string name="backup_restore_title">استعادة</string>
+    <string name="backup_restore_desc">استبدال كل البيانات الحالية بملف نسخة احتياطية. لا يمكن التراجع عن ذلك.</string>
+    <string name="backup_choose_file">اختيار ملف</string>
+    <string name="backup_no_file">لم يتم اختيار ملف</string>
+    <string name="backup_restore_action">استعادة</string>
+    <string name="backup_confirm_title">استبدال كل البيانات؟</string>
+    <string name="backup_confirm_message">الاستعادة تستبدل نهائيًا كل ما في حسابك حاليًا بمحتويات النسخة الاحتياطية.</string>
+    <string name="backup_result_exported">تم حفظ النسخة الاحتياطية.</string>
+    <string name="backup_result_imported">تمت استعادة %1$d عنصرًا.</string>
+    <string name="backup_error_wrong_passphrase">عبارة المرور غير صحيحة.</string>
+    <string name="backup_error_corrupt">هذا الملف ليس نسخة احتياطية صالحة لحسابك، أو أنه تالف.</string>
+    <string name="backup_error_unsupported">أُنشئت هذه النسخة الاحتياطية بإصدار أحدث من حسابك. حدّث التطبيق وحاول مجددًا.</string>
+    <string name="backup_error_empty">لا توجد بيانات لنسخها احتياطيًا بعد.</string>
+    <string name="backup_error_file">تعذّرت قراءة الملف أو الكتابة إليه.</string>
+
     <!-- Category types -->
     <string name="category_type_label">النوع</string>
     <string name="category_type_income">دخل</string>

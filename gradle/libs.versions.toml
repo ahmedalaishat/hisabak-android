@@ -23,6 +23,7 @@ firebaseCrashlyticsGradle = "3.0.7"
 firebaseBom = "34.15.0"
 desugarJdkLibs = "2.1.5"
 biometric = "1.1.0"
+serializationJson = "1.8.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -63,6 +64,7 @@ firebase-crashlytics = { group = "com.google.firebase", name = "firebase-crashly
 firebase-analytics = { group = "com.google.firebase", name = "firebase-analytics" }
 desugar-jdk-libs = { group = "com.android.tools", name = "desugar_jdk_libs", version.ref = "desugarJdkLibs" }
 androidx-biometric = { group = "androidx.biometric", name = "biometric", version.ref = "biometric" }
+kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "serializationJson" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
@@ -70,4 +72,5 @@ kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "ko
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 google-services = { id = "com.google.gms.google-services", version.ref = "googleServices" }
 firebase-crashlytics = { id = "com.google.firebase.crashlytics", version.ref = "firebaseCrashlyticsGradle" }
+kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 

@@ -69,6 +69,16 @@ Domain model mirrors Hisabi so concepts transfer cleanly.
   past a grace window; the lock decision is the pure `shouldLock(...)` in
   `core/domain/security/` (CMP-ready), the prompt is `core/platform/security/BiometricAuthenticator`
   (Android glue). It's an access gate, **not** at-rest encryption.
+- **Backup & restore:** encrypted export/import of the financial data (Settings → Data →
+  `BackupKey` screen). `core/domain/backup/` holds the wire model (`@Serializable` records +
+  `BackupEnvelope`), the `BackupRepository`/`BackupCodec`/`BackupCrypto` interfaces and the
+  export/import use cases; `core/data/backup/` has `RoomBackupRepository` (replace-all in one
+  `withTransaction`), `JsonBackupCodec` (kotlinx.serialization), and `AesGcmBackupCrypto`
+  (passphrase → PBKDF2 → AES-256-GCM, `javax.crypto`). Scope = the 5 financial tables incl.
+  tombstones; excludes notifications/alerts/settings. The use cases produce/consume a `ByteArray`
+  and the SAF file I/O lives in `BackupRoute`, so a cloud sink (Google Drive) can be added later
+  without touching codec/crypto/repo. `HisabakDatabase.SCHEMA_VERSION` is the single source stamped
+  into the envelope and gated on import.
 - **CMP-bound:** the app is planned to migrate to **Compose Multiplatform**. Keep platform APIs
   (`Context`, `FragmentActivity`, `BiometricPrompt`, Keystore) out of domain/shared code, keep
   state/business logic as pure Kotlin, and keep Composables on multiplatform-safe APIs.
@@ -115,7 +125,7 @@ switching; the user always exits the app through the **Dashboard** (home) tab.
 | Transactions | TransactionsKey | List → Edit (bottom sheet) |
 | SMS | SmsKey | Single screen |
 | Manage | ManageKey | Brands/Categories list → Edit (full screen) |
-| Settings | SettingsKey | Single screen (theme + language) |
+| Settings | SettingsKey | Theme + language + app lock → Backup & restore (full screen) |
 
 Pattern: `List` → tap row or FAB → push `Edit(id?)` destination → Save/Cancel calls
 `navigator.goBack()` → back to `List`.

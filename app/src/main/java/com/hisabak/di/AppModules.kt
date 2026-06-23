@@ -23,4 +23,5 @@ val appModules: List<Module> = listOf(
     manageModule,
     onboardingModule,
     settingsModule,
+    backupModule,
 )

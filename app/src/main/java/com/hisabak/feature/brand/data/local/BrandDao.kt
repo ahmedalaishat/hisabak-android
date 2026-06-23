@@ -47,4 +47,11 @@ interface BrandDao {
 
     @Query("DELETE FROM brands WHERE id = :id")
     suspend fun deleteById(id: String)
+
+    // Backup: every row incl. soft-deleted tombstones.
+    @Query("SELECT * FROM brands")
+    suspend fun getAllForBackup(): List<BrandEntity>
+
+    @Query("DELETE FROM brands")
+    suspend fun deleteAll()
 }

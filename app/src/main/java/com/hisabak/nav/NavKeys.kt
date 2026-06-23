@@ -17,3 +17,6 @@ data class CategoryEditKey(val id: String?) : NavKey
 
 // Full-screen child opened from the top-bar bell.
 data object NotificationsKey : NavKey
+
+// Full-screen child opened from Settings → Data.
+data object BackupKey : NavKey

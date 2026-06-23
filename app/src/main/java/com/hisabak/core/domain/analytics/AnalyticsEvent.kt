@@ -76,6 +76,18 @@ sealed class AnalyticsEvent(
         name = "app_lock_toggled",
         params = mapOf("enabled" to enabled),
     )
+
+    /** An encrypted backup export finished. [success] only — never the file contents or path. */
+    class BackupExported(success: Boolean) : AnalyticsEvent(
+        name = "backup_exported",
+        params = mapOf("success" to success),
+    )
+
+    /** A backup restore finished. [success] only. */
+    class BackupImported(success: Boolean) : AnalyticsEvent(
+        name = "backup_imported",
+        params = mapOf("success" to success),
+    )
 }
 
 /** Coarse, non-reversible magnitude bucket of a money value — never the raw amount. */
