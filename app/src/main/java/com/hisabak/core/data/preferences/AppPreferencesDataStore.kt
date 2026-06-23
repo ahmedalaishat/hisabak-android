@@ -9,6 +9,7 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.hisabak.core.domain.AppPreferences
 import com.hisabak.core.domain.ThemeMode
+import com.hisabak.core.domain.backup.AutoBackupPeriod
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
@@ -19,6 +20,9 @@ class AppPreferencesDataStore(private val context: Context) : AppPreferences {
     private val onboardingKey = booleanPreferencesKey("onboarding_completed")
     private val themeModeKey = stringPreferencesKey("theme_mode")
     private val appLockKey = booleanPreferencesKey("app_lock_enabled")
+    private val backupEnabledKey = booleanPreferencesKey("backup_enabled")
+    private val backupEncryptionKey = booleanPreferencesKey("backup_encryption_enabled")
+    private val autoBackupPeriodKey = stringPreferencesKey("auto_backup_period")
 
     override val onboardingCompleted: Flow<Boolean> =
         context.dataStore.data.map { it[onboardingKey] ?: false }
@@ -41,5 +45,29 @@ class AppPreferencesDataStore(private val context: Context) : AppPreferences {
 
     override suspend fun setAppLockEnabled(value: Boolean) {
         context.dataStore.edit { it[appLockKey] = value }
+    }
+
+    override val backupEnabled: Flow<Boolean> =
+        context.dataStore.data.map { it[backupEnabledKey] ?: false }
+
+    override suspend fun setBackupEnabled(value: Boolean) {
+        context.dataStore.edit { it[backupEnabledKey] = value }
+    }
+
+    override val backupEncryptionEnabled: Flow<Boolean> =
+        context.dataStore.data.map { it[backupEncryptionKey] ?: true }
+
+    override suspend fun setBackupEncryptionEnabled(value: Boolean) {
+        context.dataStore.edit { it[backupEncryptionKey] = value }
+    }
+
+    override val autoBackupPeriod: Flow<AutoBackupPeriod> =
+        context.dataStore.data.map { prefs ->
+            prefs[autoBackupPeriodKey]?.let { runCatching { AutoBackupPeriod.valueOf(it) }.getOrNull() }
+                ?: AutoBackupPeriod.DEFAULT
+        }
+
+    override suspend fun setAutoBackupPeriod(value: AutoBackupPeriod) {
+        context.dataStore.edit { it[autoBackupPeriodKey] = value.name }
     }
 }

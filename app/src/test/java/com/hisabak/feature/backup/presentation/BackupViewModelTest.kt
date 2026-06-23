@@ -1,19 +1,17 @@
 package com.hisabak.feature.backup.presentation
 
-import com.hisabak.core.data.backup.AesGcmBackupCrypto
-import com.hisabak.core.data.backup.JsonBackupCodec
-import com.hisabak.core.domain.backup.ExportBackupUseCase
-import com.hisabak.core.domain.backup.ExportResult
-import com.hisabak.core.domain.backup.ImportBackupUseCase
+import app.cash.turbine.test
+import com.hisabak.core.domain.backup.AutoBackupPeriod
 import com.hisabak.testutil.FakeAnalytics
-import com.hisabak.testutil.FakeBackupRepository
+import com.hisabak.testutil.FakeAppPreferences
+import com.hisabak.testutil.FakeBackupPassphraseStore
 import com.hisabak.testutil.MainDispatcherRule
-import com.hisabak.testutil.TestClock
-import com.hisabak.testutil.sampleBackupData
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
@@ -24,68 +22,78 @@ class BackupViewModelTest {
     @get:Rule
     val mainDispatcherRule = MainDispatcherRule()
 
-    private val codec = JsonBackupCodec()
-    private val crypto = AesGcmBackupCrypto()
-
-    private fun viewModel(repo: FakeBackupRepository, analytics: FakeAnalytics) = BackupViewModel(
-        exportBackup = ExportBackupUseCase(repo, codec, crypto, TestClock(), 8, 2),
-        importBackup = ImportBackupUseCase(repo, codec, crypto, 2),
-        analytics = analytics,
-    )
+    private fun viewModel(
+        prefs: FakeAppPreferences = FakeAppPreferences(),
+        store: FakeBackupPassphraseStore = FakeBackupPassphraseStore(),
+        analytics: FakeAnalytics = FakeAnalytics(),
+    ) = BackupViewModel(prefs, store, analytics)
 
     @Test
-    fun `export success writes bytes and reports Exported`() = runTest {
+    fun `enabling persists the flag and logs it`() = runTest {
+        val prefs = FakeAppPreferences()
         val analytics = FakeAnalytics()
-        val vm = viewModel(FakeBackupRepository(sampleBackupData()), analytics)
-        var written: ByteArray? = null
+        val vm = viewModel(prefs = prefs, analytics = analytics)
 
-        vm.export("pass1234") { written = it }
+        vm.setEnabled(true)
         advanceUntilIdle()
 
-        assertEquals(BackupOutcome.Exported, vm.state.value.result)
-        assertTrue(written != null && written!!.isNotEmpty())
-        assertEquals(listOf("backup_exported"), analytics.names())
+        assertTrue(prefs.backupEnabled.first())
+        assertEquals(listOf("backup_toggled"), analytics.names())
     }
 
     @Test
-    fun `export reports FileError when writing fails`() = runTest {
-        val analytics = FakeAnalytics()
-        val vm = viewModel(FakeBackupRepository(sampleBackupData()), analytics)
+    fun `disabling clears the passphrase`() = runTest {
+        val store = FakeBackupPassphraseStore().apply { set("secret123") }
+        val prefs = FakeAppPreferences().apply { setBackupEnabled(true) }
+        val vm = viewModel(prefs = prefs, store = store)
 
-        vm.export("pass1234") { throw java.io.IOException("disk full") }
+        vm.setEnabled(false)
         advanceUntilIdle()
 
-        assertEquals(BackupOutcome.FileError, vm.state.value.result)
-        assertEquals(listOf("backup_exported"), analytics.names())
+        assertFalse(prefs.backupEnabled.first())
+        assertEquals(null, store.get())
     }
 
     @Test
-    fun `import success reports the restored count`() = runTest {
-        val source = FakeBackupRepository(sampleBackupData())
-        val bytes = (ExportBackupUseCase(source, codec, crypto, TestClock(), 8, 2)
-            .invoke("pass1234") as ExportResult.Success).bytes
+    fun `turning encryption off clears the passphrase and logs it`() = runTest {
+        val store = FakeBackupPassphraseStore().apply { set("secret123") }
+        val prefs = FakeAppPreferences().apply { setBackupEncryptionEnabled(true) }
         val analytics = FakeAnalytics()
-        val vm = viewModel(FakeBackupRepository(), analytics)
+        val vm = viewModel(prefs = prefs, store = store, analytics = analytics)
 
-        vm.import("pass1234") { bytes }
+        vm.setEncryptionEnabled(false)
         advanceUntilIdle()
 
-        assertEquals(BackupOutcome.Imported(sampleBackupData().totalRecords), vm.state.value.result)
-        assertEquals(listOf("backup_imported"), analytics.names())
+        assertFalse(prefs.backupEncryptionEnabled.first())
+        assertEquals(null, store.get())
+        assertEquals(listOf("backup_encryption_toggled"), analytics.names())
     }
 
     @Test
-    fun `import with the wrong passphrase reports failure`() = runTest {
-        val source = FakeBackupRepository(sampleBackupData())
-        val bytes = (ExportBackupUseCase(source, codec, crypto, TestClock(), 8, 2)
-            .invoke("right-one") as ExportResult.Success).bytes
-        val analytics = FakeAnalytics()
-        val vm = viewModel(FakeBackupRepository(), analytics)
+    fun `setting the passphrase stores it and surfaces in state`() = runTest {
+        val store = FakeBackupPassphraseStore()
+        val vm = viewModel(store = store)
 
-        vm.import("wrong-one") { bytes }
+        vm.state.test {
+            assertFalse(awaitItem().passphraseSet)
+            vm.setPassphrase("correct horse")
+            advanceUntilIdle()
+            assertTrue(awaitItem().passphraseSet)
+            cancelAndIgnoreRemainingEvents()
+        }
+        assertEquals("correct horse", store.get())
+    }
+
+    @Test
+    fun `setting the auto-backup period persists and logs it`() = runTest {
+        val prefs = FakeAppPreferences()
+        val analytics = FakeAnalytics()
+        val vm = viewModel(prefs = prefs, analytics = analytics)
+
+        vm.setAutoBackupPeriod(AutoBackupPeriod.MONTHLY)
         advanceUntilIdle()
 
-        assertTrue(vm.state.value.result is BackupOutcome.Failed)
-        assertEquals(listOf("backup_imported"), analytics.names())
+        assertEquals(AutoBackupPeriod.MONTHLY, prefs.autoBackupPeriod.first())
+        assertEquals(listOf("auto_backup_period_set"), analytics.names())
     }
 }

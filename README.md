@@ -94,9 +94,6 @@ Everything below is built and shipping today:
   at-rest database encryption is on the roadmap.)
 - [x] ⚙️ **Settings** — pick your **theme** (light / dark / system) and **language**
   (**English / العربية**, fully localized and right-to-left). Both are saved across launches.
-- [x] 💾 **Backup & restore** — export an encrypted copy of all your data (passphrase-protected,
-  AES-256-GCM) to a file you choose, and restore it on another device. The passphrase never leaves
-  your device and can't be recovered — keep it safe.
 - [x] 📴 **Offline-first** — all data is stored locally on-device (Room). Light & dark themes,
   polished motion, edge-to-edge.
 
@@ -108,6 +105,8 @@ What's next, roughly in order:
 
 - [ ] 🛎️ **Notification capture** — read bank transaction notifications to capture spending without
   the SMS permission (works in the Play build).
+- [ ] ☁️ **Google Drive backup** — encrypted, passphrase-protected backups to your own Drive, with
+  an auto-backup schedule. (Settings scaffold is in; the sync itself is rolling out.)
 - [ ] 💱 **Multi-currency** — track transactions and balances across more than one currency.
 - [ ] 🛡️ **Database encryption** — encrypt the on-device database at rest.
 - [ ] 🤖 **AI capture & auto-categorization** — smarter SMS parsing and automatic brand → category

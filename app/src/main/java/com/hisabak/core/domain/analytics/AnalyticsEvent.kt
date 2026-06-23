@@ -77,16 +77,22 @@ sealed class AnalyticsEvent(
         params = mapOf("enabled" to enabled),
     )
 
-    /** An encrypted backup export finished. [success] only — never the file contents or path. */
-    class BackupExported(success: Boolean) : AnalyticsEvent(
-        name = "backup_exported",
-        params = mapOf("success" to success),
+    /** The user turned Google Drive backup on or off. */
+    class BackupToggled(enabled: Boolean) : AnalyticsEvent(
+        name = "backup_toggled",
+        params = mapOf("enabled" to enabled),
     )
 
-    /** A backup restore finished. [success] only. */
-    class BackupImported(success: Boolean) : AnalyticsEvent(
-        name = "backup_imported",
-        params = mapOf("success" to success),
+    /** The user turned backup encryption on or off. */
+    class BackupEncryptionToggled(enabled: Boolean) : AnalyticsEvent(
+        name = "backup_encryption_toggled",
+        params = mapOf("enabled" to enabled),
+    )
+
+    /** The user chose an auto-backup period. [period] is an [AutoBackupPeriod] name, lowercased. */
+    class AutoBackupPeriodSet(period: String) : AnalyticsEvent(
+        name = "auto_backup_period_set",
+        params = mapOf("period" to period),
     )
 }
 

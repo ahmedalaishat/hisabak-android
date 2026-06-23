@@ -67,33 +67,34 @@
     <string name="app_lock_locked_hint">Unlock to view your finances.</string>
     <string name="app_lock_unlock">Unlock</string>
 
-    <!-- Backup &amp; restore -->
+    <!-- Backup -->
     <string name="settings_data">Data</string>
-    <string name="settings_backup_restore">Backup &amp; restore</string>
-    <string name="settings_backup_restore_hint">Export an encrypted copy, or restore from one.</string>
-    <string name="backup_title">Backup &amp; restore</string>
-    <string name="backup_export_title">Export</string>
-    <string name="backup_export_desc">Save an encrypted copy of all your data to a file you choose.</string>
+    <string name="settings_backup_restore">Backup</string>
+    <string name="settings_backup_restore_hint">Back up your data to Google Drive.</string>
+    <string name="backup_title">Backup</string>
+    <string name="backup_drive_title">Google Drive</string>
+    <string name="backup_security_title">Security</string>
+    <string name="backup_enable">Back up to Google Drive</string>
+    <string name="backup_enable_hint">Keep a copy of your data in your Google Drive.</string>
+    <string name="backup_now">Back up now</string>
+    <string name="backup_now_unavailable">Available soon.</string>
+    <string name="backup_encrypt">Encrypt backup</string>
+    <string name="backup_encrypt_hint">Protect your backup with a passphrase.</string>
     <string name="backup_passphrase">Passphrase</string>
     <string name="backup_passphrase_confirm">Confirm passphrase</string>
-    <string name="backup_passphrase_warning">Keep this passphrase safe. Without it your backup can\'t be opened — and we can\'t recover it for you.</string>
+    <string name="backup_passphrase_set">Passphrase set</string>
+    <string name="backup_passphrase_not_set">Not set yet</string>
+    <string name="backup_passphrase_warning">Important: remember this passphrase. It encrypts your backup and is the only way to restore it — we can\'t recover it for you.</string>
     <string name="backup_passphrase_too_short">Use at least 8 characters.</string>
     <string name="backup_passphrase_mismatch">Passphrases don\'t match.</string>
-    <string name="backup_export_action">Export</string>
-    <string name="backup_restore_title">Restore</string>
-    <string name="backup_restore_desc">Replace all current data with a backup file. This can\'t be undone.</string>
-    <string name="backup_choose_file">Choose file</string>
-    <string name="backup_no_file">No file selected</string>
-    <string name="backup_restore_action">Restore</string>
-    <string name="backup_confirm_title">Replace all data?</string>
-    <string name="backup_confirm_message">Restoring permanently replaces everything currently in Hisabak with the backup\'s contents.</string>
-    <string name="backup_result_exported">Backup saved.</string>
-    <string name="backup_result_imported">Restored %1$d items.</string>
-    <string name="backup_error_wrong_passphrase">Wrong passphrase.</string>
-    <string name="backup_error_corrupt">This file isn\'t a valid Hisabak backup, or it\'s damaged.</string>
-    <string name="backup_error_unsupported">This backup was made by a newer version of Hisabak. Update the app and try again.</string>
-    <string name="backup_error_empty">There\'s nothing to back up yet.</string>
-    <string name="backup_error_file">Couldn\'t read or write the file.</string>
+    <string name="backup_passphrase_sheet_title">Set backup passphrase</string>
+    <string name="backup_passphrase_save">Save</string>
+    <string name="backup_auto_title">Auto-backup</string>
+    <string name="backup_auto_sheet_title">Auto-backup frequency</string>
+    <string name="backup_auto_never">Never</string>
+    <string name="backup_auto_daily">Daily</string>
+    <string name="backup_auto_weekly">Weekly</string>
+    <string name="backup_auto_monthly">Monthly</string>
 
     <!-- Category types -->
     <string name="category_type_label">Type</string>
