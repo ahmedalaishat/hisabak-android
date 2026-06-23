@@ -18,6 +18,7 @@ class AppPreferencesDataStore(private val context: Context) : AppPreferences {
 
     private val onboardingKey = booleanPreferencesKey("onboarding_completed")
     private val themeModeKey = stringPreferencesKey("theme_mode")
+    private val appLockKey = booleanPreferencesKey("app_lock_enabled")
 
     override val onboardingCompleted: Flow<Boolean> =
         context.dataStore.data.map { it[onboardingKey] ?: false }
@@ -33,5 +34,12 @@ class AppPreferencesDataStore(private val context: Context) : AppPreferences {
 
     override suspend fun setThemeMode(value: ThemeMode) {
         context.dataStore.edit { it[themeModeKey] = value.name }
+    }
+
+    override val appLockEnabled: Flow<Boolean> =
+        context.dataStore.data.map { it[appLockKey] ?: false }
+
+    override suspend fun setAppLockEnabled(value: Boolean) {
+        context.dataStore.edit { it[appLockKey] = value }
     }
 }

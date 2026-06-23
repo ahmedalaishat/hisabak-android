@@ -38,10 +38,10 @@ Domain model mirrors Hisabi so concepts transfer cleanly.
   mappers in `data/local/`, and the database in `core/data/local/` (`HisabakDatabase`).
   The Room schema is exported to `app/schemas/` (committed); bump the DB version and add a
   real `Migration` for any entity change — **release builds don't destructively fall back**
-  (debug builds do, for fast iteration). Lightweight app prefs (the onboarding flag and the
-  theme mode) use DataStore (`core/data/preferences/`) behind the `AppPreferences` interface
-  (`core/domain/`); `MainActivity` reads `themeMode` and feeds the resolved boolean to
-  `HisabakTheme(darkTheme=…)`.
+  (debug builds do, for fast iteration). Lightweight app prefs (the onboarding flag, the
+  theme mode, and the `appLockEnabled` flag) use DataStore (`core/data/preferences/`) behind the
+  `AppPreferences` interface (`core/domain/`); `MainActivity` reads `themeMode` and feeds the
+  resolved boolean to `HisabakTheme(darkTheme=…)`.
 - **Localization:** English + Arabic (RTL). User-facing strings live in `res/values/strings.xml`
   (+ `res/values-ar/`) and are read via `stringResource`/`pluralStringResource` — **don't hardcode
   UI text**. The in-app language switch is framework-only (no appcompat, so Navigation 3's
@@ -60,6 +60,18 @@ Domain model mirrors Hisabi so concepts transfer cleanly.
   enabled** (`isCoreLibraryDesugaringEnabled` + `desugar_jdk_libs`), so `java.time` is safe to use
   freely down to API 29 — without it, API-34+ additions like `LocalDate.ofInstant` throw
   `NoSuchMethodError` on older devices at runtime (this caused the v1.5.0 launch crash).
+- **App lock:** optional biometric/device-credential gate (Settings → Security, `appLockEnabled`
+  pref). `androidx.biometric` `BiometricPrompt` with `BIOMETRIC_STRONG or DEVICE_CREDENTIAL` (PIN
+  fallback, no custom PIN UI). **`MainActivity` is a `FragmentActivity`** — required by
+  `BiometricPrompt`; it still extends `androidx.activity.ComponentActivity` (NavDisplay keeps its
+  dispatcher owner) and pulls in `androidx.fragment`, **not** appcompat, so the no-appcompat rule
+  holds. `security/AppLock.kt` gates the nav (`AppLockGate`) and locks on cold start + on return
+  past a grace window; the lock decision is the pure `shouldLock(...)` in
+  `core/domain/security/` (CMP-ready), the prompt is `core/platform/security/BiometricAuthenticator`
+  (Android glue). It's an access gate, **not** at-rest encryption.
+- **CMP-bound:** the app is planned to migrate to **Compose Multiplatform**. Keep platform APIs
+  (`Context`, `FragmentActivity`, `BiometricPrompt`, Keystore) out of domain/shared code, keep
+  state/business logic as pure Kotlin, and keep Composables on multiplatform-safe APIs.
 
 ---
 

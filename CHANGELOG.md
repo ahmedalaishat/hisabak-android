@@ -7,6 +7,10 @@ All notable changes to Hisabak are documented here. Format based on
 ## [Unreleased]
 
 ### Added
+- **App lock** (Settings → Security) — require a fingerprint/face unlock, falling back to your
+  device PIN/pattern/password, to open Hisabak. It locks on launch and when you return after
+  leaving the app, with a short grace period so quick app-switches don't prompt you every time.
+  This is an access gate, not at-rest encryption.
 - A **Settings** tab with two controls to start:
   - **Theme** — choose Light, Dark, or System (follows your device). Your choice is saved and
     applies across the whole app instantly.

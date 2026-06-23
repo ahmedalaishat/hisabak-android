@@ -2,14 +2,17 @@ package com.hisabak.feature.settings.presentation
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import com.hisabak.R
@@ -27,8 +30,11 @@ const val LANGUAGE_ARABIC = "ar"
 fun SettingsScreen(
     themeMode: ThemeMode,
     language: String,
+    appLockEnabled: Boolean,
+    appLockSupported: Boolean,
     onThemeChange: (ThemeMode) -> Unit,
     onLanguageChange: (String) -> Unit,
+    onAppLockChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -71,6 +77,32 @@ fun SettingsScreen(
                 onSelect = onLanguageChange,
                 modifier = Modifier.fillMaxWidth().padding(top = Spacing.s4),
             )
+        }
+
+        SettingGroup(title = stringResource(R.string.settings_security)) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(Spacing.cardGap),
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        stringResource(R.string.settings_app_lock),
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSurface,
+                    )
+                    Text(
+                        stringResource(R.string.settings_app_lock_hint),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+                Switch(
+                    checked = appLockEnabled,
+                    onCheckedChange = onAppLockChange,
+                    enabled = appLockSupported,
+                )
+            }
         }
     }
 }
