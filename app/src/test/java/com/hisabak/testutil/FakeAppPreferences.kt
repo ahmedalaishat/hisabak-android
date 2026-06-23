@@ -16,4 +16,8 @@ class FakeAppPreferences(
     private val themeFlow = MutableStateFlow(initialThemeMode)
     override val themeMode: Flow<ThemeMode> = themeFlow
     override suspend fun setThemeMode(value: ThemeMode) { themeFlow.value = value }
+
+    private val appLockFlow = MutableStateFlow(false)
+    override val appLockEnabled: Flow<Boolean> = appLockFlow
+    override suspend fun setAppLockEnabled(value: Boolean) { appLockFlow.value = value }
 }

@@ -16,9 +16,16 @@ class SettingsViewModel(
 
     val themeMode: Flow<ThemeMode> = preferences.themeMode
 
+    val appLockEnabled: Flow<Boolean> = preferences.appLockEnabled
+
     fun setThemeMode(value: ThemeMode) {
         analytics.log(AnalyticsEvent.SettingsThemeChanged(value.name.lowercase()))
         viewModelScope.launch { preferences.setThemeMode(value) }
+    }
+
+    fun setAppLockEnabled(value: Boolean) {
+        analytics.log(AnalyticsEvent.AppLockToggled(value))
+        viewModelScope.launch { preferences.setAppLockEnabled(value) }
     }
 
     /** The locale switch itself happens in the UI layer (AppCompatDelegate); this only records it. */

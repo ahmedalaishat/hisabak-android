@@ -57,6 +57,16 @@
     <string name="settings_language_english">English</string>
     <string name="settings_language_arabic">العربية</string>
 
+    <!-- App lock -->
+    <string name="settings_security">Security</string>
+    <string name="settings_app_lock">App lock</string>
+    <string name="settings_app_lock_hint">Require biometric or your device PIN to open Hisabak.</string>
+    <string name="app_lock_prompt_title">Unlock Hisabak</string>
+    <string name="app_lock_prompt_subtitle">Confirm it\'s you to continue.</string>
+    <string name="app_lock_locked_title">Hisabak is locked</string>
+    <string name="app_lock_locked_hint">Unlock to view your finances.</string>
+    <string name="app_lock_unlock">Unlock</string>
+
     <!-- Category types -->
     <string name="category_type_label">Type</string>
     <string name="category_type_income">Income</string>

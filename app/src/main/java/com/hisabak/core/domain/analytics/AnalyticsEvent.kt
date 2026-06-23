@@ -70,6 +70,12 @@ sealed class AnalyticsEvent(
         name = "settings_language_changed",
         params = mapOf("language" to language),
     )
+
+    /** The user turned the biometric/device-credential app lock on or off. */
+    class AppLockToggled(enabled: Boolean) : AnalyticsEvent(
+        name = "app_lock_toggled",
+        params = mapOf("enabled" to enabled),
+    )
 }
 
 /** Coarse, non-reversible magnitude bucket of a money value — never the raw amount. */

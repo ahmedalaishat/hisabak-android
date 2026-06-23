@@ -55,6 +55,16 @@
     <string name="settings_language_english">English</string>
     <string name="settings_language_arabic">العربية</string>
 
+    <!-- App lock -->
+    <string name="settings_security">الأمان</string>
+    <string name="settings_app_lock">قفل التطبيق</string>
+    <string name="settings_app_lock_hint">اطلب البصمة أو رمز قفل جهازك لفتح حسابك.</string>
+    <string name="app_lock_prompt_title">افتح حسابك</string>
+    <string name="app_lock_prompt_subtitle">أكِّد هويتك للمتابعة.</string>
+    <string name="app_lock_locked_title">حسابك مقفل</string>
+    <string name="app_lock_locked_hint">افتح القفل لعرض أموالك.</string>
+    <string name="app_lock_unlock">فتح القفل</string>
+
     <!-- Category types -->
     <string name="category_type_label">النوع</string>
     <string name="category_type_income">دخل</string>
