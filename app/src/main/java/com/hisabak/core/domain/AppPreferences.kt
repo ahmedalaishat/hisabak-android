@@ -34,4 +34,9 @@ interface AppPreferences {
     val autoBackupPeriod: Flow<AutoBackupPeriod>
 
     suspend fun setAutoBackupPeriod(value: AutoBackupPeriod)
+
+    /** Whether the one-time, post-onboarding "restore from backup?" page has been shown. */
+    val restoreOffered: Flow<Boolean>
+
+    suspend fun setRestoreOffered(value: Boolean)
 }

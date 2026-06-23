@@ -59,6 +59,7 @@ import com.hisabak.core.domain.analytics.Analytics
 import com.hisabak.feature.dashboard.presentation.CategoryFocusBus
 import com.hisabak.feature.dashboard.presentation.DashboardRoute
 import com.hisabak.feature.onboarding.presentation.OnboardingRoute
+import com.hisabak.feature.restore.presentation.RestoreRoute
 import com.hisabak.feature.settings.presentation.SettingsRoute
 import com.hisabak.feature.notification.domain.NotificationRepository
 import com.hisabak.feature.notification.platform.SystemNotifier
@@ -122,13 +123,28 @@ class MainActivity : FragmentActivity() {
             HisabakTheme(darkTheme = darkTheme) {
                 val onboardingCompleted by preferences.onboardingCompleted
                     .collectAsStateWithLifecycle(initialValue = null)
+                val restoreOffered by preferences.restoreOffered
+                    .collectAsStateWithLifecycle(initialValue = null)
                 when (onboardingCompleted) {
                     false -> {
                         val analytics = koinInject<Analytics>()
                         LaunchedEffect(Unit) { analytics.setCurrentScreen("onboarding") }
                         OnboardingRoute()
                     }
-                    true -> AppLockGate { HisabakNav() }
+                    // After onboarding, offer a one-time restore-from-Drive page (skippable).
+                    true -> when (restoreOffered) {
+                        false -> {
+                            val analytics = koinInject<Analytics>()
+                            LaunchedEffect(Unit) { analytics.setCurrentScreen("restore") }
+                            RestoreRoute()
+                        }
+                        true -> AppLockGate { HisabakNav() }
+                        null -> Box(
+                            Modifier
+                                .fillMaxSize()
+                                .background(MaterialTheme.colorScheme.background),
+                        )
+                    }
                     // null = still loading the flag; show a blank themed canvas (no flash).
                     null -> Box(
                         Modifier

@@ -69,23 +69,28 @@ Domain model mirrors Hisabi so concepts transfer cleanly.
   past a grace window; the lock decision is the pure `shouldLock(...)` in
   `core/domain/security/` (CMP-ready), the prompt is `core/platform/security/BiometricAuthenticator`
   (Android glue). It's an access gate, **not** at-rest encryption.
-- **Backup (Google Drive):** currently the **settings scaffold** (Settings → Data → `BackupKey`
-  screen): enable toggle, optional encryption toggle + passphrase, and an auto-backup period
-  (`AutoBackupPeriod`, incl. `NEVER`, default `NEVER`). Prefs live on `AppPreferences`
-  (`backupEnabled`, `backupEncryptionEnabled`, `autoBackupPeriod`). The passphrase is stored via
-  `BackupPassphraseStore` → `KeystoreBackupPassphraseStore` (AES-GCM key in the Android Keystore,
-  non-exportable; only IV+ciphertext persisted — **never plaintext**); it's cleared when backup or
-  encryption is turned off. **Deferred to later PRs:** the actual Google Drive upload/restore and
-  auto-backup scheduling (the "Back up now" button is intentionally disabled). The **encryption
-  engine is kept as the foundation**: `core/domain/backup/` (wire model `@Serializable` records +
-  `BackupEnvelope`, `BackupRepository`/`BackupCodec`/`BackupCrypto`, export/import use cases) and
-  `core/data/backup/` (`RoomBackupRepository` replace-all in one `withTransaction`, `JsonBackupCodec`
-  with kotlinx.serialization, `AesGcmBackupCrypto` passphrase→PBKDF2→AES-256-GCM). It's
-  destination-agnostic — use cases produce/consume a `ByteArray` — so the Drive sink drops in later.
-  `HisabakDatabase.SCHEMA_VERSION` is the single source stamped into the envelope and gated on import.
-  Auto-backup key rule for the sync PR: persist a usable (non-auth-gated) key only while auto-backup
-  is on; otherwise store nothing and prompt per manual backup (a biometric-gated key can't run
-  unattended). Passkeys were considered and rejected (need WebAuthn PRF + a relying-party/server).
+- **Backup (Google Drive):** connect a Google account, back up to Drive's hidden **App Data Folder**,
+  and restore — Settings → Data → `BackupKey` screen, plus a one-time post-onboarding restore page
+  (`RestoreRoute`, gated by the `restoreOffered` pref). Settings: enable toggle, account row,
+  optional encryption toggle + passphrase, auto-backup period (`AutoBackupPeriod`, incl. `NEVER`,
+  default `NEVER`), and **Back up now**. Prefs on `AppPreferences` (`backupEnabled`,
+  `backupEncryptionEnabled`, `autoBackupPeriod`, `restoreOffered`); the passphrase via
+  `KeystoreBackupPassphraseStore` (Keystore AES-GCM, only IV+ciphertext persisted — **never
+  plaintext**), the account email via `DataStoreBackupAccountStore`.
+  - **Auth:** `DriveAuthorizer` (interface; fake in tests) → `GoogleDriveAuthorizer` using Google
+    Identity **Authorization API** (`play-services-auth`) for the `drive.appdata` scope; consent runs
+    through a `PendingIntent` launched by the Route. **Cloud setup is required** — see
+    `docs/google-drive-backup-setup.md` (OAuth client by package + SHA-1; no secret in the app).
+  - **Engine (destination-agnostic):** `RoomBackupRepository` (snapshot + replace-all in one
+    `withTransaction`), `JsonBackupCodec` (kotlinx.serialization), `AesGcmBackupCrypto`
+    (passphrase→PBKDF2→AES-256-GCM; `isEncrypted` sniffs the `HSBK` magic so unencrypted backups
+    restore without a passphrase), `GoogleDriveBackupRemote` (`BackupRemote` over Drive v3 REST via
+    `HttpURLConnection`). `RunBackupUseCase` / `RestoreFromRemoteUseCase` orchestrate; encryption is
+    optional (caller passes the passphrase or null). `HisabakDatabase.SCHEMA_VERSION` is stamped into
+    the envelope and gated on import.
+  - **Deferred:** background **auto-backup scheduling** (WorkManager). Key rule for it: persist a
+    usable (non-auth-gated) key only while auto-backup is on; else prompt per manual backup (a
+    biometric-gated key can't run unattended). Passkeys were rejected (need WebAuthn PRF + a server).
 - **CMP-bound:** the app is planned to migrate to **Compose Multiplatform**. Keep platform APIs
   (`Context`, `FragmentActivity`, `BiometricPrompt`, Keystore) out of domain/shared code, keep
   state/business logic as pure Kotlin, and keep Composables on multiplatform-safe APIs.

@@ -74,8 +74,6 @@
     <string name="backup_security_title">الأمان</string>
     <string name="backup_enable">النسخ الاحتياطي إلى Google Drive</string>
     <string name="backup_enable_hint">احتفظ بنسخة من بياناتك في Google Drive الخاص بك.</string>
-    <string name="backup_now">انسخ احتياطيًا الآن</string>
-    <string name="backup_now_unavailable">متاح قريبًا.</string>
     <string name="backup_encrypt">تشفير النسخة الاحتياطية</string>
     <string name="backup_encrypt_hint">احمِ نسختك الاحتياطية بعبارة مرور.</string>
     <string name="backup_passphrase">عبارة المرور</string>
@@ -93,6 +91,26 @@
     <string name="backup_auto_daily">يوميًا</string>
     <string name="backup_auto_weekly">أسبوعيًا</string>
     <string name="backup_auto_monthly">شهريًا</string>
+    <string name="backup_account">حساب Google</string>
+    <string name="backup_account_not_connected">غير متصل</string>
+    <string name="backup_now">انسخ احتياطيًا الآن</string>
+    <string name="backup_running">جارٍ النسخ الاحتياطي…</string>
+    <string name="backup_done">اكتمل النسخ الاحتياطي.</string>
+    <string name="backup_err_auth">اربط حساب Google لإجراء النسخ الاحتياطي.</string>
+    <string name="backup_err_network">تعذّر الوصول إلى Google Drive. تحقق من اتصالك وحاول مجددًا.</string>
+    <string name="backup_err_no_passphrase">عيّن عبارة مرور أولًا.</string>
+    <string name="backup_err_empty">لا توجد بيانات لنسخها احتياطيًا بعد.</string>
+    <string name="backup_err_wrong_passphrase">عبارة المرور غير صحيحة.</string>
+    <string name="backup_err_corrupt">النسخة الاحتياطية تالفة أو غير قابلة للقراءة.</string>
+    <string name="backup_err_unsupported">أُنشئت هذه النسخة الاحتياطية بإصدار أحدث من حسابك. حدّث التطبيق وحاول مجددًا.</string>
+
+    <!-- Restore (first launch) -->
+    <string name="restore_title">استعادة بياناتك</string>
+    <string name="restore_subtitle">إذا سبق أن نسخت بياناتك إلى Google Drive، فاستعدها الآن. يمكنك أيضًا فعل ذلك لاحقًا من الإعدادات.</string>
+    <string name="restore_choose_account">اختر حساب Google</string>
+    <string name="restore_action">استعادة</string>
+    <string name="restore_skip">تخطٍّ</string>
+    <string name="restore_none_found">لا توجد نسخة احتياطية لهذا الحساب.</string>
 
     <!-- Category types -->
     <string name="category_type_label">النوع</string>

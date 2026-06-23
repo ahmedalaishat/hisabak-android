@@ -23,6 +23,7 @@ class AppPreferencesDataStore(private val context: Context) : AppPreferences {
     private val backupEnabledKey = booleanPreferencesKey("backup_enabled")
     private val backupEncryptionKey = booleanPreferencesKey("backup_encryption_enabled")
     private val autoBackupPeriodKey = stringPreferencesKey("auto_backup_period")
+    private val restoreOfferedKey = booleanPreferencesKey("restore_offered")
 
     override val onboardingCompleted: Flow<Boolean> =
         context.dataStore.data.map { it[onboardingKey] ?: false }
@@ -69,5 +70,12 @@ class AppPreferencesDataStore(private val context: Context) : AppPreferences {
 
     override suspend fun setAutoBackupPeriod(value: AutoBackupPeriod) {
         context.dataStore.edit { it[autoBackupPeriodKey] = value.name }
+    }
+
+    override val restoreOffered: Flow<Boolean> =
+        context.dataStore.data.map { it[restoreOfferedKey] ?: false }
+
+    override suspend fun setRestoreOffered(value: Boolean) {
+        context.dataStore.edit { it[restoreOfferedKey] = value }
     }
 }

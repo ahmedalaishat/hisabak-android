@@ -30,6 +30,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import com.hisabak.R
 import com.hisabak.core.domain.backup.AutoBackupPeriod
+import com.hisabak.core.domain.backup.BackupError
 import com.hisabak.ui.components.ButtonVariant
 import com.hisabak.ui.components.HisabakButton
 import com.hisabak.ui.components.SectionHeader
@@ -45,10 +46,16 @@ fun BackupScreen(
     onSetEncryptionEnabled: (Boolean) -> Unit,
     onSetPassphrase: (String) -> Unit,
     onSetPeriod: (AutoBackupPeriod) -> Unit,
+    onConnectAccount: () -> Unit,
+    onBackupNow: () -> Unit,
+    onDismissMessage: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     var showPassphraseSheet by rememberSaveable { mutableStateOf(false) }
     var showPeriodSheet by rememberSaveable { mutableStateOf(false) }
+
+    val canBackupNow = !state.busy && state.account != null &&
+        (!state.encryptionEnabled || state.passphraseSet)
 
     Column(
         modifier = modifier
@@ -57,6 +64,8 @@ fun BackupScreen(
             .padding(Spacing.pageMargin),
         verticalArrangement = Arrangement.spacedBy(Spacing.sectionGap),
     ) {
+        state.message?.let { MessageBanner(it, onDismissMessage) }
+
         // ---- Google Drive ----
         Section(title = stringResource(R.string.backup_drive_title)) {
             SettingRow(
@@ -67,30 +76,28 @@ fun BackupScreen(
                     checked = state.enabled,
                     onCheckedChange = { enabled ->
                         onSetEnabled(enabled)
-                        if (enabled && state.encryptionEnabled && !state.passphraseSet) {
-                            showPassphraseSheet = true
-                        }
+                        if (enabled && state.account == null) onConnectAccount()
                     },
                 )
             }
 
             if (state.enabled) {
                 SettingRow(
+                    title = stringResource(R.string.backup_account),
+                    subtitle = state.account?.email ?: stringResource(R.string.backup_account_not_connected),
+                    onClick = onConnectAccount,
+                )
+                SettingRow(
                     title = stringResource(R.string.backup_auto_title),
                     subtitle = stringResource(state.period.labelRes()),
                     onClick = { showPeriodSheet = true },
                 )
                 HisabakButton(
-                    text = stringResource(R.string.backup_now),
-                    onClick = {},
-                    variant = ButtonVariant.Secondary,
-                    enabled = false,
+                    text = stringResource(if (state.busy) R.string.backup_running else R.string.backup_now),
+                    onClick = onBackupNow,
+                    variant = ButtonVariant.Primary,
+                    enabled = canBackupNow,
                     fullWidth = true,
-                )
-                Text(
-                    stringResource(R.string.backup_now_unavailable),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
         }
@@ -144,6 +151,28 @@ fun BackupScreen(
             onDismiss = { showPeriodSheet = false },
         )
     }
+}
+
+@Composable
+private fun MessageBanner(message: BackupMessage, onDismiss: () -> Unit) {
+    val isError = message is BackupMessage.Failed
+    SurfaceCard(
+        modifier = Modifier.fillMaxWidth(),
+        backgroundColor = if (isError) MaterialTheme.colorScheme.errorContainer else MaterialTheme.colorScheme.surfaceContainerLowest,
+        onClick = onDismiss,
+    ) {
+        Text(
+            text = message.text(),
+            style = MaterialTheme.typography.bodyMedium,
+            color = if (isError) MaterialTheme.colorScheme.onErrorContainer else MaterialTheme.colorScheme.onSurface,
+        )
+    }
+}
+
+@Composable
+private fun BackupMessage.text(): String = when (this) {
+    BackupMessage.BackedUp -> stringResource(R.string.backup_done)
+    is BackupMessage.Failed -> stringResource(error.messageRes())
 }
 
 @Composable
@@ -291,4 +320,14 @@ private fun AutoBackupPeriod.labelRes(): Int = when (this) {
     AutoBackupPeriod.DAILY -> R.string.backup_auto_daily
     AutoBackupPeriod.WEEKLY -> R.string.backup_auto_weekly
     AutoBackupPeriod.MONTHLY -> R.string.backup_auto_monthly
+}
+
+internal fun BackupError.messageRes(): Int = when (this) {
+    BackupError.WrongPassphrase -> R.string.backup_err_wrong_passphrase
+    BackupError.Corrupt -> R.string.backup_err_corrupt
+    BackupError.Empty -> R.string.backup_err_empty
+    BackupError.AuthRequired -> R.string.backup_err_auth
+    BackupError.Network -> R.string.backup_err_network
+    BackupError.PassphraseRequired -> R.string.backup_err_no_passphrase
+    is BackupError.UnsupportedVersion -> R.string.backup_err_unsupported
 }

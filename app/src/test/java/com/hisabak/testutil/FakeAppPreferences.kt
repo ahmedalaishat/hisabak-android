@@ -33,4 +33,8 @@ class FakeAppPreferences(
     private val periodFlow = MutableStateFlow(AutoBackupPeriod.DEFAULT)
     override val autoBackupPeriod: Flow<AutoBackupPeriod> = periodFlow
     override suspend fun setAutoBackupPeriod(value: AutoBackupPeriod) { periodFlow.value = value }
+
+    private val restoreOfferedFlow = MutableStateFlow(false)
+    override val restoreOffered: Flow<Boolean> = restoreOfferedFlow
+    override suspend fun setRestoreOffered(value: Boolean) { restoreOfferedFlow.value = value }
 }

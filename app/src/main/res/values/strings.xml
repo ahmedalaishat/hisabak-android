@@ -76,8 +76,6 @@
     <string name="backup_security_title">Security</string>
     <string name="backup_enable">Back up to Google Drive</string>
     <string name="backup_enable_hint">Keep a copy of your data in your Google Drive.</string>
-    <string name="backup_now">Back up now</string>
-    <string name="backup_now_unavailable">Available soon.</string>
     <string name="backup_encrypt">Encrypt backup</string>
     <string name="backup_encrypt_hint">Protect your backup with a passphrase.</string>
     <string name="backup_passphrase">Passphrase</string>
@@ -95,6 +93,26 @@
     <string name="backup_auto_daily">Daily</string>
     <string name="backup_auto_weekly">Weekly</string>
     <string name="backup_auto_monthly">Monthly</string>
+    <string name="backup_account">Google account</string>
+    <string name="backup_account_not_connected">Not connected</string>
+    <string name="backup_now">Back up now</string>
+    <string name="backup_running">Backing up…</string>
+    <string name="backup_done">Backup complete.</string>
+    <string name="backup_err_auth">Connect a Google account to back up.</string>
+    <string name="backup_err_network">Couldn\'t reach Google Drive. Check your connection and try again.</string>
+    <string name="backup_err_no_passphrase">Set a passphrase first.</string>
+    <string name="backup_err_empty">There\'s nothing to back up yet.</string>
+    <string name="backup_err_wrong_passphrase">Wrong passphrase.</string>
+    <string name="backup_err_corrupt">The backup is damaged or unreadable.</string>
+    <string name="backup_err_unsupported">This backup was made by a newer version of Hisabak. Update the app and try again.</string>
+
+    <!-- Restore (first launch) -->
+    <string name="restore_title">Restore your data</string>
+    <string name="restore_subtitle">If you backed up to Google Drive before, restore it now. You can also do this later from Settings.</string>
+    <string name="restore_choose_account">Choose Google account</string>
+    <string name="restore_action">Restore</string>
+    <string name="restore_skip">Skip</string>
+    <string name="restore_none_found">No backup found for this account.</string>
 
     <!-- Category types -->
     <string name="category_type_label">Type</string>
