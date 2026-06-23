@@ -2,6 +2,7 @@ package com.hisabak.testutil
 
 import com.hisabak.core.domain.AppPreferences
 import com.hisabak.core.domain.ThemeMode
+import com.hisabak.core.domain.backup.AutoBackupPeriod
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 
@@ -20,4 +21,16 @@ class FakeAppPreferences(
     private val appLockFlow = MutableStateFlow(false)
     override val appLockEnabled: Flow<Boolean> = appLockFlow
     override suspend fun setAppLockEnabled(value: Boolean) { appLockFlow.value = value }
+
+    private val backupFlow = MutableStateFlow(false)
+    override val backupEnabled: Flow<Boolean> = backupFlow
+    override suspend fun setBackupEnabled(value: Boolean) { backupFlow.value = value }
+
+    private val encryptionFlow = MutableStateFlow(true)
+    override val backupEncryptionEnabled: Flow<Boolean> = encryptionFlow
+    override suspend fun setBackupEncryptionEnabled(value: Boolean) { encryptionFlow.value = value }
+
+    private val periodFlow = MutableStateFlow(AutoBackupPeriod.DEFAULT)
+    override val autoBackupPeriod: Flow<AutoBackupPeriod> = periodFlow
+    override suspend fun setAutoBackupPeriod(value: AutoBackupPeriod) { periodFlow.value = value }
 }

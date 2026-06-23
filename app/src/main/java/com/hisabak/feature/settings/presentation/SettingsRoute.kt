@@ -27,6 +27,7 @@ import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun SettingsRoute(
+    onOpenBackup: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: SettingsViewModel = koinViewModel(),
 ) {
@@ -96,6 +97,7 @@ fun SettingsRoute(
                 AuthAvailability.Unavailable -> Unit
             }
         },
+        onOpenBackup = onOpenBackup,
         modifier = modifier,
     )
 }

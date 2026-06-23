@@ -16,4 +16,11 @@ interface CategoryLimitDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun upsertAll(entities: List<CategoryLimitEntity>)
+
+    // Backup.
+    @Query("SELECT * FROM category_limits")
+    suspend fun getAllForBackup(): List<CategoryLimitEntity>
+
+    @Query("DELETE FROM category_limits")
+    suspend fun deleteAll()
 }

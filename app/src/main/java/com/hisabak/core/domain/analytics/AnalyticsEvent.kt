@@ -76,6 +76,24 @@ sealed class AnalyticsEvent(
         name = "app_lock_toggled",
         params = mapOf("enabled" to enabled),
     )
+
+    /** The user turned Google Drive backup on or off. */
+    class BackupToggled(enabled: Boolean) : AnalyticsEvent(
+        name = "backup_toggled",
+        params = mapOf("enabled" to enabled),
+    )
+
+    /** The user turned backup encryption on or off. */
+    class BackupEncryptionToggled(enabled: Boolean) : AnalyticsEvent(
+        name = "backup_encryption_toggled",
+        params = mapOf("enabled" to enabled),
+    )
+
+    /** The user chose an auto-backup period. [period] is an [AutoBackupPeriod] name, lowercased. */
+    class AutoBackupPeriodSet(period: String) : AnalyticsEvent(
+        name = "auto_backup_period_set",
+        params = mapOf("period" to period),
+    )
 }
 
 /** Coarse, non-reversible magnitude bucket of a money value — never the raw amount. */
