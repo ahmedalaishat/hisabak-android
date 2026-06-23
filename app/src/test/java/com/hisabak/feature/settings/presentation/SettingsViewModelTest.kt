@@ -53,4 +53,18 @@ class SettingsViewModelTest {
 
         assertEquals(listOf("settings_language_changed"), analytics.names())
     }
+
+    @Test
+    fun `setAppLockEnabled persists the choice and logs it`() = runTest {
+        val prefs = FakeAppPreferences()
+        val analytics = FakeAnalytics()
+        val vm = SettingsViewModel(prefs, analytics)
+        assertEquals(false, vm.appLockEnabled.first())
+
+        vm.setAppLockEnabled(true)
+        advanceUntilIdle()
+
+        assertEquals(true, prefs.appLockEnabled.first())
+        assertEquals(listOf("app_lock_toggled"), analytics.names())
+    }
 }

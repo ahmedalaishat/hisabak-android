@@ -13,4 +13,9 @@ interface AppPreferences {
     val themeMode: Flow<ThemeMode>
 
     suspend fun setThemeMode(value: ThemeMode)
+
+    /** Whether the biometric/device-credential app lock is on; defaults to `false`. */
+    val appLockEnabled: Flow<Boolean>
+
+    suspend fun setAppLockEnabled(value: Boolean)
 }

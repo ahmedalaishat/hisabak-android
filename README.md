@@ -89,6 +89,9 @@ Everything below is built and shipping today:
 - [x] 🗂️ **Organize** — categories (income / expense / savings / investment) with colors and
   icons, and brands mapped to categories. Safe deletion with brand-merge and confirmation.
 - [x] 🛎️ **Notifications center** — unread badge on the bell, swipe-to-dismiss, and mark-all-read.
+- [x] 🔒 **App lock** — optional biometric / device-PIN lock that gates access on launch and when
+  you return to the app, so your finances stay private on a shared device. (Access gate only —
+  at-rest database encryption is on the roadmap.)
 - [x] ⚙️ **Settings** — pick your **theme** (light / dark / system) and **language**
   (**English / العربية**, fully localized and right-to-left). Both are saved across launches.
 - [x] 📴 **Offline-first** — all data is stored locally on-device (Room). Light & dark themes,
@@ -105,7 +108,6 @@ What's next, roughly in order:
 - [ ] 💾 **Backup & restore** — export and import your data (encrypted), so you can move between
   devices.
 - [ ] 💱 **Multi-currency** — track transactions and balances across more than one currency.
-- [ ] 🔒 **App lock** — biometric / PIN lock to keep your finances private on a shared device.
 - [ ] 🛡️ **Database encryption** — encrypt the on-device database at rest.
 - [ ] 🤖 **AI capture & auto-categorization** — smarter SMS parsing and automatic brand → category
   detection.

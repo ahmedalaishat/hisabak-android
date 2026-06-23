@@ -6,7 +6,6 @@ import android.content.pm.PackageManager
 import android.content.Context
 import android.os.Build
 import android.os.Bundle
-import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -42,6 +41,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entryProvider
@@ -82,6 +82,7 @@ import com.hisabak.nav.TransactionEditKey
 import com.hisabak.nav.TransactionsKey
 import com.hisabak.nav.rememberNavigationState
 import com.hisabak.nav.toEntries
+import com.hisabak.security.AppLockGate
 import com.hisabak.ui.components.BottomNavTab
 import com.hisabak.ui.components.DetailTopBar
 import com.hisabak.ui.components.HisabakBottomNav
@@ -91,7 +92,10 @@ import com.hisabak.ui.theme.HisabakTheme
 import org.koin.android.ext.android.inject
 import org.koin.compose.koinInject
 
-class MainActivity : ComponentActivity() {
+// FragmentActivity (not plain ComponentActivity) is required by androidx.biometric's BiometricPrompt;
+// it still extends ComponentActivity (so Navigation 3 keeps its dispatcher owner) and pulls in
+// androidx.fragment, not appcompat — preserving the app's no-appcompat constraint.
+class MainActivity : FragmentActivity() {
 
     private val categoryFocusBus: CategoryFocusBus by inject()
     private val brandEditBus: BrandEditBus by inject()
@@ -122,7 +126,7 @@ class MainActivity : ComponentActivity() {
                         LaunchedEffect(Unit) { analytics.setCurrentScreen("onboarding") }
                         OnboardingRoute()
                     }
-                    true -> HisabakNav()
+                    true -> AppLockGate { HisabakNav() }
                     // null = still loading the flag; show a blank themed canvas (no flash).
                     null -> Box(
                         Modifier
