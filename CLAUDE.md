@@ -69,6 +69,23 @@ Domain model mirrors Hisabi so concepts transfer cleanly.
   past a grace window; the lock decision is the pure `shouldLock(...)` in
   `core/domain/security/` (CMP-ready), the prompt is `core/platform/security/BiometricAuthenticator`
   (Android glue). It's an access gate, **not** at-rest encryption.
+- **Backup (Google Drive):** currently the **settings scaffold** (Settings → Data → `BackupKey`
+  screen): enable toggle, optional encryption toggle + passphrase, and an auto-backup period
+  (`AutoBackupPeriod`, incl. `NEVER`, default `NEVER`). Prefs live on `AppPreferences`
+  (`backupEnabled`, `backupEncryptionEnabled`, `autoBackupPeriod`). The passphrase is stored via
+  `BackupPassphraseStore` → `KeystoreBackupPassphraseStore` (AES-GCM key in the Android Keystore,
+  non-exportable; only IV+ciphertext persisted — **never plaintext**); it's cleared when backup or
+  encryption is turned off. **Deferred to later PRs:** the actual Google Drive upload/restore and
+  auto-backup scheduling (the "Back up now" button is intentionally disabled). The **encryption
+  engine is kept as the foundation**: `core/domain/backup/` (wire model `@Serializable` records +
+  `BackupEnvelope`, `BackupRepository`/`BackupCodec`/`BackupCrypto`, export/import use cases) and
+  `core/data/backup/` (`RoomBackupRepository` replace-all in one `withTransaction`, `JsonBackupCodec`
+  with kotlinx.serialization, `AesGcmBackupCrypto` passphrase→PBKDF2→AES-256-GCM). It's
+  destination-agnostic — use cases produce/consume a `ByteArray` — so the Drive sink drops in later.
+  `HisabakDatabase.SCHEMA_VERSION` is the single source stamped into the envelope and gated on import.
+  Auto-backup key rule for the sync PR: persist a usable (non-auth-gated) key only while auto-backup
+  is on; otherwise store nothing and prompt per manual backup (a biometric-gated key can't run
+  unattended). Passkeys were considered and rejected (need WebAuthn PRF + a relying-party/server).
 - **CMP-bound:** the app is planned to migrate to **Compose Multiplatform**. Keep platform APIs
   (`Context`, `FragmentActivity`, `BiometricPrompt`, Keystore) out of domain/shared code, keep
   state/business logic as pure Kotlin, and keep Composables on multiplatform-safe APIs.
@@ -115,7 +132,7 @@ switching; the user always exits the app through the **Dashboard** (home) tab.
 | Transactions | TransactionsKey | List → Edit (bottom sheet) |
 | SMS | SmsKey | Single screen |
 | Manage | ManageKey | Brands/Categories list → Edit (full screen) |
-| Settings | SettingsKey | Single screen (theme + language) |
+| Settings | SettingsKey | Theme + language + app lock → Backup & restore (full screen) |
 
 Pattern: `List` → tap row or FAB → push `Edit(id?)` destination → Save/Cancel calls
 `navigator.goBack()` → back to `List`.

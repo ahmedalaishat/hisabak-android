@@ -105,8 +105,8 @@ What's next, roughly in order:
 
 - [ ] 🛎️ **Notification capture** — read bank transaction notifications to capture spending without
   the SMS permission (works in the Play build).
-- [ ] 💾 **Backup & restore** — export and import your data (encrypted), so you can move between
-  devices.
+- [ ] ☁️ **Google Drive backup** — encrypted, passphrase-protected backups to your own Drive, with
+  an auto-backup schedule. (Settings scaffold is in; the sync itself is rolling out.)
 - [ ] 💱 **Multi-currency** — track transactions and balances across more than one currency.
 - [ ] 🛡️ **Database encryption** — encrypt the on-device database at rest.
 - [ ] 🤖 **AI capture & auto-categorization** — smarter SMS parsing and automatic brand → category
@@ -157,7 +157,7 @@ and SMS-imported transactions are both covered through a single path.
 
 ## 🧪 Testing & quality
 
-The domain logic and ViewModels are covered by **116 JVM unit tests** (money math, the SMS
+The domain logic and ViewModels are covered by **137 JVM unit tests** (money math, the SMS
 template parser, budget/limit logic, and ViewModel state) that run on the plain JVM — no
 emulator needed:
 

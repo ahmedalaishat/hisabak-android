@@ -67,6 +67,35 @@
     <string name="app_lock_locked_hint">Unlock to view your finances.</string>
     <string name="app_lock_unlock">Unlock</string>
 
+    <!-- Backup -->
+    <string name="settings_data">Data</string>
+    <string name="settings_backup_restore">Backup</string>
+    <string name="settings_backup_restore_hint">Back up your data to Google Drive.</string>
+    <string name="backup_title">Backup</string>
+    <string name="backup_drive_title">Google Drive</string>
+    <string name="backup_security_title">Security</string>
+    <string name="backup_enable">Back up to Google Drive</string>
+    <string name="backup_enable_hint">Keep a copy of your data in your Google Drive.</string>
+    <string name="backup_now">Back up now</string>
+    <string name="backup_now_unavailable">Available soon.</string>
+    <string name="backup_encrypt">Encrypt backup</string>
+    <string name="backup_encrypt_hint">Protect your backup with a passphrase.</string>
+    <string name="backup_passphrase">Passphrase</string>
+    <string name="backup_passphrase_confirm">Confirm passphrase</string>
+    <string name="backup_passphrase_set">Passphrase set</string>
+    <string name="backup_passphrase_not_set">Not set yet</string>
+    <string name="backup_passphrase_warning">Important: remember this passphrase. It encrypts your backup and is the only way to restore it — we can\'t recover it for you.</string>
+    <string name="backup_passphrase_too_short">Use at least 8 characters.</string>
+    <string name="backup_passphrase_mismatch">Passphrases don\'t match.</string>
+    <string name="backup_passphrase_sheet_title">Set backup passphrase</string>
+    <string name="backup_passphrase_save">Save</string>
+    <string name="backup_auto_title">Auto-backup</string>
+    <string name="backup_auto_sheet_title">Auto-backup frequency</string>
+    <string name="backup_auto_never">Never</string>
+    <string name="backup_auto_daily">Daily</string>
+    <string name="backup_auto_weekly">Weekly</string>
+    <string name="backup_auto_monthly">Monthly</string>
+
     <!-- Category types -->
     <string name="category_type_label">Type</string>
     <string name="category_type_income">Income</string>

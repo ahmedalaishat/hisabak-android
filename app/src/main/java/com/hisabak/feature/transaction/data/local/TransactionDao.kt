@@ -80,6 +80,13 @@ interface TransactionDao {
     @Query("DELETE FROM transactions WHERE id = :id")
     suspend fun deleteById(id: String)
 
+    // Backup: every row incl. soft-deleted tombstones.
+    @Query("SELECT * FROM transactions")
+    suspend fun getAllForBackup(): List<TransactionEntity>
+
+    @Query("DELETE FROM transactions")
+    suspend fun deleteAll()
+
     @Query("SELECT COUNT(*) FROM transactions WHERE brandId = :brandId AND deletedAtMillis IS NULL")
     suspend fun countForBrand(brandId: String): Long
 

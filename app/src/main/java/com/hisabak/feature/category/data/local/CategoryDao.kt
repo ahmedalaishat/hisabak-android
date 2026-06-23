@@ -28,4 +28,11 @@ interface CategoryDao {
 
     @Query("DELETE FROM categories WHERE id = :id")
     suspend fun deleteById(id: String)
+
+    // Backup: every row incl. soft-deleted tombstones.
+    @Query("SELECT * FROM categories")
+    suspend fun getAllForBackup(): List<CategoryEntity>
+
+    @Query("DELETE FROM categories")
+    suspend fun deleteAll()
 }
