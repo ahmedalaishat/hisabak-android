@@ -14,6 +14,8 @@ All notable changes to Hisabak are documented here. Format based on
   each option on its own card with a leading icon, for a clearer, calmer layout.
 - **Totals in Manage** — each brand row and category tile now shows the total amount spent through
   it, so you can see at a glance where your money goes.
+- **Day-grouped transactions** — the Transactions list now groups entries under day headings
+  (Today, Yesterday, dates), each day in its own card, with the category shown beside each entry.
 
 ## [1.6.0] — 2026-06-24
 

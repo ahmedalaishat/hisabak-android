@@ -244,6 +244,7 @@
     <string name="time_hours_ago">قبل %1$d س</string>
     <string name="time_days_ago">قبل %1$d ي</string>
     <string name="time_yesterday">أمس</string>
+    <string name="time_today">اليوم</string>
 
     <!-- Dashboard -->
     <string name="dashboard_tab_summary">الملخص</string>
