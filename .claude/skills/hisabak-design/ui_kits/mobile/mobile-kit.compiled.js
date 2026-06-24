@@ -2123,55 +2123,434 @@ function Manage({
   })));
 }
 window.HisabakManage = Manage;
-/* Onboarding — 6-page intro pager with skip, animated dots, and a primary CTA (mirrors
-   OnboardingScreen.kt). The last page's CTA finishes (and, in the SMS build, primes capture). */
+/* Onboarding — mirrors OnboardingScreen.kt / OnboardingPages.kt: a 6-page pager where each page is a
+   hero illustration (top) over a left-aligned overline / title / subtitle block, with animated dots
+   + a primary CTA ("Next" → "Get started"). Copy is the app's real onboarding strings. */
 function Onboarding({
   onFinish
 }) {
   const NS = window.HisabakDesignSystem_aa2548;
   const {
-    Button
+    Button,
+    AmountText
   } = NS;
-  const {
-    HeroDisc
-  } = window.HisabakExtras;
   const [page, setPage] = React.useState(0);
+  const Preview = ({
+    children,
+    width = 300,
+    style
+  }) => /*#__PURE__*/React.createElement("div", {
+    style: {
+      width,
+      maxWidth: '100%',
+      background: 'var(--surface)',
+      border: '1px solid var(--border)',
+      borderRadius: 18,
+      padding: 18,
+      ...style
+    }
+  }, children);
+  const Tile = ({
+    icon,
+    color
+  }) => /*#__PURE__*/React.createElement("span", {
+    style: {
+      width: 44,
+      height: 44,
+      flex: 'none',
+      borderRadius: 13,
+      background: `color-mix(in srgb, ${color} 15%, transparent)`,
+      display: 'grid',
+      placeItems: 'center'
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "material-symbols-rounded",
+    style: {
+      fontSize: 22,
+      color
+    }
+  }, icon));
+  const Bars = () => /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'flex',
+      alignItems: 'flex-end',
+      gap: 6,
+      height: 34,
+      marginTop: 12
+    }
+  }, [14, 20, 13, 26, 18, 30, 34].map((h, i) => /*#__PURE__*/React.createElement("div", {
+    key: i,
+    style: {
+      width: 9,
+      height: h,
+      borderRadius: 4,
+      background: [3, 5, 6].includes(i) ? 'var(--accent)' : 'var(--accent-soft)'
+    }
+  })));
+  const Guarantee = ({
+    text
+  }) => /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: 10,
+      padding: '7px 0'
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "material-symbols-rounded",
+    style: {
+      fontSize: 20,
+      color: 'var(--accent)'
+    }
+  }, "check_circle"), /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontFamily: 'var(--font-sans)',
+      fontSize: 14,
+      color: 'var(--text-primary)'
+    }
+  }, text));
+  const Recap = ({
+    icon,
+    color,
+    title,
+    sub
+  }) => /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: 12
+    }
+  }, /*#__PURE__*/React.createElement(Tile, {
+    icon: icon,
+    color: color
+  }), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontFamily: 'var(--font-sans)',
+      fontWeight: 600,
+      fontSize: 14.5,
+      color: 'var(--text-primary)'
+    }
+  }, title), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontFamily: 'var(--font-sans)',
+      fontSize: 12.5,
+      color: 'var(--text-secondary)'
+    }
+  }, sub)));
   const pages = [{
-    icon: 'savings',
-    tint: 'var(--accent-soft)',
-    fg: 'var(--accent)',
-    title: 'Welcome to Hisabak',
-    body: 'Your calm companion for understanding where your money goes.'
+    overline: 'Welcome to Hisabak',
+    title: 'All your money, in one calm place.',
+    subtitle: 'Track spending, set budgets, and see where every dirham goes — without the busywork.',
+    hero: /*#__PURE__*/React.createElement("div", {
+      style: {
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center'
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        width: 84,
+        height: 84,
+        borderRadius: 22,
+        background: 'var(--accent)',
+        display: 'grid',
+        placeItems: 'center'
+      }
+    }, /*#__PURE__*/React.createElement("span", {
+      className: "material-symbols-rounded",
+      style: {
+        fontSize: 40,
+        color: '#fff'
+      }
+    }, "trending_up")), /*#__PURE__*/React.createElement(Preview, {
+      style: {
+        marginTop: 28,
+        textAlign: 'center'
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontFamily: 'var(--font-sans)',
+        fontSize: 11,
+        letterSpacing: '0.06em',
+        color: 'var(--text-secondary)'
+      }
+    }, "NET WORTH"), /*#__PURE__*/React.createElement("div", {
+      style: {
+        marginTop: 8,
+        display: 'flex',
+        justifyContent: 'center'
+      }
+    }, /*#__PURE__*/React.createElement(AmountText, {
+      value: 842500,
+      tone: "neutral",
+      sign: "never",
+      size: 32,
+      weight: 700
+    })), /*#__PURE__*/React.createElement("div", {
+      style: {
+        display: 'flex',
+        justifyContent: 'center'
+      }
+    }, /*#__PURE__*/React.createElement(Bars, null))))
   }, {
-    icon: 'sms',
-    tint: 'var(--savings-soft)',
-    fg: 'var(--savings)',
-    title: 'Capture from SMS',
-    body: 'Hisabak reads your bank alerts and logs transactions automatically — no typing.'
+    overline: 'SMS auto-capture',
+    title: 'Your bank texts become transactions.',
+    subtitle: 'Hisabak reads the alert, pulls out the amount and merchant, and files it — automatically.',
+    hero: /*#__PURE__*/React.createElement("div", {
+      style: {
+        width: 300,
+        maxWidth: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 12
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        alignSelf: 'flex-start',
+        background: 'var(--surface-sunken)',
+        borderRadius: '16px 16px 16px 4px',
+        padding: '12px 16px',
+        fontFamily: 'var(--font-mono)',
+        fontSize: 12.5,
+        color: 'var(--text-primary)',
+        lineHeight: 1.4
+      }
+    }, "Purchase of AED 1,250.00 with card 1234 at Lulu, Abu Dhabi."), /*#__PURE__*/React.createElement(Preview, null, /*#__PURE__*/React.createElement("div", {
+      style: {
+        display: 'flex',
+        alignItems: 'center',
+        gap: 12
+      }
+    }, /*#__PURE__*/React.createElement(Tile, {
+      icon: "shopping_cart",
+      color: "var(--cat-orange)"
+    }), /*#__PURE__*/React.createElement("div", {
+      style: {
+        flex: 1
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontFamily: 'var(--font-sans)',
+        fontWeight: 600,
+        fontSize: 15,
+        color: 'var(--text-primary)'
+      }
+    }, "Lulu"), /*#__PURE__*/React.createElement("div", {
+      style: {
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: 4,
+        fontFamily: 'var(--font-sans)',
+        fontSize: 12,
+        color: 'var(--accent)'
+      }
+    }, /*#__PURE__*/React.createElement("span", {
+      className: "material-symbols-rounded",
+      style: {
+        fontSize: 14
+      }
+    }, "auto_awesome"), "parsed automatically")), /*#__PURE__*/React.createElement(AmountText, {
+      value: 1250,
+      tone: "expense",
+      size: 16,
+      weight: 700
+    }))))
   }, {
-    icon: 'lock',
-    tint: 'var(--accent-soft)',
-    fg: 'var(--accent)',
-    title: 'Private by design',
-    body: 'Your data is encrypted on your device and never leaves without your say.'
+    overline: 'Private by design',
+    title: 'Your data never leaves your device.',
+    subtitle: 'Everything is stored locally — no account, no cloud, no sync. Your finances are yours alone.',
+    hero: /*#__PURE__*/React.createElement("div", {
+      style: {
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center'
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        width: 88,
+        height: 88,
+        borderRadius: 999,
+        background: 'var(--accent-soft)',
+        display: 'grid',
+        placeItems: 'center'
+      }
+    }, /*#__PURE__*/React.createElement("span", {
+      className: "material-symbols-rounded is-filled",
+      style: {
+        fontSize: 44,
+        color: 'var(--accent)'
+      }
+    }, "lock")), /*#__PURE__*/React.createElement(Preview, {
+      style: {
+        marginTop: 24
+      }
+    }, /*#__PURE__*/React.createElement(Guarantee, {
+      text: "Stored on this device"
+    }), /*#__PURE__*/React.createElement(Guarantee, {
+      text: "Never synced to a server"
+    }), /*#__PURE__*/React.createElement(Guarantee, {
+      text: "No account, no tracking"
+    })))
   }, {
-    icon: 'donut_small',
-    tint: 'var(--investment-soft)',
-    fg: 'var(--investment)',
-    title: 'Set budgets',
-    body: 'Give each category a limit and get a nudge before you overspend.'
+    overline: 'Budgets & alerts',
+    title: 'Know before you overspend.',
+    subtitle: 'Set a monthly limit per category. We nudge you at 80%, 90%, and 100% — in-app and on your phone.',
+    hero: /*#__PURE__*/React.createElement(Preview, null, /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontFamily: 'var(--font-sans)',
+        fontSize: 11,
+        letterSpacing: '0.06em',
+        color: 'var(--text-secondary)'
+      }
+    }, "JUNE BUDGET"), /*#__PURE__*/React.createElement("div", {
+      style: {
+        display: 'flex',
+        alignItems: 'center',
+        gap: 12,
+        margin: '12px 0'
+      }
+    }, /*#__PURE__*/React.createElement(Tile, {
+      icon: "restaurant",
+      color: "var(--cat-red)"
+    }), /*#__PURE__*/React.createElement("div", {
+      style: {
+        flex: 1,
+        fontFamily: 'var(--font-sans)',
+        fontWeight: 600,
+        fontSize: 15,
+        color: 'var(--text-primary)'
+      }
+    }, "Dining"), /*#__PURE__*/React.createElement(AmountText, {
+      value: 510,
+      tone: "neutral",
+      sign: "never",
+      size: 14,
+      weight: 600
+    })), /*#__PURE__*/React.createElement("div", {
+      style: {
+        height: 8,
+        borderRadius: 999,
+        background: 'var(--surface-sunken)',
+        overflow: 'hidden'
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        width: '85%',
+        height: '100%',
+        background: 'var(--warning)'
+      }
+    })), /*#__PURE__*/React.createElement("div", {
+      style: {
+        display: 'flex',
+        justifyContent: 'space-between',
+        marginTop: 8,
+        fontFamily: 'var(--font-sans)',
+        fontSize: 12,
+        color: 'var(--warning)'
+      }
+    }, /*#__PURE__*/React.createElement("span", null, "85% of budget"), /*#__PURE__*/React.createElement("span", {
+      style: {
+        color: 'var(--text-secondary)'
+      }
+    }, "AED 90 left")))
   }, {
-    icon: 'insights',
-    tint: 'var(--expense-soft)',
-    fg: 'var(--expense)',
-    title: 'See the trends',
-    body: 'Clean charts show income, spending, and net worth over time.'
+    overline: 'Insights',
+    title: 'See exactly where it goes.',
+    subtitle: 'Net-worth trends, income vs spending, and a clean breakdown by category and brand.',
+    hero: /*#__PURE__*/React.createElement(Preview, null, /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontFamily: 'var(--font-sans)',
+        fontSize: 11,
+        letterSpacing: '0.06em',
+        color: 'var(--text-secondary)'
+      }
+    }, "NET WORTH \xB7 6 MONTHS"), /*#__PURE__*/React.createElement("div", {
+      style: {
+        margin: '8px -4px 12px'
+      }
+    }, /*#__PURE__*/React.createElement(AreaChart, {
+      data: [9100, 9600, 9400, 10200, 11100, 12450],
+      color: "var(--accent)",
+      height: 84
+    })), /*#__PURE__*/React.createElement("div", {
+      style: {
+        display: 'flex',
+        alignItems: 'center',
+        gap: 16
+      }
+    }, /*#__PURE__*/React.createElement(DonutChart, {
+      segments: [{
+        value: 32,
+        color: 'var(--cat-gray)'
+      }, {
+        value: 22,
+        color: 'var(--cat-orange)'
+      }, {
+        value: 12,
+        color: 'var(--cat-red)'
+      }, {
+        value: 8,
+        color: 'var(--cat-teal)'
+      }],
+      size: 72,
+      thickness: 12
+    }), /*#__PURE__*/React.createElement("div", {
+      style: {
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 6
+      }
+    }, [['Rent', 'var(--cat-gray)'], ['Groceries', 'var(--cat-orange)'], ['Dining', 'var(--cat-red)']].map(([l, c]) => /*#__PURE__*/React.createElement("span", {
+      key: l,
+      style: {
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: 7,
+        fontFamily: 'var(--font-sans)',
+        fontSize: 12.5,
+        color: 'var(--text-secondary)'
+      }
+    }, /*#__PURE__*/React.createElement("span", {
+      style: {
+        width: 8,
+        height: 8,
+        borderRadius: 999,
+        background: c
+      }
+    }), l)))))
   }, {
-    icon: 'check_circle',
-    tint: 'var(--accent-soft)',
-    fg: 'var(--accent)',
-    title: "You're all set",
-    body: 'Add your first transaction or let an SMS do it for you.'
+    overline: "You're all set",
+    title: 'Ready when you are.',
+    subtitle: 'Turn on SMS auto-capture to log transactions the moment they happen — or add them by hand anytime.',
+    hero: /*#__PURE__*/React.createElement("div", {
+      style: {
+        width: 300,
+        maxWidth: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 16
+      }
+    }, /*#__PURE__*/React.createElement(Recap, {
+      icon: "bolt",
+      color: "var(--accent)",
+      title: "Automatic capture",
+      sub: "from your bank SMS"
+    }), /*#__PURE__*/React.createElement(Recap, {
+      icon: "lock",
+      color: "var(--savings)",
+      title: "Private by design",
+      sub: "your data stays on this device"
+    }), /*#__PURE__*/React.createElement(Recap, {
+      icon: "account_balance_wallet",
+      color: "var(--cat-orange)",
+      title: "Smart budgets",
+      sub: "alerts before you overshoot"
+    }), /*#__PURE__*/React.createElement(Recap, {
+      icon: "insights",
+      color: "var(--investment)",
+      title: "Clear insights",
+      sub: "trends, categories, brands"
+    }))
   }];
   const isLast = page === pages.length - 1;
   const p = pages[page];
@@ -2207,37 +2586,50 @@ function Onboarding({
       flex: 1,
       display: 'flex',
       flexDirection: 'column',
-      alignItems: 'center',
-      justifyContent: 'center',
-      textAlign: 'center',
-      padding: '0 36px',
-      gap: 28
+      padding: '0 28px',
+      minHeight: 0
     }
-  }, /*#__PURE__*/React.createElement(HeroDisc, {
-    icon: p.icon,
-    size: 132,
-    iconSize: 60,
-    tint: p.tint,
-    fg: p.fg
-  }), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      flex: 1,
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center'
+    }
+  }, p.hero), /*#__PURE__*/React.createElement("div", {
+    style: {
+      paddingBottom: 8
+    }
+  }, /*#__PURE__*/React.createElement("div", {
     style: {
       fontFamily: 'var(--font-sans)',
       fontWeight: 700,
-      fontSize: 26,
+      fontSize: 11.5,
+      letterSpacing: '0.06em',
+      textTransform: 'uppercase',
+      color: 'var(--accent)'
+    }
+  }, p.overline), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontFamily: 'var(--font-sans)',
+      fontWeight: 700,
+      fontSize: 25,
       color: 'var(--text-primary)',
-      letterSpacing: '-0.02em'
+      marginTop: 12,
+      letterSpacing: '-0.02em',
+      lineHeight: 1.2
     }
   }, p.title), /*#__PURE__*/React.createElement("div", {
     style: {
       fontFamily: 'var(--font-sans)',
-      fontSize: 15.5,
+      fontSize: 15,
       color: 'var(--text-secondary)',
       marginTop: 12,
       lineHeight: 1.5
     }
-  }, p.body))), /*#__PURE__*/React.createElement("div", {
+  }, p.subtitle))), /*#__PURE__*/React.createElement("div", {
     style: {
-      padding: '0 24px 28px',
+      padding: '12px 24px 28px',
       display: 'flex',
       flexDirection: 'column',
       alignItems: 'center',
