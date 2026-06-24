@@ -38,9 +38,12 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.hisabak.R
 import com.hisabak.feature.brand.domain.BrandId
 import com.hisabak.feature.category.domain.CategoryId
+import com.hisabak.ui.components.AmountText
+import com.hisabak.ui.components.AmountTone
 import com.hisabak.ui.components.CircleIconTile
 import com.hisabak.ui.components.ColoredFilterChip
 import com.hisabak.ui.components.CreateActionButton
@@ -303,12 +306,22 @@ private fun BrandRowItem(
             )
         },
         trailing = {
-            IconButton(onClick = onDelete) {
-                Icon(
-                    imageVector = HugeIcons.DeleteOutline,
-                    contentDescription = stringResource(R.string.common_delete_named, row.name),
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                if (row.totalMinor > 0L) {
+                    AmountText(
+                        value = row.totalMinor / 100.0,
+                        tone = AmountTone.Neutral,
+                        showSign = false,
+                        size = 14.sp,
+                    )
+                }
+                IconButton(onClick = onDelete) {
+                    Icon(
+                        imageVector = HugeIcons.DeleteOutline,
+                        contentDescription = stringResource(R.string.common_delete_named, row.name),
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
             }
         },
         onClick = onEdit,
