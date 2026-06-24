@@ -84,8 +84,10 @@ This system was authored from a detailed product design brief (no external codeb
 Each component dir has `<Name>.jsx` + `<Name>.d.ts` + `<Name>.prompt.md`, and one `@dsCard` HTML.
 
 **UI kit** (`ui_kits/mobile/`)
-- `index.html` — interactive Android app: Dashboard, Transactions, Add Transaction (sheet), SMS Inbox, Brands, Categories, with light/dark toggle and working bottom-nav.
-- Screens: `Dashboard.jsx`, `Transactions.jsx`, `AddTransactionSheet.jsx`, `SmsInbox.jsx`, `Categories.jsx`; plus `charts.jsx` and `mock.js`.
+- `index.html` — interactive Android app with the real 5-tab nav (Dashboard, Transactions, SMS, Manage, Settings), light/dark toggle, the bell→Notifications and Settings→Backup flows, and toolbar previews for the Onboarding, Restore, and Sync full-screen flows.
+- Tab screens: `Dashboard.jsx`, `Transactions.jsx`, `SmsInbox.jsx`, `Manage.jsx`, `Settings.jsx`.
+- Sub-flows: `Backup.jsx`, `Notifications.jsx`, `BrandEdit.jsx`, `CategoryEdit.jsx`, `AddTransactionSheet.jsx`, `Onboarding.jsx`, `Restore.jsx`, `Sync.jsx`.
+- Support: `charts.jsx`, `extras.jsx` (Toggle/SettingsRow/FormSection/RadioRow/HeroDisc), `mock.js`. See `ui_kits/mobile/README.md`.
 
 **Assets** (`assets/`) — `logo-mark.svg`, `logo-wordmark.svg`, `logo-wordmark-dark.svg`, `app-icon.svg`.
 

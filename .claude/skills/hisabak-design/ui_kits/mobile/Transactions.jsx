@@ -1,7 +1,7 @@
 /* Transactions — balance hero, summary, search, filtered list. */
 function Transactions({ onAdd }) {
   const NS = window.HisabakDesignSystem_aa2548;
-  const { Card, Button, SearchBar, Chip, ListRow, ProgressBar, AmountText, EmptyState } = NS;
+  const { Card, Button, SearchBar, Chip, ListRow, ProgressBar, EmptyState } = NS;
   const M = window.HisabakMock;
   const [q, setQ] = React.useState('');
   const [period, setPeriod] = React.useState('month');
@@ -16,10 +16,11 @@ function Transactions({ onAdd }) {
       {/* Balance hero */}
       <Card variant="hero" padding={18} style={{ marginTop: 8 }}>
         <div style={{ fontFamily: 'var(--font-sans)', fontWeight: 500, fontSize: 13, color: 'var(--text-secondary)' }}>Total Balance · June</div>
-        <div style={{ marginTop: 4 }}><AmountText value={12450} tone="neutral" sign="never" size={34} weight={700} /></div>
+        <div style={{ marginTop: 4 }}><Money value={12450} tone="neutral" size={34} weight={700} /></div>
         <div style={{ margin: '14px 0 6px' }}><ProgressBar value={60} tone="income" height={8} /></div>
-        <div style={{ display: 'flex', justifyContent: 'space-between', fontFamily: 'var(--font-sans)', fontSize: 12, color: 'var(--text-tertiary)' }}>
-          <span>60% income ratio</span><span>AED 9,420 in · AED 6,180 out</span>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontFamily: 'var(--font-sans)', fontSize: 12, color: 'var(--text-tertiary)' }}>
+          <span>60% income ratio</span>
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}><Money value={9420} size={12} weight={600} color="var(--text-tertiary)" /> in · <Money value={6180} size={12} weight={600} color="var(--text-tertiary)" /> out</span>
         </div>
         <Button fullWidth size="lg" leadingIcon="add" onClick={onAdd} style={{ marginTop: 14 }}>Add Transaction</Button>
       </Card>
@@ -28,11 +29,11 @@ function Transactions({ onAdd }) {
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginTop: 12 }}>
         <Card padding={14} style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <span style={{ display: 'grid', placeItems: 'center', width: 36, height: 36, borderRadius: 'var(--r-sm)', background: 'var(--income-soft)', color: 'var(--income)' }}><span className="material-symbols-rounded">south_west</span></span>
-          <div><div style={{ fontFamily: 'var(--font-sans)', fontSize: 12.5, color: 'var(--text-secondary)' }}>Income</div><AmountText value={9420} tone="income" sign="never" size={16} /></div>
+          <div><div style={{ fontFamily: 'var(--font-sans)', fontSize: 12.5, color: 'var(--text-secondary)' }}>Income</div><Money value={9420} tone="income" size={16} /></div>
         </Card>
         <Card padding={14} style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <span style={{ display: 'grid', placeItems: 'center', width: 36, height: 36, borderRadius: 'var(--r-sm)', background: 'var(--expense-soft)', color: 'var(--expense)' }}><span className="material-symbols-rounded">north_east</span></span>
-          <div><div style={{ fontFamily: 'var(--font-sans)', fontSize: 12.5, color: 'var(--text-secondary)' }}>Expenses</div><AmountText value={6180} tone="expense" sign="never" size={16} /></div>
+          <div><div style={{ fontFamily: 'var(--font-sans)', fontSize: 12.5, color: 'var(--text-secondary)' }}>Expenses</div><Money value={6180} tone="expense" size={16} /></div>
         </Card>
       </div>
 
@@ -55,8 +56,11 @@ function Transactions({ onAdd }) {
             <Card padding={0} style={{ padding: '2px 14px' }}>
               {items.map((t, i) => (
                 <ListRow key={t.id} title={t.brand} subtitle={catName(t.cat) + ' · ' + t.note}
-                  leadingText={t.brand[0]} color={catColor(t.cat)}
-                  amount={t.amount} meta={t.date} divider={i < items.length - 1} />
+                  leadingText={t.brand[0]} color={catColor(t.cat)} divider={i < items.length - 1}
+                  trailing={<div style={{ textAlign: 'right' }}>
+                    <Money value={t.amount} tone="auto" sign="auto" size={14} weight={700} />
+                    <div style={{ fontFamily: 'var(--font-sans)', fontSize: 11, color: 'var(--text-tertiary)', marginTop: 2 }}>{t.date}</div>
+                  </div>} />
               ))}
             </Card>
           </div>
