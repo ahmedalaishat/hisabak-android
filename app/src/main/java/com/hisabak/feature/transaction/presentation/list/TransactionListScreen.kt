@@ -61,10 +61,12 @@ import com.hisabak.ui.components.EmptyStatePanel
 import com.hisabak.ui.components.ExpensesStatCard
 import com.hisabak.ui.components.IncomeStatCard
 import com.hisabak.ui.components.ListRowContent
+import com.hisabak.ui.components.ProgressBar
 import com.hisabak.ui.components.SearchField
 import com.hisabak.ui.components.SurfaceCard
 import com.hisabak.ui.components.iconForKey
 import com.hisabak.ui.components.tintPairForColor
+import com.hisabak.ui.theme.HisabakTheme
 import com.hisabak.ui.theme.PillShape
 import com.hisabak.ui.theme.Sizing
 import com.hisabak.ui.theme.Spacing
@@ -74,6 +76,7 @@ import java.time.LocalDate
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import kotlin.math.abs
+import kotlin.math.roundToInt
 
 @Composable
 fun TransactionListScreen(
@@ -135,20 +138,26 @@ fun TransactionListScreen(
         }
 
         item {
-            Row(
-                Modifier.fillMaxWidth().height(IntrinsicSize.Min),
-                horizontalArrangement = Arrangement.spacedBy(Spacing.cardGap),
-            ) {
-                val arabic = rememberIsArabic()
-                IncomeStatCard(
-                    value = formatAmountMajor(state.summaryIncome, arabic),
-                    currencySymbol = true,
-                    modifier = Modifier.weight(1f).fillMaxHeight(),
-                )
-                ExpensesStatCard(
-                    value = formatAmountMajor(state.summaryExpenses, arabic),
-                    currencySymbol = true,
-                    modifier = Modifier.weight(1f).fillMaxHeight(),
+            Column(verticalArrangement = Arrangement.spacedBy(Spacing.s3)) {
+                Row(
+                    Modifier.fillMaxWidth().height(IntrinsicSize.Min),
+                    horizontalArrangement = Arrangement.spacedBy(Spacing.cardGap),
+                ) {
+                    val arabic = rememberIsArabic()
+                    IncomeStatCard(
+                        value = formatAmountMajor(state.summaryIncome, arabic),
+                        currencySymbol = true,
+                        modifier = Modifier.weight(1f).fillMaxHeight(),
+                    )
+                    ExpensesStatCard(
+                        value = formatAmountMajor(state.summaryExpenses, arabic),
+                        currencySymbol = true,
+                        modifier = Modifier.weight(1f).fillMaxHeight(),
+                    )
+                }
+                IncomeRatioBar(
+                    incomeMinor = state.summaryIncome,
+                    expensesMinor = state.summaryExpenses,
                 )
             }
         }
@@ -370,6 +379,23 @@ private fun FilterSheetRow(
 }
 
 // ---- internals -----------------------------------------------------------
+
+/** A slim bar visualising the period's income share of total money flow. */
+@Composable
+private fun IncomeRatioBar(incomeMinor: Long, expensesMinor: Long) {
+    val total = incomeMinor + expensesMinor
+    if (total <= 0L) return
+    val ratio = (incomeMinor.toDouble() / total.toDouble()).toFloat()
+    val pct = (ratio * 100).roundToInt()
+    Column(verticalArrangement = Arrangement.spacedBy(Spacing.s2)) {
+        ProgressBar(progress = ratio, color = HisabakTheme.colors.income)
+        Text(
+            text = stringResource(R.string.transaction_income_ratio, pct),
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+    }
+}
 
 @Composable
 private fun DayHeader(date: LocalDate) {
