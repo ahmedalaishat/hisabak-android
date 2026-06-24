@@ -45,6 +45,9 @@
     <string name="transaction_edit_title">تعديل المعاملة</string>
 
     <!-- Settings -->
+    <string name="settings_group_backup_security">النسخ الاحتياطي والأمان</string>
+    <string name="settings_group_preferences">التفضيلات</string>
+    <string name="settings_theme">المظهر</string>
     <string name="settings_appearance">المظهر</string>
     <string name="settings_appearance_hint">اختر شكل حسابك. يتبع وضع النظام مظهر جهازك.</string>
     <string name="settings_theme_system">النظام</string>
@@ -211,6 +214,7 @@
     <!-- Transactions -->
     <string name="transaction_add">إضافة معاملة</string>
     <string name="transaction_summary">الملخص</string>
+    <string name="transaction_income_ratio">نسبة الدخل %1$d%%</string>
     <string name="transaction_search_placeholder">ابحث في المعاملات...</string>
     <string name="transaction_no_brands">لا توجد علامات لهذا النوع. أضف واحدة من تبويب الإدارة أولاً.</string>
     <string name="transaction_note_label">ملاحظة (اختياري)</string>
@@ -241,6 +245,7 @@
     <string name="time_hours_ago">قبل %1$d س</string>
     <string name="time_days_ago">قبل %1$d ي</string>
     <string name="time_yesterday">أمس</string>
+    <string name="time_today">اليوم</string>
 
     <!-- Dashboard -->
     <string name="dashboard_tab_summary">الملخص</string>

@@ -10,6 +10,7 @@ data class NotificationRow(
     val id: NotificationId,
     val title: String,
     val message: String,
+    val type: String,
     val createdAt: Instant,
     val isRead: Boolean,
     val categoryId: String?,

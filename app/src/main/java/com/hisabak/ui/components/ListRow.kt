@@ -34,32 +34,48 @@ fun ListRow(
         contentPadding = Spacing.cardGap,
         onClick = onClick,
     ) {
-        Row(
-            Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(Spacing.cardGap),
-        ) {
-            leading()
-            Column(Modifier.weight(1f)) {
+        ListRowContent(title = title, subtitle = subtitle, leading = leading, trailing = trailing)
+    }
+}
+
+/**
+ * The inner leading / two-line text / trailing layout of [ListRow] without the [SurfaceCard]
+ * container — for stacking several rows inside a single shared card (e.g. day-grouped lists),
+ * with dividers between them. Pass a clickable + padded [modifier] for per-row tap targets.
+ */
+@Composable
+fun ListRowContent(
+    title: String,
+    subtitle: String?,
+    modifier: Modifier = Modifier,
+    leading: @Composable () -> Unit = {},
+    trailing: @Composable () -> Unit = {},
+) {
+    Row(
+        modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(Spacing.cardGap),
+    ) {
+        leading()
+        Column(Modifier.weight(1f)) {
+            Text(
+                title,
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onSurface,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+            if (!subtitle.isNullOrBlank()) {
                 Text(
-                    title,
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSurface,
+                    subtitle,
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                 )
-                if (!subtitle.isNullOrBlank()) {
-                    Text(
-                        subtitle,
-                        style = MaterialTheme.typography.labelMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                    )
-                }
             }
-            trailing()
         }
+        trailing()
     }
 }
 

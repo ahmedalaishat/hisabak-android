@@ -1,5 +1,7 @@
 package com.hisabak.feature.backup.presentation
 
+import com.hisabak.ui.icons.HugeIcons
+
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
@@ -17,11 +19,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.CloudDownload
-import androidx.compose.material.icons.rounded.CloudUpload
-import androidx.compose.material.icons.rounded.ErrorOutline
-import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -173,7 +170,7 @@ private fun SyncHalo(kind: SyncKind, phase: SyncPhase) {
                 }
                 CenterDisc(primary.copy(alpha = 0.12f)) {
                     Icon(
-                        if (kind == SyncKind.BackUp) Icons.Rounded.CloudUpload else Icons.Rounded.CloudDownload,
+                        if (kind == SyncKind.BackUp) HugeIcons.CloudUpload else HugeIcons.CloudDownload,
                         contentDescription = null, tint = primary, modifier = Modifier.size(44.dp),
                     )
                 }
@@ -185,7 +182,7 @@ private fun SyncHalo(kind: SyncKind, phase: SyncPhase) {
                 }
                 CenterDisc(primary) {
                     Icon(
-                        Icons.Rounded.Check, contentDescription = null,
+                        HugeIcons.Check, contentDescription = null,
                         tint = MaterialTheme.colorScheme.onPrimary,
                         modifier = Modifier.size(52.dp).scale(if (reduced) 1f else 1f),
                     )
@@ -193,7 +190,7 @@ private fun SyncHalo(kind: SyncKind, phase: SyncPhase) {
             }
             is SyncPhase.Failed -> CenterDisc(MaterialTheme.colorScheme.error.copy(alpha = 0.14f)) {
                 Icon(
-                    Icons.Rounded.ErrorOutline, contentDescription = null,
+                    HugeIcons.ErrorOutline, contentDescription = null,
                     tint = MaterialTheme.colorScheme.error, modifier = Modifier.size(48.dp),
                 )
             }

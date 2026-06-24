@@ -1,5 +1,7 @@
 package com.hisabak.feature.transaction.presentation.list
 
+import com.hisabak.ui.icons.HugeIcons
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
@@ -9,6 +11,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -20,13 +23,10 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.ExpandMore
-import androidx.compose.material.icons.filled.ReceiptLong
 import com.hisabak.ui.components.SkeletonCard
 import com.hisabak.ui.components.SkeletonRowList
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
@@ -40,6 +40,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.hisabak.R
@@ -59,18 +60,23 @@ import com.hisabak.ui.components.PeriodChipRow
 import com.hisabak.ui.components.EmptyStatePanel
 import com.hisabak.ui.components.ExpensesStatCard
 import com.hisabak.ui.components.IncomeStatCard
-import com.hisabak.ui.components.ListRow
+import com.hisabak.ui.components.ListRowContent
+import com.hisabak.ui.components.ProgressBar
 import com.hisabak.ui.components.SearchField
+import com.hisabak.ui.components.SurfaceCard
 import com.hisabak.ui.components.iconForKey
 import com.hisabak.ui.components.tintPairForColor
+import com.hisabak.ui.theme.HisabakTheme
 import com.hisabak.ui.theme.PillShape
 import com.hisabak.ui.theme.Sizing
 import com.hisabak.ui.theme.Spacing
 import java.time.Duration
 import java.time.Instant
+import java.time.LocalDate
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import kotlin.math.abs
+import kotlin.math.roundToInt
 
 @Composable
 fun TransactionListScreen(
@@ -104,6 +110,12 @@ fun TransactionListScreen(
     // The period scopes the summary cards; brand / category / date-range scope the list.
     var openFilter by remember { mutableStateOf<FilterTarget?>(null) }
 
+    // Rows arrive newest-first; group them by day for date-headed cards (LinkedHashMap keeps order).
+    val zone = remember { ZoneId.systemDefault() }
+    val dayGroups = remember(state.rows) {
+        state.rows.groupBy { it.occurredAt.atZone(zone).toLocalDate() }.entries.toList()
+    }
+
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(
@@ -126,20 +138,26 @@ fun TransactionListScreen(
         }
 
         item {
-            Row(
-                Modifier.fillMaxWidth().height(IntrinsicSize.Min),
-                horizontalArrangement = Arrangement.spacedBy(Spacing.cardGap),
-            ) {
-                val arabic = rememberIsArabic()
-                IncomeStatCard(
-                    value = formatAmountMajor(state.summaryIncome, arabic),
-                    currencySymbol = true,
-                    modifier = Modifier.weight(1f).fillMaxHeight(),
-                )
-                ExpensesStatCard(
-                    value = formatAmountMajor(state.summaryExpenses, arabic),
-                    currencySymbol = true,
-                    modifier = Modifier.weight(1f).fillMaxHeight(),
+            Column(verticalArrangement = Arrangement.spacedBy(Spacing.s3)) {
+                Row(
+                    Modifier.fillMaxWidth().height(IntrinsicSize.Min),
+                    horizontalArrangement = Arrangement.spacedBy(Spacing.cardGap),
+                ) {
+                    val arabic = rememberIsArabic()
+                    IncomeStatCard(
+                        value = formatAmountMajor(state.summaryIncome, arabic),
+                        currencySymbol = true,
+                        modifier = Modifier.weight(1f).fillMaxHeight(),
+                    )
+                    ExpensesStatCard(
+                        value = formatAmountMajor(state.summaryExpenses, arabic),
+                        currencySymbol = true,
+                        modifier = Modifier.weight(1f).fillMaxHeight(),
+                    )
+                }
+                IncomeRatioBar(
+                    incomeMinor = state.summaryIncome,
+                    expensesMinor = state.summaryExpenses,
                 )
             }
         }
@@ -194,7 +212,7 @@ fun TransactionListScreen(
                     EmptyStatePanel(
                         title = stringResource(R.string.transaction_empty_filtered_title),
                         subtitle = stringResource(R.string.transaction_empty_filtered_subtitle),
-                        icon = Icons.Filled.ReceiptLong,
+                        icon = HugeIcons.ReceiptLong,
                         actionLabel = stringResource(if (state.hasActiveFilters) R.string.action_clear_filters else R.string.transaction_add),
                         onAction = if (state.hasActiveFilters) onClearFilters else onAdd,
                     )
@@ -202,20 +220,31 @@ fun TransactionListScreen(
                     EmptyStatePanel(
                         title = stringResource(R.string.transaction_empty_title),
                         subtitle = stringResource(R.string.transaction_empty_subtitle),
-                        icon = Icons.Filled.ReceiptLong,
+                        icon = HugeIcons.ReceiptLong,
                         actionLabel = stringResource(R.string.transaction_add),
                         onAction = onAdd,
                     )
                 }
             }
         } else {
-            items(state.rows, key = { it.id.value }) { row ->
-                TransactionRowItem(
-                    row = row,
-                    onEdit = { onEdit(row.id) },
-                    onDelete = { onDelete(row.id) },
-                    modifier = Modifier.animateItem(),
-                )
+            dayGroups.forEach { (date, rows) ->
+                item(key = "day-$date") {
+                    Column(Modifier.animateItem()) {
+                        DayHeader(date)
+                        Spacer(Modifier.height(Spacing.s2))
+                        SurfaceCard(modifier = Modifier.fillMaxWidth(), contentPadding = 0.dp) {
+                            rows.forEachIndexed { index, row ->
+                                TransactionRowContent(row = row, onClick = { onEdit(row.id) })
+                                if (index < rows.lastIndex) {
+                                    HorizontalDivider(
+                                        color = MaterialTheme.colorScheme.outlineVariant,
+                                        modifier = Modifier.padding(horizontal = Spacing.cardGap),
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
     }
@@ -271,7 +300,7 @@ private fun FilterPill(label: String, active: Boolean, onClick: () -> Unit) {
     ) {
         Text(label, style = MaterialTheme.typography.labelLarge, color = fg, maxLines = 1)
         Icon(
-            Icons.Filled.ExpandMore,
+            HugeIcons.ExpandMore,
             contentDescription = null,
             tint = fg,
             modifier = Modifier.size(Sizing.iconSm),
@@ -340,7 +369,7 @@ private fun FilterSheetRow(
         )
         if (selected) {
             Icon(
-                Icons.Filled.Check,
+                HugeIcons.Check,
                 contentDescription = stringResource(R.string.common_selected),
                 tint = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.size(Sizing.icon),
@@ -351,12 +380,53 @@ private fun FilterSheetRow(
 
 // ---- internals -----------------------------------------------------------
 
+/** A slim bar visualising the period's income share of total money flow. */
 @Composable
-private fun TransactionRowItem(
+private fun IncomeRatioBar(incomeMinor: Long, expensesMinor: Long) {
+    val total = incomeMinor + expensesMinor
+    if (total <= 0L) return
+    val ratio = (incomeMinor.toDouble() / total.toDouble()).toFloat()
+    val pct = (ratio * 100).roundToInt()
+    Column(verticalArrangement = Arrangement.spacedBy(Spacing.s2)) {
+        ProgressBar(progress = ratio, color = HisabakTheme.colors.income)
+        Text(
+            text = stringResource(R.string.transaction_income_ratio, pct),
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+    }
+}
+
+@Composable
+private fun DayHeader(date: LocalDate) {
+    Text(
+        text = dayLabel(date).uppercase(),
+        style = MaterialTheme.typography.labelMedium,
+        fontWeight = FontWeight.SemiBold,
+        letterSpacing = 0.4.sp,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        modifier = Modifier.padding(start = Spacing.s1),
+    )
+}
+
+@Composable
+private fun dayLabel(date: LocalDate): String {
+    val today = LocalDate.now()
+    return when (date) {
+        today -> stringResource(R.string.time_today)
+        today.minusDays(1) -> stringResource(R.string.time_yesterday)
+        else -> {
+            val pattern = if (date.year == today.year) "MMM d" else "MMM d, yyyy"
+            DateTimeFormatter.ofPattern(pattern).format(date)
+        }
+    }
+}
+
+/** A single transaction row without its own card — for stacking inside a day-grouped card. */
+@Composable
+private fun TransactionRowContent(
     row: TransactionRow,
-    onEdit: () -> Unit,
-    onDelete: () -> Unit,
-    modifier: Modifier = Modifier,
+    onClick: () -> Unit,
 ) {
     val tone = when (row.categoryType) {
         CategoryType.INCOME -> AmountTone.Income
@@ -369,11 +439,17 @@ private fun TransactionRowItem(
     val (bg, fg) = tintPairForColor(row.categoryColor)
     val amountValue = row.amount.amountMinor.toMajorDouble()
     val dateLabel = formatRelative(row.occurredAt)
+    val subtitle = listOfNotNull(
+        row.categoryName,
+        row.note?.takeIf { it.isNotBlank() },
+    ).joinToString(" · ").takeIf { it.isNotBlank() }
 
-    ListRow(
-        modifier = modifier,
+    ListRowContent(
+        modifier = Modifier
+            .clickable(onClick = onClick)
+            .padding(horizontal = Spacing.cardGap, vertical = Spacing.s3),
         title = row.brandName,
-        subtitle = row.note?.takeIf { it.isNotBlank() },
+        subtitle = subtitle,
         leading = {
             CircleIconTile(
                 icon = iconForKey(row.categoryIcon),
@@ -397,7 +473,6 @@ private fun TransactionRowItem(
                 )
             }
         },
-        onClick = onEdit,
     )
 }
 

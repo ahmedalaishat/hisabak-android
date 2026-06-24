@@ -1,5 +1,7 @@
 package com.hisabak.feature.dashboard.presentation
 
+import com.hisabak.ui.icons.HugeIcons
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -20,15 +22,6 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccountBalanceWallet
-import androidx.compose.material.icons.filled.ArrowDownward
-import androidx.compose.material.icons.filled.ArrowUpward
-import androidx.compose.material.icons.filled.ChevronRight
-import androidx.compose.material.icons.filled.ExpandLess
-import androidx.compose.material.icons.filled.ExpandMore
-import androidx.compose.material.icons.filled.Savings
-import androidx.compose.material.icons.filled.TrendingUp
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.SizeTransform
@@ -266,7 +259,7 @@ private fun SummaryTab(
                 TotalPill(
                     label = stringResource(R.string.dashboard_cash),
                     money = snap.totalCash,
-                    icon = { Icon(Icons.Filled.AccountBalanceWallet, null, modifier = Modifier.size(16.dp)) },
+                    icon = { Icon(HugeIcons.AccountBalanceWallet, null, modifier = Modifier.size(16.dp)) },
                     bgColor = MaterialTheme.colorScheme.surfaceVariant,
                     fgColor = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.weight(1f),
@@ -274,7 +267,7 @@ private fun SummaryTab(
                 TotalPill(
                     label = stringResource(R.string.category_type_savings),
                     money = snap.totalSavings,
-                    icon = { Icon(Icons.Filled.Savings, null, modifier = Modifier.size(16.dp)) },
+                    icon = { Icon(HugeIcons.Savings, null, modifier = Modifier.size(16.dp)) },
                     bgColor = c.savingsSoft,
                     fgColor = c.savings,
                     modifier = Modifier.weight(1f),
@@ -282,7 +275,7 @@ private fun SummaryTab(
                 TotalPill(
                     label = stringResource(R.string.category_type_invest_short),
                     money = snap.totalInvestment,
-                    icon = { Icon(Icons.Filled.TrendingUp, null, modifier = Modifier.size(16.dp)) },
+                    icon = { Icon(HugeIcons.TrendingUp, null, modifier = Modifier.size(16.dp)) },
                     bgColor = c.investmentSoft,
                     fgColor = c.investment,
                     modifier = Modifier.weight(1f),
@@ -571,8 +564,8 @@ private fun TrendBadge(pct: Double, positiveIsGood: Boolean) {
     val good = if (positiveIsGood) isUp else !isUp
     val color = if (good) c.income else c.expense
     val icon = when {
-        isUp -> Icons.Filled.ArrowUpward
-        else -> Icons.Filled.ArrowDownward
+        isUp -> HugeIcons.ArrowUpward
+        else -> HugeIcons.ArrowDownward
     }
     Row(
         verticalAlignment = Alignment.CenterVertically,
@@ -801,7 +794,7 @@ private fun CategoryLimitCard(
                 color = MaterialTheme.colorScheme.onSurface,
             )
             Icon(
-                if (expanded) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
+                if (expanded) HugeIcons.ExpandLess else HugeIcons.ExpandMore,
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.size(Sizing.iconSm),
@@ -907,7 +900,7 @@ private fun UncategorizedBanner(count: Int, total: Money, onClick: () -> Unit) {
                 color = MaterialTheme.colorScheme.onSurface,
             )
             Icon(
-                Icons.Filled.ChevronRight,
+                HugeIcons.ChevronRight,
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.size(Sizing.iconSm),
@@ -952,7 +945,7 @@ private fun UncategorizedCard(
                 color = MaterialTheme.colorScheme.onSurface,
             )
             Icon(
-                if (expanded) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
+                if (expanded) HugeIcons.ExpandLess else HugeIcons.ExpandMore,
                 contentDescription = null,
                 tint = color,
                 modifier = Modifier.size(Sizing.iconSm),

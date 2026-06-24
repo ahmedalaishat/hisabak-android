@@ -1,5 +1,7 @@
 package com.hisabak.feature.sms.presentation.inbox
 
+import com.hisabak.ui.icons.HugeIcons
+
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -14,10 +16,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.DeleteOutline
-import androidx.compose.material.icons.filled.Download
-import androidx.compose.material.icons.filled.Inbox
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -32,19 +30,21 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.hisabak.R
 import com.hisabak.core.common.Money
+import com.hisabak.feature.sms.domain.ParsedSmsData
 import com.hisabak.feature.sms.domain.SmsMessageId
 import com.hisabak.ui.components.AmountText
 import com.hisabak.ui.components.compactAmount
 import com.hisabak.ui.components.AmountTone
 import com.hisabak.ui.components.Badge
-import com.hisabak.ui.components.SkeletonRowList
 import com.hisabak.ui.components.BadgeTone
+import com.hisabak.ui.components.SkeletonRowList
 import com.hisabak.ui.components.EmptyStatePanel
 import com.hisabak.ui.components.HisabakButton
 import com.hisabak.ui.components.ButtonVariant
@@ -54,6 +54,7 @@ import com.hisabak.ui.components.SectionHeader
 import com.hisabak.ui.components.SmsStatus
 import com.hisabak.ui.components.StatusChip
 import com.hisabak.ui.components.SurfaceCard
+import com.hisabak.ui.theme.HisabakTheme
 import com.hisabak.ui.theme.Sizing
 import com.hisabak.ui.theme.Spacing
 import java.time.ZoneId
@@ -82,7 +83,7 @@ fun SmsInboxScreen(
             if (autoImportAvailable) {
                 item { AutoImportBanner(granted = state.autoImportGranted, onEnable = onEnableAutoImport) }
             }
-            item { PasteParseCard(draft = state.draftBody, isProcessing = state.isProcessing, onDraftChange = onDraftChange, onIngest = onIngest) }
+            item { PasteParseCard(draft = state.draftBody, preview = state.draftPreview, isProcessing = state.isProcessing, onDraftChange = onDraftChange, onIngest = onIngest) }
             item {
                 SearchField(
                     value = state.search,
@@ -97,7 +98,7 @@ fun SmsInboxScreen(
             } else if (state.rows.isEmpty()) {
                 item {
                     EmptyStatePanel(
-                        icon = Icons.Filled.Inbox,
+                        icon = HugeIcons.Inbox,
                         title = stringResource(R.string.sms_empty_title),
                         subtitle = when {
                             state.search.isNotBlank() -> stringResource(R.string.common_no_matches_subtitle, state.search)
@@ -128,58 +129,45 @@ fun SmsInboxScreen(
 
 @Composable
 private fun AutoImportBanner(granted: Boolean, onEnable: () -> Unit) {
-    SurfaceCard(modifier = Modifier.fillMaxWidth()) {
-        if (granted) {
-            // Compact: the "Active" badge is small and sits inline with the copy.
-            Row(
-                Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(Spacing.cardGap),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(Spacing.s2)) {
-                    Text(
-                        stringResource(R.string.sms_auto_active_title),
-                        style = MaterialTheme.typography.titleSmall,
-                        color = MaterialTheme.colorScheme.onSurface,
-                    )
-                    Text(
-                        stringResource(R.string.sms_auto_active_body),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
-                Badge(label = stringResource(R.string.sms_auto_active_badge), tone = BadgeTone.Income)
+    val colors = HisabakTheme.colors
+    // Tinted banner with a leading status icon: green/active vs amber/disabled.
+    val tint = if (granted) colors.incomeSoft else colors.warningSoft
+    val accent = if (granted) colors.income else colors.warning
+    val icon = if (granted) HugeIcons.CheckCircle else HugeIcons.ErrorOutline
+    SurfaceCard(
+        modifier = Modifier.fillMaxWidth(),
+        backgroundColor = tint,
+        borderColor = Color.Transparent,
+    ) {
+        Row(
+            Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(Spacing.cardGap),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Icon(
+                icon,
+                contentDescription = null,
+                tint = accent,
+                modifier = Modifier.size(Sizing.icon),
+            )
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(Spacing.s2)) {
+                Text(
+                    stringResource(if (granted) R.string.sms_auto_active_title else R.string.sms_auto_disabled_title),
+                    style = MaterialTheme.typography.titleSmall,
+                    color = MaterialTheme.colorScheme.onSurface,
+                )
+                Text(
+                    stringResource(if (granted) R.string.sms_auto_active_body else R.string.sms_auto_disabled_body),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
             }
-        } else {
-            // Stack vertically so the title isn't squeezed by the badge + Enable button.
-            Column(
-                Modifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(Spacing.s4),
-            ) {
-                Column(verticalArrangement = Arrangement.spacedBy(Spacing.s2)) {
-                    Text(
-                        stringResource(R.string.sms_auto_disabled_title),
-                        style = MaterialTheme.typography.titleSmall,
-                        color = MaterialTheme.colorScheme.onSurface,
-                    )
-                    Text(
-                        stringResource(R.string.sms_auto_disabled_body),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
-                Row(
-                    Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Badge(label = stringResource(R.string.sms_auto_off_badge), tone = BadgeTone.Warning, dot = true)
-                    Spacer(Modifier.weight(1f))
-                    HisabakButton(
-                        text = stringResource(R.string.sms_enable),
-                        onClick = onEnable,
-                        variant = ButtonVariant.Primary,
-                    )
-                }
+            if (!granted) {
+                HisabakButton(
+                    text = stringResource(R.string.sms_enable),
+                    onClick = onEnable,
+                    variant = ButtonVariant.Primary,
+                )
             }
         }
     }
@@ -189,6 +177,7 @@ private fun AutoImportBanner(granted: Boolean, onEnable: () -> Unit) {
 @Composable
 private fun PasteParseCard(
     draft: String,
+    preview: ParsedSmsData?,
     isProcessing: Boolean,
     onDraftChange: (String) -> Unit,
     onIngest: () -> Unit,
@@ -224,9 +213,22 @@ private fun PasteParseCard(
         Spacer(Modifier.height(Spacing.cardGap))
         Row(
             Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.End,
             verticalAlignment = Alignment.CenterVertically,
         ) {
+            // Live preview of what the draft will import — brand + amount — before tapping.
+            if (preview != null) {
+                Badge(label = preview.brandName.orEmpty(), tone = BadgeTone.Info, dot = true)
+                preview.amount?.let { amount ->
+                    Spacer(Modifier.width(Spacing.s3))
+                    AmountText(
+                        value = amount.amountMinor / 100.0,
+                        tone = AmountTone.Expense,
+                        showSign = false,
+                        size = 15.sp,
+                    )
+                }
+            }
+            Spacer(Modifier.weight(1f))
             if (isProcessing) {
                 CircularProgressIndicator(modifier = Modifier.size(18.dp), strokeWidth = 2.dp)
                 Spacer(Modifier.width(10.dp))
@@ -311,11 +313,11 @@ private fun SmsRowCard(
                     PrimaryPillButton(
                         text = stringResource(R.string.sms_import),
                         onClick = onImport,
-                        leadingIcon = Icons.Filled.Download,
+                        leadingIcon = HugeIcons.Download,
                     )
                     IconButton(onClick = onDelete, modifier = Modifier.size(Sizing.controlHeightSm)) {
                         Icon(
-                            Icons.Filled.DeleteOutline,
+                            HugeIcons.DeleteOutline,
                             contentDescription = stringResource(R.string.action_delete),
                             tint = MaterialTheme.colorScheme.onSurfaceVariant,
                             modifier = Modifier.size(18.dp),
@@ -328,7 +330,7 @@ private fun SmsRowCard(
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
                 IconButton(onClick = onDelete, modifier = Modifier.size(Sizing.controlHeightSm)) {
                     Icon(
-                        Icons.Filled.DeleteOutline,
+                        HugeIcons.DeleteOutline,
                         contentDescription = stringResource(R.string.action_delete),
                         tint = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.size(18.dp),

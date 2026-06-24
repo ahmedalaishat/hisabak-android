@@ -1,5 +1,7 @@
 package com.hisabak.feature.notification.presentation.list
 
+import com.hisabak.ui.icons.HugeIcons
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -13,8 +15,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.NotificationsNone
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SwipeToDismissBox
 import androidx.compose.material3.SwipeToDismissBoxValue
@@ -28,6 +28,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.hisabak.R
+import com.hisabak.feature.notification.domain.Notification
 import com.hisabak.ui.components.CircleIconTile
 import com.hisabak.ui.components.EmptyStatePanel
 import com.hisabak.ui.components.SkeletonRowList
@@ -61,7 +62,7 @@ fun NotificationsScreen(
     if (state.rows.isEmpty()) {
         EmptyStatePanel(
             modifier = modifier.fillMaxSize(),
-            icon = Icons.Filled.NotificationsNone,
+            icon = HugeIcons.NotificationsNone,
             title = stringResource(R.string.notifications_empty_title),
             subtitle = stringResource(R.string.notifications_empty_subtitle),
         )
@@ -121,15 +122,24 @@ fun NotificationsScreen(
 @Composable
 private fun NotificationCard(row: NotificationRow, onClick: () -> Unit) {
     val c = HisabakTheme.colors
+    // Icon + tint reflect the kind of alert: amber for budget limits, green for the rest.
+    val (icon, tileBg, tileFg) = when (row.type) {
+        Notification.TYPE_CATEGORY_LIMIT ->
+            Triple(HugeIcons.PriorityHigh, c.warningSoft, c.warning)
+        Notification.TYPE_TRANSACTION_RECORDED ->
+            Triple(HugeIcons.ReceiptLong, c.incomeSoft, MaterialTheme.colorScheme.primary)
+        else ->
+            Triple(HugeIcons.NotificationsNone, c.incomeSoft, MaterialTheme.colorScheme.primary)
+    }
     SurfaceCard(modifier = Modifier.fillMaxWidth(), onClick = onClick) {
         Row(
             verticalAlignment = Alignment.Top,
             horizontalArrangement = Arrangement.spacedBy(Spacing.s4),
         ) {
             CircleIconTile(
-                icon = Icons.Filled.NotificationsNone,
-                background = c.incomeSoft,
-                foreground = MaterialTheme.colorScheme.primary,
+                icon = icon,
+                background = tileBg,
+                foreground = tileFg,
             )
             Column(
                 modifier = Modifier.weight(1f),

@@ -6,6 +6,36 @@ All notable changes to Hisabak are documented here. Format based on
 
 ## [Unreleased]
 
+## [1.7.0] — 2026-06-25
+
+### Changed
+- **Refreshed iconography** — the app now uses the Hugeicons stroke icon set throughout (navigation,
+  actions, category tiles, notifications) for a lighter, more crafted look. The active bottom-nav tab
+  reads through its colored pill indicator.
+- **Redesigned Settings** — settings are now grouped into "Backup & security" and "Preferences",
+  each option on its own card with a leading icon, for a clearer, calmer layout.
+- **Totals in Manage** — each brand row and category tile now shows the total amount spent through
+  it, so you can see at a glance where your money goes.
+- **Day-grouped transactions** — the Transactions list now groups entries under day headings
+  (Today, Yesterday, dates), each day in its own card, with the category shown beside each entry.
+- **Clearer SMS auto-import banner** — the status banner on the SMS Inbox is now color-tinted with a
+  leading icon (green when active, amber when off) so its state reads at a glance.
+- **Income-ratio bar on Transactions** — the summary now shows a small bar with what share of the
+  period's money flow was income, so you can read your income-vs-spending balance at a glance.
+- **Notification icons by type** — budget-limit alerts now show an amber warning icon (instead of a
+  generic bell), so you can tell the kind of notification at a glance.
+- **Live SMS paste preview** — when you paste a bank message, the SMS Inbox now shows the brand and
+  amount it parsed before you import, so you can confirm it caught the right details.
+- **Top-bar logo** — the brand mark in the main screens' top bar is now a rounded square matching the
+  app icon, instead of a circle.
+
+### Security
+- Hardened backup encryption: the backup file header (salt, KDF iterations, IV) is now
+  cryptographically authenticated, so tampering with it is detected on restore. Existing
+  encrypted backups still restore unchanged.
+- The one-time plaintext-to-encrypted database migration now scrubs the old plaintext file
+  before removing it, reducing the chance of recovering it from device storage.
+
 ## [1.6.0] — 2026-06-24
 
 ### Added

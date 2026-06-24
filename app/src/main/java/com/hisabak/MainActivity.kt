@@ -1,5 +1,7 @@
 package com.hisabak
 
+import com.hisabak.ui.icons.HugeIcons
+
 import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -22,18 +24,6 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.List
-import androidx.compose.material.icons.automirrored.filled.Message
-import androidx.compose.material.icons.automirrored.outlined.List
-import androidx.compose.material.icons.automirrored.outlined.Message
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Layers
-import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.filled.SpaceDashboard
-import androidx.compose.material.icons.outlined.Layers
-import androidx.compose.material.icons.outlined.Settings
-import androidx.compose.material.icons.outlined.SpaceDashboard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -194,13 +184,12 @@ private enum class RootTab(
     val key: NavKey,
     val labelRes: Int,
     val icon: ImageVector,
-    val iconOutlined: ImageVector,
 ) {
-    Dashboard(DashboardKey, R.string.nav_dashboard, Icons.Filled.SpaceDashboard, Icons.Outlined.SpaceDashboard),
-    Transactions(TransactionsKey, R.string.nav_transactions, Icons.AutoMirrored.Filled.List, Icons.AutoMirrored.Outlined.List),
-    Sms(SmsKey, R.string.nav_sms, Icons.AutoMirrored.Filled.Message, Icons.AutoMirrored.Outlined.Message),
-    Manage(ManageKey, R.string.nav_manage, Icons.Filled.Layers, Icons.Outlined.Layers),
-    Settings(SettingsKey, R.string.nav_settings, Icons.Filled.Settings, Icons.Outlined.Settings),
+    Dashboard(DashboardKey, R.string.nav_dashboard, HugeIcons.SpaceDashboard),
+    Transactions(TransactionsKey, R.string.nav_transactions, HugeIcons.List),
+    Sms(SmsKey, R.string.nav_sms, HugeIcons.Message),
+    Manage(ManageKey, R.string.nav_manage, HugeIcons.Layers),
+    Settings(SettingsKey, R.string.nav_settings, HugeIcons.Settings),
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -260,7 +249,6 @@ private fun HisabakNav() {
             key = it.name,
             label = stringResource(it.labelRes),
             icon = it.icon,
-            iconOutlined = it.iconOutlined,
         )
     }
 
@@ -336,7 +324,7 @@ private fun HisabakNav() {
                     containerColor = MaterialTheme.colorScheme.primary,
                     contentColor = MaterialTheme.colorScheme.onPrimary,
                 ) {
-                    Icon(Icons.Filled.Add, contentDescription = stringResource(R.string.transaction_add))
+                    Icon(HugeIcons.Add, contentDescription = stringResource(R.string.transaction_add))
                 }
             }
         },

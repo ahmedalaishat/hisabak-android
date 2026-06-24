@@ -1,7 +1,7 @@
 /* SMS Inbox — auto-import status, paste & parse, message list. */
 function SmsInbox() {
   const NS = window.HisabakDesignSystem_aa2548;
-  const { Card, Button, SearchBar, StatusChip, AmountText, Input, Badge } = NS;
+  const { Card, Button, SearchBar, StatusChip, Input, Badge } = NS;
   const M = window.HisabakMock;
   const [autoOn, setAutoOn] = React.useState(false);
   const [q, setQ] = React.useState('');
@@ -32,7 +32,7 @@ function SmsInbox() {
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 12 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <Badge tone="info" dot>Talabat</Badge>
-            <AmountText value={89} tone="expense" sign="never" size={15} />
+            <Money value={89} tone="expense" sign="never" size={15} />
           </div>
           <Button size="sm" leadingIcon="download">Parse &amp; Import</Button>
         </div>
@@ -53,7 +53,7 @@ function SmsInbox() {
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 12, paddingTop: 10, borderTop: '1px solid var(--divider)' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                   <span style={{ fontFamily: 'var(--font-sans)', fontWeight: 600, fontSize: 14, color: 'var(--text-primary)' }}>{s.brand}</span>
-                  <AmountText value={-s.amount} tone="expense" sign="never" size={14} />
+                  <Money value={s.amount} tone="expense" sign="never" size={14} />
                 </div>
                 {s.status === 'parsed'
                   ? <Button size="sm" leadingIcon="download">Import</Button>
