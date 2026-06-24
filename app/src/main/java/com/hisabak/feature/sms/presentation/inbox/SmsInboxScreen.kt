@@ -37,10 +37,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.hisabak.R
 import com.hisabak.core.common.Money
+import com.hisabak.feature.sms.domain.ParsedSmsData
 import com.hisabak.feature.sms.domain.SmsMessageId
 import com.hisabak.ui.components.AmountText
 import com.hisabak.ui.components.compactAmount
 import com.hisabak.ui.components.AmountTone
+import com.hisabak.ui.components.Badge
+import com.hisabak.ui.components.BadgeTone
 import com.hisabak.ui.components.SkeletonRowList
 import com.hisabak.ui.components.EmptyStatePanel
 import com.hisabak.ui.components.HisabakButton
@@ -80,7 +83,7 @@ fun SmsInboxScreen(
             if (autoImportAvailable) {
                 item { AutoImportBanner(granted = state.autoImportGranted, onEnable = onEnableAutoImport) }
             }
-            item { PasteParseCard(draft = state.draftBody, isProcessing = state.isProcessing, onDraftChange = onDraftChange, onIngest = onIngest) }
+            item { PasteParseCard(draft = state.draftBody, preview = state.draftPreview, isProcessing = state.isProcessing, onDraftChange = onDraftChange, onIngest = onIngest) }
             item {
                 SearchField(
                     value = state.search,
@@ -174,6 +177,7 @@ private fun AutoImportBanner(granted: Boolean, onEnable: () -> Unit) {
 @Composable
 private fun PasteParseCard(
     draft: String,
+    preview: ParsedSmsData?,
     isProcessing: Boolean,
     onDraftChange: (String) -> Unit,
     onIngest: () -> Unit,
@@ -209,9 +213,22 @@ private fun PasteParseCard(
         Spacer(Modifier.height(Spacing.cardGap))
         Row(
             Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.End,
             verticalAlignment = Alignment.CenterVertically,
         ) {
+            // Live preview of what the draft will import — brand + amount — before tapping.
+            if (preview != null) {
+                Badge(label = preview.brandName.orEmpty(), tone = BadgeTone.Info, dot = true)
+                preview.amount?.let { amount ->
+                    Spacer(Modifier.width(Spacing.s3))
+                    AmountText(
+                        value = amount.amountMinor / 100.0,
+                        tone = AmountTone.Expense,
+                        showSign = false,
+                        size = 15.sp,
+                    )
+                }
+            }
+            Spacer(Modifier.weight(1f))
             if (isProcessing) {
                 CircularProgressIndicator(modifier = Modifier.size(18.dp), strokeWidth = 2.dp)
                 Spacer(Modifier.width(10.dp))
