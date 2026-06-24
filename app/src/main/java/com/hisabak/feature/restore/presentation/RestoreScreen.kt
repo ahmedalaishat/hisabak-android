@@ -1,5 +1,7 @@
 package com.hisabak.feature.restore.presentation
 
+import com.hisabak.ui.icons.HugeIcons
+
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedContentTransitionScope.SlideDirection
 import androidx.compose.animation.core.tween
@@ -17,9 +19,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.CloudDownload
-import androidx.compose.material.icons.rounded.Lock
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -88,7 +87,7 @@ fun RestoreScreen(
             RestoreView.Passphrase -> {
                 var passphrase by rememberSaveable { mutableStateOf("") }
                 RestorePane(
-                    heroIcon = Icons.Rounded.Lock,
+                    heroIcon = HugeIcons.Lock,
                     title = stringResource(R.string.restore_passphrase_title),
                     subtitle = stringResource(R.string.restore_passphrase_subtitle, state.account?.email ?: ""),
                     message = (state.message as? RestoreMessage.Failed)?.let { stringResource(it.error.messageRes()) },
@@ -109,7 +108,7 @@ fun RestoreScreen(
                 }
             }
             RestoreView.Intro -> RestorePane(
-                heroIcon = Icons.Rounded.CloudDownload,
+                heroIcon = HugeIcons.CloudDownload,
                 title = stringResource(R.string.restore_title),
                 subtitle = stringResource(R.string.restore_subtitle),
                 message = if (state.message is RestoreMessage.NothingFound) stringResource(R.string.restore_none_found) else null,

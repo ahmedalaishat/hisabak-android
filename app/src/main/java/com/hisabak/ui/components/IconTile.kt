@@ -5,20 +5,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccountBalanceWallet
-import androidx.compose.material.icons.filled.CardGiftcard
-import androidx.compose.material.icons.filled.Circle
-import androidx.compose.material.icons.filled.DirectionsCar
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.FlightTakeoff
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.MenuBook
-import androidx.compose.material.icons.filled.Movie
-import androidx.compose.material.icons.filled.Restaurant
-import androidx.compose.material.icons.filled.Savings
-import androidx.compose.material.icons.filled.ShoppingCart
-import androidx.compose.material.icons.filled.Work
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -29,6 +15,7 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.hisabak.ui.icons.HugeIcons
 import com.hisabak.ui.theme.HisabakTheme
 import com.hisabak.ui.theme.Sizing
 import com.hisabak.ui.theme.Spacing
@@ -102,19 +89,19 @@ fun tintPairForColor(key: String?): Pair<Color, Color> {
     }
 }
 
-/** Maps category icon keys (persisted as short strings) to Material vectors. */
+/** Maps category icon keys (persisted as short strings) to Hugeicons vectors. */
 fun iconForKey(key: String?): ImageVector = when (key) {
-    "wallet"    -> Icons.Filled.AccountBalanceWallet
-    "cart"      -> Icons.Filled.ShoppingCart
-    "briefcase" -> Icons.Filled.Work
-    "car"       -> Icons.Filled.DirectionsCar
-    "utensils"  -> Icons.Filled.Restaurant
-    "piggy-bank"-> Icons.Filled.Savings
-    "home"      -> Icons.Filled.Home
-    "film"      -> Icons.Filled.Movie
-    "book"      -> Icons.Filled.MenuBook
-    "heart"     -> Icons.Filled.Favorite
-    "gift"      -> Icons.Filled.CardGiftcard
-    "plane"     -> Icons.Filled.FlightTakeoff
-    else        -> Icons.Filled.Circle
+    "wallet"    -> HugeIcons.Wallet
+    "cart"      -> HugeIcons.Cart
+    "briefcase" -> HugeIcons.Briefcase
+    "car"       -> HugeIcons.Car
+    "utensils"  -> HugeIcons.Utensils
+    "piggy-bank"-> HugeIcons.PiggyBank
+    "home"      -> HugeIcons.Home
+    "film"      -> HugeIcons.Film
+    "book"      -> HugeIcons.Book
+    "heart"     -> HugeIcons.Heart
+    "gift"      -> HugeIcons.Gift
+    "plane"     -> HugeIcons.Plane
+    else        -> HugeIcons.Circle
 }

@@ -41,7 +41,11 @@ fun categoryGlyphBitmap(context: Context, iconKey: String?, colorKey: String?): 
     val glyph = sizePx - inset * 2
     val glyphPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         color = fg
-        style = Paint.Style.FILL
+        // Hugeicons are stroke outlines (1.5 in the 24dp viewport), not fills.
+        style = Paint.Style.STROKE
+        strokeWidth = 1.5f
+        strokeCap = Paint.Cap.ROUND
+        strokeJoin = Paint.Join.ROUND
     }
     canvas.save()
     canvas.translate(inset, inset)

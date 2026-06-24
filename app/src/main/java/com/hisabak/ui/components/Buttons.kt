@@ -1,5 +1,7 @@
 package com.hisabak.ui.components
 
+import com.hisabak.ui.icons.HugeIcons
+
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -10,8 +12,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -152,5 +152,5 @@ fun CreateActionButton(
     text = text,
     onClick = onClick,
     modifier = modifier,
-    leadingIcon = if (showIcon) Icons.Filled.Add else null,
+    leadingIcon = if (showIcon) HugeIcons.Add else null,
 )

@@ -1,5 +1,7 @@
 package com.hisabak.ui.components
 
+import com.hisabak.ui.icons.HugeIcons
+
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -19,9 +21,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.windowInsetsTopHeight
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -68,7 +67,7 @@ fun DetailTopBar(
                 modifier = Modifier.iconPressScale(pressed),
             ) {
                 Icon(
-                    Icons.AutoMirrored.Filled.ArrowBack,
+                    HugeIcons.ArrowBack,
                     contentDescription = stringResource(R.string.action_back),
                     tint = MaterialTheme.colorScheme.onSurface,
                 )
@@ -149,7 +148,7 @@ fun HisabakTopBar(
                     },
                 ) {
                     Icon(
-                        Icons.Filled.Notifications,
+                        HugeIcons.Notifications,
                         contentDescription = stringResource(R.string.notifications_title),
                         tint = MaterialTheme.colorScheme.onSurfaceVariant,
                     )

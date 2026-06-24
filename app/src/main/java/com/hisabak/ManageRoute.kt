@@ -1,5 +1,7 @@
 package com.hisabak
 
+import com.hisabak.ui.icons.HugeIcons
+
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -7,10 +9,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Category
-import androidx.compose.material.icons.filled.Storefront
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -65,7 +63,7 @@ fun ManageRoute(
                 ManageSwitchCard(
                     label = stringResource(R.string.common_brands),
                     count = counts.brands,
-                    icon = Icons.Filled.Storefront,
+                    icon = HugeIcons.Storefront,
                     selected = tab == ManageTab.Brands,
                     onClick = { tab = ManageTab.Brands },
                     modifier = Modifier.weight(1f),
@@ -73,7 +71,7 @@ fun ManageRoute(
                 ManageSwitchCard(
                     label = stringResource(R.string.common_categories),
                     count = counts.categories,
-                    icon = Icons.Filled.Category,
+                    icon = HugeIcons.Category,
                     selected = tab == ManageTab.Categories,
                     onClick = { tab = ManageTab.Categories },
                     modifier = Modifier.weight(1f),
@@ -108,7 +106,7 @@ fun ManageRoute(
                 .padding(Spacing.pageMargin),
         ) {
             Icon(
-                Icons.Filled.Add,
+                HugeIcons.Add,
                 contentDescription = stringResource(if (tab == ManageTab.Brands) R.string.brand_new_title else R.string.category_new_title),
             )
         }

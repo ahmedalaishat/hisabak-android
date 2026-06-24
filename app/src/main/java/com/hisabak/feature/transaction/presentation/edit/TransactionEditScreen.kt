@@ -1,5 +1,7 @@
 package com.hisabak.feature.transaction.presentation.edit
 
+import com.hisabak.ui.icons.HugeIcons
+
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,8 +21,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
@@ -158,7 +158,7 @@ fun TransactionEditScreen(
                 text = formatDate(state.occurredAt),
                 onClick = onDateClick,
                 variant = ButtonVariant.Secondary,
-                leadingIcon = Icons.Filled.CalendarToday,
+                leadingIcon = HugeIcons.CalendarToday,
                 fullWidth = true,
             )
         }

@@ -1,5 +1,7 @@
 package com.hisabak.feature.notification.presentation.list
 
+import com.hisabak.ui.icons.HugeIcons
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -13,8 +15,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.NotificationsNone
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SwipeToDismissBox
 import androidx.compose.material3.SwipeToDismissBoxValue
@@ -61,7 +61,7 @@ fun NotificationsScreen(
     if (state.rows.isEmpty()) {
         EmptyStatePanel(
             modifier = modifier.fillMaxSize(),
-            icon = Icons.Filled.NotificationsNone,
+            icon = HugeIcons.NotificationsNone,
             title = stringResource(R.string.notifications_empty_title),
             subtitle = stringResource(R.string.notifications_empty_subtitle),
         )
@@ -127,7 +127,7 @@ private fun NotificationCard(row: NotificationRow, onClick: () -> Unit) {
             horizontalArrangement = Arrangement.spacedBy(Spacing.s4),
         ) {
             CircleIconTile(
-                icon = Icons.Filled.NotificationsNone,
+                icon = HugeIcons.NotificationsNone,
                 background = c.incomeSoft,
                 foreground = MaterialTheme.colorScheme.primary,
             )
