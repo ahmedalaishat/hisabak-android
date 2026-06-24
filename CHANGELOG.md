@@ -24,6 +24,8 @@ All notable changes to Hisabak are documented here. Format based on
   generic bell), so you can tell the kind of notification at a glance.
 - **Live SMS paste preview** — when you paste a bank message, the SMS Inbox now shows the brand and
   amount it parsed before you import, so you can confirm it caught the right details.
+- **Top-bar logo** — the brand mark in the main screens' top bar is now a rounded square matching the
+  app icon, instead of a circle.
 
 ## [1.6.0] — 2026-06-24
 

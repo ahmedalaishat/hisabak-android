@@ -20,7 +20,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.windowInsetsTopHeight
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -105,11 +105,14 @@ fun HisabakTopBar(
             horizontalArrangement = Arrangement.SpaceBetween,
         ) {
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(Spacing.cardGap)) {
+            // Rounded square (~25% radius squircle) to match the Hisabak app-icon mark,
+            // not a circle. See the design's logo-mark.svg / TopAppBar component.
+            val logoShape = RoundedCornerShape(percent = 25)
             Box(
                 Modifier
                     .size(Sizing.avatar)
-                    .clip(CircleShape)
-                    .border(1.dp, MaterialTheme.colorScheme.outlineVariant, CircleShape),
+                    .clip(logoShape)
+                    .border(1.dp, MaterialTheme.colorScheme.outlineVariant, logoShape),
             ) {
                 Image(
                     painter = painterResource(R.drawable.ic_launcher_background),
