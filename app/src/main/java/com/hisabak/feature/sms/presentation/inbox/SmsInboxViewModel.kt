@@ -4,7 +4,10 @@ import androidx.lifecycle.viewModelScope
 import com.hisabak.core.common.DomainError
 import com.hisabak.core.common.DomainResult
 import com.hisabak.core.presentation.BaseViewModel
+import com.hisabak.feature.sms.domain.ParsedSmsData
 import com.hisabak.feature.sms.domain.SmsMessage
+import com.hisabak.feature.sms.domain.SmsParser
+import com.hisabak.feature.sms.domain.SmsTemplateDetector
 import com.hisabak.feature.sms.domain.capture.CaptureSource
 import com.hisabak.feature.sms.domain.capture.CaptureTransactionUseCase
 import com.hisabak.feature.sms.domain.usecase.DeleteSmsUseCase
@@ -21,6 +24,8 @@ class SmsInboxViewModel(
     private val observeMessages: ObserveSmsMessagesUseCase,
     private val capture: CaptureTransactionUseCase,
     private val deleteSms: DeleteSmsUseCase,
+    private val detector: SmsTemplateDetector,
+    private val parser: SmsParser,
 ) : BaseViewModel<SmsInboxIntent, SmsInboxUiState, SmsInboxEffect>() {
 
     override fun initialState() = SmsInboxUiState()
@@ -34,7 +39,7 @@ class SmsInboxViewModel(
             is SmsInboxIntent.SearchChanged ->
                 setState { copy(search = intent.query) }
             is SmsInboxIntent.DraftChanged ->
-                setState { copy(draftBody = intent.body) }
+                setState { copy(draftBody = intent.body, draftPreview = previewOf(intent.body)) }
             SmsInboxIntent.IngestDraft -> ingestDraft()
             is SmsInboxIntent.Delete ->
                 viewModelScope.launch { deleteSms(intent.id) }
@@ -42,6 +47,15 @@ class SmsInboxViewModel(
                 setState { copy(autoImportGranted = intent.granted) }
             SmsInboxIntent.ConsumeEffect -> clearEffect()
         }
+    }
+
+    /** Parse the draft for a live preview (brand + amount) without persisting; null if it doesn't
+     *  match a known bank-SMS template or is incomplete. */
+    private fun previewOf(body: String): ParsedSmsData? {
+        val trimmed = body.trim()
+        if (trimmed.isEmpty()) return null
+        val template = detector.detect(trimmed) ?: return null
+        return parser.parse(trimmed, template).takeIf { it.isComplete }
     }
 
     private fun ingestDraft() {
@@ -52,7 +66,7 @@ class SmsInboxViewModel(
             when (val result = capture(body, CaptureSource.MANUAL_PASTE)) {
                 is DomainResult.Success -> {
                     sendEffect(SmsInboxEffect.TransactionCreated(amount = result.value.amount))
-                    setState { copy(draftBody = "", isProcessing = false) }
+                    setState { copy(draftBody = "", draftPreview = null, isProcessing = false) }
                 }
                 is DomainResult.Failure -> {
                     sendEffect(SmsInboxEffect.ParseFailed(reasonFor(result.error)))

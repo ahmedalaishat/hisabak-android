@@ -22,6 +22,8 @@ All notable changes to Hisabak are documented here. Format based on
   period's money flow was income, so you can read your income-vs-spending balance at a glance.
 - **Notification icons by type** — budget-limit alerts now show an amber warning icon (instead of a
   generic bell), so you can tell the kind of notification at a glance.
+- **Live SMS paste preview** — when you paste a bank message, the SMS Inbox now shows the brand and
+  amount it parsed before you import, so you can confirm it caught the right details.
 
 ## [1.6.0] — 2026-06-24
 
