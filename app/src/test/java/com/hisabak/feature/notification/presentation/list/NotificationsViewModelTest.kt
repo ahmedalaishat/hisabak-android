@@ -38,6 +38,18 @@ class NotificationsViewModelTest {
     }
 
     @Test
+    fun `rows carry the notification type for per-type styling`() = runTest {
+        repo.create(notification(id = "limit", type = com.hisabak.feature.notification.domain.Notification.TYPE_CATEGORY_LIMIT))
+        repo.create(notification(id = "tx", type = com.hisabak.feature.notification.domain.Notification.TYPE_TRANSACTION_RECORDED))
+        val vm = NotificationsViewModel(repo)
+        advanceUntilIdle()
+
+        val byId = vm.state.value.rows.associateBy { it.id.value }
+        assertEquals(com.hisabak.feature.notification.domain.Notification.TYPE_CATEGORY_LIMIT, byId.getValue("limit").type)
+        assertEquals(com.hisabak.feature.notification.domain.Notification.TYPE_TRANSACTION_RECORDED, byId.getValue("tx").type)
+    }
+
+    @Test
     fun `marking one as read updates that row`() = runTest {
         seed()
         val vm = NotificationsViewModel(repo)

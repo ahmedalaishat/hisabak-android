@@ -37,6 +37,7 @@ class NotificationsViewModel(
         id = n.id,
         title = n.title,
         message = n.message,
+        type = n.type,
         createdAt = n.createdAt,
         isRead = n.isRead,
         categoryId = n.categoryId,
