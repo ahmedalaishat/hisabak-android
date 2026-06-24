@@ -57,7 +57,7 @@ const freePaths = (exportName) => {
 const chrome = {
   AccountBalanceWallet: 'account_balance_wallet', Add: 'add', ArrowBack: 'arrow_back',
   Bolt: 'bolt', CalendarToday: 'calendar_today', CardGiftcard: 'card_giftcard',
-  Category: 'category', Check: 'check', ChevronRight: 'chevron_right',
+  Category: 'category', Check: 'check', CheckCircle: 'check_circle', ChevronRight: 'chevron_right',
   CloudDownload: 'cloud_download', CloudOff: 'cloud_off', CloudSync: 'cloud_sync',
   CloudUpload: 'cloud_upload', DirectionsCar: 'directions_car', Download: 'download',
   ErrorOutline: 'error', ExpandLess: 'expand_less', ExpandMore: 'expand_more',

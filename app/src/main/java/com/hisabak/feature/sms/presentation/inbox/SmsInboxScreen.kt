@@ -30,6 +30,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -40,9 +41,7 @@ import com.hisabak.feature.sms.domain.SmsMessageId
 import com.hisabak.ui.components.AmountText
 import com.hisabak.ui.components.compactAmount
 import com.hisabak.ui.components.AmountTone
-import com.hisabak.ui.components.Badge
 import com.hisabak.ui.components.SkeletonRowList
-import com.hisabak.ui.components.BadgeTone
 import com.hisabak.ui.components.EmptyStatePanel
 import com.hisabak.ui.components.HisabakButton
 import com.hisabak.ui.components.ButtonVariant
@@ -52,6 +51,7 @@ import com.hisabak.ui.components.SectionHeader
 import com.hisabak.ui.components.SmsStatus
 import com.hisabak.ui.components.StatusChip
 import com.hisabak.ui.components.SurfaceCard
+import com.hisabak.ui.theme.HisabakTheme
 import com.hisabak.ui.theme.Sizing
 import com.hisabak.ui.theme.Spacing
 import java.time.ZoneId
@@ -126,58 +126,45 @@ fun SmsInboxScreen(
 
 @Composable
 private fun AutoImportBanner(granted: Boolean, onEnable: () -> Unit) {
-    SurfaceCard(modifier = Modifier.fillMaxWidth()) {
-        if (granted) {
-            // Compact: the "Active" badge is small and sits inline with the copy.
-            Row(
-                Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(Spacing.cardGap),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(Spacing.s2)) {
-                    Text(
-                        stringResource(R.string.sms_auto_active_title),
-                        style = MaterialTheme.typography.titleSmall,
-                        color = MaterialTheme.colorScheme.onSurface,
-                    )
-                    Text(
-                        stringResource(R.string.sms_auto_active_body),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
-                Badge(label = stringResource(R.string.sms_auto_active_badge), tone = BadgeTone.Income)
+    val colors = HisabakTheme.colors
+    // Tinted banner with a leading status icon: green/active vs amber/disabled.
+    val tint = if (granted) colors.incomeSoft else colors.warningSoft
+    val accent = if (granted) colors.income else colors.warning
+    val icon = if (granted) HugeIcons.CheckCircle else HugeIcons.ErrorOutline
+    SurfaceCard(
+        modifier = Modifier.fillMaxWidth(),
+        backgroundColor = tint,
+        borderColor = Color.Transparent,
+    ) {
+        Row(
+            Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(Spacing.cardGap),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Icon(
+                icon,
+                contentDescription = null,
+                tint = accent,
+                modifier = Modifier.size(Sizing.icon),
+            )
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(Spacing.s2)) {
+                Text(
+                    stringResource(if (granted) R.string.sms_auto_active_title else R.string.sms_auto_disabled_title),
+                    style = MaterialTheme.typography.titleSmall,
+                    color = MaterialTheme.colorScheme.onSurface,
+                )
+                Text(
+                    stringResource(if (granted) R.string.sms_auto_active_body else R.string.sms_auto_disabled_body),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
             }
-        } else {
-            // Stack vertically so the title isn't squeezed by the badge + Enable button.
-            Column(
-                Modifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(Spacing.s4),
-            ) {
-                Column(verticalArrangement = Arrangement.spacedBy(Spacing.s2)) {
-                    Text(
-                        stringResource(R.string.sms_auto_disabled_title),
-                        style = MaterialTheme.typography.titleSmall,
-                        color = MaterialTheme.colorScheme.onSurface,
-                    )
-                    Text(
-                        stringResource(R.string.sms_auto_disabled_body),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
-                Row(
-                    Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Badge(label = stringResource(R.string.sms_auto_off_badge), tone = BadgeTone.Warning, dot = true)
-                    Spacer(Modifier.weight(1f))
-                    HisabakButton(
-                        text = stringResource(R.string.sms_enable),
-                        onClick = onEnable,
-                        variant = ButtonVariant.Primary,
-                    )
-                }
+            if (!granted) {
+                HisabakButton(
+                    text = stringResource(R.string.sms_enable),
+                    onClick = onEnable,
+                    variant = ButtonVariant.Primary,
+                )
             }
         }
     }
