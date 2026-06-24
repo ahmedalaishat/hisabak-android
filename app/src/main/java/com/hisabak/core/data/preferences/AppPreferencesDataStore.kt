@@ -5,6 +5,7 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.hisabak.core.domain.AppPreferences
@@ -24,6 +25,7 @@ class AppPreferencesDataStore(private val context: Context) : AppPreferences {
     private val backupEncryptionKey = booleanPreferencesKey("backup_encryption_enabled")
     private val autoBackupPeriodKey = stringPreferencesKey("auto_backup_period")
     private val restoreOfferedKey = booleanPreferencesKey("restore_offered")
+    private val passphraseConfirmedAtKey = longPreferencesKey("passphrase_confirmed_at")
 
     override val onboardingCompleted: Flow<Boolean> =
         context.dataStore.data.map { it[onboardingKey] ?: false }
@@ -77,5 +79,12 @@ class AppPreferencesDataStore(private val context: Context) : AppPreferences {
 
     override suspend fun setRestoreOffered(value: Boolean) {
         context.dataStore.edit { it[restoreOfferedKey] = value }
+    }
+
+    override val passphraseConfirmedAt: Flow<Long> =
+        context.dataStore.data.map { it[passphraseConfirmedAtKey] ?: 0L }
+
+    override suspend fun setPassphraseConfirmedAt(value: Long) {
+        context.dataStore.edit { it[passphraseConfirmedAtKey] = value }
     }
 }

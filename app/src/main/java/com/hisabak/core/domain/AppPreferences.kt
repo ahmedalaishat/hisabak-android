@@ -39,4 +39,10 @@ interface AppPreferences {
     val restoreOffered: Flow<Boolean>
 
     suspend fun setRestoreOffered(value: Boolean)
+
+    /** When the backup passphrase was last set or confirmed (epoch millis); `0` if never — drives
+     *  the periodic "do you still remember your passphrase?" reminder. */
+    val passphraseConfirmedAt: Flow<Long>
+
+    suspend fun setPassphraseConfirmedAt(value: Long)
 }
