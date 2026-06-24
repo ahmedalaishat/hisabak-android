@@ -71,6 +71,7 @@ val backupModule = module {
             accountStore = get(),
             authorizer = get(),
             runBackup = get(),
+            remote = get(),
             analytics = get(),
         )
     }
@@ -79,6 +80,7 @@ val backupModule = module {
             restoreFromRemote = get(),
             authorizer = get(),
             accountStore = get(),
+            passphraseStore = get(),
             preferences = get(),
             analytics = get(),
         )

@@ -70,6 +70,25 @@
     <string name="settings_backup_restore">النسخ الاحتياطي</string>
     <string name="settings_backup_restore_hint">انسخ بياناتك احتياطيًا إلى Google Drive.</string>
     <string name="backup_title">النسخ الاحتياطي</string>
+    <string name="backup_header_title">النسخ الاحتياطي عبر Google Drive</string>
+    <string name="backup_header_subtitle">احتفظ بنسخة مشفّرة من بياناتك في Drive الخاص بك — واستعدها على جهاز جديد.</string>
+    <string name="backup_turn_on">تشغيل النسخ الاحتياطي</string>
+    <string name="backup_turn_off">إيقاف النسخ الاحتياطي</string>
+    <string name="backup_turn_off_title">إيقاف النسخ الاحتياطي؟</string>
+    <string name="backup_turn_off_message">ستتوقف النسخ التلقائية وستُمسح عبارة المرور. لن تُحذف النسخ الموجودة في Google Drive.</string>
+    <string name="backup_tap_connect">انقر لربط حساب</string>
+    <string name="backup_last">آخر نسخة %1$s · %2$s</string>
+    <string name="backup_last_line">آخر نسخة احتياطية: %1$s</string>
+    <string name="backup_size_line">الحجم الكلي: %1$s</string>
+    <string name="backup_never">لا توجد نسخ احتياطية بعد</string>
+    <string name="backup_change">تغيير</string>
+    <string name="backup_set">تعيين</string>
+    <string name="backup_point_encrypted_title">مشفّرة بعبارة المرور الخاصة بك</string>
+    <string name="backup_point_encrypted_sub">أنت وحدك من يمكنه فتحها — ولا نحن.</string>
+    <string name="backup_point_restore_title">استعادة على جهاز جديد</string>
+    <string name="backup_point_restore_sub">تابع من حيث توقفت.</string>
+    <string name="backup_point_auto_title">نسخ احتياطية تلقائية</string>
+    <string name="backup_point_auto_sub">يوميًا أو أسبوعيًا أو شهريًا — حسب اختيارك.</string>
     <string name="backup_drive_title">Google Drive</string>
     <string name="backup_security_title">الأمان</string>
     <string name="backup_enable">النسخ الاحتياطي إلى Google Drive</string>
@@ -81,6 +100,14 @@
     <string name="backup_passphrase_set">تم تعيين عبارة المرور</string>
     <string name="backup_passphrase_not_set">لم تُعيَّن بعد</string>
     <string name="backup_passphrase_warning">مهم: احفظ عبارة المرور هذه. فهي تشفّر نسختك الاحتياطية وهي الطريقة الوحيدة لاستعادتها — ولا يمكننا استرجاعها لك.</string>
+    <string name="backup_passphrase_upcoming">ستُستخدم في نسخك الاحتياطية القادمة.</string>
+    <string name="backup_pass_changed_title">تم تحديث عبارة المرور</string>
+    <string name="backup_pass_changed_message">ستُستخدم عبارة المرور الجديدة في النسخ القادمة. انسخ احتياطيًا الآن لتستخدمها أحدث نسخة في Drive.</string>
+    <string name="backup_pass_changed_later">ليس الآن</string>
+    <string name="backup_enc_on_title">تم تفعيل التشفير</string>
+    <string name="backup_enc_on_message">ستكون نسخك القادمة مشفّرة بعبارة المرور. انسخ احتياطيًا الآن لتحديث النسخة في Drive.</string>
+    <string name="backup_enc_off_title">تم إيقاف التشفير</string>
+    <string name="backup_enc_off_message">لن تكون نسخك القادمة مشفّرة. انسخ احتياطيًا الآن لتحديث النسخة في Drive.</string>
     <string name="backup_passphrase_too_short">استخدم 8 أحرف على الأقل.</string>
     <string name="backup_passphrase_mismatch">عبارتا المرور غير متطابقتين.</string>
     <string name="backup_passphrase_sheet_title">تعيين عبارة مرور النسخ الاحتياطي</string>
@@ -104,10 +131,29 @@
     <string name="backup_err_corrupt">النسخة الاحتياطية تالفة أو غير قابلة للقراءة.</string>
     <string name="backup_err_unsupported">أُنشئت هذه النسخة الاحتياطية بإصدار أحدث من حسابك. حدّث التطبيق وحاول مجددًا.</string>
 
+    <!-- Sync progress (backup / restore) -->
+    <string name="sync_backup_running_title">جارٍ النسخ الاحتياطي…</string>
+    <string name="sync_backup_running_sub">يجري رفع بياناتك إلى Google Drive</string>
+    <string name="sync_restore_running_title">جارٍ استعادة بياناتك</string>
+    <string name="sync_restore_running_sub">يجري التنزيل من Google Drive…</string>
+    <string name="sync_backup_done_title">اكتمل النسخ الاحتياطي</string>
+    <string name="sync_backup_done_sub">بياناتك محفوظة بأمان في Google Drive.</string>
+    <string name="sync_restore_done_title">تم بنجاح</string>
+    <string name="sync_restore_done_sub">تمت استعادة %1$d عنصرًا.</string>
+    <string name="sync_backup_failed_title">تعذّر النسخ الاحتياطي</string>
+    <string name="sync_restore_failed_title">تعذّرت الاستعادة</string>
+    <string name="sync_continue">متابعة</string>
+    <string name="sync_try_again">إعادة المحاولة</string>
+    <string name="sync_close">إغلاق</string>
+
     <!-- Restore (first launch) -->
+    <string name="restore_overline">استعادة</string>
     <string name="restore_title">استعادة بياناتك</string>
     <string name="restore_subtitle">إذا سبق أن نسخت بياناتك إلى Google Drive، فاستعدها الآن. يمكنك أيضًا فعل ذلك لاحقًا من الإعدادات.</string>
-    <string name="restore_choose_account">اختر حساب Google</string>
+    <string name="restore_passphrase_title">أدخل عبارة المرور</string>
+    <string name="restore_passphrase_subtitle">وجدنا نسخة احتياطية مشفّرة لحساب %1$s. أدخل عبارة المرور لاستعادتها.</string>
+    <string name="restore_connect">استعادة من Drive</string>
+    <string name="restore_try_another">جرّب حسابًا آخر</string>
     <string name="restore_action">استعادة</string>
     <string name="restore_skip">تخطٍّ</string>
     <string name="restore_none_found">لا توجد نسخة احتياطية لهذا الحساب.</string>

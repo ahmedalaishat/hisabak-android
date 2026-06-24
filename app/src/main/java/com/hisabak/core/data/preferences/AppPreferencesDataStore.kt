@@ -56,7 +56,7 @@ class AppPreferencesDataStore(private val context: Context) : AppPreferences {
     }
 
     override val backupEncryptionEnabled: Flow<Boolean> =
-        context.dataStore.data.map { it[backupEncryptionKey] ?: true }
+        context.dataStore.data.map { it[backupEncryptionKey] ?: false }
 
     override suspend fun setBackupEncryptionEnabled(value: Boolean) {
         context.dataStore.edit { it[backupEncryptionKey] = value }

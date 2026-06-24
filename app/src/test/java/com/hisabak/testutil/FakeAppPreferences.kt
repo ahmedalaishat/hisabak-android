@@ -26,7 +26,7 @@ class FakeAppPreferences(
     override val backupEnabled: Flow<Boolean> = backupFlow
     override suspend fun setBackupEnabled(value: Boolean) { backupFlow.value = value }
 
-    private val encryptionFlow = MutableStateFlow(true)
+    private val encryptionFlow = MutableStateFlow(false)
     override val backupEncryptionEnabled: Flow<Boolean> = encryptionFlow
     override suspend fun setBackupEncryptionEnabled(value: Boolean) { encryptionFlow.value = value }
 

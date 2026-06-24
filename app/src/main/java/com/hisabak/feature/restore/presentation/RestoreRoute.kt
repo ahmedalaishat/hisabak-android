@@ -29,6 +29,7 @@ fun RestoreRoute(
         },
         onSubmitPassphrase = viewModel::submitPassphrase,
         onSkip = viewModel::skip,
+        onFinish = viewModel::finishRestore,
         modifier = modifier,
     )
 }

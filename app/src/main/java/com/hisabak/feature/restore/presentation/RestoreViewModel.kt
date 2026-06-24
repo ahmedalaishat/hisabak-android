@@ -12,8 +12,10 @@ import com.hisabak.core.domain.analytics.AnalyticsEvent
 import com.hisabak.core.domain.backup.BackupAccount
 import com.hisabak.core.domain.backup.BackupAccountStore
 import com.hisabak.core.domain.backup.BackupError
+import com.hisabak.core.domain.backup.BackupPassphraseStore
 import com.hisabak.core.domain.backup.RestoreFromRemoteUseCase
 import com.hisabak.core.domain.backup.RestoreResult
+import com.hisabak.feature.backup.presentation.SyncPhase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -27,9 +29,10 @@ sealed interface RestoreMessage {
 
 data class RestoreUiState(
     val account: BackupAccount? = null,
-    val busy: Boolean = false,
     val needsPassphrase: Boolean = false,
     val message: RestoreMessage? = null,
+    // Non-null while the restore operation is running / done — drives the full-screen SyncScreen.
+    val sync: SyncPhase? = null,
 )
 
 /**
@@ -41,6 +44,7 @@ class RestoreViewModel(
     private val restoreFromRemote: RestoreFromRemoteUseCase,
     private val authorizer: DriveAuthorizer,
     private val accountStore: BackupAccountStore,
+    private val passphraseStore: BackupPassphraseStore,
     private val preferences: AppPreferences,
     private val analytics: Analytics,
 ) : ViewModel() {
@@ -73,6 +77,11 @@ class RestoreViewModel(
         viewModelScope.launch { preferences.setRestoreOffered(true) }
     }
 
+    /** Continue after a successful restore → leave the first-launch flow into the app. */
+    fun finishRestore() {
+        viewModelScope.launch { preferences.setRestoreOffered(true) }
+    }
+
     private suspend fun onConnected(account: BackupAccount) {
         accountStore.set(account)
         _state.update { it.copy(account = account) }
@@ -84,19 +93,38 @@ class RestoreViewModel(
     }
 
     private suspend fun attemptNow(passphrase: String?) {
-        _state.update { it.copy(busy = true, message = null) }
+        _state.update { it.copy(sync = SyncPhase.Running, message = null, needsPassphrase = false) }
         when (val result = restoreFromRemote(passphrase)) {
             RestoreResult.PassphraseRequired ->
-                _state.update { it.copy(busy = false, needsPassphrase = true) }
+                _state.update { it.copy(sync = null, needsPassphrase = true) }
             is RestoreResult.Success -> {
                 analytics.log(AnalyticsEvent.BackupRestoreCompleted(true))
-                preferences.setRestoreOffered(true) // gate moves the app on; Room flows refresh live
+                // They restored from a backup, so set them up to keep backing up: turn backup on,
+                // and carry over the passphrase + encryption if the backup was encrypted. (The
+                // account is already stored from onConnected.)
+                preferences.setBackupEnabled(true)
+                if (passphrase != null) {
+                    passphraseStore.set(passphrase)
+                    preferences.setBackupEncryptionEnabled(true)
+                } else {
+                    preferences.setBackupEncryptionEnabled(false)
+                }
+                // Show the success screen; Room flows refresh live. Continue → finishRestore().
+                _state.update { it.copy(sync = SyncPhase.Done(result.restoredRecords)) }
             }
             RestoreResult.NothingToRestore ->
-                _state.update { it.copy(busy = false, message = RestoreMessage.NothingFound) }
+                _state.update { it.copy(sync = null, message = RestoreMessage.NothingFound) }
             is RestoreResult.Failure -> {
                 analytics.log(AnalyticsEvent.BackupRestoreCompleted(false))
-                _state.update { it.copy(busy = false, message = RestoreMessage.Failed(result.error)) }
+                // A wrong passphrase keeps the user on the passphrase entry to retry, rather than
+                // bouncing back to the account step (which would silently re-use the same account).
+                _state.update {
+                    it.copy(
+                        sync = null,
+                        message = RestoreMessage.Failed(result.error),
+                        needsPassphrase = result.error == BackupError.WrongPassphrase,
+                    )
+                }
             }
         }
     }

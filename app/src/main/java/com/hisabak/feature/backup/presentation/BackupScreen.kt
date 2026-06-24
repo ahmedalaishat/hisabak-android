@@ -1,43 +1,79 @@
 package com.hisabak.feature.backup.presentation
 
+import android.text.format.DateUtils
+import android.text.format.Formatter
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedContentTransitionScope.SlideDirection
+import androidx.compose.animation.SizeTransform
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowRight
+import androidx.compose.material.icons.rounded.CloudDownload
+import androidx.compose.material.icons.rounded.CloudSync
+import androidx.compose.material.icons.rounded.CloudUpload
+import androidx.compose.material.icons.rounded.Key
+import androidx.compose.material.icons.rounded.Lock
+import androidx.compose.material.icons.rounded.Schedule
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.unit.dp
 import com.hisabak.R
 import com.hisabak.core.domain.backup.AutoBackupPeriod
 import com.hisabak.core.domain.backup.BackupError
 import com.hisabak.ui.components.ButtonVariant
 import com.hisabak.ui.components.HisabakButton
-import com.hisabak.ui.components.SectionHeader
 import com.hisabak.ui.components.SurfaceCard
+import com.hisabak.ui.theme.Motion
 import com.hisabak.ui.theme.Spacing
 
 private const val MIN_PASSPHRASE_LENGTH = 8
+
+/** Why we're offering to re-back-up: passphrase changed, encryption turned on, or encryption off. */
+private enum class BackupPrompt { PassphraseChanged, EncryptionOn, EncryptionOff }
 
 @Composable
 fun BackupScreen(
@@ -48,99 +84,236 @@ fun BackupScreen(
     onSetPeriod: (AutoBackupPeriod) -> Unit,
     onConnectAccount: () -> Unit,
     onBackupNow: () -> Unit,
-    onDismissMessage: () -> Unit,
+    onClearError: () -> Unit,
+    onDismissSync: () -> Unit,
     modifier: Modifier = Modifier,
+) {
+    AnimatedContent(
+        targetState = state.sync,
+        // Settings → Sync slides forward (in from the end); Sync → Settings slides back. RTL-aware.
+        transitionSpec = {
+            val towards = if (targetState != null) SlideDirection.Start else SlideDirection.End
+            (slideIntoContainer(towards, tween(Motion.Duration.Slow, easing = Motion.Easing.Standard)) +
+                fadeIn(tween(Motion.Duration.Base))) togetherWith
+                (slideOutOfContainer(towards, tween(Motion.Duration.Slow, easing = Motion.Easing.Standard)) +
+                    fadeOut(tween(Motion.Duration.Base)))
+        },
+        label = "backupSync",
+        modifier = modifier,
+    ) { sync ->
+        if (sync != null) {
+            SyncScreen(
+                kind = SyncKind.BackUp,
+                phase = sync,
+                onContinue = onDismissSync,
+                onRetry = onBackupNow,
+                onClose = onDismissSync,
+            )
+        } else {
+            BackupSettings(
+                state = state,
+                onSetEnabled = onSetEnabled,
+                onSetEncryptionEnabled = onSetEncryptionEnabled,
+                onSetPassphrase = onSetPassphrase,
+                onSetPeriod = onSetPeriod,
+                onConnectAccount = onConnectAccount,
+                onBackupNow = onBackupNow,
+                onClearError = onClearError,
+            )
+        }
+    }
+}
+
+@Composable
+private fun BackupSettings(
+    state: BackupUiState,
+    onSetEnabled: (Boolean) -> Unit,
+    onSetEncryptionEnabled: (Boolean) -> Unit,
+    onSetPassphrase: (String) -> Unit,
+    onSetPeriod: (AutoBackupPeriod) -> Unit,
+    onConnectAccount: () -> Unit,
+    onBackupNow: () -> Unit,
+    onClearError: () -> Unit,
 ) {
     var showPassphraseSheet by rememberSaveable { mutableStateOf(false) }
     var showPeriodSheet by rememberSaveable { mutableStateOf(false) }
+    var showTurnOff by rememberSaveable { mutableStateOf(false) }
+    // After a change that affects future backups (new passphrase / encryption off), offer to re-back-up.
+    var backupPrompt by remember { mutableStateOf<BackupPrompt?>(null) }
+    // Shows the encryption toggle "on" while the set-passphrase sheet is open, before it's persisted.
+    var pendingEncrypt by remember { mutableStateOf(false) }
 
-    val canBackupNow = !state.busy && state.account != null &&
-        (!state.encryptionEnabled || state.passphraseSet)
+    val canBackupNow = state.account != null && (!state.encryptionEnabled || state.passphraseSet)
 
     Column(
-        modifier = modifier
+        modifier = Modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
             .padding(Spacing.pageMargin),
         verticalArrangement = Arrangement.spacedBy(Spacing.sectionGap),
     ) {
-        state.message?.let { MessageBanner(it, onDismissMessage) }
+        BackupHeader()
 
-        // ---- Google Drive ----
-        Section(title = stringResource(R.string.backup_drive_title)) {
-            SettingRow(
-                title = stringResource(R.string.backup_enable),
-                subtitle = stringResource(R.string.backup_enable_hint),
-            ) {
-                Switch(
-                    checked = state.enabled,
-                    onCheckedChange = { enabled ->
-                        onSetEnabled(enabled)
-                        if (enabled && state.account == null) onConnectAccount()
-                    },
-                )
-            }
+        state.error?.let { ErrorBanner(it, onClearError) }
 
-            if (state.enabled) {
-                SettingRow(
-                    title = stringResource(R.string.backup_account),
-                    subtitle = state.account?.email ?: stringResource(R.string.backup_account_not_connected),
-                    onClick = onConnectAccount,
-                )
-                SettingRow(
-                    title = stringResource(R.string.backup_auto_title),
-                    subtitle = stringResource(state.period.labelRes()),
-                    onClick = { showPeriodSheet = true },
-                )
-                HisabakButton(
-                    text = stringResource(if (state.busy) R.string.backup_running else R.string.backup_now),
-                    onClick = onBackupNow,
-                    variant = ButtonVariant.Primary,
-                    enabled = canBackupNow,
-                    fullWidth = true,
-                )
-            }
-        }
-
-        // ---- Security ----
-        if (state.enabled) {
-            Section(title = stringResource(R.string.backup_security_title)) {
-                SettingRow(
-                    title = stringResource(R.string.backup_encrypt),
-                    subtitle = stringResource(R.string.backup_encrypt_hint),
-                ) {
-                    Switch(
-                        checked = state.encryptionEnabled,
-                        onCheckedChange = { enabled ->
-                            onSetEncryptionEnabled(enabled)
-                            if (enabled && !state.passphraseSet) showPassphraseSheet = true
+        if (state.ready) AnimatedContent(
+            targetState = state.enabled,
+            transitionSpec = {
+                (fadeIn(tween(Motion.Duration.Slow)) +
+                    slideInVertically(tween(Motion.Duration.Slow, easing = Motion.Easing.Standard)) { it / 10 }) togetherWith
+                    fadeOut(tween(Motion.Duration.Base)) using SizeTransform(clip = false)
+            },
+            label = "backupEnabled",
+        ) { enabled ->
+            if (!enabled) {
+                Column(verticalArrangement = Arrangement.spacedBy(Spacing.sectionGap)) {
+                    BenefitsList()
+                    HisabakButton(
+                        text = stringResource(R.string.backup_turn_on),
+                        onClick = {
+                            onSetEnabled(true)
+                            if (state.account == null) onConnectAccount()
                         },
+                        fullWidth = true,
                     )
                 }
-                if (state.encryptionEnabled) {
-                    SettingRow(
-                        title = stringResource(R.string.backup_passphrase),
-                        subtitle = stringResource(
-                            if (state.passphraseSet) R.string.backup_passphrase_set
-                            else R.string.backup_passphrase_not_set,
-                        ),
-                        onClick = { showPassphraseSheet = true },
+            } else {
+                Column(verticalArrangement = Arrangement.spacedBy(Spacing.sectionGap)) {
+                    LastBackupCard(state = state)
+
+                    HisabakButton(
+                        text = stringResource(R.string.backup_now),
+                        onClick = onBackupNow,
+                        enabled = canBackupNow,
+                        fullWidth = true,
+                    )
+
+                    SurfaceCard(modifier = Modifier.fillMaxWidth(), contentPadding = 0.dp) {
+                        SettingsRow(
+                            icon = Icons.Rounded.Schedule,
+                            title = stringResource(R.string.backup_auto_title),
+                            value = stringResource(state.period.labelRes()),
+                            onClick = { showPeriodSheet = true },
+                        )
+                        RowDivider()
+                        SettingsRow(
+                            icon = Icons.Rounded.Lock,
+                            title = stringResource(R.string.backup_encrypt),
+                            subtitle = stringResource(R.string.backup_encrypt_hint),
+                        ) {
+                            Switch(
+                                checked = state.encryptionEnabled || pendingEncrypt,
+                                onCheckedChange = { value ->
+                                    if (value) {
+                                        // Don't persist encryption-on yet; only the passphrase save does.
+                                        pendingEncrypt = true
+                                        showPassphraseSheet = true
+                                    } else {
+                                        onSetEncryptionEnabled(false)
+                                        pendingEncrypt = false
+                                        // Future backups won't be encrypted — offer to update Drive now.
+                                        if (state.account != null) backupPrompt = BackupPrompt.EncryptionOff
+                                    }
+                                },
+                            )
+                        }
+                        if (state.encryptionEnabled) {
+                            RowDivider()
+                            SettingsRow(
+                                icon = Icons.Rounded.Key,
+                                title = stringResource(R.string.backup_passphrase),
+                                subtitle = stringResource(
+                                    if (state.passphraseSet) R.string.backup_passphrase_set else R.string.backup_passphrase_not_set,
+                                ),
+                                value = stringResource(
+                                    if (state.passphraseSet) R.string.backup_change else R.string.backup_set,
+                                ),
+                                onClick = { showPassphraseSheet = true },
+                            )
+                        }
+                    }
+
+                    Text(
+                        text = stringResource(R.string.backup_turn_off),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.error,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(MaterialTheme.shapes.medium)
+                            .clickable { showTurnOff = true }
+                            .padding(Spacing.s4),
                     )
                 }
             }
         }
     }
 
-    if (showPassphraseSheet) {
-        PassphraseSheet(
-            onDismiss = { showPassphraseSheet = false },
-            onSave = {
-                onSetPassphrase(it)
-                showPassphraseSheet = false
+    if (showTurnOff) {
+        AlertDialog(
+            onDismissRequest = { showTurnOff = false },
+            title = { Text(stringResource(R.string.backup_turn_off_title)) },
+            text = { Text(stringResource(R.string.backup_turn_off_message)) },
+            confirmButton = {
+                TextButton(onClick = {
+                    showTurnOff = false
+                    onSetEnabled(false)
+                }) { Text(stringResource(R.string.backup_turn_off)) }
+            },
+            dismissButton = {
+                TextButton(onClick = { showTurnOff = false }) { Text(stringResource(R.string.action_cancel)) }
             },
         )
     }
 
+    if (showPassphraseSheet) {
+        PassphraseSheet(
+            onDismiss = {
+                showPassphraseSheet = false
+                // Backed out without saving → encryption stays off (it was never persisted on).
+                pendingEncrypt = false
+                if (state.encryptionEnabled && !state.passphraseSet) onSetEncryptionEnabled(false)
+            },
+            onSave = {
+                val wasChange = state.passphraseSet // already had one → this is a change vs first set
+                onSetPassphrase(it) // persists the passphrase and turns encryption on together
+                pendingEncrypt = false
+                showPassphraseSheet = false
+                if (state.account != null) {
+                    backupPrompt = if (wasChange) BackupPrompt.PassphraseChanged else BackupPrompt.EncryptionOn
+                }
+            },
+        )
+    }
+
+    backupPrompt?.let { prompt ->
+        val titleRes = when (prompt) {
+            BackupPrompt.PassphraseChanged -> R.string.backup_pass_changed_title
+            BackupPrompt.EncryptionOn -> R.string.backup_enc_on_title
+            BackupPrompt.EncryptionOff -> R.string.backup_enc_off_title
+        }
+        val messageRes = when (prompt) {
+            BackupPrompt.PassphraseChanged -> R.string.backup_pass_changed_message
+            BackupPrompt.EncryptionOn -> R.string.backup_enc_on_message
+            BackupPrompt.EncryptionOff -> R.string.backup_enc_off_message
+        }
+        AlertDialog(
+            onDismissRequest = { backupPrompt = null },
+            title = { Text(stringResource(titleRes)) },
+            text = { Text(stringResource(messageRes)) },
+            confirmButton = {
+                TextButton(onClick = {
+                    backupPrompt = null
+                    onBackupNow()
+                }) { Text(stringResource(R.string.backup_now)) }
+            },
+            dismissButton = {
+                TextButton(onClick = { backupPrompt = null }) {
+                    Text(stringResource(R.string.backup_pass_changed_later))
+                }
+            },
+        )
+    }
     if (showPeriodSheet) {
         PeriodSheet(
             selected = state.period,
@@ -154,51 +327,114 @@ fun BackupScreen(
 }
 
 @Composable
-private fun MessageBanner(message: BackupMessage, onDismiss: () -> Unit) {
-    val isError = message is BackupMessage.Failed
-    SurfaceCard(
-        modifier = Modifier.fillMaxWidth(),
-        backgroundColor = if (isError) MaterialTheme.colorScheme.errorContainer else MaterialTheme.colorScheme.surfaceContainerLowest,
-        onClick = onDismiss,
-    ) {
+private fun BackupHeader() {
+    Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
+        Box(
+            modifier = Modifier
+                .size(88.dp)
+                .clip(CircleShape)
+                .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)),
+            contentAlignment = Alignment.Center,
+        ) {
+            Icon(
+                Icons.Rounded.CloudUpload,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(44.dp),
+            )
+        }
         Text(
-            text = message.text(),
+            text = stringResource(R.string.backup_header_title),
+            style = MaterialTheme.typography.headlineSmall,
+            color = MaterialTheme.colorScheme.onSurface,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.padding(top = Spacing.s5),
+        )
+        Text(
+            text = stringResource(R.string.backup_header_subtitle),
             style = MaterialTheme.typography.bodyMedium,
-            color = if (isError) MaterialTheme.colorScheme.onErrorContainer else MaterialTheme.colorScheme.onSurface,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.padding(top = Spacing.s2),
         )
     }
 }
 
 @Composable
-private fun BackupMessage.text(): String = when (this) {
-    BackupMessage.BackedUp -> stringResource(R.string.backup_done)
-    is BackupMessage.Failed -> stringResource(error.messageRes())
-}
-
-@Composable
-private fun Section(title: String, content: @Composable () -> Unit) {
-    Column(verticalArrangement = Arrangement.spacedBy(Spacing.sectionTitleGap)) {
-        SectionHeader(title = title)
-        SurfaceCard(modifier = Modifier.fillMaxWidth()) {
-            Column(verticalArrangement = Arrangement.spacedBy(Spacing.s4)) { content() }
+private fun LastBackupCard(state: BackupUiState) {
+    val context = LocalContext.current
+    SurfaceCard(modifier = Modifier.fillMaxWidth()) {
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(Spacing.s5)) {
+            Icon(
+                Icons.Rounded.CloudSync,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(48.dp),
+            )
+            val b = state.lastBackup
+            if (b == null) {
+                Text(
+                    text = stringResource(R.string.backup_never),
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurface,
+                )
+            } else {
+                Column(modifier = Modifier.weight(1f)) {
+                    val date = remember(b.modifiedAtMillis) {
+                        DateUtils.getRelativeDateTimeString(
+                            context, b.modifiedAtMillis,
+                            DateUtils.MINUTE_IN_MILLIS, DateUtils.WEEK_IN_MILLIS, 0,
+                        ).toString()
+                    }
+                    Text(
+                        text = stringResource(R.string.backup_last_line, date),
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSurface,
+                    )
+                    Text(
+                        text = stringResource(R.string.backup_size_line, Formatter.formatShortFileSize(context, b.sizeBytes)),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+            }
         }
     }
 }
 
 @Composable
-private fun SettingRow(
-    title: String,
-    subtitle: String,
-    onClick: (() -> Unit)? = null,
-    trailing: @Composable (() -> Unit)? = null,
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .then(if (onClick != null) Modifier.clickable(onClick = onClick) else Modifier),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(Spacing.cardGap),
-    ) {
+private fun BenefitsList() {
+    Column(verticalArrangement = Arrangement.spacedBy(Spacing.s5)) {
+        Benefit(
+            Icons.Rounded.Lock,
+            stringResource(R.string.backup_point_encrypted_title),
+            stringResource(R.string.backup_point_encrypted_sub),
+        )
+        Benefit(
+            Icons.Rounded.CloudDownload,
+            stringResource(R.string.backup_point_restore_title),
+            stringResource(R.string.backup_point_restore_sub),
+        )
+        Benefit(
+            Icons.Rounded.Schedule,
+            stringResource(R.string.backup_point_auto_title),
+            stringResource(R.string.backup_point_auto_sub),
+        )
+    }
+}
+
+@Composable
+private fun Benefit(icon: ImageVector, title: String, subtitle: String) {
+    Row(horizontalArrangement = Arrangement.spacedBy(Spacing.s4)) {
+        Box(
+            modifier = Modifier
+                .size(38.dp)
+                .clip(RoundedCornerShape(Spacing.s3))
+                .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)),
+            contentAlignment = Alignment.Center,
+        ) {
+            Icon(icon, null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(20.dp))
+        }
         Column(modifier = Modifier.weight(1f)) {
             Text(title, style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurface)
             Text(
@@ -207,7 +443,69 @@ private fun SettingRow(
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
-        trailing?.invoke()
+    }
+}
+
+@Composable
+private fun SettingsRow(
+    icon: ImageVector,
+    title: String,
+    subtitle: String? = null,
+    value: String? = null,
+    onClick: (() -> Unit)? = null,
+    trailing: @Composable (() -> Unit)? = null,
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .then(if (onClick != null) Modifier.clickable(onClick = onClick) else Modifier)
+            .padding(horizontal = Spacing.cardPadding, vertical = Spacing.s4),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(Spacing.s4),
+    ) {
+        Icon(icon, null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(22.dp))
+        Column(modifier = Modifier.weight(1f)) {
+            Text(title, style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurface)
+            subtitle?.let {
+                Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+        }
+        when {
+            trailing != null -> trailing()
+            onClick != null -> Row(verticalAlignment = Alignment.CenterVertically) {
+                value?.let {
+                    Text(it, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
+                Icon(
+                    Icons.AutoMirrored.Rounded.KeyboardArrowRight,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun RowDivider() {
+    HorizontalDivider(
+        color = MaterialTheme.colorScheme.outlineVariant,
+        modifier = Modifier.padding(start = Spacing.cardPadding + 22.dp + Spacing.s4),
+    )
+}
+
+@Composable
+private fun ErrorBanner(error: BackupError, onDismiss: () -> Unit) {
+    SurfaceCard(
+        modifier = Modifier.fillMaxWidth(),
+        backgroundColor = MaterialTheme.colorScheme.errorContainer,
+        onClick = onDismiss,
+    ) {
+        Text(
+            text = stringResource(error.messageRes()),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onErrorContainer,
+        )
     }
 }
 
@@ -236,6 +534,11 @@ private fun PassphraseSheet(onDismiss: () -> Unit, onSave: (String) -> Unit) {
             Text(
                 stringResource(R.string.backup_passphrase_warning),
                 style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            Text(
+                stringResource(R.string.backup_passphrase_upcoming),
+                style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
             PassphraseField(

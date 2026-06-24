@@ -33,7 +33,8 @@ fun BackupRoute(
             }
         },
         onBackupNow = viewModel::backupNow,
-        onDismissMessage = viewModel::clearMessage,
+        onClearError = viewModel::clearError,
+        onDismissSync = viewModel::dismissSync,
         modifier = modifier,
     )
 }

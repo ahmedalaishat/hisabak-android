@@ -25,7 +25,7 @@ interface AppPreferences {
 
     suspend fun setBackupEnabled(value: Boolean)
 
-    /** Whether backups are encrypted with a passphrase; defaults to `true`. */
+    /** Whether backups are encrypted with a passphrase; defaults to `false` (opt-in). */
     val backupEncryptionEnabled: Flow<Boolean>
 
     suspend fun setBackupEncryptionEnabled(value: Boolean)

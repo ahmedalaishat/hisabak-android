@@ -3,6 +3,7 @@ package com.hisabak.core.data.backup
 import android.content.Context
 import android.content.Intent
 import android.content.IntentSender
+import android.util.Log
 import com.google.android.gms.auth.api.identity.AuthorizationRequest
 import com.google.android.gms.auth.api.identity.AuthorizationResult
 import com.google.android.gms.auth.api.identity.Identity
@@ -29,12 +30,18 @@ class GoogleDriveAuthorizer(context: Context) : DriveAuthorizer {
     override suspend fun authorize(): AuthorizeOutcome = suspendCancellableCoroutine { cont ->
         client.authorize(request)
             .addOnSuccessListener { result -> cont.resume(result.toOutcome()) }
-            .addOnFailureListener { cont.resume(AuthorizeOutcome.Failed) }
+            .addOnFailureListener { e ->
+                Log.w(TAG, "authorize() failed", e)
+                cont.resume(AuthorizeOutcome.Failed)
+            }
     }
 
     override fun resultFrom(data: Intent?): AuthorizeOutcome =
         runCatching { client.getAuthorizationResultFromIntent(data).toOutcome() }
-            .getOrDefault(AuthorizeOutcome.Failed)
+            .getOrElse {
+                Log.w(TAG, "resultFrom() failed", it)
+                AuthorizeOutcome.Failed
+            }
 
     override suspend fun accessToken(): String = when (val outcome = authorize()) {
         is AuthorizeOutcome.Granted -> outcome.accessToken
@@ -47,15 +54,17 @@ class GoogleDriveAuthorizer(context: Context) : DriveAuthorizer {
             return AuthorizeOutcome.NeedsConsent(resolution.intentSender)
         }
         val token = accessToken
-        val email = toGoogleSignInAccount()?.email
-        return if (token != null && email != null) {
-            AuthorizeOutcome.Granted(BackupAccount(email), token)
-        } else {
-            AuthorizeOutcome.Failed
+        if (token == null) {
+            Log.w(TAG, "Authorization succeeded but no access token was returned")
+            return AuthorizeOutcome.Failed
         }
+        // Only drive.appdata is requested, so the account email may be absent — that's fine, it
+        // isn't shown. The access token is what backup needs.
+        return AuthorizeOutcome.Granted(BackupAccount(toGoogleSignInAccount()?.email ?: ""), token)
     }
 
     private companion object {
+        const val TAG = "HisabakBackup"
         const val DRIVE_APPDATA_SCOPE = "https://www.googleapis.com/auth/drive.appdata"
     }
 }

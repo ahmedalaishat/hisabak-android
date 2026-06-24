@@ -8,6 +8,7 @@ import com.hisabak.core.domain.backup.RunBackupUseCase
 import com.hisabak.testutil.FakeAnalytics
 import com.hisabak.testutil.FakeAppPreferences
 import com.hisabak.testutil.FakeBackupAccountStore
+import com.hisabak.testutil.FakeBackupPassphraseStore
 import com.hisabak.testutil.FakeBackupRemote
 import com.hisabak.testutil.FakeBackupRepository
 import com.hisabak.testutil.FakeDriveAuthorizer
@@ -37,10 +38,11 @@ class RestoreViewModelTest {
         remote: FakeBackupRemote,
         target: FakeBackupRepository,
         prefs: FakeAppPreferences = FakeAppPreferences(),
+        passphraseStore: FakeBackupPassphraseStore = FakeBackupPassphraseStore(),
         analytics: FakeAnalytics = FakeAnalytics(),
     ): RestoreViewModel {
         val restore = RestoreFromRemoteUseCase(target, codec, crypto, remote, schemaVersion = 2)
-        return RestoreViewModel(restore, FakeDriveAuthorizer(), FakeBackupAccountStore(), prefs, analytics)
+        return RestoreViewModel(restore, FakeDriveAuthorizer(), FakeBackupAccountStore(), passphraseStore, prefs, analytics)
     }
 
     private suspend fun seedEncryptedBackup(remote: FakeBackupRemote, passphrase: String) {
@@ -54,7 +56,8 @@ class RestoreViewModelTest {
         seedEncryptedBackup(remote, "pass1234")
         val target = FakeBackupRepository()
         val prefs = FakeAppPreferences()
-        val vm = viewModel(remote, target, prefs)
+        val store = FakeBackupPassphraseStore()
+        val vm = viewModel(remote, target, prefs, store)
 
         vm.connect(onNeedConsent = {})
         advanceUntilIdle()
@@ -64,6 +67,15 @@ class RestoreViewModelTest {
         advanceUntilIdle()
 
         assertEquals(sampleBackupData(), target.replacedWith)
+        assertTrue(vm.state.value.sync is com.hisabak.feature.backup.presentation.SyncPhase.Done)
+        // Restoring sets the user up to keep backing up with the same passphrase.
+        assertTrue(prefs.backupEnabled.first())
+        assertTrue(prefs.backupEncryptionEnabled.first())
+        assertEquals("pass1234", store.get())
+        assertFalse(prefs.restoreOffered.first()) // not yet — waits for Continue
+
+        vm.finishRestore()
+        advanceUntilIdle()
         assertTrue(prefs.restoreOffered.first())
     }
 

@@ -14,7 +14,9 @@ import com.hisabak.core.domain.backup.BackupAccount
 import com.hisabak.core.domain.backup.BackupAccountStore
 import com.hisabak.core.domain.backup.BackupError
 import com.hisabak.core.domain.backup.BackupPassphraseStore
+import com.hisabak.core.domain.backup.BackupRemote
 import com.hisabak.core.domain.backup.BackupRunResult
+import com.hisabak.core.domain.backup.RemoteBackup
 import com.hisabak.core.domain.backup.RunBackupUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -25,19 +27,20 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-sealed interface BackupMessage {
-    data object BackedUp : BackupMessage
-    data class Failed(val error: BackupError) : BackupMessage
-}
-
 data class BackupUiState(
+    // False until the persisted settings have loaded — avoids flashing the "off" UI on first frame.
+    val ready: Boolean = false,
     val enabled: Boolean = false,
-    val encryptionEnabled: Boolean = true,
+    val encryptionEnabled: Boolean = false,
     val passphraseSet: Boolean = false,
     val period: AutoBackupPeriod = AutoBackupPeriod.DEFAULT,
     val account: BackupAccount? = null,
-    val busy: Boolean = false,
-    val message: BackupMessage? = null,
+    // The most recent backup in Drive (for the "last backup … · size" line), null if none/unknown.
+    val lastBackup: RemoteBackup? = null,
+    // A pre-flight inline error (no account / no passphrase) shown on the settings screen.
+    val error: BackupError? = null,
+    // Non-null while the backup operation is running / finished — drives the full-screen SyncScreen.
+    val sync: SyncPhase? = null,
 )
 
 private data class Settings(
@@ -47,7 +50,11 @@ private data class Settings(
     val period: AutoBackupPeriod,
 )
 
-private data class Transient(val busy: Boolean = false, val message: BackupMessage? = null)
+private data class Transient(
+    val error: BackupError? = null,
+    val sync: SyncPhase? = null,
+    val lastBackup: RemoteBackup? = null,
+)
 
 class BackupViewModel(
     private val preferences: AppPreferences,
@@ -55,6 +62,7 @@ class BackupViewModel(
     private val accountStore: BackupAccountStore,
     private val authorizer: DriveAuthorizer,
     private val runBackup: RunBackupUseCase,
+    private val remote: BackupRemote,
     private val analytics: Analytics,
 ) : ViewModel() {
 
@@ -70,14 +78,50 @@ class BackupViewModel(
         accountStore.account,
         transient,
     ) { s, account, t ->
-        BackupUiState(s.enabled, s.encryptionEnabled, s.passphraseSet, s.period, account, t.busy, t.message)
+        BackupUiState(
+            ready = true,
+            enabled = s.enabled,
+            encryptionEnabled = s.encryptionEnabled,
+            passphraseSet = s.passphraseSet,
+            period = s.period,
+            account = account,
+            lastBackup = t.lastBackup,
+            error = t.error,
+            sync = t.sync,
+        )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), BackupUiState())
+
+    init {
+        // Self-heal: encryption can't be on without a passphrase (e.g. the app was killed while the
+        // set-passphrase sheet was open). Revert to off so the state is always consistent.
+        viewModelScope.launch {
+            if (preferences.backupEncryptionEnabled.first() && !passphraseStore.isSet.first()) {
+                preferences.setBackupEncryptionEnabled(false)
+            }
+        }
+        // When an account is connected, fetch the latest backup's date/size for the status line.
+        viewModelScope.launch {
+            accountStore.account.collect { account ->
+                if (account != null) refreshLastBackup() else transient.update { it.copy(lastBackup = null) }
+            }
+        }
+    }
+
+    private suspend fun refreshLastBackup() {
+        val latest = runCatching { remote.findLatest() }.getOrNull()
+        transient.update { it.copy(lastBackup = latest) }
+    }
 
     fun setEnabled(enabled: Boolean) {
         analytics.log(AnalyticsEvent.BackupToggled(enabled))
         viewModelScope.launch {
             preferences.setBackupEnabled(enabled)
-            if (!enabled) passphraseStore.clear()
+            // Turning backup off clears the passphrase, so encryption must go off too (it can't be
+            // on without a passphrase). Re-enabling then starts unencrypted until the user opts in.
+            if (!enabled) {
+                passphraseStore.clear()
+                preferences.setBackupEncryptionEnabled(false)
+            }
         }
     }
 
@@ -89,8 +133,13 @@ class BackupViewModel(
         }
     }
 
+    /** Saves the passphrase and turns encryption on atomically, so encryption is only ever persisted
+     *  on once a passphrase exists. */
     fun setPassphrase(passphrase: String) {
-        viewModelScope.launch { passphraseStore.set(passphrase) }
+        viewModelScope.launch {
+            passphraseStore.set(passphrase)
+            preferences.setBackupEncryptionEnabled(true)
+        }
     }
 
     fun setAutoBackupPeriod(period: AutoBackupPeriod) {
@@ -129,25 +178,30 @@ class BackupViewModel(
             } else {
                 null
             }
-            transient.update { it.copy(busy = true, message = null) }
+            transient.update { it.copy(error = null, sync = SyncPhase.Running) }
             val result = runBackup(passphrase)
             analytics.log(AnalyticsEvent.BackupRunCompleted(result is BackupRunResult.Success))
+            val last = transient.value.lastBackup
             transient.value = Transient(
-                busy = false,
-                message = when (result) {
-                    BackupRunResult.Success -> BackupMessage.BackedUp
-                    is BackupRunResult.Failure -> BackupMessage.Failed(result.error)
+                lastBackup = last,
+                sync = when (result) {
+                    BackupRunResult.Success -> SyncPhase.Done()
+                    is BackupRunResult.Failure -> SyncPhase.Failed(result.error)
                 },
             )
+            if (result is BackupRunResult.Success) refreshLastBackup()
         }
     }
 
-    fun clearMessage() = transient.update { it.copy(message = null) }
+    /** Leaves the sync screen (Continue / Close) back to the settings. */
+    fun dismissSync() = transient.update { it.copy(sync = null) }
+
+    fun clearError() = transient.update { it.copy(error = null) }
 
     private suspend fun connected(account: BackupAccount) {
         accountStore.set(account)
         analytics.log(AnalyticsEvent.BackupAccountConnected)
     }
 
-    private fun fail(error: BackupError) = transient.update { it.copy(busy = false, message = BackupMessage.Failed(error)) }
+    private fun fail(error: BackupError) = transient.update { it.copy(error = error) }
 }

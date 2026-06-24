@@ -72,6 +72,25 @@
     <string name="settings_backup_restore">Backup</string>
     <string name="settings_backup_restore_hint">Back up your data to Google Drive.</string>
     <string name="backup_title">Backup</string>
+    <string name="backup_header_title">Google Drive backup</string>
+    <string name="backup_header_subtitle">Keep an encrypted copy of your data in your own Drive — and restore it on a new device.</string>
+    <string name="backup_turn_on">Turn on backup</string>
+    <string name="backup_turn_off">Turn off backup</string>
+    <string name="backup_turn_off_title">Turn off backup?</string>
+    <string name="backup_turn_off_message">Automatic backups will stop and your passphrase will be cleared. Backups already in your Google Drive aren\'t deleted.</string>
+    <string name="backup_tap_connect">Tap to connect an account</string>
+    <string name="backup_last">Last backup %1$s · %2$s</string>
+    <string name="backup_last_line">Last backup: %1$s</string>
+    <string name="backup_size_line">Total size: %1$s</string>
+    <string name="backup_never">No backups yet</string>
+    <string name="backup_change">Change</string>
+    <string name="backup_set">Set</string>
+    <string name="backup_point_encrypted_title">Encrypted with your passphrase</string>
+    <string name="backup_point_encrypted_sub">Only you can open it — not even us.</string>
+    <string name="backup_point_restore_title">Restore on a new device</string>
+    <string name="backup_point_restore_sub">Pick up right where you left off.</string>
+    <string name="backup_point_auto_title">Automatic backups</string>
+    <string name="backup_point_auto_sub">Daily, weekly or monthly — your choice.</string>
     <string name="backup_drive_title">Google Drive</string>
     <string name="backup_security_title">Security</string>
     <string name="backup_enable">Back up to Google Drive</string>
@@ -83,6 +102,14 @@
     <string name="backup_passphrase_set">Passphrase set</string>
     <string name="backup_passphrase_not_set">Not set yet</string>
     <string name="backup_passphrase_warning">Important: remember this passphrase. It encrypts your backup and is the only way to restore it — we can\'t recover it for you.</string>
+    <string name="backup_passphrase_upcoming">It will be used for your upcoming backups.</string>
+    <string name="backup_pass_changed_title">Passphrase updated</string>
+    <string name="backup_pass_changed_message">Your new passphrase will be used for upcoming backups. Back up now so your latest backup in Drive uses it.</string>
+    <string name="backup_pass_changed_later">Not now</string>
+    <string name="backup_enc_on_title">Encryption enabled</string>
+    <string name="backup_enc_on_message">Your upcoming backups will be encrypted with your passphrase. Back up now to update the copy in your Drive.</string>
+    <string name="backup_enc_off_title">Encryption turned off</string>
+    <string name="backup_enc_off_message">Your upcoming backups won\'t be encrypted. Back up now to update the copy in your Drive.</string>
     <string name="backup_passphrase_too_short">Use at least 8 characters.</string>
     <string name="backup_passphrase_mismatch">Passphrases don\'t match.</string>
     <string name="backup_passphrase_sheet_title">Set backup passphrase</string>
@@ -106,10 +133,29 @@
     <string name="backup_err_corrupt">The backup is damaged or unreadable.</string>
     <string name="backup_err_unsupported">This backup was made by a newer version of Hisabak. Update the app and try again.</string>
 
+    <!-- Sync progress (backup / restore) -->
+    <string name="sync_backup_running_title">Backing up…</string>
+    <string name="sync_backup_running_sub">Uploading your data to Google Drive</string>
+    <string name="sync_restore_running_title">Restoring your data</string>
+    <string name="sync_restore_running_sub">Downloading from Google Drive…</string>
+    <string name="sync_backup_done_title">Backup complete</string>
+    <string name="sync_backup_done_sub">Your data is safe in Google Drive.</string>
+    <string name="sync_restore_done_title">All done</string>
+    <string name="sync_restore_done_sub">Restored %1$d items.</string>
+    <string name="sync_backup_failed_title">Couldn\'t back up</string>
+    <string name="sync_restore_failed_title">Couldn\'t restore</string>
+    <string name="sync_continue">Continue</string>
+    <string name="sync_try_again">Try again</string>
+    <string name="sync_close">Close</string>
+
     <!-- Restore (first launch) -->
+    <string name="restore_overline">Restore</string>
     <string name="restore_title">Restore your data</string>
-    <string name="restore_subtitle">If you backed up to Google Drive before, restore it now. You can also do this later from Settings.</string>
-    <string name="restore_choose_account">Choose Google account</string>
+    <string name="restore_subtitle">If you backed up to Google Drive before, bring it back now. You can also do this later from Settings.</string>
+    <string name="restore_passphrase_title">Enter your passphrase</string>
+    <string name="restore_passphrase_subtitle">We found an encrypted backup for %1$s. Enter the passphrase to restore it.</string>
+    <string name="restore_connect">Restore from Drive</string>
+    <string name="restore_try_another">Try another account</string>
     <string name="restore_action">Restore</string>
     <string name="restore_skip">Skip</string>
     <string name="restore_none_found">No backup found for this account.</string>

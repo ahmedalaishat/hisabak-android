@@ -6,6 +6,7 @@ import com.hisabak.core.data.backup.AuthorizeOutcome
 import com.hisabak.core.data.backup.JsonBackupCodec
 import com.hisabak.core.domain.backup.AutoBackupPeriod
 import com.hisabak.core.domain.backup.BackupAccount
+import com.hisabak.core.domain.backup.BackupError
 import com.hisabak.core.domain.backup.RunBackupUseCase
 import com.hisabak.testutil.FakeAnalytics
 import com.hisabak.testutil.FakeAppPreferences
@@ -45,7 +46,7 @@ class BackupViewModelTest {
         analytics: FakeAnalytics = FakeAnalytics(),
     ): BackupViewModel {
         val runBackup = RunBackupUseCase(repo, codec, crypto, remote, TestClock(), 8, 2)
-        return BackupViewModel(prefs, passphrase, account, authorizer, runBackup, analytics)
+        return BackupViewModel(prefs, passphrase, account, authorizer, runBackup, remote, analytics)
     }
 
     @Test
@@ -81,7 +82,7 @@ class BackupViewModelTest {
         vm.state.test {
             vm.backupNow()
             advanceUntilIdle()
-            assertEquals(BackupMessage.BackedUp, expectMostRecentItem().message)
+            assertEquals(SyncPhase.Done(), expectMostRecentItem().sync)
             cancelAndIgnoreRemainingEvents()
         }
         assertTrue(remote.stored != null)
@@ -94,7 +95,7 @@ class BackupViewModelTest {
         vm.state.test {
             vm.backupNow()
             advanceUntilIdle()
-            assertTrue(expectMostRecentItem().message is BackupMessage.Failed)
+            assertEquals(BackupError.AuthRequired, expectMostRecentItem().error)
             cancelAndIgnoreRemainingEvents()
         }
     }
