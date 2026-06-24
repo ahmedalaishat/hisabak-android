@@ -48,15 +48,19 @@ commit on the feat branch as you go.
 ## 2. Finish a feature
 
 Land it through a PR into `develop` so CI and branch protection apply. Push, open the
-PR, and enable **auto-merge** — it merges itself once the "JVM unit tests" check is green:
+PR, and enable **auto-merge** — it merges itself once the "JVM unit tests" check is green.
+**Feature PRs squash-merge into `develop`** (`--squash`): one clean, changelog-style commit
+per feature, easy to revert and bisect — iterative branch commits don't clutter `develop`.
 ```bash
 git push -u origin feat/<name>
 gh pr create --base develop --fill
-gh pr merge <n> --auto --merge --delete-branch   # merges on green CI; deletes the remote branch
+gh pr merge <n> --auto --squash --delete-branch  # squashes on green CI; deletes the remote branch
 git checkout develop && git pull --ff-only origin develop  # once it has merged
 git branch -d feat/<name>                         # delete the local branch too
 ```
 Don't tag or touch `main` here — features accumulate on `develop` until a release.
+(Release PRs `develop`→`main` use a **merge commit** instead — see §3 — so the release line
+keeps the per-feature history.)
 
 ## 3. Cut a release
 

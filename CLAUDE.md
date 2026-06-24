@@ -306,7 +306,7 @@ spec+design land in `docs/features/<slug>.md`; user-visible changes update `CHAN
 
 | Phrase | Action | Touches `main`? |
 |--------|--------|-----------------|
-| _(none needed)_ | every PR into `develop` auto-merges on green CI (`gh pr merge --auto`) — don't wait for a "merge it" | no — routine |
+| _(none needed)_ | every feature PR into `develop` auto-**squash**-merges on green CI (`gh pr merge --auto --squash`) — don't wait for a "merge it". (Release `develop`→`main` PRs use a **merge commit**.) | no — routine |
 | **merge it** | merge a still-open PR **now** (e.g. the `develop`→`main` release PR, which stays manually gated) | depends |
 | **send to testers** | distribute a staging build (Firebase) | no |
 | **ship it** / **release** | cut a production release: bump version → `develop`→`main` → tag → Play | **yes — deliberate; confirm the version first** |
