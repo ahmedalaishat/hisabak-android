@@ -95,9 +95,9 @@ Everything below is built and shipping today:
 - [x] ⚙️ **Settings** — pick your **theme** (light / dark / system) and **language**
   (**English / العربية**, fully localized and right-to-left). Both are saved across launches.
 - [x] ☁️ **Google Drive backup & restore** — connect a Google account and back up your data to a
-  private, app-only space in your Drive, optionally encrypted with a passphrase (AES-256-GCM). A
-  new install offers to restore from Drive right after onboarding. (Auto-backup scheduling is on the
-  roadmap; requires the app's Drive access to be configured.)
+  private, app-only space in your Drive, optionally encrypted with a passphrase (AES-256-GCM), with
+  optional **automatic backups** (daily / weekly / monthly). A new install offers to restore from
+  Drive right after onboarding. (Requires the app's Drive access to be configured.)
 - [x] 📴 **Offline-first** — all data is stored locally on-device (Room). Light & dark themes,
   polished motion, edge-to-edge.
 
@@ -109,7 +109,6 @@ What's next, roughly in order:
 
 - [ ] 🛎️ **Notification capture** — read bank transaction notifications to capture spending without
   the SMS permission (works in the Play build).
-- [ ] ⏱️ **Automatic backups** — run the chosen Google Drive backup schedule in the background.
 - [ ] 💱 **Multi-currency** — track transactions and balances across more than one currency.
 - [ ] 🛡️ **Database encryption** — encrypt the on-device database at rest.
 - [ ] 🤖 **AI capture & auto-categorization** — smarter SMS parsing and automatic brand → category
@@ -160,7 +159,7 @@ and SMS-imported transactions are both covered through a single path.
 
 ## 🧪 Testing & quality
 
-The domain logic and ViewModels are covered by **145 JVM unit tests** (money math, the SMS
+The domain logic and ViewModels are covered by **148 JVM unit tests** (money math, the SMS
 template parser, budget/limit logic, and ViewModel state) that run on the plain JVM — no
 emulator needed:
 

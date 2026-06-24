@@ -9,7 +9,9 @@ import com.hisabak.core.data.backup.GoogleDriveBackupRemote
 import com.hisabak.core.data.backup.JsonBackupCodec
 import com.hisabak.core.data.backup.KeystoreBackupPassphraseStore
 import com.hisabak.core.data.backup.RoomBackupRepository
+import com.hisabak.core.data.backup.WorkManagerAutoBackupScheduler
 import com.hisabak.core.data.local.HisabakDatabase
+import com.hisabak.core.domain.backup.AutoBackupScheduler
 import com.hisabak.core.domain.backup.BackupAccountStore
 import com.hisabak.core.domain.backup.BackupCodec
 import com.hisabak.core.domain.backup.BackupCrypto
@@ -29,6 +31,7 @@ val backupModule = module {
     single<BackupAccountStore> { DataStoreBackupAccountStore(androidContext()) }
     single<DriveAuthorizer> { GoogleDriveAuthorizer(androidContext()) }
     single<BackupRemote> { GoogleDriveBackupRemote(authorizer = get()) }
+    single<AutoBackupScheduler> { WorkManagerAutoBackupScheduler(androidContext()) }
 
     single<BackupRepository> {
         RoomBackupRepository(
@@ -72,6 +75,7 @@ val backupModule = module {
             authorizer = get(),
             runBackup = get(),
             remote = get(),
+            scheduler = get(),
             analytics = get(),
         )
     }

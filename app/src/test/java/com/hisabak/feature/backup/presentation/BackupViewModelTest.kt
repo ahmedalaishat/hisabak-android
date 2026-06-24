@@ -10,6 +10,7 @@ import com.hisabak.core.domain.backup.BackupError
 import com.hisabak.core.domain.backup.RunBackupUseCase
 import com.hisabak.testutil.FakeAnalytics
 import com.hisabak.testutil.FakeAppPreferences
+import com.hisabak.testutil.FakeAutoBackupScheduler
 import com.hisabak.testutil.FakeBackupAccountStore
 import com.hisabak.testutil.FakeBackupPassphraseStore
 import com.hisabak.testutil.FakeBackupRemote
@@ -43,10 +44,11 @@ class BackupViewModelTest {
         authorizer: FakeDriveAuthorizer = FakeDriveAuthorizer(),
         remote: FakeBackupRemote = FakeBackupRemote(),
         repo: FakeBackupRepository = FakeBackupRepository(sampleBackupData()),
+        scheduler: FakeAutoBackupScheduler = FakeAutoBackupScheduler(),
         analytics: FakeAnalytics = FakeAnalytics(),
     ): BackupViewModel {
         val runBackup = RunBackupUseCase(repo, codec, crypto, remote, TestClock(), 8, 2)
-        return BackupViewModel(prefs, passphrase, account, authorizer, runBackup, remote, analytics)
+        return BackupViewModel(prefs, passphrase, account, authorizer, runBackup, remote, scheduler, analytics)
     }
 
     @Test
@@ -114,5 +116,29 @@ class BackupViewModelTest {
             cancelAndIgnoreRemainingEvents()
         }
         assertTrue(analytics.names().contains("auto_backup_period_set"))
+    }
+
+    @Test
+    fun `setAutoBackupPeriod schedules with the current enabled state`() = runTest {
+        val prefs = FakeAppPreferences().apply { setBackupEnabled(true) }
+        val scheduler = FakeAutoBackupScheduler()
+        val vm = viewModel(prefs = prefs, scheduler = scheduler)
+
+        vm.setAutoBackupPeriod(AutoBackupPeriod.WEEKLY)
+        advanceUntilIdle()
+
+        assertTrue(scheduler.calls.contains(AutoBackupPeriod.WEEKLY to true))
+    }
+
+    @Test
+    fun `disabling backup cancels the schedule`() = runTest {
+        val prefs = FakeAppPreferences().apply { setBackupEnabled(true) }
+        val scheduler = FakeAutoBackupScheduler()
+        val vm = viewModel(prefs = prefs, scheduler = scheduler)
+
+        vm.setEnabled(false)
+        advanceUntilIdle()
+
+        assertTrue(scheduler.calls.any { !it.second }) // scheduled with enabled = false
     }
 }

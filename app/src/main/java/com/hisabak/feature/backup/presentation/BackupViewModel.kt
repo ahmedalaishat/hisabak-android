@@ -10,6 +10,7 @@ import com.hisabak.core.domain.AppPreferences
 import com.hisabak.core.domain.analytics.Analytics
 import com.hisabak.core.domain.analytics.AnalyticsEvent
 import com.hisabak.core.domain.backup.AutoBackupPeriod
+import com.hisabak.core.domain.backup.AutoBackupScheduler
 import com.hisabak.core.domain.backup.BackupAccount
 import com.hisabak.core.domain.backup.BackupAccountStore
 import com.hisabak.core.domain.backup.BackupError
@@ -63,6 +64,7 @@ class BackupViewModel(
     private val authorizer: DriveAuthorizer,
     private val runBackup: RunBackupUseCase,
     private val remote: BackupRemote,
+    private val scheduler: AutoBackupScheduler,
     private val analytics: Analytics,
 ) : ViewModel() {
 
@@ -122,6 +124,7 @@ class BackupViewModel(
                 passphraseStore.clear()
                 preferences.setBackupEncryptionEnabled(false)
             }
+            scheduler.schedule(preferences.autoBackupPeriod.first(), enabled)
         }
     }
 
@@ -144,7 +147,10 @@ class BackupViewModel(
 
     fun setAutoBackupPeriod(period: AutoBackupPeriod) {
         analytics.log(AnalyticsEvent.AutoBackupPeriodSet(period.name.lowercase()))
-        viewModelScope.launch { preferences.setAutoBackupPeriod(period) }
+        viewModelScope.launch {
+            preferences.setAutoBackupPeriod(period)
+            scheduler.schedule(period, preferences.backupEnabled.first())
+        }
     }
 
     /** Begins the account connect flow; [onNeedConsent] launches the consent UI for a result. */

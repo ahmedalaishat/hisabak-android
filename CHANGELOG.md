@@ -11,8 +11,8 @@ All notable changes to Hisabak are documented here. Format based on
   data to your Drive (in a private, app-only space), optionally encrypted with a passphrase
   (AES-256-GCM; the passphrase is stored encrypted on-device and is the only key — keep it safe).
   After installing on a new device, a one-time page after onboarding offers to **restore** your data
-  from Drive (skippable). Pick an auto-backup frequency now (Never / Daily / Weekly / Monthly);
-  automatic backups run in an upcoming update. (Backup requires the app's Google Drive access to be
+  from Drive (skippable). Optional **automatic backups** run in the background on the frequency you
+  pick (Never / Daily / Weekly / Monthly). (Backup requires the app's Google Drive access to be
   configured — see `docs/google-drive-backup-setup.md`.)
 - **App lock** (Settings → Security) — require a fingerprint/face unlock, falling back to your
   device PIN/pattern/password, to open Hisabak. It locks on launch and when you return after

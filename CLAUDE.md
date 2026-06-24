@@ -88,9 +88,12 @@ Domain model mirrors Hisabi so concepts transfer cleanly.
     `HttpURLConnection`). `RunBackupUseCase` / `RestoreFromRemoteUseCase` orchestrate; encryption is
     optional (caller passes the passphrase or null). `HisabakDatabase.SCHEMA_VERSION` is stamped into
     the envelope and gated on import.
-  - **Deferred:** background **auto-backup scheduling** (WorkManager). Key rule for it: persist a
-    usable (non-auth-gated) key only while auto-backup is on; else prompt per manual backup (a
-    biometric-gated key can't run unattended). Passkeys were rejected (need WebAuthn PRF + a server).
+  - **Auto-backup:** `AutoBackupScheduler` (domain interface + pure `autoBackupInterval(period)`) →
+    `WorkManagerAutoBackupScheduler` enqueues unique periodic work that runs `BackupWorker`
+    (CoroutineWorker resolving deps via Koin, default factory). Any network, silent; rescheduled from
+    `BackupViewModel` (period/enable changes) and `HisabakApp` on launch. The passphrase is
+    Keystore-stored (non-auth-gated) so encrypted auto-backups run unattended. Passkeys were rejected
+    (need WebAuthn PRF + a server).
 - **CMP-bound:** the app is planned to migrate to **Compose Multiplatform**. Keep platform APIs
   (`Context`, `FragmentActivity`, `BiometricPrompt`, Keystore) out of domain/shared code, keep
   state/business logic as pure Kotlin, and keep Composables on multiplatform-safe APIs.
