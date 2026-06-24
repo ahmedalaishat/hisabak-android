@@ -7,6 +7,10 @@ All notable changes to Hisabak are documented here. Format based on
 ## [Unreleased]
 
 ### Added
+- **Database encryption at rest** — your on-device data is now always encrypted with SQLCipher
+  (AES-256). The encryption key is generated on your device and protected by the Android Keystore,
+  so your financial history can't be read off the device's storage. It's automatic — existing data
+  is migrated to encrypted on first launch, with nothing to turn on and no passphrase to remember.
 - **Backup passphrase reminder** — when your backups are encrypted, Settings periodically shows a
   gentle card asking if you still remember your passphrase. Confirm you remember it, or check it by
   entering it — so you're never locked out of your own backup.
