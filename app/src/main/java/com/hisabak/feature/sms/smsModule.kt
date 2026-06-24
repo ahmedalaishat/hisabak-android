@@ -50,6 +50,8 @@ val smsModule = module {
             observeMessages = get(),
             capture = get(),
             deleteSms = get(),
+            detector = get(),
+            parser = get(),
         )
     }
 }

@@ -4,6 +4,7 @@ import com.hisabak.core.common.Money
 import com.hisabak.core.presentation.ViewEffect
 import com.hisabak.core.presentation.ViewIntent
 import com.hisabak.core.presentation.ViewState
+import com.hisabak.feature.sms.domain.ParsedSmsData
 import com.hisabak.feature.sms.domain.SmsMessageId
 import java.time.Instant
 
@@ -20,6 +21,8 @@ data class SmsInboxUiState(
     val rows: List<SmsInboxRow> = emptyList(),
     val search: String = "",
     val draftBody: String = "",
+    // Live parse of the current draft, so the user sees what will be imported before tapping.
+    val draftPreview: ParsedSmsData? = null,
     val isProcessing: Boolean = false,
     val isLoading: Boolean = true,
     val autoImportGranted: Boolean = false,
