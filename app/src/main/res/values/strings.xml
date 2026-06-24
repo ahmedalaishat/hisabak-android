@@ -115,6 +115,7 @@
     <string name="backup_passphrase_sheet_title">Set backup passphrase</string>
     <string name="backup_passphrase_save">Save</string>
     <string name="backup_auto_title">Auto-backup</string>
+    <string name="backup_auto_hint">Runs overnight, around 2:00 AM, when you\'re connected.</string>
     <string name="backup_auto_sheet_title">Auto-backup frequency</string>
     <string name="backup_auto_never">Never</string>
     <string name="backup_auto_daily">Daily</string>

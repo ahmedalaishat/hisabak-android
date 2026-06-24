@@ -192,6 +192,11 @@ private fun BackupSettings(
                         SettingsRow(
                             icon = Icons.Rounded.Schedule,
                             title = stringResource(R.string.backup_auto_title),
+                            subtitle = if (state.period != AutoBackupPeriod.NEVER) {
+                                stringResource(R.string.backup_auto_hint)
+                            } else {
+                                null
+                            },
                             value = stringResource(state.period.labelRes()),
                             onClick = { showPeriodSheet = true },
                         )

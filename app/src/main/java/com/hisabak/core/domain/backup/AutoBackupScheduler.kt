@@ -1,7 +1,12 @@
 package com.hisabak.core.domain.backup
 
+import java.time.ZonedDateTime
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.days
+import kotlin.time.toKotlinDuration
+
+/** Auto-backups are anchored to run overnight, after this local hour (24h clock). */
+const val AUTO_BACKUP_HOUR = 2
 
 /**
  * Schedules (or cancels) recurring background backups. Domain-level so the policy stays platform-free
@@ -18,4 +23,11 @@ fun autoBackupInterval(period: AutoBackupPeriod): Duration? = when (period) {
     AutoBackupPeriod.DAILY -> 1.days
     AutoBackupPeriod.WEEKLY -> 7.days
     AutoBackupPeriod.MONTHLY -> 30.days
+}
+
+/** Time from [now] until the next occurrence of [hour]:00 local — used to bias the first run. */
+fun delayUntilHour(now: ZonedDateTime, hour: Int): Duration {
+    var next = now.toLocalDate().atTime(hour, 0).atZone(now.zone)
+    if (!next.isAfter(now)) next = next.plusDays(1)
+    return java.time.Duration.between(now, next).toKotlinDuration()
 }

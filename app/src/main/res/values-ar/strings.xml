@@ -113,6 +113,7 @@
     <string name="backup_passphrase_sheet_title">تعيين عبارة مرور النسخ الاحتياطي</string>
     <string name="backup_passphrase_save">حفظ</string>
     <string name="backup_auto_title">النسخ التلقائي</string>
+    <string name="backup_auto_hint">يعمل ليلًا، نحو الساعة 2:00 صباحًا، عند الاتصال بالإنترنت.</string>
     <string name="backup_auto_sheet_title">تكرار النسخ التلقائي</string>
     <string name="backup_auto_never">أبدًا</string>
     <string name="backup_auto_daily">يوميًا</string>
