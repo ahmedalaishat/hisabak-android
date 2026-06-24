@@ -214,6 +214,7 @@
     <!-- Transactions -->
     <string name="transaction_add">إضافة معاملة</string>
     <string name="transaction_summary">الملخص</string>
+    <string name="transaction_income_ratio">نسبة الدخل %1$d%%</string>
     <string name="transaction_search_placeholder">ابحث في المعاملات...</string>
     <string name="transaction_no_brands">لا توجد علامات لهذا النوع. أضف واحدة من تبويب الإدارة أولاً.</string>
     <string name="transaction_note_label">ملاحظة (اختياري)</string>

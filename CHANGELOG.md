@@ -18,6 +18,8 @@ All notable changes to Hisabak are documented here. Format based on
   (Today, Yesterday, dates), each day in its own card, with the category shown beside each entry.
 - **Clearer SMS auto-import banner** — the status banner on the SMS Inbox is now color-tinted with a
   leading icon (green when active, amber when off) so its state reads at a glance.
+- **Income-ratio bar on Transactions** — the summary now shows a small bar with what share of the
+  period's money flow was income, so you can read your income-vs-spending balance at a glance.
 
 ## [1.6.0] — 2026-06-24
 
