@@ -4,6 +4,7 @@ import android.content.Intent
 import android.content.IntentSender
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.hisabak.core.common.Clock
 import com.hisabak.core.data.backup.AuthorizeOutcome
 import com.hisabak.core.data.backup.DriveAuthorizer
 import com.hisabak.core.domain.AppPreferences
@@ -65,6 +66,7 @@ class BackupViewModel(
     private val runBackup: RunBackupUseCase,
     private val remote: BackupRemote,
     private val scheduler: AutoBackupScheduler,
+    private val clock: Clock,
     private val analytics: Analytics,
 ) : ViewModel() {
 
@@ -142,6 +144,7 @@ class BackupViewModel(
         viewModelScope.launch {
             passphraseStore.set(passphrase)
             preferences.setBackupEncryptionEnabled(true)
+            preferences.setPassphraseConfirmedAt(clock.now().toEpochMilli())
         }
     }
 

@@ -7,6 +7,9 @@ All notable changes to Hisabak are documented here. Format based on
 ## [Unreleased]
 
 ### Added
+- **Backup passphrase reminder** — when your backups are encrypted, Settings periodically shows a
+  gentle card asking if you still remember your passphrase. Confirm you remember it, or check it by
+  entering it — so you're never locked out of your own backup.
 - **Google Drive backup & restore** (Settings → Data) — connect a Google account and back up your
   data to your Drive (in a private, app-only space), optionally encrypted with a passphrase
   (AES-256-GCM; the passphrase is stored encrypted on-device and is the only key — keep it safe).

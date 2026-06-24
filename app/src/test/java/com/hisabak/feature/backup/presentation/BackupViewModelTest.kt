@@ -48,7 +48,7 @@ class BackupViewModelTest {
         analytics: FakeAnalytics = FakeAnalytics(),
     ): BackupViewModel {
         val runBackup = RunBackupUseCase(repo, codec, crypto, remote, TestClock(), 8, 2)
-        return BackupViewModel(prefs, passphrase, account, authorizer, runBackup, remote, scheduler, analytics)
+        return BackupViewModel(prefs, passphrase, account, authorizer, runBackup, remote, scheduler, TestClock(), analytics)
     }
 
     @Test

@@ -5,5 +5,12 @@ import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
 
 val settingsModule = module {
-    viewModel { SettingsViewModel(preferences = get(), analytics = get()) }
+    viewModel {
+        SettingsViewModel(
+            preferences = get(),
+            passphraseStore = get(),
+            clock = get(),
+            analytics = get(),
+        )
+    }
 }
