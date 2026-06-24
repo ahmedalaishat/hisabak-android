@@ -1,3 +1,6 @@
 # Default ignored files
 /shelf/
 /workspace.xml
+# IDE-generated, machine-local files
+/deviceManager.xml
+/inspectionProfiles/
