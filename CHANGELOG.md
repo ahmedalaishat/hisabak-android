@@ -20,6 +20,8 @@ All notable changes to Hisabak are documented here. Format based on
   leading icon (green when active, amber when off) so its state reads at a glance.
 - **Income-ratio bar on Transactions** — the summary now shows a small bar with what share of the
   period's money flow was income, so you can read your income-vs-spending balance at a glance.
+- **Notification icons by type** — budget-limit alerts now show an amber warning icon (instead of a
+  generic bell), so you can tell the kind of notification at a glance.
 
 ## [1.6.0] — 2026-06-24
 
