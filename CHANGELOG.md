@@ -27,6 +27,13 @@ All notable changes to Hisabak are documented here. Format based on
 - **Top-bar logo** — the brand mark in the main screens' top bar is now a rounded square matching the
   app icon, instead of a circle.
 
+### Security
+- Hardened backup encryption: the backup file header (salt, KDF iterations, IV) is now
+  cryptographically authenticated, so tampering with it is detected on restore. Existing
+  encrypted backups still restore unchanged.
+- The one-time plaintext-to-encrypted database migration now scrubs the old plaintext file
+  before removing it, reducing the chance of recovering it from device storage.
+
 ## [1.6.0] — 2026-06-24
 
 ### Added
