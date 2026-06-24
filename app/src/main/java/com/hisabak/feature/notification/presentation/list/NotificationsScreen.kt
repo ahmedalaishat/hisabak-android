@@ -28,6 +28,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.hisabak.R
+import com.hisabak.feature.notification.domain.Notification
 import com.hisabak.ui.components.CircleIconTile
 import com.hisabak.ui.components.EmptyStatePanel
 import com.hisabak.ui.components.SkeletonRowList
@@ -121,15 +122,24 @@ fun NotificationsScreen(
 @Composable
 private fun NotificationCard(row: NotificationRow, onClick: () -> Unit) {
     val c = HisabakTheme.colors
+    // Icon + tint reflect the kind of alert: amber for budget limits, green for the rest.
+    val (icon, tileBg, tileFg) = when (row.type) {
+        Notification.TYPE_CATEGORY_LIMIT ->
+            Triple(HugeIcons.PriorityHigh, c.warningSoft, c.warning)
+        Notification.TYPE_TRANSACTION_RECORDED ->
+            Triple(HugeIcons.ReceiptLong, c.incomeSoft, MaterialTheme.colorScheme.primary)
+        else ->
+            Triple(HugeIcons.NotificationsNone, c.incomeSoft, MaterialTheme.colorScheme.primary)
+    }
     SurfaceCard(modifier = Modifier.fillMaxWidth(), onClick = onClick) {
         Row(
             verticalAlignment = Alignment.Top,
             horizontalArrangement = Arrangement.spacedBy(Spacing.s4),
         ) {
             CircleIconTile(
-                icon = HugeIcons.NotificationsNone,
-                background = c.incomeSoft,
-                foreground = MaterialTheme.colorScheme.primary,
+                icon = icon,
+                background = tileBg,
+                foreground = tileFg,
             )
             Column(
                 modifier = Modifier.weight(1f),
