@@ -52,6 +52,42 @@
      _ds_bundle.js (which still uses the text "AED" instead of the dirham glyph). Rebuild the compiled
      file after editing any *.jsx — see README → "Rebuilding". -->
 <script src="mobile-kit.compiled.js"></script>
+<!-- Hugeicons (free, MIT) glyph data + runtime swap layer: converts every rendered Material Symbol
+     into its Hugeicons SVG when enabled (toggle in the toolbar). Mock-only, no per-screen edits. -->
+<script src="hugeicons-glyphs.js"></script>
+<script>
+(function () {
+  const SVGNS = 'http://www.w3.org/2000/svg';
+  let on = false, obs = null;
+  function swap(span) {
+    if (span.dataset.hgi === '1') return;
+    const name = (span.textContent || '').trim();
+    const paths = (window.HGI || {})[name];
+    if (!paths) return;                 // unmapped → leave the Material glyph
+    span.dataset.hgi = '1'; span.dataset.hgiText = name; span.textContent = '';
+    const svg = document.createElementNS(SVGNS, 'svg');
+    svg.setAttribute('viewBox', '0 0 24 24'); svg.setAttribute('width', '1em'); svg.setAttribute('height', '1em');
+    svg.setAttribute('fill', 'none'); svg.setAttribute('stroke', 'currentColor');
+    svg.setAttribute('stroke-width', '1.8'); svg.setAttribute('stroke-linecap', 'round'); svg.setAttribute('stroke-linejoin', 'round');
+    svg.style.verticalAlign = '-0.125em';
+    paths.forEach(d => { const p = document.createElementNS(SVGNS, 'path'); p.setAttribute('d', d); svg.appendChild(p); });
+    span.appendChild(svg);
+  }
+  function restore(span) {
+    if (span.dataset.hgi !== '1') return;
+    span.textContent = span.dataset.hgiText || ''; delete span.dataset.hgi;
+  }
+  const swapAll = () => document.querySelectorAll('.material-symbols-rounded:not([data-hgi="1"])').forEach(swap);
+  const restoreAll = () => document.querySelectorAll('.material-symbols-rounded[data-hgi="1"]').forEach(restore);
+  window.IconSwap = {
+    enable() {
+      on = true; swapAll();
+      if (!obs) { obs = new MutationObserver(() => { if (on) swapAll(); }); obs.observe(document.body, { childList: true, subtree: true }); }
+    },
+    disable() { on = false; restoreAll(); },
+  };
+})();
+</script>
 
 <script type="text/babel" data-presets="react">
 const NS = window.HisabakDesignSystem_aa2548;
@@ -82,6 +118,11 @@ function StatusBar() {
 
 function App() {
   const [theme, setTheme] = React.useState('light');
+  const [icons, setIcons] = React.useState('hugeicons');
+  React.useEffect(() => {
+    if (!window.IconSwap) return;
+    if (icons === 'hugeicons') window.IconSwap.enable(); else window.IconSwap.disable();
+  }, [icons]);
   const [tab, setTab] = React.useState('dashboard');
   const [overlay, setOverlay] = React.useState(null);   // pushed screen over a tab (back arrow)
   const [full, setFull] = React.useState(null);         // full-screen flow: onboarding | restore | sync*
@@ -127,6 +168,9 @@ function App() {
       <div className="toolbar">
         <button className={!dark ? 'on' : ''} onClick={() => setTheme('light')}><span className="material-symbols-rounded" style={{ fontSize: 16 }}>light_mode</span>Light</button>
         <button className={dark ? 'on' : ''} onClick={() => setTheme('dark')}><span className="material-symbols-rounded" style={{ fontSize: 16 }}>dark_mode</span>Dark</button>
+        <span className="sep" />
+        <button className={icons === 'material' ? 'on' : ''} onClick={() => setIcons('material')}>Material</button>
+        <button className={icons === 'hugeicons' ? 'on' : ''} onClick={() => setIcons('hugeicons')}>Hugeicons</button>
         <span className="sep" />
         <button onClick={() => setFull({ flow: 'onboarding' })}>Onboarding</button>
         <button onClick={() => setFull({ flow: 'restore' })}>Restore</button>
