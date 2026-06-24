@@ -216,6 +216,7 @@
     <!-- Transactions -->
     <string name="transaction_add">Add transaction</string>
     <string name="transaction_summary">Summary</string>
+    <string name="transaction_income_ratio">%1$d%% income ratio</string>
     <string name="transaction_search_placeholder">Search transactions...</string>
     <string name="transaction_no_brands">No brands for this type. Add one from the Manage tab first.</string>
     <string name="transaction_note_label">Note (optional)</string>
