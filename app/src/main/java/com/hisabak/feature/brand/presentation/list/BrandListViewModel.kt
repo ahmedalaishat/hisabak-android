@@ -105,6 +105,9 @@ class BrandListViewModel(
     ): List<BrandRow> {
         val byId: Map<CategoryId, Category> = categories.associateBy { it.id }
         val countByBrand = transactions.groupingBy { it.brandId }.eachCount()
+        val totalByBrand = transactions
+            .groupBy({ it.brandId }) { it.amount.amountMinor }
+            .mapValues { (_, amounts) -> amounts.sum() }
         return brands.map { brand ->
             val category = brand.categoryId?.let { byId[it] }
             BrandRow(
@@ -115,6 +118,7 @@ class BrandListViewModel(
                 categoryColor = category?.color,
                 categoryIcon = category?.icon,
                 transactionCount = countByBrand[brand.id] ?: 0,
+                totalMinor = totalByBrand[brand.id] ?: 0L,
             )
         }
     }

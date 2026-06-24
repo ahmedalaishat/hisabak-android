@@ -14,6 +14,7 @@ import com.hisabak.testutil.FakeCategoryRepository
 import com.hisabak.testutil.FakeTransactionRepository
 import com.hisabak.testutil.MainDispatcherRule
 import com.hisabak.testutil.brand
+import com.hisabak.testutil.transaction
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
@@ -80,5 +81,29 @@ class BrandListViewModelTest {
 
         assertTrue(brandRepo.current.isNotEmpty()) // brand kept
         assertTrue(vm.effect.value is BrandListEffect.Message)
+    }
+
+    @Test
+    fun `brand rows carry the summed transaction total`() = runTest {
+        val txRepo = FakeTransactionRepository(
+            listOf(
+                transaction(id = "t1", brandId = "b1", amountMinor = 1_000L),
+                transaction(id = "t2", brandId = "b1", amountMinor = 500L),
+                transaction(id = "t3", brandId = "b2", amountMinor = 250L),
+            ),
+        )
+        val vm = BrandListViewModel(
+            observeBrands = ObserveBrandsUseCase(brandRepo),
+            observeCategories = ObserveCategoriesUseCase(catRepo),
+            observeTransactions = ObserveTransactionsUseCase(txRepo),
+            deleteBrand = DeleteBrandUseCase(brandRepo),
+            reassignBrandTransactions = ReassignBrandTransactionsUseCase(txRepo),
+            analytics = analytics,
+        )
+        advanceUntilIdle()
+
+        val rows = vm.state.value.rows.associateBy { it.id }
+        assertEquals(1_500L, rows.getValue(BrandId("b1")).totalMinor)
+        assertEquals(250L, rows.getValue(BrandId("b2")).totalMinor)
     }
 }

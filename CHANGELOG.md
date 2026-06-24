@@ -12,6 +12,8 @@ All notable changes to Hisabak are documented here. Format based on
   reads through its colored pill indicator.
 - **Redesigned Settings** — settings are now grouped into "Backup & security" and "Preferences",
   each option on its own card with a leading icon, for a clearer, calmer layout.
+- **Totals in Manage** — each brand row and category tile now shows the total amount spent through
+  it, so you can see at a glance where your money goes.
 
 ## [1.6.0] — 2026-06-24
 
