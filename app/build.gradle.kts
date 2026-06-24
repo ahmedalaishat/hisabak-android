@@ -7,6 +7,7 @@ plugins {
     alias(libs.plugins.ksp)
     alias(libs.plugins.google.services)
     alias(libs.plugins.firebase.crashlytics)
+    alias(libs.plugins.kotlin.serialization)
 }
 
 // Release signing is read from a gitignored keystore.properties (local) or env vars (CI).
@@ -49,8 +50,8 @@ android {
         applicationId = "com.hisabak"
         minSdk = 29
         targetSdk = 36
-        versionCode = 8
-        versionName = "1.5.1"
+        versionCode = 9
+        versionName = "1.6.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -90,6 +91,15 @@ android {
 
     buildTypes {
         debug {
+            // Sign debug with the app's release key when one is configured, so its SHA-1 matches the
+            // registered Google OAuth client (Drive backup) and Drive auth works in debug builds.
+            // Falls back to the default debug key when no keystore is present (CI / fresh checkouts),
+            // preserving the no-secrets build.
+            signingConfig = if (hasReleaseSigning) {
+                signingConfigs.getByName("release")
+            } else {
+                signingConfigs.getByName("debug")
+            }
             // Crashlytics collection is disabled at runtime in debug (see HisabakApp); also skip the
             // mapping-file upload so debug builds don't touch Crashlytics tooling.
             configure<com.google.firebase.crashlytics.buildtools.gradle.CrashlyticsExtension> {
@@ -150,7 +160,13 @@ dependencies {
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
     ksp(libs.androidx.room.compiler)
+    implementation(libs.sqlcipher.android)
+    implementation(libs.androidx.sqlite)
     implementation(libs.androidx.datastore.preferences)
+    implementation(libs.androidx.biometric)
+    implementation(libs.kotlinx.serialization.json)
+    implementation(libs.play.services.auth)
+    implementation(libs.androidx.work.runtime.ktx)
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.crashlytics)
     implementation(libs.firebase.analytics)

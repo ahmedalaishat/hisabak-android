@@ -9,6 +9,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import com.hisabak.core.common.SummaryPeriod
 import com.hisabak.ui.theme.Spacing
 
@@ -26,7 +27,7 @@ fun PeriodChipRow(
             FilterChip(
                 selected = selected == option,
                 onClick = { onSelect(option) },
-                label = { Text(option.label, style = MaterialTheme.typography.labelMedium) },
+                label = { Text(stringResource(option.labelRes), style = MaterialTheme.typography.labelMedium) },
                 colors = FilterChipDefaults.filterChipColors(
                     selectedContainerColor = MaterialTheme.colorScheme.primary,
                     selectedLabelColor = MaterialTheme.colorScheme.onPrimary,

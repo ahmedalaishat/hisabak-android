@@ -89,6 +89,19 @@ Everything below is built and shipping today:
 - [x] 🗂️ **Organize** — categories (income / expense / savings / investment) with colors and
   icons, and brands mapped to categories. Safe deletion with brand-merge and confirmation.
 - [x] 🛎️ **Notifications center** — unread badge on the bell, swipe-to-dismiss, and mark-all-read.
+- [x] 🔒 **App lock** — optional biometric / device-PIN lock that gates access on launch and when
+  you return to the app, so your finances stay private on a shared device. (Access gate; the
+  database itself is also encrypted at rest — see below.)
+- [x] 🛡️ **Encrypted at rest** — the on-device database is always encrypted with SQLCipher
+  (AES-256). The key is generated on-device and wrapped in the Android Keystore, so your financial
+  data is unreadable if the device's storage is ever extracted. Existing databases are migrated to
+  encrypted automatically on first launch — nothing for you to turn on.
+- [x] ⚙️ **Settings** — pick your **theme** (light / dark / system) and **language**
+  (**English / العربية**, fully localized and right-to-left). Both are saved across launches.
+- [x] ☁️ **Google Drive backup & restore** — connect a Google account and back up your data to a
+  private, app-only space in your Drive, optionally encrypted with a passphrase (AES-256-GCM), with
+  optional **automatic backups** (daily / weekly / monthly). A new install offers to restore from
+  Drive right after onboarding. (Requires the app's Drive access to be configured.)
 - [x] 📴 **Offline-first** — all data is stored locally on-device (Room). Light & dark themes,
   polished motion, edge-to-edge.
 
@@ -100,11 +113,7 @@ What's next, roughly in order:
 
 - [ ] 🛎️ **Notification capture** — read bank transaction notifications to capture spending without
   the SMS permission (works in the Play build).
-- [ ] 💾 **Backup & restore** — export and import your data (encrypted), so you can move between
-  devices.
 - [ ] 💱 **Multi-currency** — track transactions and balances across more than one currency.
-- [ ] 🔒 **App lock** — biometric / PIN lock to keep your finances private on a shared device.
-- [ ] 🛡️ **Database encryption** — encrypt the on-device database at rest.
 - [ ] 🤖 **AI capture & auto-categorization** — smarter SMS parsing and automatic brand → category
   detection.
 - [ ] 💡 **AI insights assistant** — ask questions about your spending and get clear, on-point
@@ -153,7 +162,7 @@ and SMS-imported transactions are both covered through a single path.
 
 ## 🧪 Testing & quality
 
-The domain logic and ViewModels are covered by **90 JVM unit tests** (money math, the SMS
+The domain logic and ViewModels are covered by **152 JVM unit tests** (money math, the SMS
 template parser, budget/limit logic, and ViewModel state) that run on the plain JVM — no
 emulator needed:
 

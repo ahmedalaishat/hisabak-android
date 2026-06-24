@@ -33,6 +33,16 @@ interface SmsDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun upsert(entity: SmsMessageEntity)
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun upsertAll(entities: List<SmsMessageEntity>)
+
     @Query("DELETE FROM sms_messages WHERE id = :id")
     suspend fun deleteById(id: String)
+
+    // Backup: every row incl. soft-deleted tombstones.
+    @Query("SELECT * FROM sms_messages")
+    suspend fun getAllForBackup(): List<SmsMessageEntity>
+
+    @Query("DELETE FROM sms_messages")
+    suspend fun deleteAll()
 }

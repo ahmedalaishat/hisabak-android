@@ -57,11 +57,16 @@ import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.text.TextStyle
 import com.hisabak.ui.components.DirhamGlyph
 import com.hisabak.ui.components.compactAmount
+import com.hisabak.ui.components.compactAmountParts
+import com.hisabak.ui.components.localizeDigits
+import com.hisabak.ui.components.rememberIsArabic
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.hisabak.R
 import com.hisabak.ui.theme.HisabakTheme
 import com.hisabak.ui.theme.HisabakType
 import com.hisabak.ui.theme.LocalReducedMotion
@@ -146,7 +151,7 @@ private fun appearProgress(active: Boolean, durationMillis: Int): Float {
     return p
 }
 
-private fun compactMajor(v: Double): String = compactAmount(v)
+private fun compactMajor(v: Double, arabic: Boolean): String = compactAmount(v, arabic)
 
 /** Dirham glyph + compact amount, matching the app's [com.hisabak.ui.components.AmountText] look. */
 @Composable
@@ -158,11 +163,17 @@ private fun OnboardingAmount(
     sign: String = "",
     symbolScale: Float = 0.78f,
 ) {
+    val arabic = rememberIsArabic()
+    val parts = compactAmountParts(value, arabic)
     Row(modifier = modifier, verticalAlignment = Alignment.CenterVertically) {
         if (sign.isNotEmpty()) Text(sign, style = style, color = color)
         DirhamGlyph(size = style.fontSize * symbolScale, tint = color)
         Spacer(Modifier.width(3.dp))
-        Text(compactMajor(value), style = style, color = color, maxLines = 1)
+        Text(parts.number, style = style, color = color, maxLines = 1)
+        if (parts.suffix.isNotEmpty()) {
+            if (arabic) Spacer(Modifier.width(2.dp))
+            Text(parts.suffix, style = style, color = color, maxLines = 1)
+        }
     }
 }
 
@@ -192,9 +203,9 @@ fun WelcomePage(active: Boolean, parallax: Float) {
     val p = appearProgress(active, 900)
     OnboardingPage(
         active, parallax,
-        overline = "Welcome to Hisabak",
-        title = "All your money, in one calm place.",
-        subtitle = "Track spending, set budgets, and see where every dirham goes — without the busywork.",
+        overline = stringResource(R.string.onboarding_welcome_overline),
+        title = stringResource(R.string.onboarding_welcome_title),
+        subtitle = stringResource(R.string.onboarding_welcome_subtitle),
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Box(
@@ -210,7 +221,7 @@ fun WelcomePage(active: Boolean, parallax: Float) {
             PreviewCard(Modifier.width(300.dp)) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth()) {
                     Text(
-                        "NET WORTH",
+                        stringResource(R.string.onboarding_demo_net_worth),
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
@@ -252,12 +263,9 @@ fun SmsCapturePage(active: Boolean, parallax: Float) {
     val density = LocalDensity.current
     OnboardingPage(
         active, parallax,
-        overline = if (BuildConfig.SMS_AUTO_CAPTURE) "SMS auto-capture" else "Quick capture",
-        title = "Your bank texts become transactions.",
-        subtitle = if (BuildConfig.SMS_AUTO_CAPTURE)
-            "Hisabak reads the alert, pulls out the amount and merchant, and files it — automatically."
-        else
-            "Share a bank alert to Hisabak — or select its text — and it pulls out the amount and merchant for you.",
+        overline = stringResource(if (BuildConfig.SMS_AUTO_CAPTURE) R.string.onboarding_sms_overline_auto else R.string.onboarding_sms_overline_quick),
+        title = stringResource(R.string.onboarding_sms_title),
+        subtitle = stringResource(if (BuildConfig.SMS_AUTO_CAPTURE) R.string.onboarding_sms_subtitle_auto else R.string.onboarding_sms_subtitle_quick),
     ) {
         Column(Modifier.width(320.dp), horizontalAlignment = Alignment.Start) {
             // SMS bubble
@@ -280,7 +288,7 @@ fun SmsCapturePage(active: Boolean, parallax: Float) {
                     tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(18.dp),
                 )
                 Text(
-                    "parsed automatically",
+                    stringResource(R.string.onboarding_demo_parsed),
                     style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -323,24 +331,25 @@ fun BudgetsPage(active: Boolean, parallax: Float) {
     val barColor = lerp(MaterialTheme.colorScheme.primary, HisabakTheme.colors.warning, warnT)
     OnboardingPage(
         active, parallax,
-        overline = "Budgets & alerts",
-        title = "Know before you overspend.",
-        subtitle = "Set a monthly limit per category. We nudge you at 50%, 80%, and 100% — in-app and on your phone.",
+        overline = stringResource(R.string.onboarding_budgets_overline),
+        title = stringResource(R.string.onboarding_budgets_title),
+        subtitle = stringResource(R.string.onboarding_budgets_subtitle, 50, 80, 100),
     ) {
         PreviewCard(Modifier.width(320.dp)) {
+            val arabic = rememberIsArabic()
             Column(Modifier.fillMaxWidth()) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     CatTile(Icons.Filled.ShoppingCart, HisabakTheme.colors.catOrange)
                     Spacer(Modifier.width(Spacing.s4))
                     Column(Modifier.weight(1f)) {
                         Text("Groceries", style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.onSurface)
-                        Text("June budget", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text(stringResource(R.string.onboarding_demo_june_budget), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         DirhamGlyph(size = HisabakType.amount.fontSize * 0.78f, tint = MaterialTheme.colorScheme.onSurfaceVariant)
                         Spacer(Modifier.width(3.dp))
                         Text(
-                            "${compactMajor(4800.0)} / ${compactMajor(6000.0)}",
+                            "${compactMajor(4800.0, arabic)} / ${compactMajor(6000.0, arabic)}",
                             style = HisabakType.amount,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
@@ -365,14 +374,14 @@ fun BudgetsPage(active: Boolean, parallax: Float) {
                             .padding(horizontal = Spacing.s4, vertical = Spacing.s2),
                     ) {
                         Icon(Icons.Filled.NotificationsActive, null, tint = HisabakTheme.colors.warning, modifier = Modifier.size(16.dp))
-                        Text("80% of budget", style = MaterialTheme.typography.labelMedium, color = HisabakTheme.colors.warning)
+                        Text(stringResource(R.string.onboarding_demo_budget_warning, 80), style = MaterialTheme.typography.labelMedium, color = HisabakTheme.colors.warning)
                     }
                     Spacer(Modifier.weight(1f))
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         DirhamGlyph(size = MaterialTheme.typography.bodySmall.fontSize * 0.9f, tint = MaterialTheme.colorScheme.onSurfaceVariant)
                         Spacer(Modifier.width(3.dp))
                         Text(
-                            "${compactMajor(1200.0)} left",
+                            stringResource(R.string.onboarding_demo_left, compactMajor(1200.0, arabic)),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
@@ -393,9 +402,9 @@ fun InsightsPage(active: Boolean, parallax: Float) {
     val accent = MaterialTheme.colorScheme.primary
     OnboardingPage(
         active, parallax,
-        overline = "Insights",
-        title = "See exactly where it goes.",
-        subtitle = "Net-worth trends, income vs spending, and a clean breakdown by category and brand.",
+        overline = stringResource(R.string.onboarding_insights_overline),
+        title = stringResource(R.string.onboarding_insights_title),
+        subtitle = stringResource(R.string.onboarding_insights_subtitle),
     ) {
         Column(Modifier.width(320.dp), verticalArrangement = Arrangement.spacedBy(Spacing.s4)) {
             PreviewCard(Modifier.fillMaxWidth()) {
@@ -423,7 +432,7 @@ fun InsightsPage(active: Boolean, parallax: Float) {
             }
             PreviewCard(Modifier.fillMaxWidth()) {
                 Column {
-                    Text("Net worth · 6 months", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text(stringResource(R.string.onboarding_demo_net_worth_6m), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     Spacer(Modifier.height(Spacing.s3))
                     Canvas(Modifier.fillMaxWidth().height(64.dp)) {
                         val pts = listOf(0.74f, 0.62f, 0.68f, 0.42f, 0.48f, 0.26f, 0.16f)
@@ -452,7 +461,7 @@ private fun LegendRow(color: Color, label: String, pct: String) {
         Spacer(Modifier.width(Spacing.s3))
         Text(label, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurface)
         Spacer(Modifier.weight(1f))
-        Text(pct, style = HisabakType.amount.copy(fontSize = MaterialTheme.typography.bodyMedium.fontSize), color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Text(localizeDigits(pct, rememberIsArabic()), style = HisabakType.amount.copy(fontSize = MaterialTheme.typography.bodyMedium.fontSize), color = MaterialTheme.colorScheme.onSurfaceVariant)
     }
 }
 
@@ -464,22 +473,19 @@ fun GetStartedPage(active: Boolean, parallax: Float) {
     val c = HisabakTheme.colors
     OnboardingPage(
         active, parallax,
-        overline = "You're all set",
-        title = "Ready when you are.",
-        subtitle = if (BuildConfig.SMS_AUTO_CAPTURE)
-            "Turn on SMS auto-capture to log transactions the moment they happen — or add them by hand anytime."
-        else
-            "Add transactions in a tap — share a bank SMS, select its text, or paste it. Add them by hand anytime too.",
+        overline = stringResource(R.string.onboarding_ready_overline),
+        title = stringResource(R.string.onboarding_ready_title),
+        subtitle = stringResource(if (BuildConfig.SMS_AUTO_CAPTURE) R.string.onboarding_ready_subtitle_auto else R.string.onboarding_ready_subtitle_quick),
     ) {
         Column(Modifier.width(320.dp), verticalArrangement = Arrangement.spacedBy(Spacing.s3)) {
             if (BuildConfig.SMS_AUTO_CAPTURE) {
-                RecapRow(p, 0f, Icons.Filled.Bolt, c.income, c.incomeSoft, "Automatic capture", "from your bank SMS")
+                RecapRow(p, 0f, Icons.Filled.Bolt, c.income, c.incomeSoft, stringResource(R.string.onboarding_recap_capture_auto_title), stringResource(R.string.onboarding_recap_capture_auto_sub))
             } else {
-                RecapRow(p, 0f, Icons.Filled.Bolt, c.income, c.incomeSoft, "Quick capture", "share or paste a bank SMS")
+                RecapRow(p, 0f, Icons.Filled.Bolt, c.income, c.incomeSoft, stringResource(R.string.onboarding_recap_capture_quick_title), stringResource(R.string.onboarding_recap_capture_quick_sub))
             }
-            RecapRow(p, 0.12f, Icons.Filled.Lock, MaterialTheme.colorScheme.primary, MaterialTheme.colorScheme.primary.copy(alpha = 0.12f), "Private by design", "your data stays on this device")
-            RecapRow(p, 0.24f, Icons.Filled.Savings, c.warning, c.warningSoft, "Smart budgets", "alerts before you overshoot")
-            RecapRow(p, 0.36f, Icons.Filled.Insights, c.savings, c.savings.copy(alpha = 0.15f), "Clear insights", "trends, categories, brands")
+            RecapRow(p, 0.12f, Icons.Filled.Lock, MaterialTheme.colorScheme.primary, MaterialTheme.colorScheme.primary.copy(alpha = 0.12f), stringResource(R.string.onboarding_recap_private_title), stringResource(R.string.onboarding_recap_private_sub))
+            RecapRow(p, 0.24f, Icons.Filled.Savings, c.warning, c.warningSoft, stringResource(R.string.onboarding_recap_budgets_title), stringResource(R.string.onboarding_recap_budgets_sub))
+            RecapRow(p, 0.36f, Icons.Filled.Insights, c.savings, c.savings.copy(alpha = 0.15f), stringResource(R.string.onboarding_recap_insights_title), stringResource(R.string.onboarding_recap_insights_sub))
             Spacer(Modifier.height(Spacing.s2))
             Row(
                 verticalAlignment = Alignment.CenterVertically,
@@ -496,15 +502,12 @@ fun GetStartedPage(active: Boolean, parallax: Float) {
                 Spacer(Modifier.width(Spacing.s4))
                 Column(Modifier.weight(1f)) {
                     Text(
-                        if (BuildConfig.SMS_AUTO_CAPTURE) "Turn on SMS auto-capture" else "Capture from your bank SMS",
+                        stringResource(if (BuildConfig.SMS_AUTO_CAPTURE) R.string.onboarding_cta_card_title_auto else R.string.onboarding_cta_card_title_quick),
                         style = MaterialTheme.typography.titleSmall,
                         color = MaterialTheme.colorScheme.onSurface,
                     )
                     Text(
-                        if (BuildConfig.SMS_AUTO_CAPTURE)
-                            "We only read bank transaction alerts. Nothing leaves your device."
-                        else
-                            "Share a bank alert or select its text. Nothing leaves your device.",
+                        stringResource(if (BuildConfig.SMS_AUTO_CAPTURE) R.string.onboarding_cta_card_body_auto else R.string.onboarding_cta_card_body_quick),
                         style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
@@ -544,9 +547,9 @@ fun PrivacyPage(active: Boolean, parallax: Float) {
     val p = appearProgress(active, 900)
     OnboardingPage(
         active, parallax,
-        overline = "Private by design",
-        title = "Your data never leaves your device.",
-        subtitle = "Everything is stored locally — no account, no cloud, no sync. Your finances are yours alone.",
+        overline = stringResource(R.string.onboarding_privacy_overline),
+        title = stringResource(R.string.onboarding_privacy_title),
+        subtitle = stringResource(R.string.onboarding_privacy_subtitle),
     ) {
         Column(Modifier.width(320.dp), horizontalAlignment = Alignment.CenterHorizontally) {
             Box(
@@ -557,9 +560,9 @@ fun PrivacyPage(active: Boolean, parallax: Float) {
             Spacer(Modifier.height(Spacing.s7))
             PreviewCard(Modifier.fillMaxWidth()) {
                 Column(verticalArrangement = Arrangement.spacedBy(Spacing.s5)) {
-                    GuaranteeRow(p, 0f, Icons.Filled.PhoneAndroid, "Stored on this device")
-                    GuaranteeRow(p, 0.12f, Icons.Filled.CloudOff, "Never synced to a server")
-                    GuaranteeRow(p, 0.24f, Icons.Filled.VisibilityOff, "No account, no tracking")
+                    GuaranteeRow(p, 0f, Icons.Filled.PhoneAndroid, stringResource(R.string.onboarding_guarantee_device))
+                    GuaranteeRow(p, 0.12f, Icons.Filled.CloudOff, stringResource(R.string.onboarding_guarantee_no_sync))
+                    GuaranteeRow(p, 0.24f, Icons.Filled.VisibilityOff, stringResource(R.string.onboarding_guarantee_no_account))
                 }
             }
         }

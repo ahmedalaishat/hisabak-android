@@ -6,6 +6,37 @@ All notable changes to Hisabak are documented here. Format based on
 
 ## [Unreleased]
 
+## [1.6.0] — 2026-06-24
+
+### Added
+- **Database encryption at rest** — your on-device data is now always encrypted with SQLCipher
+  (AES-256). The encryption key is generated on your device and protected by the Android Keystore,
+  so your financial history can't be read off the device's storage. It's automatic — existing data
+  is migrated to encrypted on first launch, with nothing to turn on and no passphrase to remember.
+- **Backup passphrase reminder** — when your backups are encrypted, Settings periodically shows a
+  gentle card asking if you still remember your passphrase. Confirm you remember it, or check it by
+  entering it — so you're never locked out of your own backup.
+- **Google Drive backup & restore** (Settings → Data) — connect a Google account and back up your
+  data to your Drive (in a private, app-only space), optionally encrypted with a passphrase
+  (AES-256-GCM; the passphrase is stored encrypted on-device and is the only key — keep it safe).
+  After installing on a new device, a one-time page after onboarding offers to **restore** your data
+  from Drive (skippable). Optional **automatic backups** run in the background on the frequency you
+  pick (Never / Daily / Weekly / Monthly). (Backup requires the app's Google Drive access to be
+  configured — see `docs/google-drive-backup-setup.md`.)
+- **App lock** (Settings → Security) — require a fingerprint/face unlock, falling back to your
+  device PIN/pattern/password, to open Hisabak. It locks on launch and when you return after
+  leaving the app, with a short grace period so quick app-switches don't prompt you every time.
+  This is an access gate, not at-rest encryption.
+- A **Settings** tab with two controls to start:
+  - **Theme** — choose Light, Dark, or System (follows your device). Your choice is saved and
+    applies across the whole app instantly.
+  - **Language** — switch the app between **English** and **العربية**. The app is fully
+    localized and lays out right-to-left in Arabic; your choice is saved and survives restarts.
+
+### Changed
+- The top bar on the main screens now shows the Hisabak app logo instead of a generic
+  profile icon, which had implied a user account the app doesn't have.
+
 ## [1.5.1] — 2026-06-19
 
 ### Fixed

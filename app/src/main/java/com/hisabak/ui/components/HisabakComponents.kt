@@ -17,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.TextUnit
@@ -27,6 +28,7 @@ import com.hisabak.ui.theme.HisabakTheme
 import com.hisabak.ui.theme.HisabakType
 import com.hisabak.ui.theme.PillShape
 import com.hisabak.ui.theme.Spacing
+import java.util.Locale
 import kotlin.math.abs
 
 /*
@@ -51,7 +53,7 @@ fun DirhamGlyph(
     val heightDp = with(LocalDensity.current) { size.toDp() }
     Icon(
         painter = painterResource(R.drawable.ic_dirham),
-        contentDescription = "AED",
+        contentDescription = stringResource(R.string.currency_dirham_description),
         tint = tint,
         modifier = modifier
             .height(heightDp)
@@ -93,11 +95,20 @@ fun AmountText(
     }
     val sign = if (showSign && tone != AmountTone.Neutral) (if (value < 0) "−" else "+") else ""
     val numberStyle = HisabakType.amount.copy(fontSize = size, fontWeight = weight)
+    // Number and suffix are separate Texts so Arabic-Indic digits don't bidi-reorder; the Row
+    // follows the ambient layout direction, so the dirham glyph falls on the natural side (left in
+    // English, right in Arabic).
+    val arabic = rememberIsArabic()
+    val parts = compactAmountParts(abs(value), arabic)
     Row(modifier = modifier, verticalAlignment = Alignment.CenterVertically) {
         if (sign.isNotEmpty()) Text(sign, color = color, style = numberStyle)
         DirhamGlyph(size = size * 0.82f, tint = color)
         Spacer(Modifier.width(3.dp))
-        Text(compactAmount(abs(value)), color = color, style = numberStyle)
+        Text(parts.number, color = color, style = numberStyle, maxLines = 1)
+        if (parts.suffix.isNotEmpty()) {
+            if (arabic) Spacer(Modifier.width(2.dp))
+            Text(parts.suffix, color = color, style = numberStyle, maxLines = 1)
+        }
     }
 }
 
@@ -113,27 +124,81 @@ fun MoneyText(
     modifier: Modifier = Modifier,
     symbolScale: Float = 0.8f,
 ) {
+    val arabic = rememberIsArabic()
+    val parts = compactAmountParts(amountMinor / 100.0, arabic)
     Row(modifier = modifier, verticalAlignment = Alignment.CenterVertically) {
         DirhamGlyph(size = style.fontSize * symbolScale, tint = color)
         Spacer(Modifier.width(3.dp))
-        Text(compactAmountMinor(amountMinor), style = style, color = color, maxLines = 1)
+        Text(parts.number, style = style, color = color, maxLines = 1)
+        if (parts.suffix.isNotEmpty()) {
+            if (arabic) Spacer(Modifier.width(2.dp))
+            Text(parts.suffix, style = style, color = color, maxLines = 1)
+        }
     }
 }
 
 /**
  * Compact money: thousands as `K`, millions as `M` (both to 2 decimals); under 1,000 exact to
  * 2 decimals. Used app-wide via [MoneyText] / [AmountText] and the per-screen formatters.
+ *
+ * The suffix is localized off the current default locale (Arabic uses the words ألف / مليون) —
+ * the locale is set by `AppLocale.wrap`, so this stays correct in non-composable callers too.
+ * Digits stay Western and amounts keep the dirham glyph in both languages.
  */
-internal fun compactAmount(major: Double): String {
+/** The number and (possibly empty) magnitude suffix of a compact amount, kept apart so the
+ *  composables can render them as separate Texts — Arabic-Indic digits (bidi class AN) plus an
+ *  Arabic letter suffix would otherwise reorder inside one Text, flipping the visual order. */
+internal class CompactParts(val number: String, val suffix: String)
+
+internal fun compactAmountParts(major: Double, arabic: Boolean): CompactParts {
     val a = abs(major)
+    // Arabic uses Arabic-Indic digits (٠١٢…) and the one-letter abbreviations أ (ألف) / م (مليون),
+    // which fit the same footprint as K/M (the full words overflow). The number locale is pinned to
+    // [arabic] (from the Compose config), not the JVM default, so the digit script can't drift after
+    // a language switch; English pins to US so digits/separators stay Western on any device.
+    val loc = if (arabic) ARABIC_NUMBER_LOCALE else Locale.US
     return when {
-        a >= 1_000_000 -> "%,.2fM".format(major / 1_000_000.0)
-        a >= 1_000 -> "%,.2fK".format(major / 1_000.0)
-        else -> "%,.2f".format(major)
+        a >= 1_000_000 -> CompactParts("%,.2f".format(loc, major / 1_000_000.0), if (arabic) "م" else "M")
+        a >= 1_000 -> CompactParts("%,.2f".format(loc, major / 1_000.0), if (arabic) "أ" else "K")
+        else -> CompactParts("%,.2f".format(loc, major), "")
     }
 }
 
-internal fun compactAmountMinor(amountMinor: Long): String = compactAmount(amountMinor / 100.0)
+internal fun compactAmount(
+    major: Double,
+    arabic: Boolean = Locale.getDefault().language == "ar",
+): String {
+    val p = compactAmountParts(major, arabic)
+    return when {
+        p.suffix.isEmpty() -> p.number
+        arabic -> "${p.number} ${p.suffix}"
+        else -> "${p.number}${p.suffix}"
+    }
+}
+
+/** Arabic locale pinned to Arabic-Indic numerals (nu-arab) so amount digits are deterministic. */
+private val ARABIC_NUMBER_LOCALE: Locale = Locale.forLanguageTag("ar-u-nu-arab")
+
+internal fun compactAmountMinor(
+    amountMinor: Long,
+    arabic: Boolean = Locale.getDefault().language == "ar",
+): String = compactAmount(amountMinor / 100.0, arabic)
+
+/** True when the UI is rendering in Arabic — read from the Compose config, not the JVM default. */
+@Composable
+internal fun rememberIsArabic(): Boolean =
+    androidx.compose.ui.platform.LocalConfiguration.current.locales[0].language == "ar"
+
+private val ARABIC_INDIC_DIGITS = charArrayOf('٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩')
+
+/** Maps Western digits to Arabic-Indic when [arabic], for numbers built with a fixed (non-locale)
+ *  formatter (percentages, etc.) so they match the rest of the Arabic UI regardless of device. */
+internal fun localizeDigits(text: String, arabic: Boolean): String {
+    if (!arabic) return text
+    return buildString(text.length) {
+        for (ch in text) append(if (ch in '0'..'9') ARABIC_INDIC_DIGITS[ch - '0'] else ch)
+    }
+}
 
 /**
  * StatusChip — SMS parse state. Mirrors components/core/StatusChip.

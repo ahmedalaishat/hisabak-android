@@ -24,6 +24,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.hisabak.feature.brand.domain.BrandId
@@ -32,6 +33,8 @@ import com.hisabak.feature.category.domain.CategoryId
 import com.hisabak.feature.category.presentation.list.CategoryListRoute
 import com.hisabak.ui.components.IconTile
 import com.hisabak.ui.components.SurfaceCard
+import com.hisabak.ui.components.localizeDigits
+import com.hisabak.ui.components.rememberIsArabic
 import com.hisabak.ui.theme.HisabakTheme
 import com.hisabak.ui.theme.Spacing
 import org.koin.compose.viewmodel.koinViewModel
@@ -60,7 +63,7 @@ fun ManageRoute(
                 horizontalArrangement = Arrangement.spacedBy(Spacing.cardGap),
             ) {
                 ManageSwitchCard(
-                    label = "Brands",
+                    label = stringResource(R.string.common_brands),
                     count = counts.brands,
                     icon = Icons.Filled.Storefront,
                     selected = tab == ManageTab.Brands,
@@ -68,7 +71,7 @@ fun ManageRoute(
                     modifier = Modifier.weight(1f),
                 )
                 ManageSwitchCard(
-                    label = "Categories",
+                    label = stringResource(R.string.common_categories),
                     count = counts.categories,
                     icon = Icons.Filled.Category,
                     selected = tab == ManageTab.Categories,
@@ -106,7 +109,7 @@ fun ManageRoute(
         ) {
             Icon(
                 Icons.Filled.Add,
-                contentDescription = if (tab == ManageTab.Brands) "New brand" else "New category",
+                contentDescription = stringResource(if (tab == ManageTab.Brands) R.string.brand_new_title else R.string.category_new_title),
             )
         }
     }
@@ -148,7 +151,7 @@ private fun ManageSwitchCard(
             )
             Column {
                 Text(
-                    text = count.toString(),
+                    text = localizeDigits(count.toString(), rememberIsArabic()),
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.onSurface,
                 )

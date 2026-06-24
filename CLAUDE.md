@@ -38,12 +38,76 @@ Domain model mirrors Hisabi so concepts transfer cleanly.
   mappers in `data/local/`, and the database in `core/data/local/` (`HisabakDatabase`).
   The Room schema is exported to `app/schemas/` (committed); bump the DB version and add a
   real `Migration` for any entity change — **release builds don't destructively fall back**
-  (debug builds do, for fast iteration). Lightweight app prefs (e.g. the onboarding flag)
-  use DataStore (`core/data/preferences/`).
+  (debug builds do, for fast iteration).
+- **At-rest encryption:** the database is **always** encrypted with SQLCipher (`net.zetetic:
+  sqlcipher-android`), wired in `di/DatabaseModule.kt` via `.openHelperFactory(SupportOpenHelperFactory(key))`
+  — transparent above the open-helper, so entities/DAOs/migrations/schema export are unchanged. The
+  key is a random secret generated on-device and wrapped by a non-exportable Android Keystore AES-GCM
+  key (`KeystoreDatabaseKeyStore`, `core/data/local/security/`; same pattern as the backup passphrase
+  store, distinct alias `hisabak_database_key`). It is **not** auth-gated, so the DB opens on cold
+  start and in the unattended `BackupWorker` — the live-device threat is App Lock's job, not the key's.
+  Always-on (no toggle); existing plaintext databases are migrated once, in place, before Room opens
+  (`DatabaseEncryptionMigration` — detects the `SQLite format 3` header, runs `sqlcipher_export`,
+  verifies + atomically swaps; idempotent, retries on crash). Load the native lib once
+  (`System.loadLibrary("sqlcipher")`) before opening. Lightweight app prefs (the onboarding flag, the
+  theme mode, and the `appLockEnabled` flag) use DataStore (`core/data/preferences/`) behind the
+  `AppPreferences` interface (`core/domain/`); `MainActivity` reads `themeMode` and feeds the
+  resolved boolean to `HisabakTheme(darkTheme=…)`.
+- **Localization:** English + Arabic (RTL). User-facing strings live in `res/values/strings.xml`
+  (+ `res/values-ar/`) and are read via `stringResource`/`pluralStringResource` — **don't hardcode
+  UI text**. The in-app language switch is framework-only (no appcompat, so Navigation 3's
+  `NavDisplay` keeps its `ComponentActivity` dispatcher owner): the chosen tag is stored by
+  `AppLocale` (`core/data/preferences/`) in a synchronous SharedPreferences, `MainActivity`
+  overrides `attachBaseContext` to wrap the Context in that locale + layout direction, and the
+  Settings screen saves the tag then calls `recreate()`. **Numbers follow the language:** English
+  uses Western digits (pinned to `Locale.US`), Arabic uses **Arabic-Indic** digits — the wrapped
+  locale carries `nu-arab` so resource-formatted numbers (percentages, dates, counts via `%d`)
+  render Arabic-Indic config-driven, amounts pin `ar-u-nu-arab` in `compactAmountParts`, and the
+  few fixed-format numbers use `localizeDigits(text, arabic)`. Amounts always read LTR
+  (glyph · number · K/M-or-أ/م suffix) via a forced `LayoutDirection.Ltr`, with the number and
+  suffix as separate `Text`s so Arabic-Indic digits don't bidi-reorder. Amounts keep the dirham
+  glyph in both languages.
 - **Platform:** Android only, portrait, edge-to-edge. `minSdk 29`. **Core-library desugaring is
   enabled** (`isCoreLibraryDesugaringEnabled` + `desugar_jdk_libs`), so `java.time` is safe to use
   freely down to API 29 — without it, API-34+ additions like `LocalDate.ofInstant` throw
   `NoSuchMethodError` on older devices at runtime (this caused the v1.5.0 launch crash).
+- **App lock:** optional biometric/device-credential gate (Settings → Security, `appLockEnabled`
+  pref). `androidx.biometric` `BiometricPrompt` with `BIOMETRIC_STRONG or DEVICE_CREDENTIAL` (PIN
+  fallback, no custom PIN UI). **`MainActivity` is a `FragmentActivity`** — required by
+  `BiometricPrompt`; it still extends `androidx.activity.ComponentActivity` (NavDisplay keeps its
+  dispatcher owner) and pulls in `androidx.fragment`, **not** appcompat, so the no-appcompat rule
+  holds. `security/AppLock.kt` gates the nav (`AppLockGate`) and locks on cold start + on return
+  past a grace window; the lock decision is the pure `shouldLock(...)` in
+  `core/domain/security/` (CMP-ready), the prompt is `core/platform/security/BiometricAuthenticator`
+  (Android glue). It's an access gate, **not** at-rest encryption.
+- **Backup (Google Drive):** connect a Google account, back up to Drive's hidden **App Data Folder**,
+  and restore — Settings → Data → `BackupKey` screen, plus a one-time post-onboarding restore page
+  (`RestoreRoute`, gated by the `restoreOffered` pref). Settings: enable toggle, account row,
+  optional encryption toggle + passphrase, auto-backup period (`AutoBackupPeriod`, incl. `NEVER`,
+  default `NEVER`), and **Back up now**. Prefs on `AppPreferences` (`backupEnabled`,
+  `backupEncryptionEnabled`, `autoBackupPeriod`, `restoreOffered`); the passphrase via
+  `KeystoreBackupPassphraseStore` (Keystore AES-GCM, only IV+ciphertext persisted — **never
+  plaintext**), the account email via `DataStoreBackupAccountStore`.
+  - **Auth:** `DriveAuthorizer` (interface; fake in tests) → `GoogleDriveAuthorizer` using Google
+    Identity **Authorization API** (`play-services-auth`) for the `drive.appdata` scope; consent runs
+    through a `PendingIntent` launched by the Route. **Cloud setup is required** — see
+    `docs/google-drive-backup-setup.md` (OAuth client by package + SHA-1; no secret in the app).
+  - **Engine (destination-agnostic):** `RoomBackupRepository` (snapshot + replace-all in one
+    `withTransaction`), `JsonBackupCodec` (kotlinx.serialization), `AesGcmBackupCrypto`
+    (passphrase→PBKDF2→AES-256-GCM; `isEncrypted` sniffs the `HSBK` magic so unencrypted backups
+    restore without a passphrase), `GoogleDriveBackupRemote` (`BackupRemote` over Drive v3 REST via
+    `HttpURLConnection`). `RunBackupUseCase` / `RestoreFromRemoteUseCase` orchestrate; encryption is
+    optional (caller passes the passphrase or null). `HisabakDatabase.SCHEMA_VERSION` is stamped into
+    the envelope and gated on import.
+  - **Auto-backup:** `AutoBackupScheduler` (domain interface + pure `autoBackupInterval(period)`) →
+    `WorkManagerAutoBackupScheduler` enqueues unique periodic work that runs `BackupWorker`
+    (CoroutineWorker resolving deps via Koin, default factory). Any network, silent; rescheduled from
+    `BackupViewModel` (period/enable changes) and `HisabakApp` on launch. The passphrase is
+    Keystore-stored (non-auth-gated) so encrypted auto-backups run unattended. Passkeys were rejected
+    (need WebAuthn PRF + a server).
+- **CMP-bound:** the app is planned to migrate to **Compose Multiplatform**. Keep platform APIs
+  (`Context`, `FragmentActivity`, `BiometricPrompt`, Keystore) out of domain/shared code, keep
+  state/business logic as pure Kotlin, and keep Composables on multiplatform-safe APIs.
 
 ---
 
@@ -65,12 +129,12 @@ com.hisabak
 
 ## Navigation
 
-**Jetpack Navigation 3** (`com.hisabak.nav`). 4-tab bottom navigation, each tab a
+**Jetpack Navigation 3** (`com.hisabak.nav`). 5-tab bottom navigation, each tab a
 top-level destination with its own back stack. State is retained per tab when
 switching; the user always exits the app through the **Dashboard** (home) tab.
 
 - `NavKeys.kt` — destination keys: `DashboardKey`, `TransactionsKey`, `SmsKey`,
-  `ManageKey` (top-level) + `TransactionEditKey/BrandEditKey/CategoryEditKey(id)` (children).
+  `ManageKey`, `SettingsKey` (top-level) + `TransactionEditKey/BrandEditKey/CategoryEditKey(id)` (children).
 - `NavigationState.kt` — `NavigationState` (one back stack per tab), `Navigator`
   (`navigate`/`goBack`: back from a tab → home; back from home → exit), and `toEntries()`
   which wires the saveable-state + **ViewModel-store** entry decorators. The ViewModel
@@ -87,6 +151,7 @@ switching; the user always exits the app through the **Dashboard** (home) tab.
 | Transactions | TransactionsKey | List → Edit (bottom sheet) |
 | SMS | SmsKey | Single screen |
 | Manage | ManageKey | Brands/Categories list → Edit (full screen) |
+| Settings | SettingsKey | Theme + language + app lock → Backup & restore (full screen) |
 
 Pattern: `List` → tap row or FAB → push `Edit(id?)` destination → Save/Cancel calls
 `navigator.goBack()` → back to `List`.
@@ -132,8 +197,10 @@ Use the HTML/CSS kit only for throwaway visual mockups.
 ### Foundations
 
 - **Theme:** wrap content in `HisabakTheme { }`. Light **and** dark are first-class — every
-  screen must look right in both. Never hardcode hex; use `MaterialTheme.colorScheme.*`,
-  `HisabakTheme.colors.*`, `HisabakType.*`, `Spacing.*`, `Sizing.*`.
+  screen must look right in both. The active mode follows the user's Settings choice
+  (Light/Dark/System, persisted in DataStore), not just `isSystemInDarkTheme()`. Never hardcode
+  hex; use `MaterialTheme.colorScheme.*`, `HisabakTheme.colors.*`, `HisabakType.*`, `Spacing.*`,
+  `Sizing.*`.
 - **Type:** DM Sans for UI; **Geist Mono with tabular figures for every amount**
   (`HisabakType.amount` / `amountLarge` / `amountHero`). Amounts align in columns —
   don't use the sans font for money.
@@ -250,7 +317,7 @@ spec+design land in `docs/features/<slug>.md`; user-visible changes update `CHAN
 
 | Phrase | Action | Touches `main`? |
 |--------|--------|-----------------|
-| _(none needed)_ | every PR into `develop` auto-merges on green CI (`gh pr merge --auto`) — don't wait for a "merge it" | no — routine |
+| _(none needed)_ | every feature PR into `develop` auto-**squash**-merges on green CI (`gh pr merge --auto --squash`) — don't wait for a "merge it". (Release `develop`→`main` PRs use a **merge commit**.) | no — routine |
 | **merge it** | merge a still-open PR **now** (e.g. the `develop`→`main` release PR, which stays manually gated) | depends |
 | **send to testers** | distribute a staging build (Firebase) | no |
 | **ship it** / **release** | cut a production release: bump version → `develop`→`main` → tag → Play | **yes — deliberate; confirm the version first** |

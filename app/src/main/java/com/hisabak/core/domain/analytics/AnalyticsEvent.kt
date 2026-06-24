@@ -58,6 +58,57 @@ sealed class AnalyticsEvent(
         name = "dashboard_period_changed",
         params = mapOf("period" to period),
     )
+
+    /** [mode] is a [com.hisabak.core.domain.ThemeMode] name, lowercased. */
+    class SettingsThemeChanged(mode: String) : AnalyticsEvent(
+        name = "settings_theme_changed",
+        params = mapOf("mode" to mode),
+    )
+
+    /** [language] is a BCP-47 tag (e.g. "en", "ar"). */
+    class SettingsLanguageChanged(language: String) : AnalyticsEvent(
+        name = "settings_language_changed",
+        params = mapOf("language" to language),
+    )
+
+    /** The user turned the biometric/device-credential app lock on or off. */
+    class AppLockToggled(enabled: Boolean) : AnalyticsEvent(
+        name = "app_lock_toggled",
+        params = mapOf("enabled" to enabled),
+    )
+
+    /** The user turned Google Drive backup on or off. */
+    class BackupToggled(enabled: Boolean) : AnalyticsEvent(
+        name = "backup_toggled",
+        params = mapOf("enabled" to enabled),
+    )
+
+    /** The user turned backup encryption on or off. */
+    class BackupEncryptionToggled(enabled: Boolean) : AnalyticsEvent(
+        name = "backup_encryption_toggled",
+        params = mapOf("enabled" to enabled),
+    )
+
+    /** The user chose an auto-backup period. [period] is an [AutoBackupPeriod] name, lowercased. */
+    class AutoBackupPeriodSet(period: String) : AnalyticsEvent(
+        name = "auto_backup_period_set",
+        params = mapOf("period" to period),
+    )
+
+    /** A Google account was connected for backup (no identifier — boolean signal only). */
+    data object BackupAccountConnected : AnalyticsEvent("backup_account_connected")
+
+    /** A manual "back up now" finished. */
+    class BackupRunCompleted(success: Boolean) : AnalyticsEvent(
+        name = "backup_run_completed",
+        params = mapOf("success" to success),
+    )
+
+    /** A restore-from-Drive finished. */
+    class BackupRestoreCompleted(success: Boolean) : AnalyticsEvent(
+        name = "backup_restore_completed",
+        params = mapOf("success" to success),
+    )
 }
 
 /** Coarse, non-reversible magnitude bucket of a money value — never the raw amount. */
