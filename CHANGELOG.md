@@ -16,6 +16,8 @@ All notable changes to Hisabak are documented here. Format based on
   it, so you can see at a glance where your money goes.
 - **Day-grouped transactions** — the Transactions list now groups entries under day headings
   (Today, Yesterday, dates), each day in its own card, with the category shown beside each entry.
+- **Clearer SMS auto-import banner** — the status banner on the SMS Inbox is now color-tinted with a
+  leading icon (green when active, amber when off) so its state reads at a glance.
 
 ## [1.6.0] — 2026-06-24
 
