@@ -1,4 +1,4 @@
-<!-- @dsCard group="Mobile App" viewport="412x760" name="Hisabak App — interactive" subtitle="Dashboard · Transactions · Add · SMS · Categories — tap the nav, toggle dark" -->
+<!-- @dsCard group="Mobile App" viewport="412x760" name="Hisabak App — interactive" subtitle="Dashboard · Transactions · SMS · Manage · Settings — plus backup, notifications, edit & onboarding flows" -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -15,9 +15,10 @@
   html, body { margin: 0; height: 100%; }
   body { background: #1A1D24; display: grid; place-items: center; min-height: 100vh; font-family: var(--font-sans); padding: 24px 0; }
   .stage { display: flex; flex-direction: column; align-items: center; gap: 16px; }
-  .toolbar { display: inline-flex; align-items: center; gap: 4px; padding: 4px; background: rgba(255,255,255,0.08); border-radius: 999px; }
+  .toolbar { display: inline-flex; align-items: center; gap: 4px; padding: 4px; background: rgba(255,255,255,0.08); border-radius: 999px; flex-wrap: wrap; justify-content: center; max-width: 412px; }
   .toolbar button { border: none; background: transparent; color: rgba(255,255,255,0.7); font-family: var(--font-sans); font-weight: 600; font-size: 13px; padding: 7px 14px; border-radius: 999px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
   .toolbar button.on { background: #fff; color: #111827; }
+  .toolbar .sep { width: 1px; height: 18px; background: rgba(255,255,255,0.16); margin: 0 2px; }
   .phone {
     width: 412px; height: 844px; position: relative;
     background: var(--bg); border-radius: 44px; overflow: hidden;
@@ -27,28 +28,80 @@
   .statusbar { height: 30px; flex: none; display: flex; align-items: center; justify-content: space-between; padding: 0 22px; font-family: var(--font-sans); font-weight: 600; font-size: 13px; color: var(--text-primary); background: var(--nav-bg); }
   .statusbar .icons { display: flex; align-items: center; gap: 6px; }
   .statusbar .material-symbols-rounded { font-size: 16px; }
-  .scroll { flex: 1; overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch; }
+  .scroll { flex: 1; overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch; position: relative; }
   .scroll::-webkit-scrollbar { width: 0; }
+  .no-scrollbar { scrollbar-width: none; -ms-overflow-style: none; }
+  .no-scrollbar::-webkit-scrollbar { display: none; height: 0; }
   .fab { position: absolute; right: 18px; bottom: 84px; width: 56px; height: 56px; border-radius: 18px; border: none; background: var(--accent); color: #fff; display: grid; place-items: center; cursor: pointer; box-shadow: var(--shadow-accent); z-index: 20; transition: transform var(--dur-fast); }
   .fab:active { transform: scale(0.94); }
   .fab .material-symbols-rounded { font-size: 28px; }
+  .bell-dot { position: absolute; top: 6px; right: 6px; width: 8px; height: 8px; border-radius: 999px; background: var(--expense); border: 2px solid var(--nav-bg); }
+  @keyframes sync-spin { to { transform: rotate(360deg); } }
+  @keyframes sync-pulse { 0% { transform: scale(0.85); opacity: 0.7; } 100% { transform: scale(1.15); opacity: 0; } }
+  .sync-spin { animation: sync-spin 1.1s linear infinite; }
+  .sync-pulse { animation: sync-pulse 1.8s ease-out infinite; }
+  @media (prefers-reduced-motion: reduce) { .sync-spin, .sync-pulse { animation: none; } }
 </style>
 </head>
 <body>
 <div id="root"></div>
 
-<script type="text/babel" src="charts.jsx"></script>
-<script type="text/babel" src="Dashboard.jsx"></script>
-<script type="text/babel" src="Transactions.jsx"></script>
-<script type="text/babel" src="AddTransactionSheet.jsx"></script>
-<script type="text/babel" src="SmsInbox.jsx"></script>
-<script type="text/babel" src="Categories.jsx"></script>
+<!-- All app screens are precompiled into mobile-kit.compiled.js (a plain, non-Babel script generated
+     from the *.jsx sources) so index.html works even when opened over file://, where the browser
+     blocks Babel from fetching sibling .jsx. The compiled screens override the stale copies baked into
+     _ds_bundle.js (which still uses the text "AED" instead of the dirham glyph). Rebuild the compiled
+     file after editing any *.jsx — see README → "Rebuilding". -->
+<script src="mobile-kit.compiled.js"></script>
+<!-- Hugeicons (free, MIT) glyph data + runtime swap layer: converts every rendered Material Symbol
+     into its Hugeicons SVG when enabled (toggle in the toolbar). Mock-only, no per-screen edits. -->
+<script src="hugeicons-glyphs.js"></script>
+<script>
+(function () {
+  const SVGNS = 'http://www.w3.org/2000/svg';
+  let on = false, obs = null;
+  function swap(span) {
+    if (span.dataset.hgi === '1') return;
+    const name = (span.textContent || '').trim();
+    const paths = (window.HGI || {})[name];
+    if (!paths) return;                 // unmapped → leave the Material glyph
+    span.dataset.hgi = '1'; span.dataset.hgiText = name; span.textContent = '';
+    const svg = document.createElementNS(SVGNS, 'svg');
+    svg.setAttribute('viewBox', '0 0 24 24'); svg.setAttribute('width', '1em'); svg.setAttribute('height', '1em');
+    svg.setAttribute('fill', 'none'); svg.setAttribute('stroke', 'currentColor');
+    svg.setAttribute('stroke-width', '1.8'); svg.setAttribute('stroke-linecap', 'round'); svg.setAttribute('stroke-linejoin', 'round');
+    svg.style.verticalAlign = '-0.125em';
+    paths.forEach(d => { const p = document.createElementNS(SVGNS, 'path'); p.setAttribute('d', d); svg.appendChild(p); });
+    span.appendChild(svg);
+  }
+  function restore(span) {
+    if (span.dataset.hgi !== '1') return;
+    span.textContent = span.dataset.hgiText || ''; delete span.dataset.hgi;
+  }
+  const swapAll = () => document.querySelectorAll('.material-symbols-rounded:not([data-hgi="1"])').forEach(swap);
+  const restoreAll = () => document.querySelectorAll('.material-symbols-rounded[data-hgi="1"]').forEach(restore);
+  window.IconSwap = {
+    enable() {
+      on = true; swapAll();
+      if (!obs) { obs = new MutationObserver(() => { if (on) swapAll(); }); obs.observe(document.body, { childList: true, subtree: true }); }
+    },
+    disable() { on = false; restoreAll(); },
+  };
+})();
+</script>
 
 <script type="text/babel" data-presets="react">
 const NS = window.HisabakDesignSystem_aa2548;
 const { TopAppBar, BottomNav } = NS;
 
-const TITLES = { dashboard: 'Dashboard', transactions: 'Transactions', sms: 'SMS Inbox', brands: 'Brands', categories: 'Categories' };
+// Real app IA: 5 tabs — Dashboard, Transactions, SMS, Manage, Settings.
+const TABS = [
+  { value: 'dashboard',    label: 'Dashboard',    icon: 'dashboard' },
+  { value: 'transactions', label: 'Transactions', icon: 'receipt_long' },
+  { value: 'sms',          label: 'SMS',          icon: 'sms' },
+  { value: 'manage',       label: 'Manage',       icon: 'category' },
+  { value: 'settings',     label: 'Settings',     icon: 'settings' },
+];
+const OVERLAY_TITLES = { backup: 'Backup & restore', notifications: 'Notifications', brandEdit: 'Edit brand', categoryEdit: 'Edit category' };
 
 function StatusBar() {
   return (
@@ -63,76 +116,90 @@ function StatusBar() {
   );
 }
 
-function BrandsPlaceholder({ onAdd }) {
-  const { Card, Button, SearchBar, Chip, ListRow, Badge, AmountText } = NS;
-  const M = window.HisabakMock;
-  const [q, setQ] = React.useState('');
-  const catName = (id) => (M.CATEGORIES.find(c => c.id === id) || {}).name || '';
-  const catColor = (id) => (M.CATEGORIES.find(c => c.id === id) || {}).color || 'var(--cat-gray)';
-  const totals = { carrefour: 1240, stc: 820, talabat: 540, uber: 388, netflix: 256, acme: 8200, starbucks: 210, amazon: 180 };
-  const list = M.BRANDS.filter(b => b.name.toLowerCase().includes(q.toLowerCase()));
-  return (
-    <div style={{ padding: '8px 16px 24px' }}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 8 }}>
-        <h1 style={{ margin: 0, fontFamily: 'var(--font-sans)', fontWeight: 700, fontSize: 22, letterSpacing: '-0.02em', color: 'var(--text-primary)' }}>Brands</h1>
-        <Button size="sm" leadingIcon="add">New</Button>
-      </div>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginTop: 14 }}>
-        <Card padding={14}><div style={{ fontFamily: 'var(--font-sans)', fontSize: 12.5, color: 'var(--text-secondary)' }}>Brands</div><div style={{ fontFamily: 'var(--font-mono)', fontWeight: 700, fontSize: 22, color: 'var(--text-primary)' }}>8</div></Card>
-        <Card padding={14}><div style={{ fontFamily: 'var(--font-sans)', fontSize: 12.5, color: 'var(--text-secondary)' }}>Categories</div><div style={{ fontFamily: 'var(--font-mono)', fontWeight: 700, fontSize: 22, color: 'var(--text-primary)' }}>8</div></Card>
-      </div>
-      <Card variant="tinted" tint="var(--accent-soft)" padding={16} style={{ marginTop: 12, display: 'flex', alignItems: 'center', gap: 14 }}>
-        <span style={{ display: 'grid', placeItems: 'center', width: 44, height: 44, borderRadius: 14, background: 'var(--cat-orange)', color: '#fff', fontWeight: 700, fontFamily: 'var(--font-sans)' }}>C</span>
-        <div style={{ flex: 1 }}>
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontFamily: 'var(--font-sans)', fontWeight: 600, fontSize: 11.5, letterSpacing: '0.04em', textTransform: 'uppercase', color: 'var(--accent-hover)' }}><span className="material-symbols-rounded is-filled" style={{ fontSize: 14 }}>star</span>Most used</div>
-          <div style={{ fontFamily: 'var(--font-sans)', fontWeight: 700, fontSize: 18, color: 'var(--text-primary)', marginTop: 2 }}>Carrefour</div>
-        </div>
-        <AmountText value={1240} tone="neutral" sign="never" size={17} weight={700} />
-      </Card>
-      <div style={{ marginTop: 14 }}><SearchBar value={q} placeholder="Search brands" onChange={e => setQ(e.target.value)} onClear={() => setQ('')} /></div>
-      <Card padding={0} style={{ marginTop: 14, padding: '2px 14px' }}>
-        {list.map((b, i) => (
-          <ListRow key={b.id} title={b.name} subtitle={catName(b.category)} leadingText={b.initial} color={catColor(b.category)}
-            divider={i < list.length - 1}
-            trailing={<div style={{ display: 'flex', alignItems: 'center', gap: 8 }}><AmountText value={totals[b.id] || 0} tone="neutral" sign="never" size={14} /><span className="material-symbols-rounded" style={{ fontSize: 18, color: 'var(--text-tertiary)' }}>chevron_right</span></div>} />
-        ))}
-      </Card>
-    </div>
-  );
-}
-
 function App() {
   const [theme, setTheme] = React.useState('light');
+  const [icons, setIcons] = React.useState('hugeicons');
+  React.useEffect(() => {
+    if (!window.IconSwap) return;
+    if (icons === 'hugeicons') window.IconSwap.enable(); else window.IconSwap.disable();
+  }, [icons]);
   const [tab, setTab] = React.useState('dashboard');
+  const [overlay, setOverlay] = React.useState(null);   // pushed screen over a tab (back arrow)
+  const [full, setFull] = React.useState(null);         // full-screen flow: onboarding | restore | sync*
   const [sheet, setSheet] = React.useState(false);
+  const [passSheet, setPassSheet] = React.useState(null); // 'set' | 'verify'
+  const [autoPeriod, setAutoPeriod] = React.useState('Weekly');
+  const [periodSheet, setPeriodSheet] = React.useState(false);
   const scrollRef = React.useRef(null);
 
-  React.useEffect(() => { if (scrollRef.current) scrollRef.current.scrollTop = 0; }, [tab]);
+  React.useEffect(() => { if (scrollRef.current) scrollRef.current.scrollTop = 0; }, [tab, overlay]);
 
   const openAdd = () => setSheet(true);
-  const screens = {
+  const go = (o) => setOverlay(o);
+  const dark = theme === 'dark';
+
+  const tabScreens = {
     dashboard: <window.HisabakDashboard />,
     transactions: <window.HisabakTransactions onAdd={openAdd} />,
     sms: <window.HisabakSms />,
-    brands: <BrandsPlaceholder onAdd={openAdd} />,
-    categories: <window.HisabakCategories onAdd={openAdd} />,
+    manage: <window.HisabakManage onEditBrand={() => go('brandEdit')} onEditCategory={() => go('categoryEdit')} onAdd={() => go('categoryEdit')} />,
+    settings: <window.HisabakSettings theme={theme === 'dark' ? 'dark' : theme} onTheme={(t) => setTheme(t === 'dark' ? 'dark' : 'light')} onOpenBackup={() => go('backup')} showReminder={true} onCheckPassphrase={() => setPassSheet('verify')} />,
   };
-  const showFab = tab === 'dashboard' || tab === 'sms' || tab === 'brands';
+  const overlayScreens = {
+    backup: <window.HisabakBackup onBackupNow={() => setFull({ flow: 'sync', kind: 'backup', phase: 'running' })} onOpenPassphrase={() => setPassSheet('set')} period={autoPeriod} onOpenPeriod={() => setPeriodSheet(true)} />,
+    notifications: <window.HisabakNotifications />,
+    brandEdit: <window.HisabakBrandEdit />,
+    categoryEdit: <window.HisabakCategoryEdit />,
+  };
+
+  // Full-screen flows preview from the toolbar; sync auto-advances running → done.
+  React.useEffect(() => {
+    if (full && full.flow === 'sync' && full.phase === 'running') {
+      const t = setTimeout(() => setFull(f => (f ? { ...f, phase: 'done' } : null)), 2200);
+      return () => clearTimeout(t);
+    }
+  }, [full]);
+
+  const showFab = !overlay && (tab === 'dashboard' || tab === 'sms');
+  const inOverlay = overlay != null;
 
   return (
     <div className="stage">
       <div className="toolbar">
-        <button className={theme === 'light' ? 'on' : ''} onClick={() => setTheme('light')}><span className="material-symbols-rounded" style={{ fontSize: 16 }}>light_mode</span>Light</button>
-        <button className={theme === 'dark' ? 'on' : ''} onClick={() => setTheme('dark')}><span className="material-symbols-rounded" style={{ fontSize: 16 }}>dark_mode</span>Dark</button>
+        <button className={!dark ? 'on' : ''} onClick={() => setTheme('light')}><span className="material-symbols-rounded" style={{ fontSize: 16 }}>light_mode</span>Light</button>
+        <button className={dark ? 'on' : ''} onClick={() => setTheme('dark')}><span className="material-symbols-rounded" style={{ fontSize: 16 }}>dark_mode</span>Dark</button>
+        <span className="sep" />
+        <button className={icons === 'material' ? 'on' : ''} onClick={() => setIcons('material')}>Material</button>
+        <button className={icons === 'hugeicons' ? 'on' : ''} onClick={() => setIcons('hugeicons')}>Hugeicons</button>
+        <span className="sep" />
+        <button onClick={() => setFull({ flow: 'onboarding' })}>Onboarding</button>
+        <button onClick={() => setFull({ flow: 'restore' })}>Restore</button>
+        <button onClick={() => setFull({ flow: 'sync', kind: 'restore', phase: 'running' })}>Sync</button>
       </div>
-      <div className="phone" data-theme={theme === 'dark' ? 'dark' : undefined}>
+
+      <div className="phone" data-theme={dark ? 'dark' : undefined}>
         <div className="app">
           <StatusBar />
-          <TopAppBar brand showAvatar showBell avatarName="Layla Khan" />
-          <div className="scroll" ref={scrollRef}>{screens[tab]}</div>
+          {inOverlay
+            ? <TopAppBar title={OVERLAY_TITLES[overlay]} onBack={() => setOverlay(null)} />
+            : <TopAppBar brand showBell onBell={() => go('notifications')} />}
+
+          <div className="scroll" ref={scrollRef}>
+            {inOverlay ? overlayScreens[overlay] : tabScreens[tab]}
+          </div>
+
           {showFab && <button className="fab" onClick={openAdd} aria-label="Add transaction"><span className="material-symbols-rounded">add</span></button>}
-          <BottomNav value={tab} onChange={setTab} />
+          {!inOverlay && <BottomNav tabs={TABS} value={tab} onChange={setTab} />}
           <window.HisabakAddSheet open={sheet} onClose={() => setSheet(false)} />
+          <window.HisabakPassphraseSheet open={passSheet === 'set'} onClose={() => setPassSheet(null)} onSave={() => setPassSheet(null)} />
+          <window.HisabakPassphraseVerifySheet open={passSheet === 'verify'} onClose={() => setPassSheet(null)} onChangePassphrase={() => { go('backup'); setPassSheet('set'); }} />
+          <window.HisabakPeriodSheet open={periodSheet} selected={autoPeriod} onSelect={(p) => { setAutoPeriod(p); setPeriodSheet(false); }} onClose={() => setPeriodSheet(false)} />
+
+
+          {full && full.flow === 'onboarding' && <window.HisabakOnboarding onFinish={() => setFull(null)} />}
+          {full && full.flow === 'restore' && <window.HisabakRestore onConnect={() => setFull({ flow: 'sync', kind: 'restore', phase: 'running' })} onSkip={() => setFull(null)} />}
+          {full && full.flow === 'sync' && <window.HisabakSync kind={full.kind} phase={full.phase}
+            onContinue={() => setFull(null)} onRetry={() => setFull({ ...full, phase: 'running' })} onClose={() => setFull(null)} />}
         </div>
       </div>
     </div>

@@ -1,0 +1,163 @@
+<!-- @dsCard group="Icons" viewport="1100x900" name="Icon comparison" subtitle="Current Material Symbols vs Lucide vs Phosphor for every app icon" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hisabak — Icon comparison</title>
+<link rel="stylesheet" href="../styles.css">
+<!-- Current: Material Symbols Rounded -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0&display=block">
+<!-- Candidate: Phosphor (MIT) — regular + duotone -->
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css">
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/duotone/style.css">
+<!-- Candidate: Lucide (ISC) -->
+<script src="https://unpkg.com/lucide@1.21.0/dist/umd/lucide.min.js"></script>
+<!-- Candidate: Hugeicons free (MIT) — real SVG data pulled from @hugeicons/core-free-icons -->
+<script src="hugeicons-data.js"></script>
+<style>
+  :root { color-scheme: light; }
+  body { margin: 0; background: var(--bg); font-family: var(--font-sans); color: var(--text-primary); padding: 32px; }
+  .wrap { max-width: 1240px; margin: 0 auto; }
+  h1 { font-size: 26px; font-weight: 700; letter-spacing: -0.02em; margin: 0 0 6px; }
+  .sub { color: var(--text-secondary); font-size: 14.5px; margin: 0 0 8px; }
+  .rec { display: flex; gap: 10px; flex-wrap: wrap; margin: 16px 0 26px; }
+  .pill { font-size: 12.5px; padding: 6px 12px; border-radius: 999px; background: var(--surface); border: 1px solid var(--border); }
+  .pill b { color: var(--accent); }
+  .grid { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; }
+  .head, .row { display: grid; grid-template-columns: 1.3fr 1fr 1fr 1fr 1fr 1fr; align-items: center; }
+  .head { background: var(--surface-sunken); position: sticky; top: 0; }
+  .head > div { padding: 12px 14px; font-size: 12px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: var(--text-secondary); text-align: center; }
+  .head > div:first-child { text-align: left; }
+  .head .lib { display: flex; flex-direction: column; gap: 2px; }
+  .head .lic { font-weight: 500; letter-spacing: 0; text-transform: none; font-size: 10.5px; color: var(--text-tertiary); }
+  .section { padding: 16px 14px 6px; font-size: 12px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-tertiary); grid-column: 1 / -1; }
+  .row { border-top: 1px solid var(--divider); }
+  .row > div { padding: 12px 14px; display: flex; justify-content: center; }
+  .row .concept { justify-content: flex-start; flex-direction: column; align-items: flex-start; gap: 1px; }
+  .concept .name { font-size: 14px; font-weight: 600; }
+  .concept .key { font-size: 11.5px; color: var(--text-tertiary); font-family: var(--font-mono); }
+  .cell .material-symbols-rounded { font-size: 28px; color: var(--text-primary); }
+  .cell .ph, .cell .ph-duotone { font-size: 28px; color: var(--text-primary); }
+  .cell .ph-duotone { color: var(--accent); }
+  .cell svg.lucide { width: 27px; height: 27px; stroke: var(--text-primary); stroke-width: 2; }
+  .cell svg.hg { width: 27px; height: 27px; color: var(--text-primary); }
+  .colHG { background: rgba(11,122,91,0.04); }
+  .colA { background: rgba(0,0,0,0.012); }
+  .foot { color: var(--text-secondary); font-size: 13px; margin-top: 22px; line-height: 1.6; }
+  .foot code { font-family: var(--font-mono); background: var(--surface-sunken); padding: 1px 6px; border-radius: 6px; font-size: 12px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Icon comparison</h1>
+  <p class="sub">Every icon Hisabak uses today (Material Symbols Rounded) next to two crafted, well-licensed candidates. Pick a column.</p>
+  <div class="rec">
+    <span class="pill"><b>Most premium</b> · Hugeicons (free, MIT) — needs a one-time SVG→ImageVector gen</span>
+    <span class="pill"><b>Turnkey CMP</b> · Tabler via compose-icons (MIT)</span>
+    <span class="pill"><b>Calm</b> · Lucide (ISC) · <b>Friendly</b> · Phosphor (MIT)</span>
+  </div>
+
+  <div class="grid" id="grid">
+    <div class="head">
+      <div>Concept</div>
+      <div class="lib">Current<span class="lic">Material Symbols · Apache 2.0</span></div>
+      <div class="lib">Lucide<span class="lic">ISC</span></div>
+      <div class="lib">Phosphor<span class="lic">MIT · regular</span></div>
+      <div class="lib">Phosphor<span class="lic">MIT · duotone</span></div>
+      <div class="lib">Hugeicons<span class="lic">free · MIT</span></div>
+    </div>
+  </div>
+
+  <p class="foot">
+    Integration: add <code>br.com.devsrsouza.compose.icons:lucide</code> (or <code>:phosphor</code>) and reference e.g.
+    <code>Lucide.Wallet</code> / <code>PhosphorIcons.Regular.Wallet</code> as <code>ImageVector</code> — works in Compose now and Compose Multiplatform later.
+    Alternatively, drop the raw SVGs into <code>res/drawable</code> (Android) or convert to <code>ImageVector</code> with a generator for a shared module.
+    The dirham glyph stays the custom <code>ic_dirham</code> asset regardless.
+  </p>
+</div>
+
+<script>
+// [concept, key, material-symbols, lucide, phosphor]
+const SECTIONS = [
+  ['Category icons', [
+    ['Cash / Wallet', 'wallet', 'account_balance_wallet', 'wallet', 'wallet'],
+    ['Groceries', 'cart', 'shopping_cart', 'shopping-cart', 'shopping-cart'],
+    ['Salary / Work', 'briefcase', 'work', 'briefcase', 'briefcase'],
+    ['Transport', 'car', 'directions_car', 'car', 'car'],
+    ['Dining', 'utensils', 'restaurant', 'utensils', 'fork-knife'],
+    ['Savings', 'piggy-bank', 'savings', 'piggy-bank', 'piggy-bank'],
+    ['Rent / Home', 'home', 'home', 'house', 'house'],
+    ['Entertainment', 'film', 'movie', 'clapperboard', 'film-slate'],
+    ['Education', 'book', 'menu_book', 'book-open', 'book-open'],
+    ['Health', 'heart', 'favorite', 'heart', 'heart'],
+    ['Gifts', 'gift', 'card_giftcard', 'gift', 'gift'],
+    ['Travel', 'plane', 'flight_takeoff', 'plane', 'airplane-tilt'],
+  ]],
+  ['Bottom navigation', [
+    ['Dashboard', 'dashboard', 'dashboard', 'layout-dashboard', 'squares-four'],
+    ['Transactions', 'transactions', 'receipt_long', 'receipt-text', 'receipt'],
+    ['SMS', 'sms', 'sms', 'message-square', 'chat-text'],
+    ['Manage', 'manage', 'category', 'layout-grid', 'squares-four'],
+    ['Settings', 'settings', 'settings', 'settings', 'gear-six'],
+  ]],
+  ['Common UI', [
+    ['Notifications', 'bell', 'notifications', 'bell', 'bell'],
+    ['Search', 'search', 'search', 'search', 'magnifying-glass'],
+    ['Add', 'add', 'add', 'plus', 'plus'],
+    ['Chevron', 'chevron', 'chevron_right', 'chevron-right', 'caret-right'],
+    ['Expand', 'expand', 'expand_more', 'chevron-down', 'caret-down'],
+    ['Success', 'success', 'check_circle', 'check-circle', 'check-circle'],
+    ['Warning', 'warning', 'warning', 'alert-triangle', 'warning'],
+    ['App lock', 'lock', 'lock', 'lock', 'lock'],
+    ['Privacy / Shield', 'shield', 'verified_user', 'shield-check', 'shield-check'],
+    ['Passphrase / Key', 'key', 'key', 'key', 'key'],
+    ['Backup / Cloud', 'cloud', 'cloud_sync', 'cloud', 'cloud-arrow-up'],
+    ['Schedule', 'schedule', 'schedule', 'clock', 'clock'],
+    ['Income / Trend up', 'trend', 'trending_up', 'trending-up', 'trend-up'],
+    ['Investment', 'invest', 'show_chart', 'line-chart', 'chart-line-up'],
+    ['Insights', 'insights', 'insights', 'bar-chart-3', 'chart-bar'],
+    ['Language', 'language', 'translate', 'languages', 'translate'],
+    ['Theme', 'theme', 'palette', 'palette', 'palette'],
+    ['Rate / Star', 'star', 'star', 'star', 'star'],
+    ['Brands / Store', 'brands', 'storefront', 'store', 'storefront'],
+  ]],
+];
+
+const SVGNS = 'http://www.w3.org/2000/svg';
+function renderHG(spec) {
+  const svg = document.createElementNS(SVGNS, 'svg');
+  svg.setAttribute('viewBox', '0 0 24 24'); svg.setAttribute('class', 'hg');
+  svg.setAttribute('fill', 'none'); svg.setAttribute('stroke', 'currentColor');
+  (spec || []).forEach(([tag, attrs]) => {
+    const el = document.createElementNS(SVGNS, tag);
+    for (const k in attrs) {
+      if (k === 'key') continue;
+      el.setAttribute(k.replace(/[A-Z]/g, m => '-' + m.toLowerCase()), attrs[k]);
+    }
+    svg.appendChild(el);
+  });
+  return svg;
+}
+
+const grid = document.getElementById('grid');
+SECTIONS.forEach(([title, rows]) => {
+  const s = document.createElement('div'); s.className = 'section'; s.textContent = title; grid.appendChild(s);
+  rows.forEach(([label, key, ms, lu, ph]) => {
+    const r = document.createElement('div'); r.className = 'row';
+    r.innerHTML =
+      `<div class="concept"><span class="name">${label}</span><span class="key">${key}</span></div>` +
+      `<div class="cell colA"><span class="material-symbols-rounded">${ms}</span></div>` +
+      `<div class="cell"><i data-lucide="${lu}"></i></div>` +
+      `<div class="cell"><i class="ph ph-${ph}"></i></div>` +
+      `<div class="cell"><i class="ph-duotone ph-${ph}"></i></div>` +
+      `<div class="cell colHG"></div>`;
+    const hg = (window.HG || {})[key];
+    if (hg) r.lastChild.appendChild(renderHG(hg));
+    grid.appendChild(r);
+  });
+});
+if (window.lucide) lucide.createIcons();
+</script>
+</body>
+</html>
