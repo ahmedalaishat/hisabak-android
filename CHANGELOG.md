@@ -10,6 +10,8 @@ All notable changes to Hisabak are documented here. Format based on
 - **Refreshed iconography** — the app now uses the Hugeicons stroke icon set throughout (navigation,
   actions, category tiles, notifications) for a lighter, more crafted look. The active bottom-nav tab
   reads through its colored pill indicator.
+- **Redesigned Settings** — settings are now grouped into "Backup & security" and "Preferences",
+  each option on its own card with a leading icon, for a clearer, calmer layout.
 
 ## [1.6.0] — 2026-06-24
 
