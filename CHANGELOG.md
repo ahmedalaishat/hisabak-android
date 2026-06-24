@@ -6,6 +6,8 @@ All notable changes to Hisabak are documented here. Format based on
 
 ## [Unreleased]
 
+## [1.7.0] — 2026-06-25
+
 ### Changed
 - **Refreshed iconography** — the app now uses the Hugeicons stroke icon set throughout (navigation,
   actions, category tiles, notifications) for a lighter, more crafted look. The active bottom-nav tab
