@@ -271,7 +271,7 @@ Match prototypes in `.claude/skills/hisabak-design/components/` and `ui_kits/mob
 Each component has a `.prompt.md` (what/when + usage) and `.d.ts` (props) — read those first.
 
 `HisabakTopBar`, `HisabakBottomNav`, `CreateActionButton`, `PrimaryPillButton`,
-`SurfaceCard`, `IconTile`, `CircleIconTile`, `ListRow`, `StatCard`, `SearchField`,
+`SurfaceCard`, `IconTile`, `CircleIconTile`, `ListRow`, `ListRowContent`, `StatCard`, `SearchField`,
 `SectionHeader`, `FilterChipRow`, `GradientBanner`, `DarkPromoBanner`, `MostUsedCard`,
 `EmptyStatePanel`, `ProgressBar`, `AreaLineChart`, `BarSparkline`, `DonutChart`
 
