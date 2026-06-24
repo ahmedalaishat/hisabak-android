@@ -35,6 +35,7 @@ fun SettingsRoute(
     val authenticator = koinInject<BiometricAuthenticator>()
     val themeMode by viewModel.themeMode.collectAsStateWithLifecycle(initialValue = ThemeMode.SYSTEM)
     val appLockEnabled by viewModel.appLockEnabled.collectAsStateWithLifecycle(initialValue = false)
+    val passphraseReminderVisible by viewModel.passphraseReminderVisible.collectAsStateWithLifecycle(initialValue = false)
     // The effective UI language follows the current configuration, so the selection reflects
     // what's actually on screen after a locale switch recreates the activity.
     val language = if (LocalConfiguration.current.locales[0].language == LANGUAGE_ARABIC) {
@@ -98,6 +99,9 @@ fun SettingsRoute(
             }
         },
         onOpenBackup = onOpenBackup,
+        passphraseReminderVisible = passphraseReminderVisible,
+        onConfirmRemembered = viewModel::confirmPassphraseRemembered,
+        onVerifyPassphrase = viewModel::verifyPassphrase,
         modifier = modifier,
     )
 }

@@ -76,6 +76,7 @@ val backupModule = module {
             runBackup = get(),
             remote = get(),
             scheduler = get(),
+            clock = get(),
             analytics = get(),
         )
     }

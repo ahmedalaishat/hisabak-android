@@ -69,6 +69,20 @@
 
     <!-- Backup -->
     <string name="settings_data">Data</string>
+
+    <!-- Backup passphrase reminder (Settings) -->
+    <string name="settings_pass_reminder_title">Your backup passphrase</string>
+    <string name="settings_pass_reminder_body">Your backups are encrypted with this passphrase. Do you still remember it?</string>
+    <string name="settings_pass_reminder_yes">Yes, I remember</string>
+    <string name="settings_pass_reminder_check">Let me check</string>
+    <string name="settings_pass_verify_title">Enter your passphrase</string>
+    <string name="settings_pass_verify_body">Confirm you still remember the passphrase that encrypts your backups.</string>
+    <string name="settings_pass_verify_action">Check</string>
+    <string name="settings_pass_verify_wrong">That doesn\'t match your passphrase.</string>
+    <string name="settings_pass_verify_done">Done</string>
+    <string name="settings_pass_verify_success_title">You\'ve still got it</string>
+    <string name="settings_pass_verify_success_body">Your passphrase is confirmed. We\'ll remind you again in a while.</string>
+    <string name="settings_pass_change">Change passphrase</string>
     <string name="settings_backup_restore">Backup</string>
     <string name="settings_backup_restore_hint">Back up your data to Google Drive.</string>
     <string name="backup_title">Backup</string>

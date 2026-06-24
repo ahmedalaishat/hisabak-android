@@ -67,6 +67,20 @@
 
     <!-- Backup -->
     <string name="settings_data">البيانات</string>
+
+    <!-- Backup passphrase reminder (Settings) -->
+    <string name="settings_pass_reminder_title">عبارة مرور النسخ الاحتياطي</string>
+    <string name="settings_pass_reminder_body">نُسخك الاحتياطية مشفّرة بعبارة المرور هذه. هل ما زلت تتذكّرها؟</string>
+    <string name="settings_pass_reminder_yes">نعم، أتذكّرها</string>
+    <string name="settings_pass_reminder_check">دعني أتحقق</string>
+    <string name="settings_pass_verify_title">أدخل عبارة المرور</string>
+    <string name="settings_pass_verify_body">أكِّد أنك ما زلت تتذكّر عبارة المرور التي تشفّر نُسخك الاحتياطية.</string>
+    <string name="settings_pass_verify_action">تحقّق</string>
+    <string name="settings_pass_verify_wrong">لا تطابق عبارة المرور الخاصة بك.</string>
+    <string name="settings_pass_verify_done">تم</string>
+    <string name="settings_pass_verify_success_title">ما زلت تتذكّرها</string>
+    <string name="settings_pass_verify_success_body">تم تأكيد عبارة المرور. سنذكّرك مجددًا بعد فترة.</string>
+    <string name="settings_pass_change">تغيير عبارة المرور</string>
     <string name="settings_backup_restore">النسخ الاحتياطي</string>
     <string name="settings_backup_restore_hint">انسخ بياناتك احتياطيًا إلى Google Drive.</string>
     <string name="backup_title">النسخ الاحتياطي</string>

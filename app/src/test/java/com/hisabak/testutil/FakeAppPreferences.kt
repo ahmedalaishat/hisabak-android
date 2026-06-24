@@ -37,4 +37,8 @@ class FakeAppPreferences(
     private val restoreOfferedFlow = MutableStateFlow(false)
     override val restoreOffered: Flow<Boolean> = restoreOfferedFlow
     override suspend fun setRestoreOffered(value: Boolean) { restoreOfferedFlow.value = value }
+
+    private val passphraseConfirmedAtFlow = MutableStateFlow(0L)
+    override val passphraseConfirmedAt: Flow<Long> = passphraseConfirmedAtFlow
+    override suspend fun setPassphraseConfirmedAt(value: Long) { passphraseConfirmedAtFlow.value = value }
 }
