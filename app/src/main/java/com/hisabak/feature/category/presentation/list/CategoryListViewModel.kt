@@ -70,10 +70,13 @@ class CategoryListViewModel(
         transactions: List<Transaction>,
     ): List<CategoryRow> {
         val categoryByBrand = brands.associate { it.id to it.categoryId }
-        val countByCategory = transactions
-            .mapNotNull { categoryByBrand[it.brandId] }
-            .groupingBy { it }
-            .eachCount()
+        val withCategory = transactions.mapNotNull { tx ->
+            categoryByBrand[tx.brandId]?.let { it to tx }
+        }
+        val countByCategory = withCategory.groupingBy { it.first }.eachCount()
+        val totalByCategory = withCategory
+            .groupBy({ it.first }) { it.second.amount.amountMinor }
+            .mapValues { (_, amounts) -> amounts.sum() }
         return categories.map {
             CategoryRow(
                 id = it.id,
@@ -82,6 +85,7 @@ class CategoryListViewModel(
                 color = it.color,
                 icon = it.icon,
                 transactionCount = countByCategory[it.id] ?: 0,
+                totalMinor = totalByCategory[it.id] ?: 0L,
             )
         }
     }

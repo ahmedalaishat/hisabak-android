@@ -37,11 +37,15 @@ import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.foundation.Canvas
 import com.hisabak.R
 import com.hisabak.feature.category.domain.CategoryId
 import com.hisabak.feature.category.domain.CategoryType
+import com.hisabak.ui.components.AmountText
+import com.hisabak.ui.components.AmountTone
 import com.hisabak.ui.components.Badge
 import com.hisabak.ui.components.BadgeTone
 import com.hisabak.ui.components.CircleIconTile
@@ -239,10 +243,25 @@ private fun CategoryTile(
             maxLines = 1,
         )
         Spacer(Modifier.height(Spacing.s2))
-        Badge(
-            label = row.type.displayName(),
-            tone = row.type.badgeTone(),
-        )
+        Row(
+            Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Badge(
+                label = row.type.displayName(),
+                tone = row.type.badgeTone(),
+            )
+            if (row.totalMinor > 0L) {
+                AmountText(
+                    value = row.totalMinor / 100.0,
+                    tone = AmountTone.Neutral,
+                    showSign = false,
+                    size = 13.sp,
+                    weight = FontWeight.SemiBold,
+                )
+            }
+        }
     }
 }
 
