@@ -7,6 +7,13 @@ import android.content.Context
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.togetherWith
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
@@ -59,6 +66,7 @@ import com.hisabak.core.domain.analytics.Analytics
 import com.hisabak.feature.dashboard.presentation.CategoryFocusBus
 import com.hisabak.feature.dashboard.presentation.DashboardRoute
 import com.hisabak.feature.onboarding.presentation.OnboardingRoute
+import com.hisabak.feature.restore.presentation.RestoreRoute
 import com.hisabak.feature.settings.presentation.SettingsRoute
 import com.hisabak.feature.notification.domain.NotificationRepository
 import com.hisabak.feature.notification.platform.SystemNotifier
@@ -82,6 +90,7 @@ import com.hisabak.nav.SettingsKey
 import com.hisabak.nav.SmsKey
 import com.hisabak.nav.TransactionEditKey
 import com.hisabak.nav.TransactionsKey
+import com.hisabak.nav.fullScreenTransition
 import com.hisabak.nav.rememberNavigationState
 import com.hisabak.nav.toEntries
 import com.hisabak.security.AppLockGate
@@ -91,6 +100,7 @@ import com.hisabak.ui.components.HisabakBottomNav
 import com.hisabak.ui.components.HisabakTopBar
 import com.hisabak.ui.components.clearFocusOnTap
 import com.hisabak.ui.theme.HisabakTheme
+import com.hisabak.ui.theme.Motion
 import org.koin.android.ext.android.inject
 import org.koin.compose.koinInject
 
@@ -122,19 +132,42 @@ class MainActivity : FragmentActivity() {
             HisabakTheme(darkTheme = darkTheme) {
                 val onboardingCompleted by preferences.onboardingCompleted
                     .collectAsStateWithLifecycle(initialValue = null)
-                when (onboardingCompleted) {
-                    false -> {
-                        val analytics = koinInject<Analytics>()
-                        LaunchedEffect(Unit) { analytics.setCurrentScreen("onboarding") }
-                        OnboardingRoute()
+                val restoreOffered by preferences.restoreOffered
+                    .collectAsStateWithLifecycle(initialValue = null)
+                // First-launch flow: onboarding → one-time restore-from-Drive page (skippable) → app.
+                val stage = when {
+                    onboardingCompleted == null -> LaunchStage.Loading
+                    onboardingCompleted == false -> LaunchStage.Onboarding
+                    restoreOffered == null -> LaunchStage.Loading
+                    restoreOffered == false -> LaunchStage.Restore
+                    else -> LaunchStage.App
+                }
+                AnimatedContent(
+                    targetState = stage,
+                    transitionSpec = {
+                        (slideInHorizontally(tween(Motion.Duration.Slow, easing = Motion.Easing.Standard)) { it } +
+                            fadeIn(tween(Motion.Duration.Base))) togetherWith
+                            (slideOutHorizontally(tween(Motion.Duration.Slow, easing = Motion.Easing.Standard)) { -it / 6 } +
+                                fadeOut(tween(Motion.Duration.Fast)))
+                    },
+                    label = "launchStage",
+                ) { current ->
+                    when (current) {
+                        LaunchStage.Loading -> Box(
+                            Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background),
+                        )
+                        LaunchStage.Onboarding -> {
+                            val analytics = koinInject<Analytics>()
+                            LaunchedEffect(Unit) { analytics.setCurrentScreen("onboarding") }
+                            OnboardingRoute()
+                        }
+                        LaunchStage.Restore -> {
+                            val analytics = koinInject<Analytics>()
+                            LaunchedEffect(Unit) { analytics.setCurrentScreen("restore") }
+                            RestoreRoute()
+                        }
+                        LaunchStage.App -> AppLockGate { HisabakNav() }
                     }
-                    true -> AppLockGate { HisabakNav() }
-                    // null = still loading the flag; show a blank themed canvas (no flash).
-                    null -> Box(
-                        Modifier
-                            .fillMaxSize()
-                            .background(MaterialTheme.colorScheme.background),
-                    )
                 }
             }
         }
@@ -153,6 +186,9 @@ class MainActivity : FragmentActivity() {
         intent?.getStringExtra(SystemNotifier.EXTRA_BRAND_ID)?.let(brandEditBus::request)
     }
 }
+
+/** First-launch flow stages, animated between by the launch gate. */
+private enum class LaunchStage { Loading, Onboarding, Restore, App }
 
 private enum class RootTab(
     val key: NavKey,
@@ -331,7 +367,7 @@ private fun HisabakNav() {
                     modifier = Modifier.fillMaxSize(),
                 )
             }
-            entry<BackupKey> {
+            entry<BackupKey>(metadata = fullScreenTransition()) {
                 BackupRoute(modifier = Modifier.fillMaxSize())
             }
             entry<ManageKey> {
@@ -343,7 +379,7 @@ private fun HisabakNav() {
                     onEditCategory = { id -> navigator.navigate(CategoryEditKey(id = id.value)) },
                 )
             }
-            entry<NotificationsKey> {
+            entry<NotificationsKey>(metadata = fullScreenTransition()) {
                 NotificationsRoute(
                     onOpenCategory = { id ->
                         navigator.goBack()
@@ -360,14 +396,14 @@ private fun HisabakNav() {
                     onCancel = { navigator.goBack() },
                 )
             }
-            entry<BrandEditKey> { key ->
+            entry<BrandEditKey>(metadata = fullScreenTransition()) { key ->
                 BrandEditRoute(
                     brandId = key.id?.let(::BrandId),
                     onDone = { navigator.goBack() },
                     onCancel = { navigator.goBack() },
                 )
             }
-            entry<CategoryEditKey> { key ->
+            entry<CategoryEditKey>(metadata = fullScreenTransition()) { key ->
                 CategoryEditRoute(
                     categoryId = key.id?.let(::CategoryId),
                     onDone = { navigator.goBack() },
@@ -376,9 +412,10 @@ private fun HisabakNav() {
             }
         }
 
-        // No custom NavDisplay transitions: the edit screens are bottom-sheet overlays, and a
-        // NavDisplay scene transition fights the sheet's own open/close animation. Sheets animate
-        // themselves; tab switches use NavDisplay's defaults.
+        // Transitions are set per-entry (see fullScreenTransition() on the full-screen children),
+        // not globally: a global NavDisplay transition fights the bottom sheet's own open/close
+        // animation. So the transaction add/edit sheet and bottom-nav tab switches keep the defaults,
+        // while pushing/popping full-screen children slides + fades.
         NavDisplay(
             entries = navigationState.toEntries(entryProvider),
             onBack = { navigator.goBack() },

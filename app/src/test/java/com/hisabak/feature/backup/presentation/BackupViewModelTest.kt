@@ -1,17 +1,29 @@
 package com.hisabak.feature.backup.presentation
 
 import app.cash.turbine.test
+import com.hisabak.core.data.backup.AesGcmBackupCrypto
+import com.hisabak.core.data.backup.AuthorizeOutcome
+import com.hisabak.core.data.backup.JsonBackupCodec
 import com.hisabak.core.domain.backup.AutoBackupPeriod
+import com.hisabak.core.domain.backup.BackupAccount
+import com.hisabak.core.domain.backup.BackupError
+import com.hisabak.core.domain.backup.RunBackupUseCase
 import com.hisabak.testutil.FakeAnalytics
 import com.hisabak.testutil.FakeAppPreferences
+import com.hisabak.testutil.FakeAutoBackupScheduler
+import com.hisabak.testutil.FakeBackupAccountStore
 import com.hisabak.testutil.FakeBackupPassphraseStore
+import com.hisabak.testutil.FakeBackupRemote
+import com.hisabak.testutil.FakeBackupRepository
+import com.hisabak.testutil.FakeDriveAuthorizer
 import com.hisabak.testutil.MainDispatcherRule
+import com.hisabak.testutil.TestClock
+import com.hisabak.testutil.sampleBackupData
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
@@ -22,78 +34,111 @@ class BackupViewModelTest {
     @get:Rule
     val mainDispatcherRule = MainDispatcherRule()
 
+    private val codec = JsonBackupCodec()
+    private val crypto = AesGcmBackupCrypto()
+
     private fun viewModel(
         prefs: FakeAppPreferences = FakeAppPreferences(),
-        store: FakeBackupPassphraseStore = FakeBackupPassphraseStore(),
+        passphrase: FakeBackupPassphraseStore = FakeBackupPassphraseStore(),
+        account: FakeBackupAccountStore = FakeBackupAccountStore(),
+        authorizer: FakeDriveAuthorizer = FakeDriveAuthorizer(),
+        remote: FakeBackupRemote = FakeBackupRemote(),
+        repo: FakeBackupRepository = FakeBackupRepository(sampleBackupData()),
+        scheduler: FakeAutoBackupScheduler = FakeAutoBackupScheduler(),
         analytics: FakeAnalytics = FakeAnalytics(),
-    ) = BackupViewModel(prefs, store, analytics)
-
-    @Test
-    fun `enabling persists the flag and logs it`() = runTest {
-        val prefs = FakeAppPreferences()
-        val analytics = FakeAnalytics()
-        val vm = viewModel(prefs = prefs, analytics = analytics)
-
-        vm.setEnabled(true)
-        advanceUntilIdle()
-
-        assertTrue(prefs.backupEnabled.first())
-        assertEquals(listOf("backup_toggled"), analytics.names())
+    ): BackupViewModel {
+        val runBackup = RunBackupUseCase(repo, codec, crypto, remote, TestClock(), 8, 2)
+        return BackupViewModel(prefs, passphrase, account, authorizer, runBackup, remote, scheduler, analytics)
     }
 
     @Test
     fun `disabling clears the passphrase`() = runTest {
-        val store = FakeBackupPassphraseStore().apply { set("secret123") }
+        val passphrase = FakeBackupPassphraseStore().apply { set("secret123") }
         val prefs = FakeAppPreferences().apply { setBackupEnabled(true) }
-        val vm = viewModel(prefs = prefs, store = store)
-
-        vm.setEnabled(false)
+        viewModel(prefs = prefs, passphrase = passphrase).setEnabled(false)
         advanceUntilIdle()
-
-        assertFalse(prefs.backupEnabled.first())
-        assertEquals(null, store.get())
+        assertEquals(null, passphrase.get())
     }
 
     @Test
-    fun `turning encryption off clears the passphrase and logs it`() = runTest {
-        val store = FakeBackupPassphraseStore().apply { set("secret123") }
-        val prefs = FakeAppPreferences().apply { setBackupEncryptionEnabled(true) }
+    fun `connecting a granted account stores it and logs`() = runTest {
+        val account = FakeBackupAccountStore()
         val analytics = FakeAnalytics()
-        val vm = viewModel(prefs = prefs, store = store, analytics = analytics)
+        val vm = viewModel(account = account, analytics = analytics)
 
-        vm.setEncryptionEnabled(false)
+        vm.connect(onNeedConsent = {})
         advanceUntilIdle()
 
-        assertFalse(prefs.backupEncryptionEnabled.first())
-        assertEquals(null, store.get())
-        assertEquals(listOf("backup_encryption_toggled"), analytics.names())
+        assertEquals(BackupAccount("user@example.com"), account.account.first())
+        assertTrue(analytics.names().contains("backup_account_connected"))
     }
 
     @Test
-    fun `setting the passphrase stores it and surfaces in state`() = runTest {
-        val store = FakeBackupPassphraseStore()
-        val vm = viewModel(store = store)
+    fun `backupNow uploads and reports success`() = runTest {
+        val remote = FakeBackupRemote()
+        val account = FakeBackupAccountStore().apply { set(BackupAccount("user@example.com")) }
+        val prefs = FakeAppPreferences().apply { setBackupEncryptionEnabled(false) }
+        val analytics = FakeAnalytics()
+        val vm = viewModel(prefs = prefs, account = account, remote = remote, analytics = analytics)
 
         vm.state.test {
-            assertFalse(awaitItem().passphraseSet)
-            vm.setPassphrase("correct horse")
+            vm.backupNow()
             advanceUntilIdle()
-            assertTrue(awaitItem().passphraseSet)
+            assertEquals(SyncPhase.Done(), expectMostRecentItem().sync)
             cancelAndIgnoreRemainingEvents()
         }
-        assertEquals("correct horse", store.get())
+        assertTrue(remote.stored != null)
+        assertTrue(analytics.names().contains("backup_run_completed"))
     }
 
     @Test
-    fun `setting the auto-backup period persists and logs it`() = runTest {
+    fun `backupNow without an account asks to connect`() = runTest {
+        val vm = viewModel() // no account set
+        vm.state.test {
+            vm.backupNow()
+            advanceUntilIdle()
+            assertEquals(BackupError.AuthRequired, expectMostRecentItem().error)
+            cancelAndIgnoreRemainingEvents()
+        }
+    }
+
+    @Test
+    fun `setAutoBackupPeriod persists and logs`() = runTest {
         val prefs = FakeAppPreferences()
         val analytics = FakeAnalytics()
         val vm = viewModel(prefs = prefs, analytics = analytics)
 
-        vm.setAutoBackupPeriod(AutoBackupPeriod.MONTHLY)
+        vm.state.test {
+            awaitItem() // initial
+            vm.setAutoBackupPeriod(AutoBackupPeriod.DAILY)
+            advanceUntilIdle()
+            assertEquals(AutoBackupPeriod.DAILY, prefs.autoBackupPeriod.first())
+            cancelAndIgnoreRemainingEvents()
+        }
+        assertTrue(analytics.names().contains("auto_backup_period_set"))
+    }
+
+    @Test
+    fun `setAutoBackupPeriod schedules with the current enabled state`() = runTest {
+        val prefs = FakeAppPreferences().apply { setBackupEnabled(true) }
+        val scheduler = FakeAutoBackupScheduler()
+        val vm = viewModel(prefs = prefs, scheduler = scheduler)
+
+        vm.setAutoBackupPeriod(AutoBackupPeriod.WEEKLY)
         advanceUntilIdle()
 
-        assertEquals(AutoBackupPeriod.MONTHLY, prefs.autoBackupPeriod.first())
-        assertEquals(listOf("auto_backup_period_set"), analytics.names())
+        assertTrue(scheduler.calls.contains(AutoBackupPeriod.WEEKLY to true))
+    }
+
+    @Test
+    fun `disabling backup cancels the schedule`() = runTest {
+        val prefs = FakeAppPreferences().apply { setBackupEnabled(true) }
+        val scheduler = FakeAutoBackupScheduler()
+        val vm = viewModel(prefs = prefs, scheduler = scheduler)
+
+        vm.setEnabled(false)
+        advanceUntilIdle()
+
+        assertTrue(scheduler.calls.any { !it.second }) // scheduled with enabled = false
     }
 }

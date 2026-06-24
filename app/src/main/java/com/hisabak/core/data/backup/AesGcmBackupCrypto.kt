@@ -63,6 +63,9 @@ class AesGcmBackupCrypto(
         }
     }
 
+    override fun isEncrypted(bytes: ByteArray): Boolean =
+        bytes.size >= MAGIC.size && bytes.copyOf(MAGIC.size).contentEquals(MAGIC)
+
     private fun deriveKey(passphrase: String, salt: ByteArray, iterations: Int): SecretKeySpec {
         val spec = PBEKeySpec(passphrase.toCharArray(), salt, iterations, KEY_BITS)
         val bytes = SecretKeyFactory.getInstance(KDF).generateSecret(spec).encoded

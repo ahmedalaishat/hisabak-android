@@ -94,6 +94,21 @@ sealed class AnalyticsEvent(
         name = "auto_backup_period_set",
         params = mapOf("period" to period),
     )
+
+    /** A Google account was connected for backup (no identifier — boolean signal only). */
+    data object BackupAccountConnected : AnalyticsEvent("backup_account_connected")
+
+    /** A manual "back up now" finished. */
+    class BackupRunCompleted(success: Boolean) : AnalyticsEvent(
+        name = "backup_run_completed",
+        params = mapOf("success" to success),
+    )
+
+    /** A restore-from-Drive finished. */
+    class BackupRestoreCompleted(success: Boolean) : AnalyticsEvent(
+        name = "backup_restore_completed",
+        params = mapOf("success" to success),
+    )
 }
 
 /** Coarse, non-reversible magnitude bucket of a money value — never the raw amount. */

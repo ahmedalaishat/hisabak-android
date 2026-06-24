@@ -26,11 +26,15 @@ class FakeAppPreferences(
     override val backupEnabled: Flow<Boolean> = backupFlow
     override suspend fun setBackupEnabled(value: Boolean) { backupFlow.value = value }
 
-    private val encryptionFlow = MutableStateFlow(true)
+    private val encryptionFlow = MutableStateFlow(false)
     override val backupEncryptionEnabled: Flow<Boolean> = encryptionFlow
     override suspend fun setBackupEncryptionEnabled(value: Boolean) { encryptionFlow.value = value }
 
     private val periodFlow = MutableStateFlow(AutoBackupPeriod.DEFAULT)
     override val autoBackupPeriod: Flow<AutoBackupPeriod> = periodFlow
     override suspend fun setAutoBackupPeriod(value: AutoBackupPeriod) { periodFlow.value = value }
+
+    private val restoreOfferedFlow = MutableStateFlow(false)
+    override val restoreOffered: Flow<Boolean> = restoreOfferedFlow
+    override suspend fun setRestoreOffered(value: Boolean) { restoreOfferedFlow.value = value }
 }

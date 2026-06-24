@@ -1,4 +1,4 @@
-package com.hisabak.feature.backup.presentation
+package com.hisabak.feature.restore.presentation
 
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.IntentSenderRequest
@@ -10,31 +10,26 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
-fun BackupRoute(
+fun RestoreRoute(
     modifier: Modifier = Modifier,
-    viewModel: BackupViewModel = koinViewModel(),
+    viewModel: RestoreViewModel = koinViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
 
-    // The Drive consent screen returns here; hand the result back to the ViewModel.
     val consentLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.StartIntentSenderForResult(),
     ) { result -> viewModel.onConsentResult(result.data) }
 
-    BackupScreen(
+    RestoreScreen(
         state = state,
-        onSetEnabled = viewModel::setEnabled,
-        onSetEncryptionEnabled = viewModel::setEncryptionEnabled,
-        onSetPassphrase = viewModel::setPassphrase,
-        onSetPeriod = viewModel::setAutoBackupPeriod,
-        onConnectAccount = {
+        onConnect = {
             viewModel.connect { intentSender ->
                 consentLauncher.launch(IntentSenderRequest.Builder(intentSender).build())
             }
         },
-        onBackupNow = viewModel::backupNow,
-        onClearError = viewModel::clearError,
-        onDismissSync = viewModel::dismissSync,
+        onSubmitPassphrase = viewModel::submitPassphrase,
+        onSkip = viewModel::skip,
+        onFinish = viewModel::finishRestore,
         modifier = modifier,
     )
 }
