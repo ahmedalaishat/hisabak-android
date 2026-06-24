@@ -1,5 +1,7 @@
 package com.hisabak.feature.category.presentation.list
 
+import com.hisabak.ui.icons.HugeIcons
+
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -16,9 +18,6 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.DeleteOutline
 import androidx.compose.material3.AlertDialog
 import com.hisabak.ui.components.SkeletonCard
 import androidx.compose.material3.Icon
@@ -225,7 +224,7 @@ private fun CategoryTile(
                 modifier = Modifier.size(28.dp),
             ) {
                 Icon(
-                    Icons.Filled.DeleteOutline,
+                    HugeIcons.DeleteOutline,
                     contentDescription = stringResource(R.string.common_delete_named, row.name),
                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.size(18.dp),
@@ -275,7 +274,7 @@ private fun AddNewTile(onClick: () -> Unit) {
             verticalArrangement = Arrangement.spacedBy(Spacing.s3),
         ) {
             CircleIconTile(
-                icon = Icons.Filled.Add,
+                icon = HugeIcons.Add,
                 size = 40.dp,
                 iconSize = Sizing.iconSm,
                 background = HisabakTheme.colors.incomeSoft,

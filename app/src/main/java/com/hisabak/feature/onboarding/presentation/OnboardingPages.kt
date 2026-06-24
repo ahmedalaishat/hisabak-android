@@ -1,5 +1,7 @@
 package com.hisabak.feature.onboarding.presentation
 
+import com.hisabak.ui.icons.HugeIcons
+
 import com.hisabak.BuildConfig
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -19,20 +21,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.TrendingUp
-import androidx.compose.material.icons.filled.ArrowDownward
-import androidx.compose.material.icons.filled.Bolt
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.CloudOff
-import androidx.compose.material.icons.filled.Insights
-import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material.icons.filled.NotificationsActive
-import androidx.compose.material.icons.filled.PhoneAndroid
-import androidx.compose.material.icons.filled.Savings
-import androidx.compose.material.icons.filled.ShoppingCart
-import androidx.compose.material.icons.filled.Sms
-import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -213,7 +201,7 @@ fun WelcomePage(active: Boolean, parallax: Float) {
                 contentAlignment = Alignment.Center,
             ) {
                 Icon(
-                    Icons.AutoMirrored.Filled.TrendingUp, null,
+                    HugeIcons.TrendingUp, null,
                     tint = MaterialTheme.colorScheme.onPrimary, modifier = Modifier.size(40.dp),
                 )
             }
@@ -284,7 +272,7 @@ fun SmsCapturePage(active: Boolean, parallax: Float) {
             Spacer(Modifier.height(Spacing.s4))
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(Spacing.s2)) {
                 Icon(
-                    Icons.Filled.ArrowDownward, null,
+                    HugeIcons.ArrowDownward, null,
                     tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(18.dp),
                 )
                 Text(
@@ -303,7 +291,7 @@ fun SmsCapturePage(active: Boolean, parallax: Float) {
                     },
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    CatTile(Icons.Filled.ShoppingCart, HisabakTheme.colors.catOrange)
+                    CatTile(HugeIcons.ShoppingCart, HisabakTheme.colors.catOrange)
                     Spacer(Modifier.width(Spacing.s4))
                     Column(Modifier.weight(1f)) {
                         Text("Lulu", style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.onSurface)
@@ -339,7 +327,7 @@ fun BudgetsPage(active: Boolean, parallax: Float) {
             val arabic = rememberIsArabic()
             Column(Modifier.fillMaxWidth()) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    CatTile(Icons.Filled.ShoppingCart, HisabakTheme.colors.catOrange)
+                    CatTile(HugeIcons.ShoppingCart, HisabakTheme.colors.catOrange)
                     Spacer(Modifier.width(Spacing.s4))
                     Column(Modifier.weight(1f)) {
                         Text("Groceries", style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.onSurface)
@@ -373,7 +361,7 @@ fun BudgetsPage(active: Boolean, parallax: Float) {
                             .background(HisabakTheme.colors.warningSoft)
                             .padding(horizontal = Spacing.s4, vertical = Spacing.s2),
                     ) {
-                        Icon(Icons.Filled.NotificationsActive, null, tint = HisabakTheme.colors.warning, modifier = Modifier.size(16.dp))
+                        Icon(HugeIcons.NotificationsActive, null, tint = HisabakTheme.colors.warning, modifier = Modifier.size(16.dp))
                         Text(stringResource(R.string.onboarding_demo_budget_warning, 80), style = MaterialTheme.typography.labelMedium, color = HisabakTheme.colors.warning)
                     }
                     Spacer(Modifier.weight(1f))
@@ -479,13 +467,13 @@ fun GetStartedPage(active: Boolean, parallax: Float) {
     ) {
         Column(Modifier.width(320.dp), verticalArrangement = Arrangement.spacedBy(Spacing.s3)) {
             if (BuildConfig.SMS_AUTO_CAPTURE) {
-                RecapRow(p, 0f, Icons.Filled.Bolt, c.income, c.incomeSoft, stringResource(R.string.onboarding_recap_capture_auto_title), stringResource(R.string.onboarding_recap_capture_auto_sub))
+                RecapRow(p, 0f, HugeIcons.Bolt, c.income, c.incomeSoft, stringResource(R.string.onboarding_recap_capture_auto_title), stringResource(R.string.onboarding_recap_capture_auto_sub))
             } else {
-                RecapRow(p, 0f, Icons.Filled.Bolt, c.income, c.incomeSoft, stringResource(R.string.onboarding_recap_capture_quick_title), stringResource(R.string.onboarding_recap_capture_quick_sub))
+                RecapRow(p, 0f, HugeIcons.Bolt, c.income, c.incomeSoft, stringResource(R.string.onboarding_recap_capture_quick_title), stringResource(R.string.onboarding_recap_capture_quick_sub))
             }
-            RecapRow(p, 0.12f, Icons.Filled.Lock, MaterialTheme.colorScheme.primary, MaterialTheme.colorScheme.primary.copy(alpha = 0.12f), stringResource(R.string.onboarding_recap_private_title), stringResource(R.string.onboarding_recap_private_sub))
-            RecapRow(p, 0.24f, Icons.Filled.Savings, c.warning, c.warningSoft, stringResource(R.string.onboarding_recap_budgets_title), stringResource(R.string.onboarding_recap_budgets_sub))
-            RecapRow(p, 0.36f, Icons.Filled.Insights, c.savings, c.savings.copy(alpha = 0.15f), stringResource(R.string.onboarding_recap_insights_title), stringResource(R.string.onboarding_recap_insights_sub))
+            RecapRow(p, 0.12f, HugeIcons.Lock, MaterialTheme.colorScheme.primary, MaterialTheme.colorScheme.primary.copy(alpha = 0.12f), stringResource(R.string.onboarding_recap_private_title), stringResource(R.string.onboarding_recap_private_sub))
+            RecapRow(p, 0.24f, HugeIcons.Savings, c.warning, c.warningSoft, stringResource(R.string.onboarding_recap_budgets_title), stringResource(R.string.onboarding_recap_budgets_sub))
+            RecapRow(p, 0.36f, HugeIcons.Insights, c.savings, c.savings.copy(alpha = 0.15f), stringResource(R.string.onboarding_recap_insights_title), stringResource(R.string.onboarding_recap_insights_sub))
             Spacer(Modifier.height(Spacing.s2))
             Row(
                 verticalAlignment = Alignment.CenterVertically,
@@ -498,7 +486,7 @@ fun GetStartedPage(active: Boolean, parallax: Float) {
                 Box(
                     Modifier.size(44.dp).clip(TileShape).background(MaterialTheme.colorScheme.surface),
                     contentAlignment = Alignment.Center,
-                ) { Icon(Icons.Filled.Sms, null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(22.dp)) }
+                ) { Icon(HugeIcons.Sms, null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(22.dp)) }
                 Spacer(Modifier.width(Spacing.s4))
                 Column(Modifier.weight(1f)) {
                     Text(
@@ -556,13 +544,13 @@ fun PrivacyPage(active: Boolean, parallax: Float) {
                 Modifier.size(96.dp).clip(RoundedCornerShape(26.dp))
                     .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)),
                 contentAlignment = Alignment.Center,
-            ) { Icon(Icons.Filled.Lock, null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(46.dp)) }
+            ) { Icon(HugeIcons.Lock, null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(46.dp)) }
             Spacer(Modifier.height(Spacing.s7))
             PreviewCard(Modifier.fillMaxWidth()) {
                 Column(verticalArrangement = Arrangement.spacedBy(Spacing.s5)) {
-                    GuaranteeRow(p, 0f, Icons.Filled.PhoneAndroid, stringResource(R.string.onboarding_guarantee_device))
-                    GuaranteeRow(p, 0.12f, Icons.Filled.CloudOff, stringResource(R.string.onboarding_guarantee_no_sync))
-                    GuaranteeRow(p, 0.24f, Icons.Filled.VisibilityOff, stringResource(R.string.onboarding_guarantee_no_account))
+                    GuaranteeRow(p, 0f, HugeIcons.PhoneAndroid, stringResource(R.string.onboarding_guarantee_device))
+                    GuaranteeRow(p, 0.12f, HugeIcons.CloudOff, stringResource(R.string.onboarding_guarantee_no_sync))
+                    GuaranteeRow(p, 0.24f, HugeIcons.VisibilityOff, stringResource(R.string.onboarding_guarantee_no_account))
                 }
             }
         }
@@ -582,6 +570,6 @@ private fun GuaranteeRow(p: Float, delay: Float, icon: ImageVector, text: String
             text, style = MaterialTheme.typography.titleSmall,
             color = MaterialTheme.colorScheme.onSurface, modifier = Modifier.weight(1f),
         )
-        Icon(Icons.Filled.Check, null, tint = HisabakTheme.colors.income, modifier = Modifier.size(20.dp))
+        Icon(HugeIcons.Check, null, tint = HisabakTheme.colors.income, modifier = Modifier.size(20.dp))
     }
 }

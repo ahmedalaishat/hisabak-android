@@ -1,5 +1,7 @@
 package com.hisabak.feature.backup.presentation
 
+import com.hisabak.ui.icons.HugeIcons
+
 import android.text.format.DateUtils
 import android.text.format.Formatter
 import androidx.compose.animation.AnimatedContent
@@ -26,14 +28,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowRight
-import androidx.compose.material.icons.rounded.CloudDownload
-import androidx.compose.material.icons.rounded.CloudSync
-import androidx.compose.material.icons.rounded.CloudUpload
-import androidx.compose.material.icons.rounded.Key
-import androidx.compose.material.icons.rounded.Lock
-import androidx.compose.material.icons.rounded.Schedule
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -190,7 +184,7 @@ private fun BackupSettings(
 
                     SurfaceCard(modifier = Modifier.fillMaxWidth(), contentPadding = 0.dp) {
                         SettingsRow(
-                            icon = Icons.Rounded.Schedule,
+                            icon = HugeIcons.Schedule,
                             title = stringResource(R.string.backup_auto_title),
                             subtitle = if (state.period != AutoBackupPeriod.NEVER) {
                                 stringResource(R.string.backup_auto_hint)
@@ -202,7 +196,7 @@ private fun BackupSettings(
                         )
                         RowDivider()
                         SettingsRow(
-                            icon = Icons.Rounded.Lock,
+                            icon = HugeIcons.Lock,
                             title = stringResource(R.string.backup_encrypt),
                             subtitle = stringResource(R.string.backup_encrypt_hint),
                         ) {
@@ -225,7 +219,7 @@ private fun BackupSettings(
                         if (state.encryptionEnabled) {
                             RowDivider()
                             SettingsRow(
-                                icon = Icons.Rounded.Key,
+                                icon = HugeIcons.Key,
                                 title = stringResource(R.string.backup_passphrase),
                                 subtitle = stringResource(
                                     if (state.passphraseSet) R.string.backup_passphrase_set else R.string.backup_passphrase_not_set,
@@ -342,7 +336,7 @@ private fun BackupHeader() {
             contentAlignment = Alignment.Center,
         ) {
             Icon(
-                Icons.Rounded.CloudUpload,
+                HugeIcons.CloudUpload,
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.size(44.dp),
@@ -371,7 +365,7 @@ private fun LastBackupCard(state: BackupUiState) {
     SurfaceCard(modifier = Modifier.fillMaxWidth()) {
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(Spacing.s5)) {
             Icon(
-                Icons.Rounded.CloudSync,
+                HugeIcons.CloudSync,
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.size(48.dp),
@@ -411,17 +405,17 @@ private fun LastBackupCard(state: BackupUiState) {
 private fun BenefitsList() {
     Column(verticalArrangement = Arrangement.spacedBy(Spacing.s5)) {
         Benefit(
-            Icons.Rounded.Lock,
+            HugeIcons.Lock,
             stringResource(R.string.backup_point_encrypted_title),
             stringResource(R.string.backup_point_encrypted_sub),
         )
         Benefit(
-            Icons.Rounded.CloudDownload,
+            HugeIcons.CloudDownload,
             stringResource(R.string.backup_point_restore_title),
             stringResource(R.string.backup_point_restore_sub),
         )
         Benefit(
-            Icons.Rounded.Schedule,
+            HugeIcons.Schedule,
             stringResource(R.string.backup_point_auto_title),
             stringResource(R.string.backup_point_auto_sub),
         )
@@ -482,7 +476,7 @@ private fun SettingsRow(
                     Text(it, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
                 Icon(
-                    Icons.AutoMirrored.Rounded.KeyboardArrowRight,
+                    HugeIcons.KeyboardArrowRight,
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 )

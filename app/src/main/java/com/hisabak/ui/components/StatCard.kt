@@ -1,5 +1,7 @@
 package com.hisabak.ui.components
 
+import com.hisabak.ui.icons.HugeIcons
+
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -11,9 +13,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.TrendingDown
-import androidx.compose.material.icons.filled.TrendingUp
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -141,7 +140,7 @@ fun IncomeStatCard(
 ) = StatCard(
     label = stringResource(R.string.category_type_income),
     value = value,
-    icon = Icons.Filled.TrendingUp,
+    icon = HugeIcons.TrendingUp,
     accent = StatAccent.Positive,
     progress = progress,
     modifier = modifier,
@@ -157,7 +156,7 @@ fun ExpensesStatCard(
 ) = StatCard(
     label = stringResource(R.string.category_type_expenses),
     value = value,
-    icon = Icons.Filled.TrendingDown,
+    icon = HugeIcons.TrendingDown,
     accent = StatAccent.Negative,
     progress = progress,
     modifier = modifier,

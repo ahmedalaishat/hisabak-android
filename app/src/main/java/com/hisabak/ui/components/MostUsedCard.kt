@@ -1,5 +1,7 @@
 package com.hisabak.ui.components
 
+import com.hisabak.ui.icons.HugeIcons
+
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -7,8 +9,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -57,7 +57,7 @@ fun MostUsedCard(
                     horizontalArrangement = Arrangement.spacedBy(Spacing.s2),
                 ) {
                     Icon(
-                        Icons.Filled.Star,
+                        HugeIcons.Star,
                         contentDescription = null,
                         tint = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.size(14.dp),

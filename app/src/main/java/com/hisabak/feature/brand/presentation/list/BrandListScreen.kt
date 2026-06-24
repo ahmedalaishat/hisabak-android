@@ -1,5 +1,7 @@
 package com.hisabak.feature.brand.presentation.list
 
+import com.hisabak.ui.icons.HugeIcons
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -16,10 +18,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.DeleteOutline
-import androidx.compose.material.icons.filled.ExpandMore
-import androidx.compose.material.icons.filled.Storefront
 import androidx.compose.material3.AlertDialog
 import com.hisabak.ui.components.SkeletonRowList
 import androidx.compose.material3.DropdownMenu
@@ -138,7 +136,7 @@ fun BrandListScreen(
                         stringResource(R.string.brand_empty_subtitle)
                     else
                         stringResource(R.string.common_no_matches_subtitle, state.search),
-                    icon = Icons.Filled.Storefront,
+                    icon = HugeIcons.Storefront,
                 )
             }
         } else {
@@ -219,7 +217,7 @@ private fun BrandDeleteDialog(
                                 modifier = Modifier.weight(1f),
                             )
                             Icon(
-                                Icons.Filled.ExpandMore,
+                                HugeIcons.ExpandMore,
                                 contentDescription = null,
                                 tint = MaterialTheme.colorScheme.onSurfaceVariant,
                                 modifier = Modifier.size(Sizing.iconSm),
@@ -307,7 +305,7 @@ private fun BrandRowItem(
         trailing = {
             IconButton(onClick = onDelete) {
                 Icon(
-                    imageVector = Icons.Filled.DeleteOutline,
+                    imageVector = HugeIcons.DeleteOutline,
                     contentDescription = stringResource(R.string.common_delete_named, row.name),
                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 )

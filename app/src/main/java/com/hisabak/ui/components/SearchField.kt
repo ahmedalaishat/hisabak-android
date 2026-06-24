@@ -1,9 +1,9 @@
 package com.hisabak.ui.components
 
+import com.hisabak.ui.icons.HugeIcons
+
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -35,7 +35,7 @@ fun SearchField(
         },
         leadingIcon = {
             Icon(
-                Icons.Filled.Search,
+                HugeIcons.Search,
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.size(Sizing.iconSm),
