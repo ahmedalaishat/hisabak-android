@@ -10,6 +10,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -17,6 +18,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -38,15 +40,18 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.hisabak.R
 import com.hisabak.core.domain.ThemeMode
 import com.hisabak.ui.components.HisabakButton
-import com.hisabak.ui.components.SectionHeader
+import com.hisabak.ui.components.IconTile
 import com.hisabak.ui.components.SegmentOption
 import com.hisabak.ui.components.SegmentedControl
 import com.hisabak.ui.components.SurfaceCard
@@ -83,91 +88,64 @@ fun SettingsScreen(
             PassphraseReminderCard(onConfirm = onConfirmRemembered, onCheck = { showVerify = true })
         }
 
-        SettingGroup(title = stringResource(R.string.settings_appearance)) {
-            Text(
-                stringResource(R.string.settings_appearance_hint),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+        SettingsGroup(title = stringResource(R.string.settings_group_backup_security)) {
+            SettingCard(
+                icon = HugeIcons.Lock,
+                title = stringResource(R.string.settings_app_lock),
+                hint = stringResource(R.string.settings_app_lock_hint),
+                trailing = {
+                    Switch(
+                        checked = appLockEnabled,
+                        onCheckedChange = onAppLockChange,
+                        enabled = appLockSupported,
+                    )
+                },
             )
-            SegmentedControl(
-                options = listOf(
-                    SegmentOption(ThemeMode.SYSTEM, stringResource(R.string.settings_theme_system)),
-                    SegmentOption(ThemeMode.LIGHT, stringResource(R.string.settings_theme_light)),
-                    SegmentOption(ThemeMode.DARK, stringResource(R.string.settings_theme_dark)),
-                ),
-                selected = themeMode,
-                onSelect = onThemeChange,
-                modifier = Modifier.fillMaxWidth().padding(top = Spacing.s4),
-            )
-        }
-
-        SettingGroup(title = stringResource(R.string.settings_language)) {
-            Text(
-                stringResource(R.string.settings_language_hint),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-            SegmentedControl(
-                options = listOf(
-                    SegmentOption(LANGUAGE_ENGLISH, stringResource(R.string.settings_language_english)),
-                    SegmentOption(LANGUAGE_ARABIC, stringResource(R.string.settings_language_arabic)),
-                ),
-                selected = language,
-                onSelect = onLanguageChange,
-                modifier = Modifier.fillMaxWidth().padding(top = Spacing.s4),
+            SettingCard(
+                icon = HugeIcons.CloudSync,
+                title = stringResource(R.string.settings_backup_restore),
+                hint = stringResource(R.string.settings_backup_restore_hint),
+                onClick = onOpenBackup,
+                trailing = {
+                    Icon(
+                        imageVector = HugeIcons.KeyboardArrowRight,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                },
             )
         }
 
-        SettingGroup(title = stringResource(R.string.settings_security)) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(Spacing.cardGap),
+        SettingsGroup(title = stringResource(R.string.settings_group_preferences)) {
+            SettingCard(
+                icon = HugeIcons.Palette,
+                title = stringResource(R.string.settings_theme),
+                hint = stringResource(R.string.settings_appearance_hint),
             ) {
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        stringResource(R.string.settings_app_lock),
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.onSurface,
-                    )
-                    Text(
-                        stringResource(R.string.settings_app_lock_hint),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
-                Switch(
-                    checked = appLockEnabled,
-                    onCheckedChange = onAppLockChange,
-                    enabled = appLockSupported,
+                SegmentedControl(
+                    options = listOf(
+                        SegmentOption(ThemeMode.SYSTEM, stringResource(R.string.settings_theme_system)),
+                        SegmentOption(ThemeMode.LIGHT, stringResource(R.string.settings_theme_light)),
+                        SegmentOption(ThemeMode.DARK, stringResource(R.string.settings_theme_dark)),
+                    ),
+                    selected = themeMode,
+                    onSelect = onThemeChange,
+                    modifier = Modifier.fillMaxWidth().padding(top = Spacing.s4),
                 )
             }
-        }
-
-        SettingGroup(title = stringResource(R.string.settings_data)) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable(onClick = onOpenBackup),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(Spacing.cardGap),
+            SettingCard(
+                icon = HugeIcons.Translate,
+                title = stringResource(R.string.settings_language),
+                hint = stringResource(R.string.settings_language_hint),
             ) {
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        stringResource(R.string.settings_backup_restore),
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.onSurface,
-                    )
-                    Text(
-                        stringResource(R.string.settings_backup_restore_hint),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
-                Icon(
-                    imageVector = HugeIcons.KeyboardArrowRight,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                SegmentedControl(
+                    options = listOf(
+                        SegmentOption(LANGUAGE_ENGLISH, stringResource(R.string.settings_language_english)),
+                        SegmentOption(LANGUAGE_ARABIC, stringResource(R.string.settings_language_arabic)),
+                    ),
+                    selected = language,
+                    onSelect = onLanguageChange,
+                    modifier = Modifier.fillMaxWidth().padding(top = Spacing.s4),
                 )
             }
         }
@@ -356,14 +334,68 @@ private fun SuccessCheck() {
 }
 
 @Composable
-private fun SettingGroup(
+private fun SettingsGroup(
     title: String,
-    content: @Composable () -> Unit,
+    content: @Composable ColumnScope.() -> Unit,
 ) {
-    Column(verticalArrangement = Arrangement.spacedBy(Spacing.sectionTitleGap)) {
-        SectionHeader(title = title)
-        SurfaceCard(modifier = Modifier.fillMaxWidth()) {
-            content()
+    Column(verticalArrangement = Arrangement.spacedBy(Spacing.cardGap)) {
+        Text(
+            text = title.uppercase(),
+            style = MaterialTheme.typography.labelMedium,
+            fontWeight = FontWeight.Bold,
+            letterSpacing = 0.5.sp,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(horizontal = Spacing.s1),
+        )
+        content()
+    }
+}
+
+/** One setting row inside its own card: a neutral leading icon tile, title + hint, optional
+ *  trailing control, and optional content below (e.g. a segmented control). */
+@Composable
+private fun SettingCard(
+    icon: ImageVector,
+    title: String,
+    hint: String,
+    modifier: Modifier = Modifier,
+    onClick: (() -> Unit)? = null,
+    trailing: @Composable (() -> Unit)? = null,
+    below: @Composable (ColumnScope.() -> Unit)? = null,
+) {
+    SurfaceCard(
+        modifier = modifier
+            .fillMaxWidth()
+            .then(if (onClick != null) Modifier.clickable(onClick = onClick) else Modifier),
+    ) {
+        Column {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(Spacing.cardGap),
+            ) {
+                IconTile(
+                    icon = icon,
+                    size = 38.dp,
+                    iconSize = 20.dp,
+                    background = MaterialTheme.colorScheme.surfaceContainerHighest,
+                    foreground = MaterialTheme.colorScheme.onSurfaceVariant,
+                    shape = RoundedCornerShape(11.dp),
+                )
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        title,
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSurface,
+                    )
+                    Text(
+                        hint,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+                trailing?.invoke()
+            }
+            below?.invoke(this)
         }
     }
 }
