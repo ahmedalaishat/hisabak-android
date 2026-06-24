@@ -246,6 +246,7 @@
     <string name="time_hours_ago">%1$dh ago</string>
     <string name="time_days_ago">%1$dd ago</string>
     <string name="time_yesterday">Yesterday</string>
+    <string name="time_today">Today</string>
 
     <!-- Dashboard -->
     <string name="dashboard_tab_summary">Summary</string>
