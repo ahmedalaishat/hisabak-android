@@ -1,13 +1,13 @@
 package com.hisabak.ui.components
 
+import com.hisabak.ui.icons.HugeIcons
+
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Inbox
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.material3.Icon
@@ -34,7 +34,7 @@ fun EmptyStatePanel(
     title: String,
     modifier: Modifier = Modifier,
     subtitle: String? = null,
-    icon: ImageVector = Icons.Filled.Inbox,
+    icon: ImageVector = HugeIcons.Inbox,
     actionLabel: String? = null,
     onAction: (() -> Unit)? = null,
 ) {

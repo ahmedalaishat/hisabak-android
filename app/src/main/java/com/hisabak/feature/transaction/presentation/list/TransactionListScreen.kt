@@ -1,5 +1,7 @@
 package com.hisabak.feature.transaction.presentation.list
 
+import com.hisabak.ui.icons.HugeIcons
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
@@ -20,10 +22,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.ExpandMore
-import androidx.compose.material.icons.filled.ReceiptLong
 import com.hisabak.ui.components.SkeletonCard
 import com.hisabak.ui.components.SkeletonRowList
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -194,7 +192,7 @@ fun TransactionListScreen(
                     EmptyStatePanel(
                         title = stringResource(R.string.transaction_empty_filtered_title),
                         subtitle = stringResource(R.string.transaction_empty_filtered_subtitle),
-                        icon = Icons.Filled.ReceiptLong,
+                        icon = HugeIcons.ReceiptLong,
                         actionLabel = stringResource(if (state.hasActiveFilters) R.string.action_clear_filters else R.string.transaction_add),
                         onAction = if (state.hasActiveFilters) onClearFilters else onAdd,
                     )
@@ -202,7 +200,7 @@ fun TransactionListScreen(
                     EmptyStatePanel(
                         title = stringResource(R.string.transaction_empty_title),
                         subtitle = stringResource(R.string.transaction_empty_subtitle),
-                        icon = Icons.Filled.ReceiptLong,
+                        icon = HugeIcons.ReceiptLong,
                         actionLabel = stringResource(R.string.transaction_add),
                         onAction = onAdd,
                     )
@@ -271,7 +269,7 @@ private fun FilterPill(label: String, active: Boolean, onClick: () -> Unit) {
     ) {
         Text(label, style = MaterialTheme.typography.labelLarge, color = fg, maxLines = 1)
         Icon(
-            Icons.Filled.ExpandMore,
+            HugeIcons.ExpandMore,
             contentDescription = null,
             tint = fg,
             modifier = Modifier.size(Sizing.iconSm),
@@ -340,7 +338,7 @@ private fun FilterSheetRow(
         )
         if (selected) {
             Icon(
-                Icons.Filled.Check,
+                HugeIcons.Check,
                 contentDescription = stringResource(R.string.common_selected),
                 tint = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.size(Sizing.icon),

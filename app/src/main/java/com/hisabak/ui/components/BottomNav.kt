@@ -1,6 +1,5 @@
 package com.hisabak.ui.components
 
-import androidx.compose.animation.Crossfade
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
@@ -13,14 +12,11 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.style.TextOverflow
-import com.hisabak.ui.theme.Motion
-import com.hisabak.ui.theme.standardTween
 
 data class BottomNavTab(
     val key: String,
     val label: String,
     val icon: ImageVector,
-    val iconOutlined: ImageVector = icon,
 )
 
 @Composable
@@ -52,16 +48,12 @@ fun HisabakBottomNav(
                     onSelect(tab.key)
                 },
                 icon = {
-                    Crossfade(
-                        targetState = selected,
-                        animationSpec = standardTween(Motion.Duration.Base),
-                        label = "navIcon",
-                    ) { isSelected ->
-                        Icon(
-                            imageVector = if (isSelected) tab.icon else tab.iconOutlined,
-                            contentDescription = tab.label,
-                        )
-                    }
+                    // Single Hugeicons stroke glyph; the active tab reads via the pill
+                    // indicator + selected colour (Hugeicons free has no filled variant).
+                    Icon(
+                        imageVector = tab.icon,
+                        contentDescription = tab.label,
+                    )
                 },
                 label = {
                     Text(

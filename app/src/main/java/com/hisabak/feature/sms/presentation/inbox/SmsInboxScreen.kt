@@ -1,5 +1,7 @@
 package com.hisabak.feature.sms.presentation.inbox
 
+import com.hisabak.ui.icons.HugeIcons
+
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -14,10 +16,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.DeleteOutline
-import androidx.compose.material.icons.filled.Download
-import androidx.compose.material.icons.filled.Inbox
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -97,7 +95,7 @@ fun SmsInboxScreen(
             } else if (state.rows.isEmpty()) {
                 item {
                     EmptyStatePanel(
-                        icon = Icons.Filled.Inbox,
+                        icon = HugeIcons.Inbox,
                         title = stringResource(R.string.sms_empty_title),
                         subtitle = when {
                             state.search.isNotBlank() -> stringResource(R.string.common_no_matches_subtitle, state.search)
@@ -311,11 +309,11 @@ private fun SmsRowCard(
                     PrimaryPillButton(
                         text = stringResource(R.string.sms_import),
                         onClick = onImport,
-                        leadingIcon = Icons.Filled.Download,
+                        leadingIcon = HugeIcons.Download,
                     )
                     IconButton(onClick = onDelete, modifier = Modifier.size(Sizing.controlHeightSm)) {
                         Icon(
-                            Icons.Filled.DeleteOutline,
+                            HugeIcons.DeleteOutline,
                             contentDescription = stringResource(R.string.action_delete),
                             tint = MaterialTheme.colorScheme.onSurfaceVariant,
                             modifier = Modifier.size(18.dp),
@@ -328,7 +326,7 @@ private fun SmsRowCard(
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
                 IconButton(onClick = onDelete, modifier = Modifier.size(Sizing.controlHeightSm)) {
                     Icon(
-                        Icons.Filled.DeleteOutline,
+                        HugeIcons.DeleteOutline,
                         contentDescription = stringResource(R.string.action_delete),
                         tint = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.size(18.dp),

@@ -1,5 +1,7 @@
 package com.hisabak.feature.settings.presentation
 
+import com.hisabak.ui.icons.HugeIcons
+
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
@@ -17,10 +19,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
-import androidx.compose.material.icons.rounded.Check
-import androidx.compose.material.icons.rounded.PriorityHigh
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -167,7 +165,7 @@ fun SettingsScreen(
                     )
                 }
                 Icon(
-                    imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                    imageVector = HugeIcons.KeyboardArrowRight,
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -197,7 +195,7 @@ private fun PassphraseReminderCard(onConfirm: () -> Unit, onCheck: () -> Unit) {
                     contentAlignment = Alignment.Center,
                 ) {
                     Icon(
-                        Icons.Rounded.PriorityHigh,
+                        HugeIcons.PriorityHigh,
                         contentDescription = null,
                         tint = MaterialTheme.colorScheme.onError,
                         modifier = Modifier.size(16.dp),
@@ -349,7 +347,7 @@ private fun SuccessCheck() {
         contentAlignment = Alignment.Center,
     ) {
         Icon(
-            Icons.Rounded.Check,
+            HugeIcons.Check,
             contentDescription = null,
             tint = MaterialTheme.colorScheme.onPrimary,
             modifier = Modifier.size(40.dp).graphicsLayer { scaleX = scale; scaleY = scale },
