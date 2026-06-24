@@ -41,6 +41,13 @@
     { id: 's5', body: 'Withdrawal of AED 500.00 at ATM RIYADH-OLAYA. Balance AED 11,607.', time: '30 May · 18:45', status: 'parsed', brand: 'Cash', amount: 500.00 },
   ];
 
+  const NOTIFICATIONS = [
+    { id: 'n1', icon: 'warning',     tone: 'expense', title: 'Dining is over budget',     message: "You've spent AED 642 of your AED 600 limit this month.", time: '2 hours ago',  read: false },
+    { id: 'n2', icon: 'cloud_done',  tone: 'accent',  title: 'Backup complete',           message: 'Your data was backed up to Google Drive.',               time: 'Today · 09:05', read: false },
+    { id: 'n3', icon: 'trending_up', tone: 'warning', title: 'Groceries nearing limit',    message: "You're at 80% of your AED 1,500 grocery budget.",        time: 'Yesterday',     read: true },
+    { id: 'n4', icon: 'sms',         tone: 'accent',  title: '3 transactions imported',    message: 'New bank messages were parsed and added.',               time: '30 May',        read: true },
+  ];
+
   function money(n, opts) {
     opts = opts || {};
     const abs = Math.abs(n).toLocaleString('en-US', {
@@ -50,5 +57,5 @@
     return (opts.currency === false ? '' : 'AED ') + abs;
   }
 
-  window.HisabakMock = { CATEGORIES, BRANDS, TX, SMS, money };
+  window.HisabakMock = { CATEGORIES, BRANDS, TX, SMS, NOTIFICATIONS, money };
 })();
