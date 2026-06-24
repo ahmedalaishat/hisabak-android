@@ -13,6 +13,15 @@ sealed interface BackupError {
 
     /** Nothing to export, or an empty file. */
     data object Empty : BackupError
+
+    /** No connected account / the Drive authorization expired and needs re-consent. */
+    data object AuthRequired : BackupError
+
+    /** A network/Drive request failed. */
+    data object Network : BackupError
+
+    /** Encryption is on but no passphrase is set (export), or the file is encrypted and none given. */
+    data object PassphraseRequired : BackupError
 }
 
 /** Thrown by the codec/crypto layers; the use cases catch it and surface the [error]. */

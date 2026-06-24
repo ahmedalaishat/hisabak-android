@@ -22,4 +22,7 @@ interface BackupCodec {
 interface BackupCrypto {
     fun encrypt(plaintext: ByteArray, passphrase: String): ByteArray
     fun decrypt(ciphertext: ByteArray, passphrase: String): ByteArray
+
+    /** Whether [bytes] is an encrypted backup (vs. a plain, unencrypted codec payload). */
+    fun isEncrypted(bytes: ByteArray): Boolean
 }

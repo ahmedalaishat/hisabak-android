@@ -25,7 +25,7 @@ interface AppPreferences {
 
     suspend fun setBackupEnabled(value: Boolean)
 
-    /** Whether backups are encrypted with a passphrase; defaults to `true`. */
+    /** Whether backups are encrypted with a passphrase; defaults to `false` (opt-in). */
     val backupEncryptionEnabled: Flow<Boolean>
 
     suspend fun setBackupEncryptionEnabled(value: Boolean)
@@ -34,4 +34,9 @@ interface AppPreferences {
     val autoBackupPeriod: Flow<AutoBackupPeriod>
 
     suspend fun setAutoBackupPeriod(value: AutoBackupPeriod)
+
+    /** Whether the one-time, post-onboarding "restore from backup?" page has been shown. */
+    val restoreOffered: Flow<Boolean>
+
+    suspend fun setRestoreOffered(value: Boolean)
 }

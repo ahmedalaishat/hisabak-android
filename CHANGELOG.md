@@ -7,10 +7,13 @@ All notable changes to Hisabak are documented here. Format based on
 ## [Unreleased]
 
 ### Added
-- **Backup settings** (Settings → Data) — set up Google Drive backup: turn it on, optionally encrypt
-  it with a passphrase, and pick an auto-backup frequency (Never / Daily / Weekly / Monthly). The
-  passphrase is stored encrypted on-device (Android Keystore) and is the only key to your backup —
-  keep it safe, as it can't be recovered. The backups themselves roll out in an upcoming update.
+- **Google Drive backup & restore** (Settings → Data) — connect a Google account and back up your
+  data to your Drive (in a private, app-only space), optionally encrypted with a passphrase
+  (AES-256-GCM; the passphrase is stored encrypted on-device and is the only key — keep it safe).
+  After installing on a new device, a one-time page after onboarding offers to **restore** your data
+  from Drive (skippable). Optional **automatic backups** run in the background on the frequency you
+  pick (Never / Daily / Weekly / Monthly). (Backup requires the app's Google Drive access to be
+  configured — see `docs/google-drive-backup-setup.md`.)
 - **App lock** (Settings → Security) — require a fingerprint/face unlock, falling back to your
   device PIN/pattern/password, to open Hisabak. It locks on launch and when you return after
   leaving the app, with a short grace period so quick app-switches don't prompt you every time.
