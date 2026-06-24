@@ -6,6 +6,8 @@ All notable changes to Hisabak are documented here. Format based on
 
 ## [Unreleased]
 
+## [1.6.0] — 2026-06-24
+
 ### Added
 - **Database encryption at rest** — your on-device data is now always encrypted with SQLCipher
   (AES-256). The encryption key is generated on your device and protected by the Android Keystore,
