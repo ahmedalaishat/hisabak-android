@@ -30,6 +30,8 @@
   .statusbar .material-symbols-rounded { font-size: 16px; }
   .scroll { flex: 1; overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch; position: relative; }
   .scroll::-webkit-scrollbar { width: 0; }
+  .no-scrollbar { scrollbar-width: none; -ms-overflow-style: none; }
+  .no-scrollbar::-webkit-scrollbar { display: none; height: 0; }
   .fab { position: absolute; right: 18px; bottom: 84px; width: 56px; height: 56px; border-radius: 18px; border: none; background: var(--accent); color: #fff; display: grid; place-items: center; cursor: pointer; box-shadow: var(--shadow-accent); z-index: 20; transition: transform var(--dur-fast); }
   .fab:active { transform: scale(0.94); }
   .fab .material-symbols-rounded { font-size: 28px; }
@@ -44,16 +46,11 @@
 <body>
 <div id="root"></div>
 
-<!-- Transactions, Add, SMS, Categories ship precompiled in _ds_bundle.js, so they render even when
-     opened over file:// (where the browser blocks Babel from fetching sibling .jsx). Everything else —
-     the rewritten Dashboard (which overrides the bundle's stale one), the charts it needs, and the
-     screens added after the bundle was built — lives in mobile-kit.compiled.js, a plain (non-Babel)
-     script generated from the *.jsx sources that also loads over file://. Rebuild it after editing any
-     of those .jsx (see README → "Rebuilding"). -->
-<script type="text/babel" src="Transactions.jsx"></script>
-<script type="text/babel" src="AddTransactionSheet.jsx"></script>
-<script type="text/babel" src="SmsInbox.jsx"></script>
-<script type="text/babel" src="Categories.jsx"></script>
+<!-- All app screens are precompiled into mobile-kit.compiled.js (a plain, non-Babel script generated
+     from the *.jsx sources) so index.html works even when opened over file://, where the browser
+     blocks Babel from fetching sibling .jsx. The compiled screens override the stale copies baked into
+     _ds_bundle.js (which still uses the text "AED" instead of the dirham glyph). Rebuild the compiled
+     file after editing any *.jsx — see README → "Rebuilding". -->
 <script src="mobile-kit.compiled.js"></script>
 
 <script type="text/babel" data-presets="react">

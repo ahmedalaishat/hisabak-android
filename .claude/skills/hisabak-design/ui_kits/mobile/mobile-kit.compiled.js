@@ -259,17 +259,12 @@ function LegendList({
       textOverflow: 'ellipsis',
       whiteSpace: 'nowrap'
     }
-  }, it.label), /*#__PURE__*/React.createElement("span", {
-    style: {
-      fontFamily: 'var(--font-mono)',
-      fontSize: 13,
-      fontWeight: 600,
-      color: 'var(--text-secondary)',
-      fontVariantNumeric: 'tabular-nums'
-    }
-  }, window.HisabakMock.money(it.value, {
-    decimals: false
-  })), /*#__PURE__*/React.createElement("span", {
+  }, it.label), /*#__PURE__*/React.createElement(Money, {
+    value: it.value,
+    size: 13,
+    weight: 600,
+    color: "var(--text-secondary)"
+  }), /*#__PURE__*/React.createElement("span", {
     style: {
       fontFamily: 'var(--font-sans)',
       fontSize: 12,
@@ -279,12 +274,84 @@ function LegendList({
     }
   }, Math.round(it.value / total * 100), "%"))));
 }
+
+/* Official UAE dirham symbol (traced from res/drawable/ic_dirham). The brand shows this glyph for
+   money — never the text "AED". viewBox is wider than tall (1000×870). */
+function Dirham({
+  size = 14,
+  color = 'currentColor',
+  style
+}) {
+  return /*#__PURE__*/React.createElement("svg", {
+    viewBox: "0 0 1000 870",
+    height: size,
+    width: size * 1.15,
+    "aria-label": "dirham",
+    style: {
+      display: 'inline-block',
+      flex: 'none',
+      ...style
+    }
+  }, /*#__PURE__*/React.createElement("path", {
+    fill: color,
+    d: "m88.3 1c0.4 0.6 2.6 3.3 4.7 5.9 15.3 18.2 26.8 47.8 33 85.1 4.1 24.5 4.3 32.2 4.3 125.6v87h-41.8c-38.2 0-42.6-0.2-50.1-1.7-11.8-2.5-24-9.2-32.2-17.8-6.5-6.9-6.3-7.3-5.9 13.6 0.5 17.3 0.7 19.2 3.2 28.6 4 14.9 9.5 26 17.8 35.9 11.3 13.6 22.8 21.2 39.2 26.3 3.5 1 10.9 1.4 37.1 1.6l32.7 0.5v43.3 43.4l-46.1-0.3-46.3-0.3-8-3.2c-9.5-3.8-13.8-6.6-23.1-14.9l-6.8-6.1 0.4 19.1c0.5 17.7 0.6 19.7 3.1 28.7 8.7 31.8 29.7 54.5 57.4 61.9 6.9 1.9 9.6 2 38.5 2.4l30.9 0.4v89.6c0 54.1-0.3 94-0.8 100.8-0.5 6.2-2.1 17.8-3.5 25.9-6.5 37.3-18.2 65.4-35 83.6l-3.4 3.7h169.1c101.1 0 176.7-0.4 187.8-0.9 19.5-1 63-5.3 72.8-7.4 3.1-0.6 8.9-1.5 12.7-2.1 8.1-1.2 21.5-4 40.8-8.9 27.2-6.8 52-15.3 76.3-26.1 7.6-3.4 29.4-14.5 35.2-18 3.1-1.8 6.8-4 8.2-4.7 3.9-2.1 10.4-6.3 19.9-13.1 4.7-3.4 9.4-6.7 10.4-7.4 4.2-2.8 18.7-14.9 25.3-21 25.1-23.1 46.1-48.8 62.4-76.3 2.3-4 5.3-9 6.6-11.1 3.3-5.6 16.9-33.6 18.2-37.8 0.6-1.9 1.4-3.9 1.8-4.3 2.6-3.4 17.6-50.6 19.4-60.9 0.6-3.3 0.9-3.8 3.4-4.3 1.6-0.3 24.9-0.3 51.8-0.1 53.8 0.4 53.8 0.4 65.7 5.9 6.7 3.1 8.7 4.5 16.1 11.2 9.7 8.7 8.8 10.1 8.2-11.7-0.4-12.8-0.9-20.7-1.8-23.9-3.4-12.3-4.2-14.9-7.2-21.1-9.8-21.4-26.2-36.7-47.2-44l-8.2-3-33.4-0.4-33.3-0.5 0.4-11.7c0.4-15.4 0.4-45.9-0.1-61.6l-0.4-12.6 44.6-0.2c38.2-0.2 45.3 0 49.5 1.1 12.6 3.5 21.1 8.3 31.5 17.8l5.8 5.4v-14.8c0-17.6-0.9-25.4-4.5-37-7.1-23.5-21.1-41-41.1-51.8-13-7-13.8-7.2-58.5-7.5-26.2-0.2-39.9-0.6-40.6-1.2-0.6-0.6-1.1-1.6-1.1-2.4 0-0.8-1.5-7.1-3.5-13.9-23.4-82.7-67.1-148.4-131-197.1-8.7-6.7-30-20.8-38.6-25.6-3.3-1.9-6.9-3.9-7.8-4.5-4.2-2.3-28.3-14.1-34.3-16.6-3.6-1.6-8.3-3.6-10.4-4.4-35.3-15.3-94.5-29.8-139.7-34.3-7.4-0.7-17.2-1.8-21.7-2.2-20.4-2.3-48.7-2.6-209.4-2.6-135.8 0-169.9 0.3-169.4 1zm330.7 43.3c33.8 2 54.6 4.6 78.9 10.5 74.2 17.6 126.4 54.8 164.3 117 3.5 5.8 18.3 36 20.5 42.1 10.5 28.3 15.6 45.1 20.1 67.3 1.1 5.4 2.6 12.6 3.3 16 0.7 3.3 1 6.4 0.7 6.7-0.5 0.4-100.9 0.6-223.3 0.5l-222.5-0.2-0.3-128.5c-0.1-70.6 0-129.3 0.3-130.4l0.4-1.9h71.1c39 0 78 0.4 86.5 0.9zm297.5 350.3c0.7 4.3 0.7 77.3 0 80.9l-0.6 2.7-227.5-0.2-227.4-0.3-0.2-42.4c-0.2-23.3 0-42.7 0.2-43.1 0.3-0.5 97.2-0.8 227.7-0.8h227.2zm-10.2 171.7c0.5 1.5-1.9 13.8-6.8 33.8-5.6 22.5-13.2 45.2-20.9 62-3.8 8.6-13.3 27.2-15.6 30.7-1.1 1.6-4.3 6.7-7.1 11.2-18 28.2-43.7 53.9-73 72.9-10.7 6.8-32.7 18.4-38.6 20.2-1.2 0.3-2.5 0.9-3 1.3-0.7 0.6-9.8 4-20.4 7.8-19.5 6.9-56.6 14.4-86.4 17.5-19.3 1.9-22.4 2-96.7 2h-76.9v-129.7-129.8l220.9-0.4c121.5-0.2 221.6-0.5 222.4-0.7 0.9-0.1 1.8 0.5 2.1 1.2z"
+  }));
+}
+
+/* Money — dirham glyph + compact tabular figure (e.g. 6,450 → 6.45K). Reads LTR. */
+function Money({
+  value = 0,
+  tone = 'neutral',
+  sign = 'never',
+  size = 15,
+  weight = 700,
+  color
+}) {
+  const toneKey = tone === 'auto' ? value < 0 ? 'expense' : 'income' : tone;
+  const c = color || {
+    income: 'var(--income)',
+    expense: 'var(--expense)',
+    savings: 'var(--savings)',
+    investment: 'var(--investment)',
+    neutral: 'var(--text-primary)'
+  }[toneKey] || 'var(--text-primary)';
+  const a = Math.abs(value);
+  const num = a >= 1e6 ? (a / 1e6).toFixed(2) + 'M' : a >= 1000 ? (a / 1000).toFixed(2) + 'K' : a.toFixed(2);
+  const prefix = sign === 'always' || sign === 'auto' && value !== 0 ? value < 0 ? '−' : '+' : '';
+  return /*#__PURE__*/React.createElement("span", {
+    style: {
+      display: 'inline-flex',
+      alignItems: 'center',
+      gap: 3,
+      color: c,
+      direction: 'ltr'
+    }
+  }, prefix && /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontFamily: 'var(--font-sans)',
+      fontWeight: weight,
+      fontSize: size
+    }
+  }, prefix), /*#__PURE__*/React.createElement(Dirham, {
+    size: size * 0.82,
+    color: c
+  }), /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontFamily: 'var(--font-mono)',
+      fontWeight: weight,
+      fontSize: size,
+      fontVariantNumeric: 'tabular-nums'
+    }
+  }, num));
+}
 Object.assign(window, {
   AreaChart,
   Sparkline,
   GroupedBars,
   DonutChart,
-  LegendList
+  LegendList,
+  Dirham,
+  Money
 });
 /* Dashboard — mirrors DashboardScreen.kt: a period-chip row + a Summary / Trends / Categories
    segmented control, each its own scroll. Chart data matches the app's semantics:
@@ -298,7 +365,6 @@ function Dashboard() {
   const {
     Card,
     Chip,
-    AmountText,
     ProgressBar,
     SegmentedControl
   } = NS;
@@ -524,10 +590,9 @@ function Dashboard() {
       gap: 10,
       marginTop: 4
     }
-  }, /*#__PURE__*/React.createElement(AmountText, {
+  }, /*#__PURE__*/React.createElement(Money, {
     value: value,
     tone: "neutral",
-    sign: "never",
     size: label === 'Net worth' ? 34 : 24,
     weight: 700
   }), /*#__PURE__*/React.createElement(Trend, {
@@ -568,10 +633,9 @@ function Dashboard() {
     style: {
       marginTop: 6
     }
-  }, /*#__PURE__*/React.createElement(AmountText, {
+  }, /*#__PURE__*/React.createElement(Money, {
     value: value,
     tone: label === 'Income' ? 'income' : 'expense',
-    sign: "never",
     size: 24,
     weight: 700
   })), /*#__PURE__*/React.createElement(FlowBars, {
@@ -587,7 +651,8 @@ function Dashboard() {
   }) => /*#__PURE__*/React.createElement(Card, {
     padding: 12,
     style: {
-      flex: 1
+      flex: 1,
+      minWidth: 0
     }
   }, /*#__PURE__*/React.createElement("div", {
     style: {
@@ -596,29 +661,33 @@ function Dashboard() {
       gap: 5,
       background: bg,
       borderRadius: 999,
-      padding: '4px 8px'
+      padding: '4px 8px',
+      maxWidth: '100%'
     }
   }, /*#__PURE__*/React.createElement("span", {
     className: "material-symbols-rounded",
     style: {
       fontSize: 15,
-      color: fg
+      color: fg,
+      flex: 'none'
     }
   }, icon), /*#__PURE__*/React.createElement("span", {
     style: {
       fontFamily: 'var(--font-sans)',
       fontSize: 11,
       fontWeight: 600,
-      color: fg
+      color: fg,
+      overflow: 'hidden',
+      textOverflow: 'ellipsis',
+      whiteSpace: 'nowrap'
     }
   }, label)), /*#__PURE__*/React.createElement("div", {
     style: {
       marginTop: 8
     }
-  }, /*#__PURE__*/React.createElement(AmountText, {
+  }, /*#__PURE__*/React.createElement(Money, {
     value: value,
     tone: "neutral",
-    sign: "never",
     size: 15,
     weight: 700
   })));
@@ -839,10 +908,9 @@ function Dashboard() {
         fontSize: 15,
         color: 'var(--text-primary)'
       }
-    }, r.name), /*#__PURE__*/React.createElement(AmountText, {
+    }, r.name), /*#__PURE__*/React.createElement(Money, {
       value: r.spent,
       tone: "neutral",
-      sign: "never",
       size: 14,
       weight: 600
     }), /*#__PURE__*/React.createElement("span", {
@@ -869,12 +937,20 @@ function Dashboard() {
       }
     }, /*#__PURE__*/React.createElement("span", null, over ? 'Over budget' : `${pctOfLimit}% of limit`), /*#__PURE__*/React.createElement("span", {
       style: {
-        fontFamily: 'var(--font-mono)'
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: 4
       }
-    }, M.money(r.spent, {
-      decimals: false
-    }), " / ", M.money(r.limit, {
-      decimals: false
+    }, /*#__PURE__*/React.createElement(Money, {
+      value: r.spent,
+      size: 11.5,
+      weight: 500,
+      color: "currentColor"
+    }), " / ", /*#__PURE__*/React.createElement(Money, {
+      value: r.limit,
+      size: 11.5,
+      weight: 500,
+      color: "currentColor"
     })))), open && /*#__PURE__*/React.createElement("div", {
       style: {
         marginTop: 12
@@ -915,10 +991,9 @@ function Dashboard() {
       fontSize: 15,
       color: 'var(--text-primary)'
     }
-  }, "Uncategorized"), /*#__PURE__*/React.createElement(AmountText, {
+  }, "Uncategorized"), /*#__PURE__*/React.createElement(Money, {
     value: 220,
     tone: "neutral",
-    sign: "never",
     size: 14,
     weight: 600
   }), /*#__PURE__*/React.createElement("span", {
@@ -937,6 +1012,7 @@ function Dashboard() {
       padding: '10px 16px 8px'
     }
   }, /*#__PURE__*/React.createElement("div", {
+    className: "no-scrollbar",
     style: {
       display: 'flex',
       gap: 8,
@@ -977,6 +1053,702 @@ function Dashboard() {
   }, tab === 'summary' ? /*#__PURE__*/React.createElement(Summary, null) : tab === 'trends' ? /*#__PURE__*/React.createElement(Trends, null) : /*#__PURE__*/React.createElement(Categories, null)));
 }
 window.HisabakDashboard = Dashboard;
+/* Transactions — balance hero, summary, search, filtered list. */
+function Transactions({
+  onAdd
+}) {
+  const NS = window.HisabakDesignSystem_aa2548;
+  const {
+    Card,
+    Button,
+    SearchBar,
+    Chip,
+    ListRow,
+    ProgressBar,
+    EmptyState
+  } = NS;
+  const M = window.HisabakMock;
+  const [q, setQ] = React.useState('');
+  const [period, setPeriod] = React.useState('month');
+  const catColor = id => (M.CATEGORIES.find(c => c.id === id) || {}).color || 'var(--cat-gray)';
+  const catName = id => (M.CATEGORIES.find(c => c.id === id) || {}).name || '';
+  const filtered = M.TX.filter(t => t.brand.toLowerCase().includes(q.toLowerCase()) || t.note.toLowerCase().includes(q.toLowerCase()));
+  const groups = filtered.reduce((acc, t) => {
+    (acc[t.day] = acc[t.day] || []).push(t);
+    return acc;
+  }, {});
+  return /*#__PURE__*/React.createElement("div", {
+    style: {
+      padding: '8px 16px 24px'
+    }
+  }, /*#__PURE__*/React.createElement(Card, {
+    variant: "hero",
+    padding: 18,
+    style: {
+      marginTop: 8
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontFamily: 'var(--font-sans)',
+      fontWeight: 500,
+      fontSize: 13,
+      color: 'var(--text-secondary)'
+    }
+  }, "Total Balance \xB7 June"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginTop: 4
+    }
+  }, /*#__PURE__*/React.createElement(Money, {
+    value: 12450,
+    tone: "neutral",
+    size: 34,
+    weight: 700
+  })), /*#__PURE__*/React.createElement("div", {
+    style: {
+      margin: '14px 0 6px'
+    }
+  }, /*#__PURE__*/React.createElement(ProgressBar, {
+    value: 60,
+    tone: "income",
+    height: 8
+  })), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'flex',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      fontFamily: 'var(--font-sans)',
+      fontSize: 12,
+      color: 'var(--text-tertiary)'
+    }
+  }, /*#__PURE__*/React.createElement("span", null, "60% income ratio"), /*#__PURE__*/React.createElement("span", {
+    style: {
+      display: 'inline-flex',
+      alignItems: 'center',
+      gap: 4
+    }
+  }, /*#__PURE__*/React.createElement(Money, {
+    value: 9420,
+    size: 12,
+    weight: 600,
+    color: "var(--text-tertiary)"
+  }), " in \xB7 ", /*#__PURE__*/React.createElement(Money, {
+    value: 6180,
+    size: 12,
+    weight: 600,
+    color: "var(--text-tertiary)"
+  }), " out")), /*#__PURE__*/React.createElement(Button, {
+    fullWidth: true,
+    size: "lg",
+    leadingIcon: "add",
+    onClick: onAdd,
+    style: {
+      marginTop: 14
+    }
+  }, "Add Transaction")), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'grid',
+      gridTemplateColumns: '1fr 1fr',
+      gap: 12,
+      marginTop: 12
+    }
+  }, /*#__PURE__*/React.createElement(Card, {
+    padding: 14,
+    style: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: 12
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      display: 'grid',
+      placeItems: 'center',
+      width: 36,
+      height: 36,
+      borderRadius: 'var(--r-sm)',
+      background: 'var(--income-soft)',
+      color: 'var(--income)'
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "material-symbols-rounded"
+  }, "south_west")), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontFamily: 'var(--font-sans)',
+      fontSize: 12.5,
+      color: 'var(--text-secondary)'
+    }
+  }, "Income"), /*#__PURE__*/React.createElement(Money, {
+    value: 9420,
+    tone: "income",
+    size: 16
+  }))), /*#__PURE__*/React.createElement(Card, {
+    padding: 14,
+    style: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: 12
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      display: 'grid',
+      placeItems: 'center',
+      width: 36,
+      height: 36,
+      borderRadius: 'var(--r-sm)',
+      background: 'var(--expense-soft)',
+      color: 'var(--expense)'
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "material-symbols-rounded"
+  }, "north_east")), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontFamily: 'var(--font-sans)',
+      fontSize: 12.5,
+      color: 'var(--text-secondary)'
+    }
+  }, "Expenses"), /*#__PURE__*/React.createElement(Money, {
+    value: 6180,
+    tone: "expense",
+    size: 16
+  })))), /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginTop: 14
+    }
+  }, /*#__PURE__*/React.createElement(SearchBar, {
+    value: q,
+    placeholder: "Search transactions",
+    onChange: e => setQ(e.target.value),
+    onClear: () => setQ('')
+  })), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'flex',
+      gap: 8,
+      marginTop: 12,
+      overflowX: 'auto',
+      paddingBottom: 2
+    }
+  }, [['today', 'Today'], ['week', 'This Week'], ['month', 'This Month'], ['all', 'All Time']].map(([v, l]) => /*#__PURE__*/React.createElement(Chip, {
+    key: v,
+    selected: period === v,
+    onClick: () => setPeriod(v)
+  }, l))), filtered.length === 0 ? /*#__PURE__*/React.createElement(Card, {
+    padding: 0,
+    style: {
+      marginTop: 16
+    }
+  }, /*#__PURE__*/React.createElement(EmptyState, {
+    icon: "receipt_long",
+    title: "No matches",
+    description: "No transactions match your search. Try a different term."
+  })) : Object.entries(groups).map(([day, items]) => /*#__PURE__*/React.createElement("div", {
+    key: day,
+    style: {
+      marginTop: 18
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontFamily: 'var(--font-sans)',
+      fontWeight: 600,
+      fontSize: 12,
+      letterSpacing: '0.04em',
+      textTransform: 'uppercase',
+      color: 'var(--text-tertiary)',
+      marginBottom: 6,
+      paddingLeft: 2
+    }
+  }, day), /*#__PURE__*/React.createElement(Card, {
+    padding: 0,
+    style: {
+      padding: '2px 14px'
+    }
+  }, items.map((t, i) => /*#__PURE__*/React.createElement(ListRow, {
+    key: t.id,
+    title: t.brand,
+    subtitle: catName(t.cat) + ' · ' + t.note,
+    leadingText: t.brand[0],
+    color: catColor(t.cat),
+    divider: i < items.length - 1,
+    trailing: /*#__PURE__*/React.createElement("div", {
+      style: {
+        textAlign: 'right'
+      }
+    }, /*#__PURE__*/React.createElement(Money, {
+      value: t.amount,
+      tone: "auto",
+      sign: "auto",
+      size: 14,
+      weight: 700
+    }), /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontFamily: 'var(--font-sans)',
+        fontSize: 11,
+        color: 'var(--text-tertiary)',
+        marginTop: 2
+      }
+    }, t.date))
+  }))))));
+}
+window.HisabakTransactions = Transactions;
+/* Add Transaction — bottom sheet overlay. */
+function AddTransactionSheet({
+  open,
+  onClose
+}) {
+  const NS = window.HisabakDesignSystem_aa2548;
+  const {
+    Button,
+    SegmentedControl,
+    Chip,
+    Input
+  } = NS;
+  const M = window.HisabakMock;
+  const [type, setType] = React.useState('expense');
+  const [amount, setAmount] = React.useState('342.75');
+  const [brand, setBrand] = React.useState('carrefour');
+  const typeColor = {
+    expense: 'var(--expense)',
+    income: 'var(--income)',
+    savings: 'var(--savings)',
+    investment: 'var(--investment)'
+  }[type];
+  return /*#__PURE__*/React.createElement("div", {
+    style: {
+      position: 'absolute',
+      inset: 0,
+      zIndex: 30,
+      pointerEvents: open ? 'auto' : 'none'
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    onClick: onClose,
+    style: {
+      position: 'absolute',
+      inset: 0,
+      background: 'var(--scrim)',
+      opacity: open ? 1 : 0,
+      transition: 'opacity var(--dur-base)'
+    }
+  }), /*#__PURE__*/React.createElement("div", {
+    style: {
+      position: 'absolute',
+      left: 0,
+      right: 0,
+      bottom: 0,
+      background: 'var(--surface)',
+      borderTopLeftRadius: 'var(--r-xl)',
+      borderTopRightRadius: 'var(--r-xl)',
+      boxShadow: 'var(--shadow-lg)',
+      padding: '10px 18px calc(18px + var(--navbar-inset))',
+      transform: open ? 'translateY(0)' : 'translateY(102%)',
+      transition: 'transform var(--dur-slow) var(--ease-emphasis)',
+      maxHeight: '92%',
+      overflowY: 'auto'
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      width: 40,
+      height: 4,
+      borderRadius: 2,
+      background: 'var(--border-strong)',
+      margin: '0 auto 14px'
+    }
+  }), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      marginBottom: 18
+    }
+  }, /*#__PURE__*/React.createElement("h2", {
+    style: {
+      margin: 0,
+      fontFamily: 'var(--font-sans)',
+      fontWeight: 600,
+      fontSize: 18,
+      color: 'var(--text-primary)'
+    }
+  }, "Add Transaction"), /*#__PURE__*/React.createElement("button", {
+    onClick: onClose,
+    "aria-label": "Close",
+    style: {
+      border: 'none',
+      background: 'var(--surface-sunken)',
+      width: 30,
+      height: 30,
+      borderRadius: '50%',
+      display: 'grid',
+      placeItems: 'center',
+      cursor: 'pointer',
+      color: 'var(--text-secondary)'
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "material-symbols-rounded",
+    style: {
+      fontSize: 18
+    }
+  }, "close"))), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'flex',
+      alignItems: 'baseline',
+      justifyContent: 'center',
+      gap: 6,
+      padding: '12px 0 20px'
+    }
+  }, /*#__PURE__*/React.createElement(Dirham, {
+    size: 30,
+    color: typeColor
+  }), /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontFamily: 'var(--font-mono)',
+      fontWeight: 700,
+      fontSize: 44,
+      letterSpacing: '-0.02em',
+      color: typeColor,
+      fontVariantNumeric: 'tabular-nums'
+    }
+  }, amount || '0.00')), /*#__PURE__*/React.createElement(SegmentedControl, {
+    value: type,
+    onChange: setType,
+    options: [{
+      value: 'expense',
+      label: 'Expense',
+      tone: 'expense'
+    }, {
+      value: 'income',
+      label: 'Income',
+      tone: 'income'
+    }, {
+      value: 'savings',
+      label: 'Savings',
+      tone: 'savings'
+    }, {
+      value: 'investment',
+      label: 'Invest',
+      tone: 'investment'
+    }]
+  }), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontFamily: 'var(--font-sans)',
+      fontWeight: 500,
+      fontSize: 14,
+      color: 'var(--text-secondary)',
+      margin: '18px 0 8px'
+    }
+  }, "Brand"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'flex',
+      gap: 8,
+      overflowX: 'auto',
+      paddingBottom: 4
+    }
+  }, M.BRANDS.slice(0, 6).map(b => {
+    const color = (M.CATEGORIES.find(c => c.id === b.category) || {}).color;
+    return /*#__PURE__*/React.createElement(Chip, {
+      key: b.id,
+      selected: brand === b.id,
+      color: color,
+      onClick: () => setBrand(b.id)
+    }, b.name);
+  }), /*#__PURE__*/React.createElement(Chip, {
+    leadingIcon: "add"
+  }, "New")), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'grid',
+      gridTemplateColumns: '1fr 1fr',
+      gap: 12,
+      marginTop: 18
+    }
+  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontFamily: 'var(--font-sans)',
+      fontWeight: 500,
+      fontSize: 14,
+      color: 'var(--text-secondary)',
+      marginBottom: 8
+    }
+  }, "Date"), /*#__PURE__*/React.createElement("button", {
+    style: {
+      width: '100%',
+      height: 48,
+      display: 'flex',
+      alignItems: 'center',
+      gap: 8,
+      padding: '0 14px',
+      border: '1px solid var(--border)',
+      borderRadius: 'var(--r-md)',
+      background: 'var(--surface)',
+      cursor: 'pointer',
+      fontFamily: 'var(--font-sans)',
+      fontSize: 15,
+      color: 'var(--text-primary)'
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "material-symbols-rounded",
+    style: {
+      fontSize: 20,
+      color: 'var(--text-tertiary)'
+    }
+  }, "calendar_today"), "Today")), /*#__PURE__*/React.createElement(Input, {
+    label: "Amount",
+    value: amount,
+    onChange: e => setAmount(e.target.value),
+    leadingIcon: "payments"
+  })), /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginTop: 16
+    }
+  }, /*#__PURE__*/React.createElement(Input, {
+    label: "Note",
+    multiline: true,
+    rows: 2,
+    placeholder: "Add a note\u2026",
+    value: "Weekly groceries"
+  })), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'flex',
+      gap: 12,
+      marginTop: 22
+    }
+  }, /*#__PURE__*/React.createElement(Button, {
+    variant: "secondary",
+    fullWidth: true,
+    onClick: onClose
+  }, "Cancel"), /*#__PURE__*/React.createElement(Button, {
+    fullWidth: true,
+    onClick: onClose
+  }, "Save"))));
+}
+window.HisabakAddSheet = AddTransactionSheet;
+/* SMS Inbox — auto-import status, paste & parse, message list. */
+function SmsInbox() {
+  const NS = window.HisabakDesignSystem_aa2548;
+  const {
+    Card,
+    Button,
+    SearchBar,
+    StatusChip,
+    Input,
+    Badge
+  } = NS;
+  const M = window.HisabakMock;
+  const [autoOn, setAutoOn] = React.useState(false);
+  const [q, setQ] = React.useState('');
+  const list = M.SMS.filter(s => s.body.toLowerCase().includes(q.toLowerCase()));
+  return /*#__PURE__*/React.createElement("div", {
+    style: {
+      padding: '8px 16px 24px'
+    }
+  }, autoOn ? /*#__PURE__*/React.createElement(Card, {
+    variant: "tinted",
+    tint: "var(--income-soft)",
+    padding: 14,
+    style: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: 12,
+      marginTop: 8
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "material-symbols-rounded",
+    style: {
+      color: 'var(--income)'
+    }
+  }, "check_circle"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      flex: 1
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontFamily: 'var(--font-sans)',
+      fontWeight: 600,
+      fontSize: 14,
+      color: 'var(--text-primary)'
+    }
+  }, "Auto-import active"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontFamily: 'var(--font-sans)',
+      fontSize: 12.5,
+      color: 'var(--text-secondary)'
+    }
+  }, "New bank SMS are parsed automatically.")), /*#__PURE__*/React.createElement("button", {
+    onClick: () => setAutoOn(false),
+    style: {
+      border: 'none',
+      background: 'transparent',
+      color: 'var(--text-secondary)',
+      fontFamily: 'var(--font-sans)',
+      fontWeight: 600,
+      fontSize: 13,
+      cursor: 'pointer'
+    }
+  }, "Disable")) : /*#__PURE__*/React.createElement(Card, {
+    variant: "tinted",
+    tint: "var(--warning-soft)",
+    padding: 14,
+    style: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: 12,
+      marginTop: 8
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "material-symbols-rounded",
+    style: {
+      color: 'var(--warning)'
+    }
+  }, "error"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      flex: 1
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontFamily: 'var(--font-sans)',
+      fontWeight: 600,
+      fontSize: 14,
+      color: 'var(--text-primary)'
+    }
+  }, "Auto-import is disabled"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontFamily: 'var(--font-sans)',
+      fontSize: 12.5,
+      color: 'var(--text-secondary)'
+    }
+  }, "Turn it on to log transactions from SMS.")), /*#__PURE__*/React.createElement(Button, {
+    size: "sm",
+    onClick: () => setAutoOn(true)
+  }, "Enable")), /*#__PURE__*/React.createElement(Card, {
+    padding: 16,
+    style: {
+      marginTop: 12
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontFamily: 'var(--font-sans)',
+      fontWeight: 600,
+      fontSize: 15,
+      color: 'var(--text-primary)',
+      marginBottom: 10
+    }
+  }, "Paste an SMS"), /*#__PURE__*/React.createElement(Input, {
+    multiline: true,
+    rows: 2,
+    value: "Purchase of AED 89.00 at TALABAT on 31/05.",
+    placeholder: "Paste a bank message\u2026"
+  }), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      marginTop: 12
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: 8
+    }
+  }, /*#__PURE__*/React.createElement(Badge, {
+    tone: "info",
+    dot: true
+  }, "Talabat"), /*#__PURE__*/React.createElement(Money, {
+    value: 89,
+    tone: "expense",
+    sign: "never",
+    size: 15
+  })), /*#__PURE__*/React.createElement(Button, {
+    size: "sm",
+    leadingIcon: "download"
+  }, "Parse & Import"))), /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginTop: 14
+    }
+  }, /*#__PURE__*/React.createElement(SearchBar, {
+    value: q,
+    placeholder: "Search messages",
+    onChange: e => setQ(e.target.value),
+    onClear: () => setQ('')
+  })), /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginTop: 14,
+      display: 'flex',
+      flexDirection: 'column',
+      gap: 10
+    }
+  }, list.map(s => /*#__PURE__*/React.createElement(Card, {
+    key: s.id,
+    padding: 14
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      marginBottom: 8
+    }
+  }, /*#__PURE__*/React.createElement(StatusChip, {
+    status: s.status
+  }), /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontFamily: 'var(--font-sans)',
+      fontSize: 12,
+      color: 'var(--text-tertiary)'
+    }
+  }, s.time)), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontFamily: 'var(--font-mono)',
+      fontSize: 12.5,
+      lineHeight: 1.5,
+      color: 'var(--text-secondary)',
+      display: '-webkit-box',
+      WebkitLineClamp: 2,
+      WebkitBoxOrient: 'vertical',
+      overflow: 'hidden'
+    }
+  }, s.body), s.status !== 'unparsed' && /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      marginTop: 12,
+      paddingTop: 10,
+      borderTop: '1px solid var(--divider)'
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: 8
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontFamily: 'var(--font-sans)',
+      fontWeight: 600,
+      fontSize: 14,
+      color: 'var(--text-primary)'
+    }
+  }, s.brand), /*#__PURE__*/React.createElement(Money, {
+    value: s.amount,
+    tone: "expense",
+    sign: "never",
+    size: 14
+  })), s.status === 'parsed' ? /*#__PURE__*/React.createElement(Button, {
+    size: "sm",
+    leadingIcon: "download"
+  }, "Import") : /*#__PURE__*/React.createElement("span", {
+    style: {
+      display: 'inline-flex',
+      alignItems: 'center',
+      gap: 4,
+      fontFamily: 'var(--font-sans)',
+      fontWeight: 600,
+      fontSize: 13,
+      color: 'var(--income)'
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "material-symbols-rounded",
+    style: {
+      fontSize: 16
+    }
+  }, "check"), "Imported"))))));
+}
+window.HisabakSms = SmsInbox;
 /* Shared screen-level helpers the component bundle doesn't ship (Toggle, SettingsRow, FormSection,
    RadioRow, HeroDisc). Kept here so the new screens compose consistently. Exposed on window.HisabakExtras. */
 (function () {
@@ -1966,9 +2738,9 @@ function Manage({
     Card,
     SearchBar,
     ListRow,
-    CategoryTile,
-    AmountText
+    CategoryTile
   } = NS;
+  const compact = n => n >= 1e6 ? (n / 1e6).toFixed(2) + 'M' : n >= 1000 ? (n / 1000).toFixed(2) + 'K' : String(n);
   const M = window.HisabakMock;
   const [tab, setTab] = React.useState('brands');
   const [q, setQ] = React.useState('');
@@ -2087,11 +2859,11 @@ function Manage({
         alignItems: 'center',
         gap: 8
       }
-    }, /*#__PURE__*/React.createElement(AmountText, {
+    }, /*#__PURE__*/React.createElement(Money, {
       value: totals[b.id] || 0,
       tone: "neutral",
-      sign: "never",
-      size: 14
+      size: 14,
+      weight: 600
     }), /*#__PURE__*/React.createElement("span", {
       className: "material-symbols-rounded",
       style: {
@@ -2112,9 +2884,7 @@ function Manage({
     icon: c.icon,
     color: c.color,
     type: c.type,
-    total: M.money(c.total, {
-      decimals: false
-    }),
+    total: compact(c.total),
     onClick: () => onEditCategory(c),
     onDelete: () => {}
   })), /*#__PURE__*/React.createElement(CategoryTile, {
@@ -2131,8 +2901,7 @@ function Onboarding({
 }) {
   const NS = window.HisabakDesignSystem_aa2548;
   const {
-    Button,
-    AmountText
+    Button
   } = NS;
   const [page, setPage] = React.useState(0);
   const Preview = ({
@@ -2280,10 +3049,9 @@ function Onboarding({
         display: 'flex',
         justifyContent: 'center'
       }
-    }, /*#__PURE__*/React.createElement(AmountText, {
+    }, /*#__PURE__*/React.createElement(Money, {
       value: 842500,
       tone: "neutral",
-      sign: "never",
       size: 32,
       weight: 700
     })), /*#__PURE__*/React.createElement("div", {
@@ -2349,7 +3117,7 @@ function Onboarding({
       style: {
         fontSize: 14
       }
-    }, "auto_awesome"), "parsed automatically")), /*#__PURE__*/React.createElement(AmountText, {
+    }, "auto_awesome"), "parsed automatically")), /*#__PURE__*/React.createElement(Money, {
       value: 1250,
       tone: "expense",
       size: 16,
@@ -2420,10 +3188,9 @@ function Onboarding({
         fontSize: 15,
         color: 'var(--text-primary)'
       }
-    }, "Dining"), /*#__PURE__*/React.createElement(AmountText, {
+    }, "Dining"), /*#__PURE__*/React.createElement(Money, {
       value: 510,
       tone: "neutral",
-      sign: "never",
       size: 14,
       weight: 600
     })), /*#__PURE__*/React.createElement("div", {
@@ -2450,9 +3217,17 @@ function Onboarding({
       }
     }, /*#__PURE__*/React.createElement("span", null, "85% of budget"), /*#__PURE__*/React.createElement("span", {
       style: {
-        color: 'var(--text-secondary)'
+        color: 'var(--text-secondary)',
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: 4
       }
-    }, "AED 90 left")))
+    }, /*#__PURE__*/React.createElement(Money, {
+      value: 90,
+      size: 12,
+      weight: 600,
+      color: "var(--text-secondary)"
+    }), " left")))
   }, {
     overline: 'Insights',
     title: 'See exactly where it goes.',

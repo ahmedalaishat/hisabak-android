@@ -7,7 +7,7 @@
    Returns scroll content; the shell provides app bar + nav. */
 function Dashboard() {
   const NS = window.HisabakDesignSystem_aa2548;
-  const { Card, Chip, AmountText, ProgressBar, SegmentedControl } = NS;
+  const { Card, Chip, ProgressBar, SegmentedControl } = NS;
   const M = window.HisabakMock;
   const [period, setPeriod] = React.useState('this_month');
   const [tab, setTab] = React.useState('summary');
@@ -85,7 +85,7 @@ function Dashboard() {
     <DashCard>
       <div style={{ fontFamily: 'var(--font-sans)', fontSize: 13, color: 'var(--text-secondary)' }}>{label}</div>
       <div style={{ display: 'flex', alignItems: 'flex-end', gap: 10, marginTop: 4 }}>
-        <AmountText value={value} tone="neutral" sign="never" size={label === 'Net worth' ? 34 : 24} weight={700} />
+        <Money value={value} tone="neutral" size={label === 'Net worth' ? 34 : 24} weight={700} />
         <Trend pct={pct} positiveIsGood={positiveIsGood} />
       </div>
       <div style={{ margin: '12px -4px 0' }}><AreaChart data={series} color={color} height={96} /></div>
@@ -98,18 +98,18 @@ function Dashboard() {
         <span style={{ fontFamily: 'var(--font-sans)', fontSize: 13, color: 'var(--text-secondary)' }}>{label}</span>
         <Trend pct={pct} positiveIsGood={positiveIsGood} />
       </div>
-      <div style={{ marginTop: 6 }}><AmountText value={value} tone={label === 'Income' ? 'income' : 'expense'} sign="never" size={24} weight={700} /></div>
+      <div style={{ marginTop: 6 }}><Money value={value} tone={label === 'Income' ? 'income' : 'expense'} size={24} weight={700} /></div>
       <FlowBars data={data} color={color} />
     </DashCard>
   );
 
   const TotalPill = ({ label, value, icon, bg, fg }) => (
-    <Card padding={12} style={{ flex: 1 }}>
-      <div style={{ display: 'inline-flex', alignItems: 'center', gap: 5, background: bg, borderRadius: 999, padding: '4px 8px' }}>
-        <span className="material-symbols-rounded" style={{ fontSize: 15, color: fg }}>{icon}</span>
-        <span style={{ fontFamily: 'var(--font-sans)', fontSize: 11, fontWeight: 600, color: fg }}>{label}</span>
+    <Card padding={12} style={{ flex: 1, minWidth: 0 }}>
+      <div style={{ display: 'inline-flex', alignItems: 'center', gap: 5, background: bg, borderRadius: 999, padding: '4px 8px', maxWidth: '100%' }}>
+        <span className="material-symbols-rounded" style={{ fontSize: 15, color: fg, flex: 'none' }}>{icon}</span>
+        <span style={{ fontFamily: 'var(--font-sans)', fontSize: 11, fontWeight: 600, color: fg, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{label}</span>
       </div>
-      <div style={{ marginTop: 8 }}><AmountText value={value} tone="neutral" sign="never" size={15} weight={700} /></div>
+      <div style={{ marginTop: 8 }}><Money value={value} tone="neutral" size={15} weight={700} /></div>
     </Card>
   );
 
@@ -180,7 +180,7 @@ function Dashboard() {
             <div onClick={() => setExpanded(open ? null : r.name)} style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer' }}>
               <span style={{ width: 10, height: 10, borderRadius: 999, background: r.color }} />
               <span style={{ flex: 1, fontFamily: 'var(--font-sans)', fontSize: 15, color: 'var(--text-primary)' }}>{r.name}</span>
-              <AmountText value={r.spent} tone="neutral" sign="never" size={14} weight={600} />
+              <Money value={r.spent} tone="neutral" size={14} weight={600} />
               <span className="material-symbols-rounded" style={{ fontSize: 20, color: 'var(--text-tertiary)' }}>{open ? 'expand_less' : 'expand_more'}</span>
             </div>
             {r.limit && (
@@ -188,7 +188,7 @@ function Dashboard() {
                 <ProgressBar value={pctOfLimit} tone={over ? 'expense' : 'income'} />
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 6, fontFamily: 'var(--font-sans)', fontSize: 11.5, color: over ? 'var(--expense)' : 'var(--text-secondary)' }}>
                   <span>{over ? 'Over budget' : `${pctOfLimit}% of limit`}</span>
-                  <span style={{ fontFamily: 'var(--font-mono)' }}>{M.money(r.spent, { decimals: false })} / {M.money(r.limit, { decimals: false })}</span>
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}><Money value={r.spent} size={11.5} weight={500} color="currentColor" /> / <Money value={r.limit} size={11.5} weight={500} color="currentColor" /></span>
                 </div>
               </div>
             )}
@@ -204,7 +204,7 @@ function Dashboard() {
       <Card variant="tinted" tint="var(--warning-soft)" padding={14} style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer' }}>
         <span style={{ width: 10, height: 10, borderRadius: 999, background: 'var(--cat-gray)' }} />
         <span style={{ flex: 1, fontFamily: 'var(--font-sans)', fontSize: 15, color: 'var(--text-primary)' }}>Uncategorized</span>
-        <AmountText value={220} tone="neutral" sign="never" size={14} weight={600} />
+        <Money value={220} tone="neutral" size={14} weight={600} />
         <span className="material-symbols-rounded" style={{ fontSize: 20, color: 'var(--text-tertiary)' }}>chevron_right</span>
       </Card>
     </div>
@@ -213,7 +213,7 @@ function Dashboard() {
   return (
     <div>
       <div style={{ position: 'sticky', top: 0, zIndex: 5, background: 'var(--bg)', padding: '10px 16px 8px' }}>
-        <div style={{ display: 'flex', gap: 8, overflowX: 'auto', paddingBottom: 2 }}>
+        <div className="no-scrollbar" style={{ display: 'flex', gap: 8, overflowX: 'auto', paddingBottom: 2 }}>
           {periods.map(([v, l]) => <Chip key={v} selected={period === v} onClick={() => setPeriod(v)} style={{ height: 30, fontSize: 13, padding: '0 12px', whiteSpace: 'nowrap' }}>{l}</Chip>)}
         </div>
         <div style={{ marginTop: 8 }}>

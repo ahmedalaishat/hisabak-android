@@ -2,7 +2,8 @@
    the switcher; the active list shows below; the FAB adds the active type. */
 function Manage({ onEditBrand, onEditCategory, onAdd }) {
   const NS = window.HisabakDesignSystem_aa2548;
-  const { Card, SearchBar, ListRow, CategoryTile, AmountText } = NS;
+  const { Card, SearchBar, ListRow, CategoryTile } = NS;
+  const compact = (n) => (n >= 1e6 ? (n / 1e6).toFixed(2) + 'M' : n >= 1000 ? (n / 1000).toFixed(2) + 'K' : String(n));
   const M = window.HisabakMock;
   const [tab, setTab] = React.useState('brands');
   const [q, setQ] = React.useState('');
@@ -50,7 +51,7 @@ function Manage({ onEditBrand, onEditCategory, onAdd }) {
             <ListRow key={b.id} title={b.name} subtitle={catName(b.category)} leadingText={b.initial} color={catColor(b.category)}
               divider={i < brands.length - 1} onClick={() => onEditBrand(b)}
               trailing={<div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <AmountText value={totals[b.id] || 0} tone="neutral" sign="never" size={14} />
+                <Money value={totals[b.id] || 0} tone="neutral" size={14} weight={600} />
                 <span className="material-symbols-rounded" style={{ fontSize: 18, color: 'var(--text-tertiary)' }}>chevron_right</span>
               </div>} />
           ))}
@@ -59,7 +60,7 @@ function Manage({ onEditBrand, onEditCategory, onAdd }) {
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginTop: 14 }}>
           {cats.map(c => (
             <CategoryTile key={c.id} name={c.name} icon={c.icon} color={c.color} type={c.type}
-              total={M.money(c.total, { decimals: false })} onClick={() => onEditCategory(c)} onDelete={() => {}} />
+              total={compact(c.total)} onClick={() => onEditCategory(c)} onDelete={() => {}} />
           ))}
           <CategoryTile addNew onClick={onAdd} />
         </div>

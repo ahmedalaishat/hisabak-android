@@ -3,7 +3,7 @@
    + a primary CTA ("Next" → "Get started"). Copy is the app's real onboarding strings. */
 function Onboarding({ onFinish }) {
   const NS = window.HisabakDesignSystem_aa2548;
-  const { Button, AmountText } = NS;
+  const { Button } = NS;
   const [page, setPage] = React.useState(0);
 
   const Preview = ({ children, width = 300, style }) => (
@@ -48,7 +48,7 @@ function Onboarding({ onFinish }) {
           </div>
           <Preview style={{ marginTop: 28, textAlign: 'center' }}>
             <div style={{ fontFamily: 'var(--font-sans)', fontSize: 11, letterSpacing: '0.06em', color: 'var(--text-secondary)' }}>NET WORTH</div>
-            <div style={{ marginTop: 8, display: 'flex', justifyContent: 'center' }}><AmountText value={842500} tone="neutral" sign="never" size={32} weight={700} /></div>
+            <div style={{ marginTop: 8, display: 'flex', justifyContent: 'center' }}><Money value={842500} tone="neutral" size={32} weight={700} /></div>
             <div style={{ display: 'flex', justifyContent: 'center' }}><Bars /></div>
           </Preview>
         </div>
@@ -71,7 +71,7 @@ function Onboarding({ onFinish }) {
                   <span className="material-symbols-rounded" style={{ fontSize: 14 }}>auto_awesome</span>parsed automatically
                 </div>
               </div>
-              <AmountText value={1250} tone="expense" size={16} weight={700} />
+              <Money value={1250} tone="expense" size={16} weight={700} />
             </div>
           </Preview>
         </div>
@@ -102,13 +102,13 @@ function Onboarding({ onFinish }) {
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, margin: '12px 0' }}>
             <Tile icon="restaurant" color="var(--cat-red)" />
             <div style={{ flex: 1, fontFamily: 'var(--font-sans)', fontWeight: 600, fontSize: 15, color: 'var(--text-primary)' }}>Dining</div>
-            <AmountText value={510} tone="neutral" sign="never" size={14} weight={600} />
+            <Money value={510} tone="neutral" size={14} weight={600} />
           </div>
           <div style={{ height: 8, borderRadius: 999, background: 'var(--surface-sunken)', overflow: 'hidden' }}>
             <div style={{ width: '85%', height: '100%', background: 'var(--warning)' }} />
           </div>
           <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 8, fontFamily: 'var(--font-sans)', fontSize: 12, color: 'var(--warning)' }}>
-            <span>85% of budget</span><span style={{ color: 'var(--text-secondary)' }}>AED 90 left</span>
+            <span>85% of budget</span><span style={{ color: 'var(--text-secondary)', display: 'inline-flex', alignItems: 'center', gap: 4 }}><Money value={90} size={12} weight={600} color="var(--text-secondary)" /> left</span>
           </div>
         </Preview>
       ),
