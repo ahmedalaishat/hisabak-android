@@ -3,8 +3,7 @@ package com.hisabak.ui.components
 import com.hisabak.ui.icons.HugeIcons
 
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -20,7 +19,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.Dp
@@ -72,15 +70,14 @@ fun HisabakButton(
     Row(
         modifier = alphaModifier
             .height(Sizing.controlHeight)
-            .clip(PillShape)
-            .background(bg, PillShape)
-            .then(
-                if (variant == ButtonVariant.Secondary)
-                    Modifier.border(1.dp, borderColor, PillShape)
-                else
-                    Modifier
+            .hisabakPressable(
+                shape = PillShape,
+                background = bg,
+                border = if (variant == ButtonVariant.Secondary)
+                    BorderStroke(1.dp, borderColor) else null,
+                enabled = enabled,
+                onClick = onClick,
             )
-            .hisabakClickable(enabled = enabled, onClick = onClick)
             .padding(horizontal = Spacing.s6),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(Spacing.s3, Alignment.CenterHorizontally),
@@ -119,9 +116,11 @@ fun PrimaryPillButton(
 ) {
     Row(
         modifier = modifier
-            .clip(MaterialTheme.shapes.medium)
-            .background(containerColor)
-            .hisabakClickable(onClick = onClick)
+            .hisabakPressable(
+                shape = MaterialTheme.shapes.medium,
+                background = containerColor,
+                onClick = onClick,
+            )
             .padding(PaddingValues(horizontal = horizontal, vertical = vertical)),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(6.dp),

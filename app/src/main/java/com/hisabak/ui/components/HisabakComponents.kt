@@ -93,7 +93,10 @@ fun AmountText(
         AmountTone.Investment -> c.investment
         else -> MaterialTheme.colorScheme.onSurface
     }
-    val sign = if (showSign && tone != AmountTone.Neutral) (if (value < 0) "−" else "+") else ""
+    // Sign follows the resolved tone (income/savings/investment → +, expense → −) rather than the
+    // raw value sign, so callers that pass an absolute value with an explicit tone (e.g. the
+    // transaction list and SMS inbox) still render the correct − for expenses.
+    val sign = if (showSign && tone != AmountTone.Neutral) (if (resolved == AmountTone.Expense) "−" else "+") else ""
     val numberStyle = HisabakType.amount.copy(fontSize = size, fontWeight = weight)
     // Number and suffix are separate Texts so Arabic-Indic digits don't bidi-reorder; the Row
     // follows the ambient layout direction, so the dirham glyph falls on the natural side (left in

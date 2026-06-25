@@ -2,6 +2,8 @@ package com.hisabak.feature.transaction.presentation.edit
 
 import com.hisabak.ui.icons.HugeIcons
 
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -31,12 +33,20 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.OffsetMapping
+import androidx.compose.ui.text.input.TransformedText
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.hisabak.R
@@ -228,6 +238,9 @@ private fun AmountHeroField(
         fontWeight = FontWeight.Bold,
         color = color,
     )
+    val focusRequester = remember { FocusRequester() }
+    val keyboard = LocalSoftwareKeyboardController.current
+    val tapSource = remember { MutableInteractionSource() }
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -236,9 +249,17 @@ private fun AmountHeroField(
     ) {
         // Center the glyph + field as one tight cluster. The field wraps to its
         // content width (IntrinsicSize.Min) so it doesn't eat the row and push
-        // the glyph to the edge.
+        // the glyph to the edge. Tapping anywhere in the (full-width, padded) row
+        // focuses the field and opens the keyboard — a generous target for a hero
+        // input. No ripple: it reads as a field, not a button.
         Row(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable(interactionSource = tapSource, indication = null) {
+                    focusRequester.requestFocus()
+                    keyboard?.show()
+                }
+                .padding(vertical = Spacing.s2),
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically,
         ) {
@@ -254,8 +275,11 @@ private fun AmountHeroField(
                     textStyle = heroStyle,
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                    visualTransformation = GroupedAmountTransformation,
                     cursorBrush = SolidColor(color),
-                    modifier = Modifier.width(IntrinsicSize.Min),
+                    modifier = Modifier
+                        .width(IntrinsicSize.Min)
+                        .focusRequester(focusRequester),
                 )
             }
         }
@@ -268,6 +292,49 @@ private fun AmountHeroField(
             )
         }
     }
+}
+
+/**
+ * Display-only thousands grouping for the raw amount string (digits + at most one `.`): the value
+ * passed to `onValueChange` stays comma-free, so [sanitizeAmountInput] and the parser are unaffected.
+ * Only the integer part is grouped; the fraction (and any trailing `.`) is left as typed.
+ */
+private val GroupedAmountTransformation = VisualTransformation { text ->
+    val original = text.text
+    val dot = original.indexOf('.')
+    val intPart = if (dot >= 0) original.substring(0, dot) else original
+    val rest = if (dot >= 0) original.substring(dot) else ""
+
+    val grouped = StringBuilder()
+    // origToTransformed[i] = transformed offset where original integer digit i begins (after any
+    // comma inserted before it). Lets the cursor land naturally on the digit side of a separator.
+    val origToTransformed = IntArray(intPart.length + 1)
+    val n = intPart.length
+    for (i in 0 until n) {
+        if (i > 0 && (n - i) % 3 == 0) grouped.append(',')
+        origToTransformed[i] = grouped.length
+        grouped.append(intPart[i])
+    }
+    origToTransformed[n] = grouped.length
+
+    val transformedText = grouped.toString() + rest
+    val intCommas = grouped.length - n
+
+    TransformedText(
+        AnnotatedString(transformedText),
+        object : OffsetMapping {
+            override fun originalToTransformed(offset: Int): Int {
+                val clamped = offset.coerceIn(0, original.length)
+                return if (clamped <= n) origToTransformed[clamped] else clamped + intCommas
+            }
+
+            override fun transformedToOriginal(offset: Int): Int {
+                val clamped = offset.coerceIn(0, transformedText.length)
+                val commasBefore = transformedText.substring(0, clamped).count { it == ',' }
+                return clamped - commasBefore
+            }
+        },
+    )
 }
 
 private val dateFormatter: DateTimeFormatter =

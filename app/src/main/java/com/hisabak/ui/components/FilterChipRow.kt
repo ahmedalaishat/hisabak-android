@@ -19,7 +19,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
@@ -69,9 +68,7 @@ fun FilterPill(
         style = MaterialTheme.typography.labelMedium,
         color = fg,
         modifier = Modifier
-            .clip(PillShape)
-            .background(bg)
-            .hisabakClickable(onClick = onClick)
+            .hisabakPressable(shape = PillShape, background = bg, onClick = onClick)
             .padding(horizontal = Spacing.pageMargin, vertical = 10.dp),
     )
 }
@@ -95,9 +92,7 @@ fun ColoredFilterChip(
 
     Row(
         modifier = Modifier
-            .clip(PillShape)
-            .background(bg)
-            .hisabakClickable(onClick = onClick)
+            .hisabakPressable(shape = PillShape, background = bg, onClick = onClick)
             .padding(horizontal = if (colorKey != null) 10.dp else 18.dp, vertical = 10.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(7.dp),
@@ -135,9 +130,7 @@ fun LeadingIconChip(
 
     Row(
         modifier = Modifier
-            .clip(PillShape)
-            .background(bg)
-            .hisabakClickable(onClick = onClick)
+            .hisabakPressable(shape = PillShape, background = bg, onClick = onClick)
             .padding(start = 10.dp, end = 14.dp, top = 10.dp, bottom = 10.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(7.dp),

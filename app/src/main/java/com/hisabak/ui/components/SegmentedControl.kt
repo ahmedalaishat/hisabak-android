@@ -67,9 +67,7 @@ fun <T> SegmentedControl(
                 modifier = Modifier
                     .weight(1f)
                     .height(Spacing.s9)
-                    .clip(segmentShape)
-                    .background(animBg)
-                    .hisabakClickable { onSelect(option.value) },
+                    .hisabakPressable(shape = segmentShape, background = animBg) { onSelect(option.value) },
                 contentAlignment = Alignment.Center,
             ) {
                 Text(
