@@ -28,6 +28,7 @@ import com.hisabak.ui.theme.HisabakTheme
 import com.hisabak.ui.theme.HisabakType
 import com.hisabak.ui.theme.PillShape
 import com.hisabak.ui.theme.Spacing
+import com.hisabak.ui.theme.Tajawal
 import java.util.Locale
 import kotlin.math.abs
 
@@ -93,12 +94,20 @@ fun AmountText(
         AmountTone.Investment -> c.investment
         else -> MaterialTheme.colorScheme.onSurface
     }
-    val sign = if (showSign && tone != AmountTone.Neutral) (if (value < 0) "−" else "+") else ""
-    val numberStyle = HisabakType.amount.copy(fontSize = size, fontWeight = weight)
+    // Sign follows the resolved tone (income/savings/investment → +, expense → −) rather than the
+    // raw value sign, so callers that pass an absolute value with an explicit tone (e.g. the
+    // transaction list and SMS inbox) still render the correct − for expenses.
+    val sign = if (showSign && tone != AmountTone.Neutral) (if (resolved == AmountTone.Expense) "−" else "+") else ""
     // Number and suffix are separate Texts so Arabic-Indic digits don't bidi-reorder; the Row
     // follows the ambient layout direction, so the dirham glyph falls on the natural side (left in
     // English, right in Arabic).
     val arabic = rememberIsArabic()
+    // Geist Mono lacks Arabic-Indic glyphs — render Arabic figures in the Arabic UI face (Tajawal).
+    val numberStyle = HisabakType.amount.copy(
+        fontSize = size,
+        fontWeight = weight,
+        fontFamily = if (arabic) Tajawal else HisabakType.amount.fontFamily,
+    )
     val parts = compactAmountParts(abs(value), arabic)
     Row(modifier = modifier, verticalAlignment = Alignment.CenterVertically) {
         if (sign.isNotEmpty()) Text(sign, color = color, style = numberStyle)
@@ -126,13 +135,16 @@ fun MoneyText(
 ) {
     val arabic = rememberIsArabic()
     val parts = compactAmountParts(amountMinor / 100.0, arabic)
+    // Geist Mono has no Arabic-Indic glyphs, so Arabic figures fall back to the system font. Render
+    // them in Tajawal (the Arabic UI face) instead, keeping tabular alignment and a consistent look.
+    val figureStyle = if (arabic) style.copy(fontFamily = Tajawal) else style
     Row(modifier = modifier, verticalAlignment = Alignment.CenterVertically) {
         DirhamGlyph(size = style.fontSize * symbolScale, tint = color)
         Spacer(Modifier.width(3.dp))
-        Text(parts.number, style = style, color = color, maxLines = 1)
+        Text(parts.number, style = figureStyle, color = color, maxLines = 1)
         if (parts.suffix.isNotEmpty()) {
             if (arabic) Spacer(Modifier.width(2.dp))
-            Text(parts.suffix, style = style, color = color, maxLines = 1)
+            Text(parts.suffix, style = figureStyle, color = color, maxLines = 1)
         }
     }
 }

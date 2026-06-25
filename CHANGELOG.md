@@ -6,6 +6,28 @@ All notable changes to Hisabak are documented here. Format based on
 
 ## [Unreleased]
 
+## [1.8.0] — 2026-06-25
+
+### Added
+- **Grouped amount entry** — the transaction amount field now shows thousands separators as you
+  type (e.g. `1,250.00`), and its whole row is tappable to bring up the keyboard, not just the digits.
+
+### Changed
+- **Softer chart fill** — the dashboard area charts (net worth and the income/expense trends) now
+  fade their fill with a vertical gradient under the line instead of a flat tint.
+- **Arabic typeface** — the Arabic UI and amounts now use **Tajawal** (one cohesive, modern face)
+  instead of the device's default Arabic font, pairing with DM Sans on the English side.
+- **Donut charts** — category/brand/income donuts now have rounded segment ends with small gaps
+  between them and animate in, for a more polished look.
+
+### Fixed
+- **Expense sign** — expense amounts in the Transactions list and SMS Inbox now show a minus (`−`)
+  instead of a plus, matching the rest of the app.
+- **Press feedback** — buttons, filter chips, and the segmented control no longer briefly lose their
+  fill color when a press is released.
+- **Light-theme status bar** — the status-bar icons now follow the app's selected theme, so they
+  stay legible (dark icons on the light bar) when Light theme is used on a dark-set device.
+
 ## [1.7.0] — 2026-06-25
 
 ### Changed
