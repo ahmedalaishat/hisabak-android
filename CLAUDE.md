@@ -203,7 +203,10 @@ Use the HTML/CSS kit only for throwaway visual mockups.
   `Sizing.*`.
 - **Type:** DM Sans for UI; **Geist Mono with tabular figures for every amount**
   (`HisabakType.amount` / `amountLarge` / `amountHero`). Amounts align in columns —
-  don't use the sans font for money.
+  don't use the sans font for money. **Arabic uses Tajawal** for both UI and amounts (one
+  cohesive face — Geist Mono has no Arabic-Indic glyphs); the typography is built via the shared
+  `hisabakTypography(family, arabic)` builder in `Type.kt`, and `AmountText`/`MoneyText` swap the
+  figure family to Tajawal under Arabic. Fonts load via the Downloadable Fonts (Google Fonts) provider.
 - **Spacing:** 8dp grid. 16dp page margin, 16dp card padding, 12dp between cards.
   Touch targets ≥ 44dp.
 - **Shape:** 12dp default card radius, 16dp hero/sheet, pill for buttons/chips/badges,
