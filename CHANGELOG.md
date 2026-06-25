@@ -6,6 +6,8 @@ All notable changes to Hisabak are documented here. Format based on
 
 ## [Unreleased]
 
+## [1.8.0] — 2026-06-25
+
 ### Added
 - **Grouped amount entry** — the transaction amount field now shows thousands separators as you
   type (e.g. `1,250.00`), and its whole row is tappable to bring up the keyboard, not just the digits.
