@@ -32,8 +32,8 @@ roles via `MaterialTheme.colorScheme`. Never hardcode hex.
 
 | Design | Compose |
 |---|---|
-| DM Sans UI scale (hero/display/title/section/body/label/caption/overline) | `MaterialTheme.typography.*` (`HisabakTypography`) |
-| **Amounts — Geist Mono, tabular** | `HisabakType.amount` / `HisabakType.amountLarge` / `HisabakType.amountHero` |
+| DM Sans UI scale (hero/display/title/section/body/label/caption/overline) | `MaterialTheme.typography.*` (`HisabakTypography`); **Arabic → Tajawal** (`HisabakTypographyArabic`), selected by locale in `HisabakTheme` |
+| **Amounts — Geist Mono, tabular** (Arabic figures → Tajawal) | `HisabakType.amount` / `HisabakType.amountLarge` / `HisabakType.amountHero` |
 
 Money renders the **dirham glyph** (never the literal text "AED"), tabular figures; income
 `+`, expense true-minus `−`, both colored; hero balances neutral/unsigned. Always use

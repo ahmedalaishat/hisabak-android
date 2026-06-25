@@ -13,6 +13,10 @@ All notable changes to Hisabak are documented here. Format based on
 ### Changed
 - **Softer chart fill** — the dashboard area charts (net worth and the income/expense trends) now
   fade their fill with a vertical gradient under the line instead of a flat tint.
+- **Arabic typeface** — the Arabic UI and amounts now use **Tajawal** (one cohesive, modern face)
+  instead of the device's default Arabic font, pairing with DM Sans on the English side.
+- **Donut charts** — category/brand/income donuts now have rounded segment ends with small gaps
+  between them and animate in, for a more polished look.
 
 ### Fixed
 - **Expense sign** — expense amounts in the Transactions list and SMS Inbox now show a minus (`−`)
