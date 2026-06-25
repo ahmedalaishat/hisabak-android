@@ -447,7 +447,7 @@ private fun OverTimeCard(
             AreaLineChart(
                 values = series.map { it.amountMinor / 100.0 },
                 lineColor = lineColor,
-                fillColor = lineColor.copy(alpha = 0.12f),
+                fillColor = lineColor.copy(alpha = 0.25f),
                 modifier = Modifier.fillMaxWidth().padding(top = Spacing.cardGap, bottom = Spacing.s2),
                 heightDp = 96.dp,
                 xLabels = chartLabels(series, period),
@@ -818,7 +818,7 @@ private fun CategoryLimitCard(
                     AreaLineChart(
                         values = chart.values,
                         lineColor = color,
-                        fillColor = color.copy(alpha = 0.12f),
+                        fillColor = color.copy(alpha = 0.25f),
                         modifier = Modifier.fillMaxWidth().padding(top = Spacing.s2, bottom = Spacing.s2),
                         heightDp = 96.dp,
                         xLabels = dateLabels(row.series.map { it.day }, period),
@@ -960,7 +960,7 @@ private fun UncategorizedCard(
             AreaLineChart(
                 values = chart.values,
                 lineColor = color,
-                fillColor = color.copy(alpha = 0.12f),
+                fillColor = color.copy(alpha = 0.25f),
                 modifier = Modifier.fillMaxWidth().padding(top = Spacing.s3, bottom = Spacing.s2),
                 heightDp = 96.dp,
                 xLabels = dateLabels(series.map { it.day }, period),

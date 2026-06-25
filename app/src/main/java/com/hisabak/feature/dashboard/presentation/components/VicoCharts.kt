@@ -35,6 +35,7 @@ import com.patrykandpatrick.vico.core.cartesian.marker.DefaultCartesianMarker
 import com.patrykandpatrick.vico.core.cartesian.marker.LineCartesianLayerMarkerTarget
 import com.patrykandpatrick.vico.core.common.Fill
 import com.patrykandpatrick.vico.core.common.component.LineComponent
+import com.patrykandpatrick.vico.core.common.shader.ShaderProvider
 
 @Composable
 fun AreaLineChart(
@@ -64,9 +65,13 @@ fun AreaLineChart(
         }
     }
     if (values.isEmpty()) return
+    // Area fill fades vertically — [fillColor] just under the line down to transparent at the
+    // baseline — for a soft gradient rather than a flat tinted block.
     val line = LineCartesianLayer.rememberLine(
         fill = LineCartesianLayer.LineFill.single(fill(lineColor)),
-        areaFill = LineCartesianLayer.AreaFill.single(fill(fillColor)),
+        areaFill = LineCartesianLayer.AreaFill.single(
+            fill(ShaderProvider.verticalGradient(fillColor.toArgb(), Color.Transparent.toArgb())),
+        ),
     )
     val limitLine = LineCartesianLayer.rememberLine(
         fill = LineCartesianLayer.LineFill.single(fill(overlayColor)),
